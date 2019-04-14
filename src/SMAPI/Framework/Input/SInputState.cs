@@ -81,7 +81,7 @@ namespace StardewModdingAPI.Framework.Input
             try
             {
                 // get new states
-                GamePadState realController = GamePad.GetState(PlayerIndex.One);
+                GamePadState realController = GamePad.GetState(Game1.playerOneIndex);
                 KeyboardState realKeyboard = Keyboard.GetState();
                 MouseState realMouse = Mouse.GetState();
                 var activeButtons = this.DeriveStatuses(this.ActiveButtons, realKeyboard, realMouse, realController);

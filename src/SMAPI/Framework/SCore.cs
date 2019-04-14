@@ -981,7 +981,7 @@ namespace StardewModdingAPI.Framework
                         IDataHelper dataHelper = new DataHelper(manifest.UniqueID, mod.DirectoryPath, jsonHelper);
                         IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, mod.DisplayName, this.Reflection);
                         IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
-                        //IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(manifest.UniqueID, this.GameInstance.Multiplayer);
+                        IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(manifest.UniqueID, this.GameInstance.Multiplayer);
 
                         IContentPack CreateFakeContentPack(string packDirPath, IManifest packManifest)
                         {
@@ -991,7 +991,7 @@ namespace StardewModdingAPI.Framework
                             return new ContentPack(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper);
                         }
 
-                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.GameInstance.Input, events, contentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, translationHelper);
+                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.GameInstance.Input, events, contentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
                     }
 
                     // init mod

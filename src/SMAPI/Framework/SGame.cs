@@ -72,6 +72,7 @@ namespace StardewModdingAPI.Framework
         internal bool OnObjectCanBePlacedHere(SObject instance, GameLocation location, Vector2 tile, ref bool result)
         {
             ObjectCanBePlacedHereEventArgs args = new ObjectCanBePlacedHereEventArgs(instance, location, tile, result);
+            args.__result = result;
             bool run =this.Events.ObjectCanBePlacedHere.RaiseForChainRun(args);
             result = args.__result;
             return run;
@@ -80,6 +81,7 @@ namespace StardewModdingAPI.Framework
         internal void OnObjectIsIndexOkForBasicShippedCategory(int index, ref bool result)
         {
             ObjectIsIndexOkForBasicShippedCategoryEventArgs args = new ObjectIsIndexOkForBasicShippedCategoryEventArgs(index, result);
+            args.__result = result;
             this.Events.ObjectIsIndexOkForBasicShippedCategory.RaiseForChainRun(args);
             result = args.__result;
         }
@@ -147,8 +149,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Manages input visible to the game.</summary>
         public SInputState Input => (SInputState)this.Reflection.GetField<InputState>(typeof(Game1), "input").GetValue();
 
-        ///// <summary>The game's core multiplayer utility.</summary>
-        //public SMultiplayer Multiplayer => (SMultiplayer)this.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
+        /// <summary>The game's core multiplayer utility.</summary>
+        public SMultiplayer Multiplayer => (SMultiplayer)this.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
 
         /// <summary>A list of queued commands to execute.</summary>
         /// <remarks>This property must be threadsafe, since it's accessed from a separate console input thread.</remarks>
@@ -198,7 +200,7 @@ namespace StardewModdingAPI.Framework
             this.OnGameInitialised = onGameInitialised;
             this.OnGameExiting = onGameExiting;
             this.Reflection.GetField<InputState>(typeof(Game1), "input").SetValue(new SInputState());
-            //this.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").SetValue(new SMultiplayer(monitor, eventManager, jsonHelper, modRegistry, reflection, this.OnModMessageReceived));
+            this.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").SetValue(new SMultiplayer(monitor, eventManager, jsonHelper, modRegistry, reflection, this.OnModMessageReceived));
             //Game1.hooks = new SModHooks(this.OnNewDayAfterFade);
 
             // init observables
@@ -500,7 +502,7 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Locale changed events
                 *********/
-                if (this.Watchers.LocaleWatcher.IsChanged)
+                if (this.Watchers.LocaleWatcher.IsChanged || SGame.TicksElapsed == 0)
                 {
                     this.Monitor.Log($"Context: locale set to {this.Watchers.LocaleWatcher.CurrentValue}.", LogLevel.Trace);
                     this.OnLocaleChanged();
@@ -1605,6 +1607,7 @@ namespace StardewModdingAPI.Framework
                                     string s = Game1.content.LoadString(@"Strings\StringsFromCSFiles:DayTimeMoneyBox.cs.10378");
                                     SpriteText.drawStringWithScrollBackground(Game1.spriteBatch, s, 0x60, 0x20, "", 1f, -1, 0.088f);
                                 }
+                                events.Rendered.RaiseEmpty();
                                 _spriteBatchEnd.Invoke();
                                 drawOverlays.Invoke(Game1.spriteBatch);
                                 renderScreenBuffer.Invoke(BlendState.Opaque);
@@ -1615,12 +1618,12 @@ namespace StardewModdingAPI.Framework
                                     SpriteBatchBegin.Invoke(1f);
                                     events.RenderingHud.RaiseEmpty();
                                     DrawHUD.Invoke();
-                                    events.RenderedHud.RaiseEmpty();
                                     if (((Game1.currentLocation != null) && !(Game1.activeClickableMenu is GameMenu)) && !(Game1.activeClickableMenu is QuestLog))
                                     {
                                         Game1.currentLocation.drawAboveAlwaysFrontLayerText(Game1.spriteBatch);
                                     }
                                     DrawAfterMap.Invoke();
+                                    events.RenderedHud.RaiseEmpty();
                                     _spriteBatchEnd.Invoke();
                                     if (Game1.tutorialManager != null)
                                     {
@@ -1658,7 +1661,6 @@ namespace StardewModdingAPI.Framework
                                     _spriteBatchEnd.Invoke();
                                 }
                                 DrawTutorialUI.Invoke();
-                                events.Rendered.RaiseEmpty();
                             }
                         }
                     }

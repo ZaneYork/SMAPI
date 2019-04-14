@@ -4,6 +4,7 @@ using StardewValley;
 using StardewModdingAPI.Framework;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
+using System.IO;
 
 namespace SMDroid
 {
@@ -19,7 +20,7 @@ namespace SMDroid
 
         public ModEntry()
         {
-            this.core = new SCore("/sdcard/SMDroid/Mods", false);
+            this.core = new SCore(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid/Mods"), false);
         }
         public override LocalizedContentManager OnGame1_CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
         {
@@ -30,7 +31,6 @@ namespace SMDroid
                 this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, SGame.ConstructorHack.Monitor, SGame.ConstructorHack.Reflection, SGame.ConstructorHack.JsonHelper, SGame.OnLoadingFirstAsset ?? SGame.ConstructorHack?.OnLoadingFirstAsset);
                 this.NextContentManagerIsMain = true;
                 this.core.RunInteractively(this.ContentCore);
-                SGame.printLog("ROOT Directory:" + rootDirectory);
                 return this.ContentCore.CreateGameContentManager("Game1._temporaryContent");
             }
 

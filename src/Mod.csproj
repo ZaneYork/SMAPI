@@ -544,6 +544,7 @@
     <Compile Include="SMAPI\Framework\ModHelpers\InputHelper.cs" />
     <Compile Include="SMAPI\Framework\ModHelpers\ModHelper.cs" />
     <Compile Include="SMAPI\Framework\ModHelpers\ModRegistryHelper.cs" />
+    <Compile Include="SMAPI\Framework\ModHelpers\MultiplayerHelper.cs" />
     <Compile Include="SMAPI\Framework\ModHelpers\ReflectionHelper.cs" />
     <Compile Include="SMAPI\Framework\ModHelpers\TranslationHelper.cs" />
     <Compile Include="SMAPI\Framework\ModLoading\AssemblyDefinitionResolver.cs" />
@@ -600,6 +601,7 @@
     <Compile Include="SMAPI\Framework\SGameConstructorHack.cs" />
     <Compile Include="SMAPI\Framework\Singleton.cs" />
     <Compile Include="SMAPI\Framework\SModHooks.cs" />
+    <Compile Include="SMAPI\Framework\SMultiplayer.cs" />
     <Compile Include="SMAPI\Framework\StateTracking\Comparers\EquatableComparer.cs" />
     <Compile Include="SMAPI\Framework\StateTracking\Comparers\GenericEqualsComparer.cs" />
     <Compile Include="SMAPI\Framework\StateTracking\Comparers\ObjectReferenceComparer.cs" />
@@ -641,6 +643,7 @@
     <Compile Include="SMAPI\IModLinked.cs" />
     <Compile Include="SMAPI\IModRegistry.cs" />
     <Compile Include="SMAPI\IMonitor.cs" />
+    <Compile Include="SMAPI\IMultiplayerHelper.cs" />
     <Compile Include="SMAPI\IMultiplayerPeer.cs" />
     <Compile Include="SMAPI\IMultiplayerPeerMod.cs" />
     <Compile Include="SMAPI\Internal\ConsoleWriting\ColorfulConsoleWriter.cs" />

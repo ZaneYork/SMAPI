@@ -32,16 +32,16 @@ namespace StardewModdingAPI
         public static GamePlatform TargetPlatform => (GamePlatform)Constants.Platform;
 
         /// <summary>The path to the game folder.</summary>
-        public static string ExecutionPath { get; } = "/sdcard/SMDroid";
+        public static string ExecutionPath { get; } = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path , "SMDroid");
 
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
-        public static string DataPath { get; } = Path.Combine("/sdcard", "SMDroid");
+        public static string DataPath { get; } = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid");
 
         /// <summary>The directory path in which error logs should be stored.</summary>
         public static string LogDir { get; } = Path.Combine(Constants.DataPath, "ErrorLogs");
 
         /// <summary>The directory path where all saves are stored.</summary>
-        public static string SavesPath { get; } = Path.Combine("/sdcard", "StardewValley");
+        public static string SavesPath { get; } = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "StardewValley");
 
         /// <summary>The name of the current save folder (if save info is available, regardless of whether the save file exists yet).</summary>
         public static string SaveFolderName => Constants.GetSaveFolderName();
@@ -56,7 +56,7 @@ namespace StardewModdingAPI
         internal const string HomePageUrl = "https://smapi.io";
 
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
-        internal static readonly string InternalFilesPath = "/sdcard/SMDroid/smapi-internal";
+        internal static readonly string InternalFilesPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid/smapi-internal");
 
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.config.json");
