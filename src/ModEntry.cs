@@ -22,7 +22,7 @@ namespace SMDroid
         {
             this.core = new SCore(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid/Mods"), false);
         }
-        public override LocalizedContentManager OnGame1_CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
+        public override bool OnGame1_CreateContentManager_Prefix(Game1 _, IServiceProvider serviceProvider, string rootDirectory, ref LocalizedContentManager __result)
         {
             // Game1._temporaryContent initialising from SGame constructor
             // NOTE: this method is called before the SGame constructor runs. Don't depend on anything being initialised at this point.
@@ -31,41 +31,45 @@ namespace SMDroid
                 this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, SGame.ConstructorHack.Monitor, SGame.ConstructorHack.Reflection, SGame.ConstructorHack.JsonHelper, SGame.OnLoadingFirstAsset ?? SGame.ConstructorHack?.OnLoadingFirstAsset);
                 this.NextContentManagerIsMain = true;
                 this.core.RunInteractively(this.ContentCore);
-                return this.ContentCore.CreateGameContentManager("Game1._temporaryContent");
+                __result = this.ContentCore.CreateGameContentManager("Game1._temporaryContent");
             }
-
             // Game1.content initialising from LoadContent
             if (this.NextContentManagerIsMain)
             {
                 this.NextContentManagerIsMain = false;
-                return this.ContentCore.MainContentManager;
+                __result = this.ContentCore.MainContentManager;
             }
 
             // any other content manager
-            return this.ContentCore.CreateGameContentManager("(generated)");
+            __result = this.ContentCore.CreateGameContentManager("(generated)");
+            return false;
         }
-        public override void OnGame1_Update(GameTime time)
+        public override bool OnGame1_Update_Prefix(Game1 _, GameTime time)
         {
-            this.core.GameInstance.Update(time);
+            return this.core.GameInstance.Update(time);
         }
-        public override void OnGame1_Draw(GameTime time, RenderTarget2D toBuffer)
+        public override void OnGame1_Update_Postfix(Game1 _, GameTime time)
         {
-            this.core.GameInstance.Draw(time, toBuffer);
+            this.core.GameInstance.Update_Postfix(time);
+        }
+        public override bool OnGame1_Draw_Prefix(Game1 _, GameTime time)
+        {
+            return this.core.GameInstance.Draw(time);
         }
         public override void OnGame1_NewDayAfterFade(Action action)
         {
             this.core.GameInstance.OnNewDayAfterFade();
             base.OnGame1_NewDayAfterFade(action);
         }
-        public override bool OnObject_canBePlacedHere(StardewValley.Object __instance, GameLocation location, Vector2 tile, ref bool __result)
+        public override bool OnObject_canBePlacedHere_Prefix(StardewValley.Object __instance, GameLocation location, Vector2 tile, ref bool __result)
         {
             return this.core.GameInstance.OnObjectCanBePlacedHere(__instance, location, tile, ref __result);
         }
-        public override void OnObject_isIndexOkForBasicShippedCategory(int index, ref bool __result)
+        public override void OnObject_isIndexOkForBasicShippedCategory_Postfix(int index, ref bool __result)
         {
             this.core.GameInstance.OnObjectIsIndexOkForBasicShippedCategory(index, ref __result);
         }
-        public override bool OnObject_checkForAction(StardewValley.Object __instance)
+        public override bool OnObject_checkForAction_Prefix(StardewValley.Object __instance, Farmer value, bool justCheckingForActivity, ref bool __result)
         {
             return this.core.GameInstance.OnObjectCheckForAction(__instance);
         }
