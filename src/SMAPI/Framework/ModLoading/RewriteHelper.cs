@@ -103,7 +103,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public static bool HasMatchingSignature(Type type, MethodReference reference)
         {
             return type
-                .GetMethods(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public)
+                .GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public)
                 .Any(method => RewriteHelper.HasMatchingSignature(method, reference));
         }
     }

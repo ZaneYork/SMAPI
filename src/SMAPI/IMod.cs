@@ -28,6 +28,14 @@ namespace StardewModdingAPI
 
         List<OptionsElement> GetConfigMenuItems();
 
+        bool ApplyForHooks();
+
+        bool OnCommonHook_Prefix(string hookName, object __instance, ref object param1, ref object param2, ref object param3, ref object param4, ref object __result);
+
+        void OnCommonHook_Postfix(string hookName, object __instance, ref object param1, ref object param2, ref object param3, ref object param4, ref bool __state, ref object __result);
+        bool OnCommonStaticHook_Prefix(string hookName, ref object param1, ref object param2, ref object param3, ref object param4, ref object param5, ref object __result);
+        void OnCommonStaticHook_Postfix(string hookName, ref object param1, ref object param2, ref object param3, ref object param4, ref object param5, ref bool __state, ref object __result);
+
         /// <summary>Get an API that other mods can access. This is always called after <see cref="Entry"/>.</summary>
         object GetApi();
     }

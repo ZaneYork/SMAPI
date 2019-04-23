@@ -31,6 +31,27 @@ namespace StardewModdingAPI
         {
             return new List<OptionsElement>();
         }
+        public virtual bool ApplyForHooks()
+        {
+            return false;
+        }
+
+        public virtual bool OnCommonHook_Prefix(string hookName, object __instance, ref object param1, ref object param2, ref object param3, ref object param4, ref object __result)
+        {
+            return true;
+        }
+
+        public virtual void OnCommonHook_Postfix(string hookName, object __instance, ref object param1, ref object param2, ref object param3, ref object param4, ref bool __state, ref object __result)
+        {
+        }
+        public virtual bool OnCommonStaticHook_Prefix(string hookName, ref object param1, ref object param2, ref object param3, ref object param4, ref object param5, ref object __result)
+        {
+            return true;
+        }
+        public virtual void OnCommonStaticHook_Postfix(string hookName, ref object param1, ref object param2, ref object param3, ref object param4, ref object param5, ref bool __state, ref object __result)
+        {
+        }
+
 
         /// <summary>Get an API that other mods can access. This is always called after <see cref="Entry"/>.</summary>
         public virtual object GetApi() => null;

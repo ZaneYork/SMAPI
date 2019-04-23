@@ -6,6 +6,7 @@ using StardewModdingAPI.Framework.ModLoading.Finders;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewModdingAPI.Framework.RewriteFacades;
 using StardewValley;
+using StardewValley.Menus;
 
 namespace StardewModdingAPI.Metadata
 {
@@ -36,6 +37,36 @@ namespace StardewModdingAPI.Metadata
             // rewrite for Stardew Valley 1.3
             yield return new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize);
 
+            yield return new TypeReferenceRewriter("System.Collections.Generic.IList`1<StardewValley.GameLocation>", typeof(List<GameLocation>));
+
+            yield return new TypeReferenceRewriter("System.Collections.Generic.IList`1<StardewValley.Menus.IClickableMenu>", typeof(List<IClickableMenu>));
+
+            yield return new FieldToPropertyRewriter(typeof(Game1), "player");
+
+            yield return new FieldToPropertyRewriter(typeof(Game1), "currentLocation");
+
+            yield return new FieldToPropertyRewriter(typeof(Character), "currentLocation");
+
+            yield return new FieldToPropertyRewriter(typeof(Farmer), "currentLocation");
+
+            yield return new FieldToPropertyRewriter(typeof(Game1), "gameMode");
+
+            yield return new FieldToPropertyRewriter(typeof(Game1), "currentMinigame");
+
+            yield return new FieldToPropertyRewriter(typeof(Game1), "activeClickableMenu");
+
+            yield return new FieldToPropertyRewriter(typeof(Game1), "stats");
+
+            yield return new FieldToPropertyRewriter(typeof(Game1), "isRaining");
+
+            yield return new FieldToPropertyRewriter(typeof(Game1), "isDebrisWeather");
+
+            yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods), onlyIfPlatformChanged: true);
+
+            yield return new MethodParentRewriter(typeof(Game1), typeof(Game1Methods), onlyIfPlatformChanged: true);
+
+            yield return new MethodParentRewriter(typeof(Farmer), typeof(FarmerMethods), onlyIfPlatformChanged: true);
+
             /****
             ** detect mod issues
             ****/
@@ -54,6 +85,9 @@ namespace StardewModdingAPI.Metadata
             yield return new EventFinder(typeof(ISpecialisedEvents).FullName, nameof(ISpecialisedEvents.UnvalidatedUpdateTicked), InstructionHandleResult.DetectedUnvalidatedUpdateTick);
             yield return new EventFinder(typeof(ISpecialisedEvents).FullName, nameof(ISpecialisedEvents.UnvalidatedUpdateTicking), InstructionHandleResult.DetectedUnvalidatedUpdateTick);
 
+#if !SMAPI_3_0_STRICT
+            yield return new EventFinder(typeof(SpecialisedEvents).FullName, nameof(SpecialisedEvents.UnvalidatedUpdateTick), InstructionHandleResult.DetectedUnvalidatedUpdateTick);
+#endif
             /****
             ** detect paranoid issues
             ****/

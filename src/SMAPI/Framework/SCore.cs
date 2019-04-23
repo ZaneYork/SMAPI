@@ -207,6 +207,22 @@ namespace StardewModdingAPI.Framework
             // initialise SMAPI
             try
             {
+#if !SMAPI_3_0_STRICT
+                // hook up events
+                ContentEvents.Init(this.EventManager);
+                ControlEvents.Init(this.EventManager);
+                GameEvents.Init(this.EventManager);
+                GraphicsEvents.Init(this.EventManager);
+                InputEvents.Init(this.EventManager);
+                LocationEvents.Init(this.EventManager);
+                MenuEvents.Init(this.EventManager);
+                MineEvents.Init(this.EventManager);
+                MultiplayerEvents.Init(this.EventManager);
+                PlayerEvents.Init(this.EventManager);
+                SaveEvents.Init(this.EventManager);
+                SpecialisedEvents.Init(this.EventManager);
+                TimeEvents.Init(this.EventManager);
+#endif
                 // override game
                 this.GameInstance = new SGame(
                     contentCore,
@@ -884,6 +900,14 @@ namespace StardewModdingAPI.Framework
                 return false;
             }
 
+#if !SMAPI_3_0_STRICT
+            // add deprecation warning for old version format
+            {
+                if (mod.Manifest?.Version is Toolkit.SemanticVersion version && version.IsLegacyFormat)
+                    SCore.DeprecationManager.Warn(mod.DisplayName, "non-string manifest version", "2.8", DeprecationLevel.PendingRemoval);
+            }
+#endif
+
             // validate dependencies
             // Although dependences are validated before mods are loaded, a dependency may have failed to load.
             if (mod.Manifest.Dependencies?.Any() == true)
@@ -991,7 +1015,7 @@ namespace StardewModdingAPI.Framework
                             return new ContentPack(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper);
                         }
 
-                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.GameInstance.Input, events, contentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
+                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, jsonHelper, this.GameInstance.Input, events, contentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
                     }
 
                     // init mod

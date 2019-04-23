@@ -166,17 +166,23 @@ namespace StardewModdingAPI
                 case Platform.Android:
                     removeAssemblyReferences = new[]
                     {
+                        "Netcode",
                         "StardewValley",
                         "Stardew Valley",
                         "Microsoft.Xna.Framework",
                         "Microsoft.Xna.Framework.Game",
                         "Microsoft.Xna.Framework.Graphics",
-                        "Microsoft.Xna.Framework.Xact"
+                        "Microsoft.Xna.Framework.Xact",
+                        "Newtonsoft.Json",
+                        "StardewModdingAPI.Toolkit.CoreInterfaces"
                     };
                     targetAssemblies = new[]
                     {
                         typeof(StardewValley.Game1).Assembly,
-                        typeof(Microsoft.Xna.Framework.Vector2).Assembly
+                        typeof(Constants).Assembly,
+                        typeof(Microsoft.Xna.Framework.Vector2).Assembly,
+                        typeof(System.Xml.XmlWriter).Assembly,
+                        typeof(System.Xml.Linq.XElement).Assembly
                     };
                     break;
                 default:

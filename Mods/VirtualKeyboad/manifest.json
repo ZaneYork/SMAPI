@@ -1,0 +1,10 @@
+{
+  "Name": "VirtualKeyboard",
+  "Author": "ZaneYork",
+  "Version": "1.0.1",
+  "MinimumApiVersion": "2.10.1",
+  "Description": "Virtual keyboard for mods",
+  "UniqueID": "VirtualKeyboad",
+  "EntryDll": "VirtualKeyboad.dll",
+  "UpdateKeys": [ "Nexus: null" ]
+}
