@@ -18,6 +18,9 @@ _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
 
+# LocalHistory
+.localhistory/
+
 # NuGet packages
 *.nupkg
 **/packages/*
@@ -26,3 +29,6 @@ _ReSharper*/
 
 # sensitive files
 appsettings.Development.json
+
+# assemblies
+assemblies/

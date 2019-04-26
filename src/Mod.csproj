@@ -434,65 +434,93 @@
     <Compile Include="SMAPI\Context.cs" />
     <Compile Include="SMAPI\Enums\LoadStage.cs" />
     <Compile Include="SMAPI\Enums\SkillType.cs" />
-    <Compile Include="SMAPI\Events\BuildingListChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\ButtonPressedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\ButtonReleasedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\ChangeType.cs" />
-    <Compile Include="SMAPI\Events\CursorMovedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\DayEndingEventArgs.cs" />
-    <Compile Include="SMAPI\Events\DayStartedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\DebrisListChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\GameLaunchedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\IHookEvents.cs" />
-    <Compile Include="SMAPI\Events\IDisplayEvents.cs" />
-    <Compile Include="SMAPI\Events\IGameLoopEvents.cs" />
-    <Compile Include="SMAPI\Events\IInputEvents.cs" />
+    <Compile Include="SMAPI\Events\Display\GraphicsEvents.cs" />
+    <Compile Include="SMAPI\Events\Display\IDisplayEvents.cs" />
+    <Compile Include="SMAPI\Events\Display\RenderedActiveMenuEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Display\RenderedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Display\RenderedHudEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Display\RenderedWorldEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Display\RenderingActiveMenuEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Display\RenderingEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Display\RenderingHudEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Display\RenderingWorldEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Display\WindowResizedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\DayEndingEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\DayStartedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\GameEvents.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\GameLaunchedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\IGameLoopEvents.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\OneSecondUpdateTickedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\OneSecondUpdateTickingEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\ReturnedToTitleEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\SaveCreatedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\SaveCreatingEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\SavedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\SaveEvents.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\SaveLoadedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\SavingEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\TimeChangedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\TimeEvents.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\UpdateTickedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\GameLoop\UpdateTickingEventArgs.cs" />
     <Compile Include="SMAPI\Events\IModEvents.cs" />
-    <Compile Include="SMAPI\Events\IMultiplayerEvents.cs" />
-    <Compile Include="SMAPI\Events\InventoryChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\IPlayerEvents.cs" />
-    <Compile Include="SMAPI\Events\ISpecialisedEvents.cs" />
-    <Compile Include="SMAPI\Events\ItemStackChange.cs" />
-    <Compile Include="SMAPI\Events\ItemStackSizeChange.cs" />
-    <Compile Include="SMAPI\Events\IWorldEvents.cs" />
-    <Compile Include="SMAPI\Events\LargeTerrainFeatureListChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\LevelChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\LoadStageChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\LocationListChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\MenuChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\ModMessageReceivedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\MouseWheelScrolledEventArgs.cs" />
-    <Compile Include="SMAPI\Events\NpcListChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\ObjectCheckForActionEventArgs.cs" />
-    <Compile Include="SMAPI\Events\ObjectIsIndexOkForBasicShippedCategoryEventArgs.cs" />
-    <Compile Include="SMAPI\Events\ObjectListChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\OneSecondUpdateTickedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\OneSecondUpdateTickingEventArgs.cs" />
-    <Compile Include="SMAPI\Events\PeerContextReceivedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\PeerDisconnectedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\RenderedActiveMenuEventArgs.cs" />
-    <Compile Include="SMAPI\Events\RenderedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\RenderedHudEventArgs.cs" />
-    <Compile Include="SMAPI\Events\RenderedWorldEventArgs.cs" />
-    <Compile Include="SMAPI\Events\RenderingActiveMenuEventArgs.cs" />
-    <Compile Include="SMAPI\Events\RenderingEventArgs.cs" />
-    <Compile Include="SMAPI\Events\RenderingHudEventArgs.cs" />
-    <Compile Include="SMAPI\Events\RenderingWorldEventArgs.cs" />
-    <Compile Include="SMAPI\Events\ReturnedToTitleEventArgs.cs" />
-    <Compile Include="SMAPI\Events\SaveCreatedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\SaveCreatingEventArgs.cs" />
-    <Compile Include="SMAPI\Events\SavedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\SaveLoadedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\SavingEventArgs.cs" />
-    <Compile Include="SMAPI\Events\TerrainFeatureListChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\TimeChangedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\UnvalidatedUpdateTickedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\UnvalidatedUpdateTickingEventArgs.cs" />
-    <Compile Include="SMAPI\Events\UpdateTickedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\UpdateTickingEventArgs.cs" />
-    <Compile Include="SMAPI\Events\WarpedEventArgs.cs" />
-    <Compile Include="SMAPI\Events\ObjectCanBePlacedHereEventArgs.cs" />
-    <Compile Include="SMAPI\Events\WindowResizedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Input\ButtonPressedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Input\ButtonReleasedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Input\ControlEvents.cs" />
+    <Compile Include="SMAPI\Events\Input\CursorMovedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Input\EventArgsControllerButtonPressed.cs" />
+    <Compile Include="SMAPI\Events\Input\EventArgsControllerButtonReleased.cs" />
+    <Compile Include="SMAPI\Events\Input\EventArgsControllerTriggerPressed.cs" />
+    <Compile Include="SMAPI\Events\Input\EventArgsControllerTriggerReleased.cs" />
+    <Compile Include="SMAPI\Events\Input\EventArgsInput.cs" />
+    <Compile Include="SMAPI\Events\Input\EventArgsKeyboardStateChanged.cs" />
+    <Compile Include="SMAPI\Events\Input\EventArgsKeyPressed.cs" />
+    <Compile Include="SMAPI\Events\Input\EventArgsMouseStateChanged.cs" />
+    <Compile Include="SMAPI\Events\Input\IInputEvents.cs" />
+    <Compile Include="SMAPI\Events\Input\InputEvents.cs" />
+    <Compile Include="SMAPI\Events\Input\MouseWheelScrolledEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Menu\EventArgsClickableMenuChanged.cs" />
+    <Compile Include="SMAPI\Events\Menu\EventArgsClickableMenuClosed.cs" />
+    <Compile Include="SMAPI\Events\Menu\MenuChangedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Menu\MenuEvents.cs" />
+    <Compile Include="SMAPI\Events\Mine\EventArgsMineLevelChanged.cs" />
+    <Compile Include="SMAPI\Events\Mine\MineEvents.cs" />
+    <Compile Include="SMAPI\Events\Multiplayer\IMultiplayerEvents.cs" />
+    <Compile Include="SMAPI\Events\Multiplayer\ModMessageReceivedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Multiplayer\MultiplayerEvents.cs" />
+    <Compile Include="SMAPI\Events\Multiplayer\PeerContextReceivedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Multiplayer\PeerDisconnectedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Player\EventArgsInventoryChanged.cs" />
+    <Compile Include="SMAPI\Events\Player\EventArgsLevelUp.cs" />
+    <Compile Include="SMAPI\Events\Player\EventArgsPlayerWarped.cs" />
+    <Compile Include="SMAPI\Events\Player\InventoryChangedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Player\IPlayerEvents.cs" />
+    <Compile Include="SMAPI\Events\Player\ItemStackChange.cs" />
+    <Compile Include="SMAPI\Events\Player\ItemStackSizeChange.cs" />
+    <Compile Include="SMAPI\Events\Player\LevelChangedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Player\PlayerEvents.cs" />
+    <Compile Include="SMAPI\Events\Player\WarpedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Specialised\ContentEvents.cs" />
+    <Compile Include="SMAPI\Events\Specialised\EventArgsIntChanged.cs" />
+    <Compile Include="SMAPI\Events\Specialised\EventArgsValueChanged.cs" />
+    <Compile Include="SMAPI\Events\Specialised\ISpecialisedEvents.cs" />
+    <Compile Include="SMAPI\Events\Specialised\LoadStageChangedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Specialised\SpecialisedEvents.cs" />
+    <Compile Include="SMAPI\Events\Specialised\UnvalidatedUpdateTickedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\Specialised\UnvalidatedUpdateTickingEventArgs.cs" />
+    <Compile Include="SMAPI\Events\World\BuildingListChangedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\World\ChangeType.cs" />
+    <Compile Include="SMAPI\Events\World\DebrisListChangedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\World\EventArgsLocationBuildingsChanged.cs" />
+    <Compile Include="SMAPI\Events\World\EventArgsLocationObjectsChanged.cs" />
+    <Compile Include="SMAPI\Events\World\EventArgsLocationsChanged.cs" />
+    <Compile Include="SMAPI\Events\World\IWorldEvents.cs" />
+    <Compile Include="SMAPI\Events\World\LargeTerrainFeatureListChangedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\World\LocationEvents.cs" />
+    <Compile Include="SMAPI\Events\World\LocationListChangedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\World\NpcListChangedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\World\ObjectListChangedEventArgs.cs" />
+    <Compile Include="SMAPI\Events\World\TerrainFeatureListChangedEventArgs.cs" />
     <Compile Include="SMAPI\Framework\Command.cs" />
     <Compile Include="SMAPI\Framework\CommandManager.cs" />
     <Compile Include="SMAPI\Framework\ContentCoordinator.cs" />
@@ -513,11 +541,11 @@
     <Compile Include="SMAPI\Framework\DeprecationWarning.cs" />
     <Compile Include="SMAPI\Framework\Events\EventManager.cs" />
     <Compile Include="SMAPI\Framework\Events\ManagedEvent.cs" />
+    <Compile Include="SMAPI\Framework\Events\ManagedEventBase.cs" />
     <Compile Include="SMAPI\Framework\Events\ModDisplayEvents.cs" />
     <Compile Include="SMAPI\Framework\Events\ModEvents.cs" />
     <Compile Include="SMAPI\Framework\Events\ModEventsBase.cs" />
     <Compile Include="SMAPI\Framework\Events\ModGameLoopEvents.cs" />
-    <Compile Include="SMAPI\Framework\Events\ModHookEvents.cs" />
     <Compile Include="SMAPI\Framework\Events\ModInputEvents.cs" />
     <Compile Include="SMAPI\Framework\Events\ModMultiplayerEvents.cs" />
     <Compile Include="SMAPI\Framework\Events\ModPlayerEvents.cs" />
@@ -592,6 +620,9 @@
     <Compile Include="SMAPI\Framework\Reflection\ReflectedProperty.cs" />
     <Compile Include="SMAPI\Framework\Reflection\Reflector.cs" />
     <Compile Include="SMAPI\Framework\RequestExitDelegate.cs" />
+    <Compile Include="SMAPI\Framework\RewriteFacades\FarmerMethods.cs" />
+    <Compile Include="SMAPI\Framework\RewriteFacades\Game1Methods.cs" />
+    <Compile Include="SMAPI\Framework\RewriteFacades\IClickableMenuMethods.cs" />
     <Compile Include="SMAPI\Framework\RewriteFacades\SpriteBatchMethods.cs" />
     <Compile Include="SMAPI\Framework\SCore.cs" />
     <Compile Include="SMAPI\Framework\Serialisation\ColorConverter.cs" />
@@ -702,123 +733,128 @@
     <Compile Include="SMAPI\Utilities\SDate.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="BmFont, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\BmFont.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Android.Vending.Expansion.Downloader, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Google.Android.Vending.Expansion.Downloader.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Android.Vending.Expansion.ZipFile, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Google.Android.Vending.Expansion.ZipFile.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Android.Vending.Licensing, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Google.Android.Vending.Licensing.dll</HintPath>
-    </Reference>
-    <Reference Include="Java.Interop, Version=0.1.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Java.Interop.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AppCenter, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Microsoft.AppCenter.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AppCenter.Analytics, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Microsoft.AppCenter.Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AppCenter.Analytics.Android.Bindings, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Microsoft.AppCenter.Analytics.Android.Bindings.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AppCenter.Android.Bindings, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Microsoft.AppCenter.Android.Bindings.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AppCenter.Crashes, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Microsoft.AppCenter.Crashes.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AppCenter.Crashes.Android.Bindings, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Microsoft.AppCenter.Crashes.Android.Bindings.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Mono.Android.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security, Version=2.0.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Mono.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoGame.Framework, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\MonoGame.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="StardewValley">
       <HintPath>..\Mods\assemblies\StardewValley.dll</HintPath>
     </Reference>
+    <Reference Include="BmFont, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\BmFont.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Android.Vending.Expansion.Downloader, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Google.Android.Vending.Expansion.Downloader.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Android.Vending.Expansion.ZipFile, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Google.Android.Vending.Expansion.ZipFile.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Android.Vending.Licensing, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Google.Android.Vending.Licensing.dll</HintPath>
+    </Reference>
+    <Reference Include="Java.Interop, Version=0.1.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Java.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AppCenter, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Microsoft.AppCenter.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AppCenter.Analytics, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Microsoft.AppCenter.Analytics.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AppCenter.Analytics.Android.Bindings, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Microsoft.AppCenter.Analytics.Android.Bindings.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AppCenter.Android.Bindings, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Microsoft.AppCenter.Android.Bindings.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AppCenter.Crashes, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Microsoft.AppCenter.Crashes.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AppCenter.Crashes.Android.Bindings, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Microsoft.AppCenter.Crashes.Android.Bindings.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Mono.Android.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Security, Version=2.0.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\Mono.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Framework, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mods\assemblies\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e">
+      <HintPath>..\Mods\assemblies\mscorlib.dll</HintPath>
+    </Reference>
     <Reference Include="System, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e">
-      <HintPath>..\..\assemblies\System.dll</HintPath>
+      <HintPath>..\Mods\assemblies\System.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e">
-      <HintPath>..\..\assemblies\System.Xml</HintPath>
+      <HintPath>..\Mods\assemblies\System.Xml</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq, Version=2.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <HintPath>..\Mods\assemblies\System.Xml.Linq</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\..\assemblies\System.Net.Http.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ServiceModel.Internals">
-      <HintPath>..\..\assemblies\System.ServiceModel.Internals.dll</HintPath>
+      <HintPath>..\Mods\assemblies\System.Net.Http.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e">
-      <HintPath>..\..\assemblies\System.Runtime.Serialization.dll</HintPath>
+      <HintPath>..\Mods\assemblies\System.Runtime.Serialization.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Android.Arch.Core.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Xamarin.Android.Arch.Core.Common.dll</HintPath>
+      <HintPath>..\Mods\assemblies\Xamarin.Android.Arch.Core.Common.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Android.Arch.Lifecycle.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Xamarin.Android.Arch.Lifecycle.Common.dll</HintPath>
+      <HintPath>..\Mods\assemblies\Xamarin.Android.Arch.Lifecycle.Common.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Android.Arch.Lifecycle.Runtime, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Xamarin.Android.Arch.Lifecycle.Runtime.dll</HintPath>
+      <HintPath>..\Mods\assemblies\Xamarin.Android.Arch.Lifecycle.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Android.Support.Annotations, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Xamarin.Android.Support.Annotations.dll</HintPath>
+      <HintPath>..\Mods\assemblies\Xamarin.Android.Support.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Android.Support.Compat, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Xamarin.Android.Support.Compat.dll</HintPath>
+      <HintPath>..\Mods\assemblies\Xamarin.Android.Support.Compat.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Android.Support.Core.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Xamarin.Android.Support.Core.UI.dll</HintPath>
+      <HintPath>..\Mods\assemblies\Xamarin.Android.Support.Core.UI.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Android.Support.Core.Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Xamarin.Android.Support.Core.Utils.dll</HintPath>
+      <HintPath>..\Mods\assemblies\Xamarin.Android.Support.Core.Utils.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Android.Support.Fragment, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Xamarin.Android.Support.Fragment.dll</HintPath>
+      <HintPath>..\Mods\assemblies\Xamarin.Android.Support.Fragment.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Android.Support.Media.Compat, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Xamarin.Android.Support.Media.Compat.dll</HintPath>
+      <HintPath>..\Mods\assemblies\Xamarin.Android.Support.Media.Compat.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Android.Support.v4, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\Xamarin.Android.Support.v4.dll</HintPath>
+      <HintPath>..\Mods\assemblies\Xamarin.Android.Support.v4.dll</HintPath>
     </Reference>
     <Reference Include="xTile, Version=1.0.7033.16602, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\assemblies\xTile.dll</HintPath>
+      <HintPath>..\Mods\assemblies\xTile.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

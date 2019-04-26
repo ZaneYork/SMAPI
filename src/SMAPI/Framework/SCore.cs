@@ -239,11 +239,11 @@ namespace StardewModdingAPI.Framework
                 );
                 StardewValley.Program.gamePtr = Game1.game1;
                 // apply game patches
-                //new GamePatcher(this.Monitor).Apply(
-                //    new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
-                //    new ObjectErrorPatch(),
-                //    new LoadForNewGamePatch(this.Reflection, this.GameInstance.OnLoadStageChanged)
-                //);
+                new GamePatcher(this.Monitor).Apply(
+                    new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
+                    new ObjectErrorPatch(),
+                    new LoadForNewGamePatch(this.Reflection, this.GameInstance.OnLoadStageChanged)
+                );
 
                 //// add exit handler
                 //new Thread(() =>

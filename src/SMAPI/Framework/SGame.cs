@@ -114,6 +114,44 @@ namespace StardewModdingAPI.Framework
             }
             return true;
         }
+        internal void OnCommonHook10_Postfix(string hookName, object instance, ref object param1, ref object param2, ref object param3, ref object param4, ref object param5, ref object param6, ref object param7, ref object param8, ref object param9, ref bool state, ref object result)
+        {
+            foreach (IMod mod in this.HookReceiver)
+            {
+                mod.OnCommonHook10_Postfix(hookName, instance, ref param1, ref param2, ref param3, ref param4, ref param5, ref param6, ref param7, ref param8, ref param9, ref state, ref result);
+            }
+        }
+        internal bool OnCommonHook10_Prefix(string hookName, object instance, ref object param1, ref object param2, ref object param3, ref object param4, ref object param5, ref object param6, ref object param7, ref object param8, ref object param9, ref object result)
+        {
+            foreach (IMod mod in this.HookReceiver)
+            {
+                if (!mod.OnCommonHook10_Prefix(hookName, instance, ref param1, ref param2, ref param3, ref param4, ref param5, ref param6, ref param7, ref param8, ref param9, ref result))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        internal void OnCommonStaticHook10_Postfix(string hookName, ref object param1, ref object param2, ref object param3, ref object param4, ref object param5, ref object param6, ref object param7, ref object param8, ref object param9, ref object param10, ref bool state, ref object result)
+        {
+            foreach (IMod mod in this.HookReceiver)
+            {
+                mod.OnCommonStaticHook10_Postfix(hookName, ref param1, ref param2, ref param3, ref param4, ref param5, ref param6, ref param7, ref param8, ref param9, ref param10, ref state, ref result);
+            }
+        }
+
+        internal bool OnCommonStaticHook10_Prefix(string hookName, ref object param1, ref object param2, ref object param3, ref object param4, ref object param5, ref object param6, ref object param7, ref object param8, ref object param9, ref object param10, ref object result)
+        {
+            foreach (IMod mod in this.HookReceiver)
+            {
+                if (!mod.OnCommonStaticHook10_Prefix(hookName, ref param1, ref param2, ref param3, ref param4, ref param5, ref param6, ref param7, ref param8, ref param9, ref param10, ref result))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
 
         /// <summary>Whether the game is saving and SMAPI has already raised <see cref="IGameLoopEvents.Saving"/>.</summary>
         private bool IsBetweenSaveEvents;
@@ -1137,7 +1175,6 @@ namespace StardewModdingAPI.Framework
                 IReflectedMethod DrawTutorialUI = this.Reflection.GetMethod(Game1.game1, "DrawTutorialUI", new Type[] { });
                 IReflectedMethod DrawGreenPlacementBounds = this.Reflection.GetMethod(Game1.game1, "DrawGreenPlacementBounds", new Type[] { });
 
-                Matrix matrix;
                 _drawHUD.SetValue(false);
                 _drawActiveClickableMenu.SetValue(false);
                 if (this.Reflection.GetField<Task>(typeof(Game1), "_newDayTask").GetValue() != null)
@@ -1145,9 +1182,9 @@ namespace StardewModdingAPI.Framework
                     Game1.game1.GraphicsDevice.Clear(bgColor.GetValue());
                     if (Game1.showInterDayScroll)
                     {
-                        matrix = Matrix.CreateScale((float)1f);
-                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, new Matrix?(matrix));
-                        SpriteText.drawStringWithScrollCenteredAt(Game1.spriteBatch, Game1.content.LoadString(@"Strings\UI:please_wait"), Game1.game1.GraphicsDevice.Viewport.Width / 2, Game1.game1.GraphicsDevice.Viewport.Height / 2, "", 1f, -1, 0, 0.088f, false);
+                        Matrix value = Matrix.CreateScale(1f);
+                        Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, new Matrix?(value));
+                        SpriteText.drawStringWithScrollCenteredAt(Game1.spriteBatch, Game1.content.LoadString("Strings\\UI:please_wait"), Game1.game1.GraphicsDevice.Viewport.Width / 2, Game1.game1.GraphicsDevice.Viewport.Height / 2, "", 1f, -1, 0, 0.088f, false);
                         Game1.spriteBatch.End();
                     }
                 }
@@ -1246,7 +1283,7 @@ namespace StardewModdingAPI.Framework
                         Game1.game1.GraphicsDevice.Clear(bgColor.GetValue());
                         if (((Game1.activeClickableMenu != null) && Game1.options.showMenuBackground) && Game1.activeClickableMenu.showWithoutTransparencyIfOptionIsSet())
                         {
-                            matrix = Matrix.CreateScale((float)1f);
+                            Matrix matrix = Matrix.CreateScale((float)1f);
                             Game1.SetSpriteBatchBeginNextID("C");
                             _spriteBatchBegin.Invoke(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, new Matrix?(matrix));
                             events.Rendering.RaiseEmpty();

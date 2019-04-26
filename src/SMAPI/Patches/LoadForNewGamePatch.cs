@@ -55,11 +55,11 @@ namespace StardewModdingAPI.Patches
         /// <param name="harmony">The Harmony instance.</param>
         public void Apply(HarmonyInstance harmony)
         {
-            MethodInfo method = AccessTools.Method(typeof(Game1), nameof(Game1.loadForNewGame));
-            MethodInfo prefix = AccessTools.Method(this.GetType(), nameof(LoadForNewGamePatch.Prefix));
-            MethodInfo postfix = AccessTools.Method(this.GetType(), nameof(LoadForNewGamePatch.Postfix));
+            //MethodInfo method = AccessTools.Method(typeof(Game1), nameof(Game1.loadForNewGame));
+            //MethodInfo prefix = AccessTools.Method(this.GetType(), nameof(LoadForNewGamePatch.Prefix));
+            //MethodInfo postfix = AccessTools.Method(this.GetType(), nameof(LoadForNewGamePatch.Postfix));
 
-            harmony.Patch(method, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
+            //harmony.Patch(method, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
         }
 
 

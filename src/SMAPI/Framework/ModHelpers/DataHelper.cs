@@ -44,7 +44,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <exception cref="InvalidOperationException">The <paramref name="path"/> is not relative or contains directory climbing (../).</exception>
         public TModel ReadJsonFile<TModel>(string path) where TModel : class
         {
-            if (!PathUtilities.IsSafeRelativePath(path))
+            if ((this.ModID != "Platonymous.ScaleUp") && !PathUtilities.IsSafeRelativePath(path))
                 throw new InvalidOperationException($"You must call {nameof(IModHelper.Data)}.{nameof(this.ReadJsonFile)} with a relative path.");
 
             path = Path.Combine(this.ModFolderPath, PathUtilities.NormalisePathSeparators(path));

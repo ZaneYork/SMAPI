@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -171,18 +169,124 @@ namespace DllRewrite
             var GetGamePadState = typeInputState.Methods.FirstOrDefault(m => m.Name == "GetGamePadState");
             processor.Replace(method.Body.Instructions[1], processor.Create(OpCodes.Callvirt, GetGamePadState));
         }
-        public void ApplyCommonHookEntry(TypeDefinition targetType, string methodname, string hookname, bool patchPrefix = true, bool patchPostfix = true, Func<MethodDefinition, bool> methodFilter = null)
+        public void ApplyCommonMidHookEntry(TypeDefinition targetType, Func<MethodDefinition, bool> methodChecker, Func<Instruction, bool> jointPointChecker, int jointPointOffset, string hookname)
         {
-            string qualifyName = $"{targetType.FullName}.{methodname}";
+            byte i, j;
+            MethodDefinition targetMethod = targetType.Methods.FirstOrDefault(method => methodChecker(method));
+            string qualifyName = targetType.FullName + "." + targetMethod.Name + "_mid";
+            MethodDefinition prefixHook = this.StardewValley.MainModule.GetType("StardewValley.ModHooks").Methods.FirstOrDefault(m => m.Name == (hookname + "_Prefix"));
+            ILProcessor iLProcessor = targetMethod.Body.GetILProcessor();
+            FieldReference field = this.GetFieldReference("hooks", "StardewValley.Game1", this.StardewValley);
+            List<Instruction> instructions = new List<Instruction>();
+            byte returnIndex = 0;
+            byte parameterIndexBegin = 0;
+            byte parameterIndexEnd = 0;
+            byte parameterOffset = targetMethod.IsStatic ? ((byte)0) : ((byte)1);
+            byte stateIndex = (byte)targetMethod.Body.Variables.Count;
+            targetMethod.Body.Variables.Add(new VariableDefinition(this.GetTypeReference("System.Boolean")));
+            if (targetMethod.ReturnType.FullName != "System.Void")
+            {
+                returnIndex = (byte)targetMethod.Body.Variables.Count;
+                targetMethod.Body.Variables.Add(new VariableDefinition(this.GetTypeReference("System.Object")));
+            }
+            parameterIndexBegin = (byte)targetMethod.Body.Variables.Count;
+            for (i = 0; i < targetMethod.Parameters.Count; i = (byte)(i + 1))
+            {
+                targetMethod.Body.Variables.Add(new VariableDefinition(this.GetTypeReference("System.Object")));
+                parameterIndexEnd = (byte)targetMethod.Body.Variables.Count;
+            }
+            if (prefixHook != null)
+            {
+                Instruction jointPoint = targetMethod.Body.Instructions.FirstOrDefault(ins => jointPointChecker(ins));
+                for (int x = jointPointOffset; x < 0; x++)
+                {
+                    jointPoint = jointPoint.Previous;
+                }
+                for (int x = 0; x < jointPointOffset; x++)
+                {
+                    jointPoint = jointPoint.Next;
+                }
+                i = parameterOffset;
+                for (j = parameterIndexBegin; i < (targetMethod.Parameters.Count + parameterOffset); j = (byte)(j + 1))
+                {
+                    instructions.Add(this._createLdargsInstruction(iLProcessor, i));
+                    if (targetMethod.Parameters[i - parameterOffset].ParameterType.IsValueType)
+                    {
+                        instructions.Add(iLProcessor.Create(OpCodes.Box, targetMethod.Parameters[i - parameterOffset].ParameterType));
+                    }
+                    instructions.Add(this._createStlocInstruction(iLProcessor, j));
+                    i = (byte)(i + 1);
+                }
+                instructions.Add(iLProcessor.Create(OpCodes.Ldsfld, field));
+                instructions.Add(iLProcessor.Create(OpCodes.Ldstr, qualifyName));
+                if (!targetMethod.IsStatic)
+                {
+                    instructions.Add(iLProcessor.Create(OpCodes.Ldarg_0));
+                    if (targetType.IsValueType)
+                    {
+                        instructions.Add(iLProcessor.Create(OpCodes.Box, targetType));
+                    }
+                }
+                i = parameterOffset;
+                for (j = parameterIndexBegin; i < (targetMethod.Parameters.Count + parameterOffset); j = (byte)(j + 1))
+                {
+                    instructions.Add(iLProcessor.Create(OpCodes.Ldloca_S, j));
+                    i = (byte)(i + 1);
+                }
+                while (i < (prefixHook.Parameters.Count - 2))
+                {
+                    instructions.Add(iLProcessor.Create(OpCodes.Ldloca_S, (byte)0));
+                    i = (byte)(i + 1);
+                }
+                instructions.Add(iLProcessor.Create(OpCodes.Ldloca_S, returnIndex));
+                instructions.Add(iLProcessor.Create(OpCodes.Callvirt, prefixHook));
+                instructions.Add(this._createStlocInstruction(iLProcessor, stateIndex));
+                i = parameterOffset;
+                for (j = parameterIndexBegin; i < (targetMethod.Parameters.Count + parameterOffset); j = (byte)(j + 1))
+                {
+                    instructions.Add(this._createLdlocInstruction(iLProcessor, j));
+                    if (targetMethod.Parameters[i - parameterOffset].ParameterType.IsValueType)
+                    {
+                        instructions.Add(iLProcessor.Create(OpCodes.Unbox_Any, targetMethod.Parameters[i - parameterOffset].ParameterType));
+                    }
+                    else
+                    {
+                        instructions.Add(iLProcessor.Create(OpCodes.Castclass, targetMethod.Parameters[i - parameterOffset].ParameterType));
+                    }
+                    instructions.Add(iLProcessor.Create(OpCodes.Starg_S, i));
+                    i = (byte)(i + 1);
+                }
+                instructions.Add(this._createLdlocInstruction(iLProcessor, stateIndex));
+                instructions.Add(iLProcessor.Create(OpCodes.Brtrue, jointPoint));
+                if (targetMethod.ReturnType.FullName != "System.Void")
+                {
+                    instructions.Add(this._createLdlocInstruction(iLProcessor, returnIndex));
+                    if (targetMethod.ReturnType.IsValueType)
+                    {
+                        instructions.Add(iLProcessor.Create(OpCodes.Unbox_Any, targetMethod.ReturnType));
+                    }
+                    else
+                    {
+                        instructions.Add(iLProcessor.Create(OpCodes.Castclass, targetMethod.ReturnType));
+                    }
+                }
+                instructions.Add(iLProcessor.Create(OpCodes.Ret));
+                this.InsertInstructions(iLProcessor, jointPoint, instructions);
+            }
+        }
+        
+        public void ApplyCommonHookEntry(TypeDefinition targetType, string methodname, string hookname, bool patchPrefix = true, bool patchPostfix = true, Func<MethodDefinition, bool> methodFilter = null, string qualifyNameSuffix = "")
+        {
+            string qualifyName = $"{targetType.FullName}.{methodname}{qualifyNameSuffix}";
             TypeDefinition typeModHooksObject = this.StardewValley.MainModule.GetType("StardewValley.ModHooks");
-            var targetMethod = targetType.Methods.FirstOrDefault(method => (!method.IsConstructor && method.HasBody && method.Name == methodname && (methodFilter == null || methodFilter(method))));
+            var targetMethod = targetType.Methods.FirstOrDefault(method => (method.HasBody && method.Name == methodname && (methodFilter == null || methodFilter(method))));
             var prefixHook = typeModHooksObject.Methods.FirstOrDefault(m => m.Name == hookname + "_Prefix");
             var postfixHook = typeModHooksObject.Methods.FirstOrDefault(m => m.Name == hookname + "_Postfix");
             var processor = targetMethod.Body.GetILProcessor();
             FieldReference hooksField = this.GetFieldReference("hooks", "StardewValley.Game1", this.StardewValley);
             Instruction jointPoint;
             List<Instruction> instructions;
-            byte i, j;
+            byte i, j, k;
             // state
             byte returnIndex = 0;
             byte parameterIndexBegin = 0, parameterIndexEnd = 0;
@@ -205,7 +309,8 @@ namespace DllRewrite
             {
                 instructions = new List<Instruction>();
                 jointPoint = targetMethod.Body.Instructions[0];
-                for (i = parameterOffset, j = parameterIndexBegin; i < targetMethod.Parameters.Count + parameterOffset; i++, j++)
+                k = (byte)(targetMethod.Parameters.Count + parameterOffset > prefixHook.Parameters.Count - 2 ? prefixHook.Parameters.Count - 2 - parameterOffset : targetMethod.Parameters.Count + parameterOffset);
+                for (i = parameterOffset, j = parameterIndexBegin; i < k; i++, j++)
                 {
                     instructions.Add(this._createLdargsInstruction(processor, i));
                     if(targetMethod.Parameters[i - parameterOffset].ParameterType.IsValueType)
@@ -222,7 +327,9 @@ namespace DllRewrite
                     if (targetType.IsValueType)
                         instructions.Add(processor.Create(OpCodes.Box, targetType));
                 }
-                for (i = parameterOffset, j = parameterIndexBegin; i < targetMethod.Parameters.Count + parameterOffset; i++, j++)
+
+                k = (byte)(targetMethod.Parameters.Count + parameterOffset > prefixHook.Parameters.Count - 2 ? prefixHook.Parameters.Count - 2 - parameterOffset : targetMethod.Parameters.Count + parameterOffset);
+                for (i = parameterOffset, j = parameterIndexBegin; i < k; i++, j++)
                 {
                     instructions.Add(processor.Create(OpCodes.Ldloca_S, j));
                 }
@@ -267,7 +374,8 @@ namespace DllRewrite
                     instructions.Add(processor.Create(OpCodes.Box, targetMethod.ReturnType));
                     instructions.Add(this._createStlocInstruction(processor, returnIndex));
                 }
-                for (i = parameterOffset, j = parameterIndexBegin; i < targetMethod.Parameters.Count + parameterOffset; i++, j++)
+                k = (byte)(targetMethod.Parameters.Count + parameterOffset > postfixHook.Parameters.Count - 3 ? prefixHook.Parameters.Count - 3 - parameterOffset : targetMethod.Parameters.Count + parameterOffset);
+                for (i = parameterOffset, j = parameterIndexBegin; i < k; i++, j++)
                 {
                     instructions.Add(this._createLdargsInstruction(processor, i));
                     if (targetMethod.Parameters[i - parameterOffset].ParameterType.IsValueType)
@@ -284,7 +392,8 @@ namespace DllRewrite
                     if (targetType.IsValueType)
                         instructions.Add(processor.Create(OpCodes.Box, targetType));
                 }
-                for (i = parameterOffset, j = parameterIndexBegin; i < targetMethod.Parameters.Count + parameterOffset; i++, j++)
+                k = (byte)(targetMethod.Parameters.Count + parameterOffset > postfixHook.Parameters.Count - 3 ? prefixHook.Parameters.Count - 3 - parameterOffset : targetMethod.Parameters.Count + parameterOffset);
+                for (i = parameterOffset, j = parameterIndexBegin; i < k; i++, j++)
                 {
                     instructions.Add(processor.Create(OpCodes.Ldloca_S, j));
                 }
@@ -554,7 +663,7 @@ namespace DllRewrite
         {
             this.ApplyGamePatch();
 
-            this.InsertModHook("OnCommonHook_Prefix", new TypeReference[] {
+            this.InsertModHook("OnCommonHook_Prefix", new[] {
                 this.GetTypeReference("System.String"),
                 this.GetTypeReference("System.Object"),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
@@ -562,12 +671,12 @@ namespace DllRewrite
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object"))},
-                new string[] {
+                new[] {
                     "hookName", "__instance",
                     "param1", "param2", "param3",
                     "param4", "__result"},
                 this.GetTypeReference("System.Boolean"));
-            this.InsertModHook("OnCommonStaticHook_Prefix", new TypeReference[] {
+            this.InsertModHook("OnCommonStaticHook_Prefix", new[] {
                 this.GetTypeReference("System.String"),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
@@ -575,12 +684,12 @@ namespace DllRewrite
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object"))},
-                new string[] {
+                new[] {
                     "hookName", "param1",
                     "param2", "param3", "param4",
                     "param5", "__result"},
                 this.GetTypeReference("System.Boolean"));
-            this.InsertModHook("OnCommonHook_Postfix", new TypeReference[] {
+            this.InsertModHook("OnCommonHook_Postfix", new[] {
                 this.GetTypeReference("System.String"),
                 this.GetTypeReference("System.Object"),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
@@ -589,12 +698,12 @@ namespace DllRewrite
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Boolean")),
                 new ByReferenceType(this.GetTypeReference("System.Object"))},
-                new string[] {
+                new[] {
                     "hookName", "__instance",
                     "param1", "param2", "param3",
                     "param4", "__state", "__result"},
                 this.GetTypeReference("System.Void"));
-            this.InsertModHook("OnCommonStaticHook_Postfix", new TypeReference[] {
+            this.InsertModHook("OnCommonStaticHook_Postfix", new[] {
                 this.GetTypeReference("System.String"),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
@@ -603,13 +712,13 @@ namespace DllRewrite
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Boolean")),
                 new ByReferenceType(this.GetTypeReference("System.Object"))},
-                new string[] {
+                new[] {
                     "hookName", "param1",
                     "param2", "param3", "param4",
                     "param5", "__state", "__result"},
                 this.GetTypeReference("System.Void"));
 
-            this.InsertModHook("OnCommonHook10_Prefix", new TypeReference[] {
+            this.InsertModHook("OnCommonHook10_Prefix", new[] {
                 this.GetTypeReference("System.String"),
                 this.GetTypeReference("System.Object"),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
@@ -622,14 +731,14 @@ namespace DllRewrite
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object"))},
-                new string[] {
+                new[] {
                     "hookName", "__instance",
                     "param1", "param2", "param3",
                     "param4", "param5", "param6",
                     "param7", "param8", "param9",
                     "__result"},
                 this.GetTypeReference("System.Boolean"));
-            this.InsertModHook("OnCommonStaticHook10_Prefix", new TypeReference[] {
+            this.InsertModHook("OnCommonStaticHook10_Prefix", new[] {
                 this.GetTypeReference("System.String"),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
@@ -642,14 +751,14 @@ namespace DllRewrite
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object"))},
-                new string[] {
+                new[] {
                     "hookName", "param1",
                     "param2", "param3", "param4",
                     "param5", "param6", "param7",
                     "param8", "param9", "param10",
                     "__result"},
                 this.GetTypeReference("System.Boolean"));
-            this.InsertModHook("OnCommonHook10_Postfix", new TypeReference[] {
+            this.InsertModHook("OnCommonHook10_Postfix", new[] {
                 this.GetTypeReference("System.String"),
                 this.GetTypeReference("System.Object"),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
@@ -663,14 +772,14 @@ namespace DllRewrite
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Boolean")),
                 new ByReferenceType(this.GetTypeReference("System.Object"))},
-                new string[] {
+                new[] {
                     "hookName", "__instance",
                     "param1", "param2", "param3",
                     "param4", "param5", "param6",
                     "param7", "param8", "param9",
                     "__state", "__result"},
                 this.GetTypeReference("System.Void"));
-            this.InsertModHook("OnCommonStaticHook10_Postfix", new TypeReference[] {
+            this.InsertModHook("OnCommonStaticHook10_Postfix", new[] {
                 this.GetTypeReference("System.String"),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Object")),
@@ -684,7 +793,7 @@ namespace DllRewrite
                 new ByReferenceType(this.GetTypeReference("System.Object")),
                 new ByReferenceType(this.GetTypeReference("System.Boolean")),
                 new ByReferenceType(this.GetTypeReference("System.Object"))},
-                new string[] {
+                new[] {
                     "hookName", "param1",
                     "param2", "param3", "param4",
                     "param5", "param6", "param7",
@@ -696,18 +805,45 @@ namespace DllRewrite
             this.ApplyCommonHookEntry(typeGame1, "Update", "OnCommonHook");
             this.ApplyCommonHookEntry(typeGame1, "_draw", "OnCommonHook");
             this.ApplyCommonHookEntry(typeGame1, "getSourceRectForStandardTileSheet", "OnCommonStaticHook");
-            this.ApplyCommonHookEntry(typeGame1, "tryToCheckAt", "OnCommonStaticHook");
-            this.ApplyCommonHookEntry(typeGame1, "getLocationRequest", "OnCommonStaticHook");
+            this.ApplyCommonHookEntry(typeGame1, "tryToCheckAt", "OnCommonStaticHook", false);
+            this.ApplyCommonHookEntry(typeGame1, "getLocationRequest", "OnCommonStaticHook", true, false);
+            this.ApplyCommonHookEntry(typeGame1, "getLocationRequest", "OnCommonStaticHook", true, false);
+            this.ApplyCommonHookEntry(typeGame1, "loadForNewGame", "OnCommonStaticHook");
+            this.ApplyCommonHookEntry(typeGame1, "warpFarmer", "OnCommonStaticHook10", true, false, method => method.Parameters.Count == 6);
+            this.ApplyCommonHookEntry(typeGame1, ".ctor", "OnCommonHook", false);
+            this.ApplyCommonHookEntry(typeGame1, "LoadContent", "OnCommonHook", false);
+            TypeDefinition targetType = null;
+            foreach (TypeDefinition definition21 in this.StardewValley.MainModule.GetTypes())
+            {
+                if (definition21.FullName == "StardewValley.Game1/<>c")
+                {
+                    targetType = definition21;
+                }
+            }
+            this.ApplyCommonMidHookEntry(targetType, method => method.FullName.Contains("showEndOfNightStuff"), ins => (ins.OpCode == OpCodes.Ldstr) && (((string)ins.Operand) == "newRecord"), -2, "OnCommonHook");
 
             // On Object hooks
             TypeDefinition typeObject = this.StardewValley.MainModule.GetType("StardewValley.Object");
             this.ApplyCommonHookEntry(typeObject, "canBePlacedHere", "OnCommonHook", true, false);
             this.ApplyCommonHookEntry(typeObject, "checkForAction", "OnCommonHook", true, false);
             this.ApplyCommonHookEntry(typeObject, "isIndexOkForBasicShippedCategory", "OnCommonStaticHook");
+            this.ApplyCommonHookEntry(typeObject, "drawWhenHeld", "OnCommonHook", true, false);
+            this.ApplyCommonHookEntry(typeObject, "drawInMenuWithColour", "OnCommonHook10");
+            this.ApplyCommonHookEntry(typeObject, "draw", "OnCommonHook", true, false, method => method.Parameters.Count == 4);
+            this.ApplyCommonHookEntry(typeObject, "draw", "OnCommonHook10", true, false, method => method.Parameters.Count == 5);
+            this.ApplyCommonHookEntry(typeObject, "getDescription", "OnCommonHook", true, false);
 
             // On ReadyCheckDialog hooks
             TypeDefinition typeReadyCheckDialog = this.StardewValley.MainModule.GetType("StardewValley.Menus.ReadyCheckDialog");
             this.ApplyCommonHookEntry(typeReadyCheckDialog, "update", "OnCommonHook");
+
+            // On IClickableMenu hooks
+            TypeDefinition typeIClickableMenu = this.StardewValley.MainModule.GetType("StardewValley.Menus.IClickableMenu");
+            this.ApplyCommonHookEntry(typeIClickableMenu, "drawToolTip", "OnCommonStaticHook10", false);
+
+            // On Dialogue hooks
+            TypeDefinition typeDialogue = this.StardewValley.MainModule.GetType("StardewValley.Dialogue");
+            this.ApplyCommonHookEntry(typeDialogue, ".ctor", "OnCommonHook", true, false, method => method.Parameters.Count == 2);
 
             // On Building hooks
             TypeDefinition typeBuilding = this.StardewValley.MainModule.GetType("StardewValley.Buildings.Building");
@@ -715,178 +851,70 @@ namespace DllRewrite
 
             // On GameLocation hooks
             TypeDefinition typeGameLocation = this.StardewValley.MainModule.GetType("StardewValley.GameLocation");
-            this.ApplyCommonHookEntry(typeGameLocation, "performTouchAction", "OnCommonHook");
-            this.ApplyCommonHookEntry(typeGameLocation, "isActionableTile", "OnCommonHook");
-            this.ApplyCommonHookEntry(typeGameLocation, "tryToAddCritters", "OnCommonHook");
+            this.ApplyCommonHookEntry(typeGameLocation, "performTouchAction", "OnCommonHook", true, false);
+            this.ApplyCommonHookEntry(typeGameLocation, "isActionableTile", "OnCommonHook", false);
+            this.ApplyCommonHookEntry(typeGameLocation, "tryToAddCritters", "OnCommonHook", true, false);
             this.ApplyCommonHookEntry(typeGameLocation, "getSourceRectForObject", "OnCommonStaticHook");
-            this.ApplyCommonHookEntry(typeGameLocation, "answerDialogue", "OnCommonHook");
-            this.ApplyCommonHookEntry(typeGameLocation, "Equals", "OnCommonHook", true, false, (method)=> method.Parameters[0].ParameterType == this.GetTypeReference("StardewValley.GameLocation", this.StardewValley));
-
+            this.ApplyCommonHookEntry(typeGameLocation, "answerDialogue", "OnCommonHook", true, false);
+            this.ApplyCommonHookEntry(typeGameLocation, "Equals", "OnCommonHook", true, false, method => method.Parameters[0].ParameterType == this.GetTypeReference("StardewValley.GameLocation", this.StardewValley));
+            this.ApplyCommonHookEntry(typeGameLocation, "performAction", "OnCommonHook", true, false);
 
             // On Objects.TV hooks
             TypeDefinition typeObjectsTV = this.StardewValley.MainModule.GetType("StardewValley.Objects.TV");
             this.ApplyCommonHookEntry(typeObjectsTV, "checkForAction", "OnCommonHook");
 
+            // On Furniture hooks
+            TypeDefinition typeFurniture = this.StardewValley.MainModule.GetType("StardewValley.Objects.Furniture");
+            this.ApplyCommonHookEntry(typeFurniture, "draw", "OnCommonHook", true, false);
 
-            //this.InsertModHook("OnGame1_Update_Prefix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.Game1", this.StardewValley),
-            //    this.GetTypeReference("Microsoft.Xna.Framework.GameTime", this.MonoGame_Framework)},
-            //    this.GetTypeReference("System.Boolean"));
-            //this.ApplyHookEntry(typeGame1, "Update", "OnGame1_Update_Prefix", true);
-            //this.InsertModHook("OnGame1_Update_Postfix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.Game1", this.StardewValley),
-            //    this.GetTypeReference("Microsoft.Xna.Framework.GameTime", this.MonoGame_Framework)},
-            //    this.GetTypeReference("System.Void"));
-            //this.ApplyHookEntry(typeGame1, "Update", "OnGame1_Update_Postfix", false);
+            // On ColoredObject hooks
+            TypeDefinition typeColoredObject = this.StardewValley.MainModule.GetType("StardewValley.Objects.ColoredObject");
+            this.ApplyCommonHookEntry(typeColoredObject, "drawInMenu", "OnCommonHook10", false);
 
-            this.InsertModHook("OnGame1_CreateContentManager_Prefix", new TypeReference[] {
+            // On HoeDirt hooks
+            TypeDefinition typeHoeDirt = this.StardewValley.MainModule.GetType("StardewValley.TerrainFeatures.HoeDirt");
+            this.ApplyCommonHookEntry(typeHoeDirt, "dayUpdate", "OnCommonHook", true, false);
+
+            // On Utility hooks
+            TypeDefinition typeUtility = this.StardewValley.MainModule.GetType("StardewValley.Utility");
+            this.ApplyCommonHookEntry(typeUtility, "pickFarmEvent", "OnCommonStaticHook", false);
+
+            // On Farmer hooks
+            TypeDefinition typeFarmer = this.StardewValley.MainModule.GetType("StardewValley.Farmer");
+            this.ApplyCommonHookEntry(typeFarmer, "doneEating", "OnCommonHook", false);
+
+            // On MeleeWeapon hooks
+            TypeDefinition typeMeleeWeapon = this.StardewValley.MainModule.GetType("StardewValley.Tools.MeleeWeapon");
+            this.ApplyCommonHookEntry(typeMeleeWeapon, "drawDuringUse", "OnCommonStaticHook10", true, false, method => method.IsStatic);
+
+            // On Multiplayer hooks
+            TypeDefinition typeMultiplayer = this.StardewValley.MainModule.GetType("StardewValley.Multiplayer");
+            this.ApplyCommonHookEntry(typeMultiplayer, "processIncomingMessage", "OnCommonHook", true, false);
+
+            // On GameServer hooks
+            TypeDefinition typeGameServer = this.StardewValley.MainModule.GetType("StardewValley.Network.GameServer");
+            this.ApplyCommonHookEntry(typeGameServer, "sendServerIntroduction", "OnCommonHook", false);
+
+            // On NPC hooks
+            TypeDefinition typeNPC = this.StardewValley.MainModule.GetType("StardewValley.NPC");
+            this.ApplyCommonHookEntry(typeNPC, "receiveGift", "OnCommonHook10", false);
+
+            // On GameMenu hooks
+            TypeDefinition definition19 = this.StardewValley.MainModule.GetType("StardewValley.Menus.GameMenu");
+            this.ApplyCommonHookEntry(definition19, "getTabNumberFromName", "OnCommonHook", false);
+
+            // On FarmHouse hooks
+            TypeDefinition definition20 = this.StardewValley.MainModule.GetType("StardewValley.Locations.FarmHouse");
+            this.ApplyCommonHookEntry(definition20, "loadSpouseRoom", "OnCommonHook", true, false);
+
+            this.InsertModHook("OnGame1_CreateContentManager_Prefix", new[] {
                 this.GetTypeReference("StardewValley.Game1", this.StardewValley),
                 this.GetTypeReference("System.IServiceProvider"),
                 this.GetTypeReference("System.String"),
                 new ByReferenceType(this.GetTypeReference("StardewValley.LocalizedContentManager", this.StardewValley)) },
-                new string[] { "game1", "serviceProvider", "rootDirectory", "__result"},
+                new[] { "game1", "serviceProvider", "rootDirectory", "__result"},
                 this.GetTypeReference("System.Boolean"));
             this.ApplyHookEntry(typeGame1, "CreateContentManager", "OnGame1_CreateContentManager_Prefix", true);
-
-            //this.InsertModHook("OnGame1__draw_Prefix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.Game1", this.StardewValley),
-            //    this.GetTypeReference("Microsoft.Xna.Framework.GameTime", this.MonoGame_Framework),
-            //    this.GetTypeReference("Microsoft.Xna.Framework.Graphics.RenderTarget2D", this.MonoGame_Framework)},
-            //    this.GetTypeReference("System.Boolean"));
-            //this.ApplyHookEntry(typeGame1, "_draw", "OnGame1__draw_Prefix", true);
-
-            //this.InsertModHook("OnGame1_getSourceRectForStandardTileSheet_Prefix", new TypeReference[] {
-            //    this.GetTypeReference("Microsoft.Xna.Framework.Graphics.Texture2D", this.MonoGame_Framework),
-            //    this.GetTypeReference("System.Int32"),
-            //    this.GetTypeReference("System.Int32"),
-            //    this.GetTypeReference("System.Int32"),
-            //    new ByReferenceType(this.GetTypeReference("Microsoft.Xna.Framework.Rectangle", this.MonoGame_Framework)) },
-            //    this.GetTypeReference("System.Boolean"));
-            //this.ApplyHookEntry(typeGame1, "getSourceRectForStandardTileSheet", "OnGame1_getSourceRectForStandardTileSheet_Prefix", true);
-
-            //this.InsertModHook("OnGame1_getSourceRectForStandardTileSheet_Postfix", new TypeReference[] {
-            //    this.GetTypeReference("Microsoft.Xna.Framework.Graphics.Texture2D", this.MonoGame_Framework),
-            //    this.GetTypeReference("System.Int32"),
-            //    this.GetTypeReference("System.Int32"),
-            //    this.GetTypeReference("System.Int32"),
-            //    new ByReferenceType(this.GetTypeReference("Microsoft.Xna.Framework.Rectangle", this.MonoGame_Framework)) },
-            //    this.GetTypeReference("System.Void"));
-            //this.ApplyHookEntry(typeGame1, "getSourceRectForStandardTileSheet", "OnGame1_getSourceRectForStandardTileSheet_Postfix", false);
-
-            //this.InsertModHook("OnGame1_tryToCheckAt_Postfix", new TypeReference[] {
-            //    this.GetTypeReference("Microsoft.Xna.Framework.Vector2", this.MonoGame_Framework),
-            //    this.GetTypeReference("StardewValley.Farmer", this.StardewValley),
-            //    new ByReferenceType(this.GetTypeReference("System.Boolean")) },
-            //    this.GetTypeReference("System.Void"));
-            //this.ApplyHookEntry(typeGame1, "tryToCheckAt", "OnGame1_tryToCheckAt_Postfix", false);
-
-            //this.InsertModHook("OnGame1_getLocationRequest_Prefix", new TypeReference[] {
-            //    this.GetTypeReference("System.String"),
-            //    this.GetTypeReference("System.Boolean"),
-            //    new ByReferenceType(this.GetTypeReference("StardewValley.LocationRequest", this.StardewValley)) },
-            //    this.GetTypeReference("System.Boolean"));
-            //this.ApplyHookEntry(typeGame1, "getLocationRequest", "OnGame1_getLocationRequest_Prefix", true);
-
-            //// On Object hooks
-            //this.InsertModHook("OnObject_canBePlacedHere_Prefix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.Object", this.StardewValley),
-            //    this.GetTypeReference("StardewValley.GameLocation", this.StardewValley),
-            //    this.GetTypeReference("Microsoft.Xna.Framework.Vector2", this.MonoGame_Framework),
-            //    new ByReferenceType(this.GetTypeReference("System.Boolean")) },
-            //    this.GetTypeReference("System.Boolean"));
-            //TypeDefinition typeObject = this.StardewValley.MainModule.GetType("StardewValley.Object");
-            //this.ApplyHookEntry(typeObject, "canBePlacedHere", "OnObject_canBePlacedHere_Prefix", true);
-
-            //this.InsertModHook("OnObject_checkForAction_Prefix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.Object", this.StardewValley),
-            //    this.GetTypeReference("StardewValley.Farmer", this.StardewValley),
-            //    this.GetTypeReference("System.Boolean"),
-            //    new ByReferenceType(this.GetTypeReference("System.Boolean"))},
-            //    this.GetTypeReference("System.Boolean"));
-            //this.ApplyHookEntry(typeObject, "checkForAction", "OnObject_checkForAction_Prefix", true);
-
-            //this.InsertModHook("OnObject_isIndexOkForBasicShippedCategory_Postfix", new TypeReference[] {
-            //    this.GetTypeReference("System.Int32"),
-            //    new ByReferenceType(this.GetTypeReference("System.Boolean")) },
-            //    this.GetTypeReference("System.Void"));
-            //this.ApplyHookEntry(typeObject, "isIndexOkForBasicShippedCategory", "OnObject_isIndexOkForBasicShippedCategory_Postfix", false);
-
-            //// On ReadyCheckDialog hooks
-            //this.InsertModHook("OnReadyCheckDialog_update_Postfix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.Menus.ReadyCheckDialog", this.StardewValley),
-            //    this.GetTypeReference("Microsoft.Xna.Framework.GameTime", this.MonoGame_Framework)},
-            //    this.GetTypeReference("System.Void"));
-            //TypeDefinition typeReadyCheckDialog = this.StardewValley.MainModule.GetType("StardewValley.Menus.ReadyCheckDialog");
-            //this.ApplyHookEntry(typeReadyCheckDialog, "update", "OnReadyCheckDialog_update_Postfix", false);
-
-            //// On Building hooks
-            //this.InsertModHook("OnBuilding_load_Prefix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.Buildings.Building", this.StardewValley)},
-            //    this.GetTypeReference("System.Boolean"));
-            //TypeDefinition typeBuilding = this.StardewValley.MainModule.GetType("StardewValley.Buildings.Building");
-            //this.ApplyHookEntry(typeBuilding, "load", "OnBuilding_load_Prefix", true);
-
-            //// On GameLocation hooks
-            //this.InsertModHook("OnGameLocation_performTouchAction_Postfix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.GameLocation", this.StardewValley),
-            //    this.GetTypeReference("System.String"),
-            //    this.GetTypeReference("Microsoft.Xna.Framework.Vector2", this.MonoGame_Framework)},
-            //    this.GetTypeReference("System.Void"));
-            //TypeDefinition typeGameLocation = this.StardewValley.MainModule.GetType("StardewValley.GameLocation");
-            //this.ApplyHookEntry(typeGameLocation, "performTouchAction", "OnGameLocation_performTouchAction_Postfix", false);
-
-            //this.InsertModHook("OnGameLocation_isActionableTile_Postfix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.GameLocation", this.StardewValley),
-            //    this.GetTypeReference("System.Int32"),
-            //    this.GetTypeReference("System.Int32"),
-            //    this.GetTypeReference("StardewValley.Farmer", this.StardewValley),
-            //    new ByReferenceType(this.GetTypeReference("System.Boolean"))},
-            //    this.GetTypeReference("System.Void"));
-            //this.ApplyHookEntry(typeGameLocation, "isActionableTile", "OnGameLocation_isActionableTile_Postfix", false);
-
-            //this.InsertModHook("OnGameLocation_tryToAddCritters_Prefix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.GameLocation", this.StardewValley),
-            //    this.GetTypeReference("System.Boolean")},
-            //    this.GetTypeReference("System.Boolean"));
-            //this.ApplyHookEntry(typeGameLocation, "tryToAddCritters", "OnGameLocation_tryToAddCritters_Prefix", true);
-
-            //this.InsertModHook("OnGameLocation_getSourceRectForObject_Prefix", new TypeReference[] {
-            //    this.GetTypeReference("System.Int32"),
-            //    new ByReferenceType(this.GetTypeReference("Microsoft.Xna.Framework.Rectangle", this.MonoGame_Framework)) },
-            //    this.GetTypeReference("System.Boolean"));
-            //this.ApplyHookEntry(typeGameLocation, "getSourceRectForObject", "OnGameLocation_getSourceRectForObject_Prefix", true);
-
-            //this.InsertModHook("OnGameLocation_getSourceRectForObject_Postfix", new TypeReference[] {
-            //    this.GetTypeReference("System.Int32"),
-            //    new ByReferenceType(this.GetTypeReference("Microsoft.Xna.Framework.Rectangle", this.MonoGame_Framework)) },
-            //    this.GetTypeReference("System.Void"));
-            //this.ApplyHookEntry(typeGameLocation, "getSourceRectForObject", "OnGameLocation_getSourceRectForObject_Postfix", false);
-
-            //this.InsertModHook("OnGameLocation_answerDialogue_Prefix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.GameLocation", this.StardewValley),
-            //    this.GetTypeReference("StardewValley.Response", this.StardewValley),
-            //    new ByReferenceType(this.GetTypeReference("System.Boolean"))},
-            //    this.GetTypeReference("System.Boolean"));
-            //this.ApplyHookEntry(typeGameLocation, "answerDialogue", "OnGameLocation_answerDialogue_Prefix", true);
-
-            //// On Objects.TV hooks
-            //this.InsertModHook("OnObjectsTV_checkForAction_Prefix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.Objects.TV", this.StardewValley),
-            //    this.GetTypeReference("StardewValley.Farmer", this.StardewValley),
-            //    this.GetTypeReference("System.Boolean"),
-            //    new ByReferenceType(this.GetTypeReference("System.Boolean"))},
-            //    this.GetTypeReference("System.Boolean"));
-            //TypeDefinition typeObjectsTV = this.StardewValley.MainModule.GetType("StardewValley.Objects.TV");
-            //this.ApplyHookEntry(typeObjectsTV, "checkForAction", "OnObjectsTV_checkForAction_Prefix", true);
-
-            //this.InsertModHook("OnObjectsTV_checkForAction_Postfix", new TypeReference[] {
-            //    this.GetTypeReference("StardewValley.Objects.TV", this.StardewValley),
-            //    this.GetTypeReference("StardewValley.Farmer", this.StardewValley),
-            //    this.GetTypeReference("System.Boolean"),
-            //    new ByReferenceType(this.GetTypeReference("System.Boolean"))},
-            //    this.GetTypeReference("System.Void"));
-            //this.ApplyHookEntry(typeObjectsTV, "checkForAction", "OnObjectsTV_checkForAction_Postfix", false);
-
 
             return this.StardewValley;
         }
