@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         public override T Load<T>(string assetName, LanguageCode language)
         {
             // raise first-load callback
-            if (GameContentManager.IsFirstLoad)
+            if (!SMDroid.ModEntry.ContextInitialize && GameContentManager.IsFirstLoad)
             {
                 GameContentManager.IsFirstLoad = false;
                 this.OnLoadingFirstAsset();

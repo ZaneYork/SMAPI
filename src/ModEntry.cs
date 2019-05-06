@@ -5,6 +5,7 @@ using StardewModdingAPI.Framework;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
+using StardewModdingAPI;
 using StardewValley.Menus;
 using StardewValley.Buildings;
 using StardewValley.Objects;
@@ -21,9 +22,16 @@ namespace SMDroid
         /// <summary>SMAPI's content manager.</summary>
         private ContentCoordinator ContentCore { get; set; }
 
+        public static bool ContextInitialize = true;
+
+        public static ModEntry Instance;
+
+        public static bool IsHalt = false;
 
         public ModEntry()
         {
+            Instance = this;
+            new GameConsole();
             this.core = new SCore(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid/Mods"), false);
         }
         public override bool OnGame1_CreateContentManager_Prefix(Game1 game1, IServiceProvider serviceProvider, string rootDirectory, ref LocalizedContentManager __result)
@@ -35,7 +43,8 @@ namespace SMDroid
                 this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, SGame.ConstructorHack.Monitor, SGame.ConstructorHack.Reflection, SGame.ConstructorHack.JsonHelper, SGame.OnLoadingFirstAsset ?? SGame.ConstructorHack?.OnLoadingFirstAsset);
                 this.NextContentManagerIsMain = true;
                 __result = this.ContentCore.CreateGameContentManager("Game1._temporaryContent");
-                this.core.RunInteractively(this.ContentCore);
+                ContextInitialize = true;
+                this.core.RunInteractively(this.ContentCore, __result);
                 return false;
             }
             // Game1.content initialising from LoadContent
@@ -43,6 +52,8 @@ namespace SMDroid
             {
                 this.NextContentManagerIsMain = false;
                 __result = this.ContentCore.MainContentManager;
+                GameConsole.Instance.InitContent(__result);
+                ContextInitialize = false;
                 return false;
             }
 

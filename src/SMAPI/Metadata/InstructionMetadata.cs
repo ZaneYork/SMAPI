@@ -37,8 +37,6 @@ namespace StardewModdingAPI.Metadata
             // rewrite for Stardew Valley 1.3
             yield return new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize);
 
-            yield return new TypeReferenceRewriter("System.Collections.Generic.IList`1<StardewValley.GameLocation>", typeof(List<GameLocation>));
-
             yield return new TypeReferenceRewriter("System.Collections.Generic.IList`1<StardewValley.Menus.IClickableMenu>", typeof(List<IClickableMenu>));
 
             yield return new FieldToPropertyRewriter(typeof(Game1), "player");
@@ -61,11 +59,11 @@ namespace StardewModdingAPI.Metadata
 
             yield return new FieldToPropertyRewriter(typeof(Game1), "isDebrisWeather");
 
-            yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods), onlyIfPlatformChanged: true);
+            yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods));
 
-            yield return new MethodParentRewriter(typeof(Game1), typeof(Game1Methods), onlyIfPlatformChanged: true);
+            yield return new MethodParentRewriter(typeof(Game1), typeof(Game1Methods));
 
-            yield return new MethodParentRewriter(typeof(Farmer), typeof(FarmerMethods), onlyIfPlatformChanged: true);
+            yield return new MethodParentRewriter(typeof(Farmer), typeof(FarmerMethods));
 
             /****
             ** detect mod issues

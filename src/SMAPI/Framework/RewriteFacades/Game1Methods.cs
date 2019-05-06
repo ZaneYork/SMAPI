@@ -31,11 +31,5 @@ namespace StardewModdingAPI.Framework.RewriteFacades
         {
             warpFarmer(locationName, tileX, tileY, facingDirectionAfterWarp, false, true, false);
         }
-
-        [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
-        public static new void warpFarmer(string locationName, int tileX, int tileY, int facingDirectionAfterWarp, bool isStructure)
-        {
-            warpFarmer(locationName, tileX, tileY, facingDirectionAfterWarp, isStructure, true, false);
-        }
     }
 }

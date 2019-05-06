@@ -11,10 +11,12 @@ using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Microsoft.Xna.Framework.Graphics;
 #if SMAPI_FOR_WINDOWS
 using System.Windows.Forms;
 #endif
 using Newtonsoft.Json;
+using SMDroid;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Exceptions;
@@ -82,7 +84,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Whether the program has been disposed.</summary>
         private bool IsDisposed;
-
+        
         /// <summary>Regex patterns which match console messages to suppress from the console and log.</summary>
         private readonly Regex[] SuppressConsolePatterns =
         {
@@ -159,6 +161,7 @@ namespace StardewModdingAPI.Framework
 
             // init logging
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
+            this.Monitor.Log($"SMDroid 1.4.0 for Stardew Valley Android release {MainActivity.instance.GetBuild()}", LogLevel.Info);
             this.Monitor.Log($"Mods go here: {modsPath}", LogLevel.Info);
             if (modsPath != Constants.DefaultModsPath)
                 this.Monitor.Log("(Using custom --mods-path argument.)", LogLevel.Trace);
@@ -181,7 +184,6 @@ namespace StardewModdingAPI.Framework
             // add more leniant assembly resolvers
             AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => AssemblyLoader.ResolveAssembly(e.Name);
             SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper, this.InitialiseBeforeFirstAssetLoaded);
-
             // validate platform
             //#if SMAPI_FOR_WINDOWS
             //            if (Constants.Platform != Platform.Windows)
@@ -202,7 +204,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Launch SMAPI.</summary>
         [HandleProcessCorruptedStateExceptions, SecurityCritical] // let try..catch handle corrupted state exceptions
-        public void RunInteractively(ContentCoordinator contentCore)
+        public void RunInteractively(ContentCoordinator contentCore, LocalizedContentManager contentManager)
         {
             // initialise SMAPI
             try
@@ -244,7 +246,6 @@ namespace StardewModdingAPI.Framework
                     new ObjectErrorPatch(),
                     new LoadForNewGamePatch(this.Reflection, this.GameInstance.OnLoadStageChanged)
                 );
-
                 //// add exit handler
                 //new Thread(() =>
                 //{
@@ -309,8 +310,8 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log($"You have SMAPI for developers, so the console will be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
             if (!this.Settings.CheckForUpdates)
                 this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
-            if (!this.Monitor.WriteToConsole)
-                this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
+            //if (!this.Monitor.WriteToConsole)
+            //    this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
             this.Monitor.VerboseLog("Verbose logging enabled.");
 
             // update window titles
@@ -365,46 +366,51 @@ namespace StardewModdingAPI.Framework
                 return;
             }
 
-            // load mod data
-            ModToolkit toolkit = new ModToolkit();
-            ModDatabase modDatabase = toolkit.GetModDatabase(Constants.ApiMetadataPath);
-
-            // load mods
+            this.GameInstance.IsSuspended = true;
+            new Thread(() =>
             {
-                this.Monitor.Log("Loading mod metadata...", LogLevel.Trace);
-                ModResolver resolver = new ModResolver();
-
-                // load manifests
-                IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modDatabase).ToArray();
-
-                // filter out ignored mods
-                foreach (IModMetadata mod in mods.Where(p => p.IsIgnored))
-                    this.Monitor.Log($"  Skipped {mod.RelativeDirectoryPath} (folder name starts with a dot).", LogLevel.Trace);
-                mods = mods.Where(p => !p.IsIgnored).ToArray();
+                // load mod data
+                ModToolkit toolkit = new ModToolkit();
+                ModDatabase modDatabase = toolkit.GetModDatabase(Constants.ApiMetadataPath);
 
                 // load mods
-                resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
-                mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
-                this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
-
-                // write metadata file
-                if (this.Settings.DumpMetadata)
                 {
-                    ModFolderExport export = new ModFolderExport
+                    this.Monitor.Log("Loading mod metadata...", LogLevel.Trace);
+                    ModResolver resolver = new ModResolver();
+
+                    // load manifests
+                    IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modDatabase).ToArray();
+
+                    // filter out ignored mods
+                    foreach (IModMetadata mod in mods.Where(p => p.IsIgnored))
+                        this.Monitor.Log($"  Skipped {mod.RelativeDirectoryPath} (folder name starts with a dot).", LogLevel.Trace);
+                    mods = mods.Where(p => !p.IsIgnored).ToArray();
+
+                    // load mods
+                    resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
+                    mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
+                    this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
+
+                    // write metadata file
+                    if (this.Settings.DumpMetadata)
                     {
-                        Exported = DateTime.UtcNow.ToString("O"),
-                        ApiVersion = Constants.ApiVersion.ToString(),
-                        GameVersion = Constants.GameVersion.ToString(),
-                        ModFolderPath = this.ModsPath,
-                        Mods = mods
-                    };
-                    this.Toolkit.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}metadata-dump.json"), export);
+                        ModFolderExport export = new ModFolderExport
+                        {
+                            Exported = DateTime.UtcNow.ToString("O"),
+                            ApiVersion = Constants.ApiVersion.ToString(),
+                            GameVersion = Constants.GameVersion.ToString(),
+                            ModFolderPath = this.ModsPath,
+                            Mods = mods
+                        };
+                        this.Toolkit.JsonHelper.WriteJsonFile(Path.Combine(Constants.LogDir, $"{Constants.LogNamePrefix}metadata-dump.json"), export);
+                    }
+
+                    // check for updates
+                    //this.CheckForUpdatesAsync(mods);
                 }
-
-                // check for updates
-                //this.CheckForUpdatesAsync(mods);
-            }
-
+                GameConsole.Instance.IsVisible = false;
+                this.GameInstance.IsSuspended = false;
+            }).Start();
             // update window titles
             //int modsLoaded = this.ModRegistry.GetAll().Count();
             //Game1.game1.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";

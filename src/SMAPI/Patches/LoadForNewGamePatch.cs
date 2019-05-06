@@ -76,7 +76,7 @@ namespace StardewModdingAPI.Patches
             if (LoadForNewGamePatch.IsCreating)
             {
                 // raise CreatedBasicInfo after locations are cleared twice
-                List<GameLocation> locations = Game1.locations;
+                IList<GameLocation> locations = Game1.locations;
                 //locations.CollectionChanged += LoadForNewGamePatch.OnLocationListChanged;
             }
 
@@ -90,7 +90,7 @@ namespace StardewModdingAPI.Patches
             if (LoadForNewGamePatch.IsCreating)
             {
                 // clean up
-                List<GameLocation> locations = Game1.locations;
+                IList<GameLocation> locations = Game1.locations;
                 //locations.CollectionChanged -= LoadForNewGamePatch.OnLocationListChanged;
 
                 // raise stage changed

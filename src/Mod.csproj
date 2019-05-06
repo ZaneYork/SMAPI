@@ -426,6 +426,7 @@
     <Compile Include="Newtonsoft.Json\Utilities\TypeExtensions.cs" />
     <Compile Include="Newtonsoft.Json\Utilities\ValidationUtils.cs" />
     <Compile Include="Newtonsoft.Json\WriteState.cs" />
+    <Compile Include="GameConsole.cs" />
     <Compile Include="Options\ModOptionsCheckbox.cs" />
     <Compile Include="Options\ModOptionsSlider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
