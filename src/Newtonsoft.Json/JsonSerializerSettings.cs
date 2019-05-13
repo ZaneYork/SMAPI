@@ -245,7 +245,7 @@ namespace Newtonsoft.Json
             {
                 ReferenceResolverProvider = (value != null)
                     ? () => value
-                    : (Serialization.Func<IReferenceResolver>)null;
+                    : (Func<IReferenceResolver>)null;
             }
         }
 
@@ -253,7 +253,7 @@ namespace Newtonsoft.Json
         /// Gets or sets a function that creates the <see cref="IReferenceResolver"/> used by the serializer when resolving references.
         /// </summary>
         /// <value>A function that creates the <see cref="IReferenceResolver"/> used by the serializer when resolving references.</value>
-        public Serialization.Func<IReferenceResolver> ReferenceResolverProvider { get; set; }
+        public Func<IReferenceResolver> ReferenceResolverProvider { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ITraceWriter"/> used by the serializer when writing trace messages.

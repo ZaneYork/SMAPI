@@ -211,7 +211,7 @@ namespace Newtonsoft.Json.Utilities
             return allAdded;
         }
 
-        public static int IndexOf<T>(this IEnumerable<T> collection, Serialization.Func<T, bool> predicate)
+        public static int IndexOf<T>(this IEnumerable<T> collection, Func<T, bool> predicate)
         {
             int index = 0;
             foreach (T value in collection)

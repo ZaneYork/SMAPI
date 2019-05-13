@@ -67,9 +67,9 @@ namespace Newtonsoft.Json.Utilities
         public static MethodCall<object, object> PreComputeUnionTagReader { get; private set; }
         public static MethodCall<object, object> PreComputeUnionReader { get; private set; }
         public static MethodCall<object, object> PreComputeUnionConstructor { get; private set; }
-        public static Serialization.Func<object, object> GetUnionCaseInfoDeclaringType { get; private set; }
-        public static Serialization.Func<object, object> GetUnionCaseInfoName { get; private set; }
-        public static Serialization.Func<object, object> GetUnionCaseInfoTag { get; private set; }
+        public static Func<object, object> GetUnionCaseInfoDeclaringType { get; private set; }
+        public static Func<object, object> GetUnionCaseInfoName { get; private set; }
+        public static Func<object, object> GetUnionCaseInfoTag { get; private set; }
         public static MethodCall<object, object> GetUnionCaseInfoFields { get; private set; }
 
         public const string FSharpSetTypeName = "FSharpSet`1";

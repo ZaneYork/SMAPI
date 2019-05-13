@@ -61,7 +61,7 @@ namespace Newtonsoft.Json.Serialization
 
         private Type _genericWrapperType;
         private ObjectConstructor<object> _genericWrapperCreator;
-        private Serialization.Func<object> _genericTemporaryCollectionCreator;
+        private Func<object> _genericTemporaryCollectionCreator;
 
         internal bool IsArray { get; }
         internal bool ShouldCreateWrapper { get; }

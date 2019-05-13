@@ -43,8 +43,8 @@ namespace Newtonsoft.Json.Serialization
     public class ExpressionValueProvider : IValueProvider
     {
         private readonly MemberInfo _memberInfo;
-        private Serialization.Func<object, object> _getter;
-        private Serialization.Action<object, object> _setter;
+        private Func<object, object> _getter;
+        private Action<object, object> _setter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExpressionValueProvider"/> class.

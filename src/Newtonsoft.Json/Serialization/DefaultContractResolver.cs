@@ -349,7 +349,7 @@ namespace Newtonsoft.Json.Serialization
             contract.MemberSerialization = JsonTypeReflector.GetObjectMemberSerialization(contract.NonNullableUnderlyingType, ignoreSerializableAttribute);
             contract.Properties.AddRange(CreateProperties(contract.NonNullableUnderlyingType, contract.MemberSerialization));
 
-            Serialization.Func<string, string> extensionDataNameResolver = null;
+            Func<string, string> extensionDataNameResolver = null;
 
             JsonObjectAttribute attribute = JsonTypeReflector.GetCachedAttribute<JsonObjectAttribute>(contract.NonNullableUnderlyingType);
             if (attribute != null)
@@ -511,14 +511,14 @@ namespace Newtonsoft.Json.Serialization
                 createdType = t;
             }
 
-            Serialization.Func<object, object> getExtensionDataDictionary = JsonTypeReflector.ReflectionDelegateFactory.CreateGet<object>(member);
+            Func<object, object> getExtensionDataDictionary = JsonTypeReflector.ReflectionDelegateFactory.CreateGet<object>(member);
 
             if (extensionDataAttribute.ReadData)
             {
-                Serialization.Action<object, object> setExtensionDataDictionary = (ReflectionUtils.CanSetMemberValue(member, true, false))
+                Action<object, object> setExtensionDataDictionary = (ReflectionUtils.CanSetMemberValue(member, true, false))
                  ? JsonTypeReflector.ReflectionDelegateFactory.CreateSet<object>(member)
                  : null;
-                Serialization.Func<object> createExtensionDataDictionary = JsonTypeReflector.ReflectionDelegateFactory.CreateDefaultConstructor<object>(createdType);
+                Func<object> createExtensionDataDictionary = JsonTypeReflector.ReflectionDelegateFactory.CreateDefaultConstructor<object>(createdType);
                 MethodInfo setMethod = t.GetProperty("Item", BindingFlags.Public | BindingFlags.Instance, null, valueType, new[] { keyType }, null)?.GetSetMethod();
                 if (setMethod == null)
                 {
@@ -775,7 +775,7 @@ namespace Newtonsoft.Json.Serialization
             return JsonTypeReflector.GetJsonConverter(objectType);
         }
 
-        private Serialization.Func<object> GetDefaultCreator(Type createdType)
+        private Func<object> GetDefaultCreator(Type createdType)
         {
             return JsonTypeReflector.ReflectionDelegateFactory.CreateDefaultConstructor<object>(createdType);
         }
@@ -1397,14 +1397,14 @@ namespace Newtonsoft.Json.Serialization
             IValueProvider valueProvider;
 
 #if !(PORTABLE40 || PORTABLE || DOTNET || NETSTANDARD2_0)
-            //if (DynamicCodeGeneration)
-            //{
-            //    valueProvider = new DynamicValueProvider(member);
-            //}
-            //else
-            //{
+            if (DynamicCodeGeneration)
+            {
+                valueProvider = new DynamicValueProvider(member);
+            }
+            else
+            {
                 valueProvider = new ReflectionValueProvider(member);
-            //}
+            }
 #elif !(PORTABLE40)
             valueProvider = new ExpressionValueProvider(member);
 #else
@@ -1652,7 +1652,7 @@ namespace Newtonsoft.Json.Serialization
                 return;
             }
 
-            Serialization.Func<object, object> specifiedPropertyGet = JsonTypeReflector.ReflectionDelegateFactory.CreateGet<object>(specifiedMember);
+            Func<object, object> specifiedPropertyGet = JsonTypeReflector.ReflectionDelegateFactory.CreateGet<object>(specifiedMember);
 
             property.GetIsSpecified = o => (bool)specifiedPropertyGet(o);
 

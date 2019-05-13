@@ -41,7 +41,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Newtonsoft.Json.Utilities
 {
-#if (DOTNET || PORTABLE || PORTABLE40) && !NETSTANDARD2_0
+#if (DOTNET || PORTABLE) && !NETSTANDARD2_0
     [Flags]
     internal enum MemberTypes
     {

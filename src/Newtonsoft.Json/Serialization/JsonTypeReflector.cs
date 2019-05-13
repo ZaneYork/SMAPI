@@ -58,8 +58,8 @@ namespace Newtonsoft.Json.Serialization
 
         public const string ConcurrentDictionaryTypeName = "System.Collections.Concurrent.ConcurrentDictionary`2";
 
-        private static readonly ThreadSafeStore<Type, Serialization.Func<object[], object>> CreatorCache = 
-            new ThreadSafeStore<Type, Serialization.Func<object[], object>>(GetCreator);
+        private static readonly ThreadSafeStore<Type, Func<object[], object>> CreatorCache = 
+            new ThreadSafeStore<Type, Func<object[], object>>(GetCreator);
 
 #if !(NET20 || DOTNET)
         private static readonly ThreadSafeStore<Type, Type> AssociatedMetadataTypesCache = new ThreadSafeStore<Type, Type>(GetAssociateMetadataTypeFromAttribute);
@@ -184,7 +184,7 @@ namespace Newtonsoft.Json.Serialization
 
             if (converterAttribute != null)
             {
-                Serialization.Func<object[], object> creator = CreatorCache.Get(converterAttribute.ConverterType);
+                Func<object[], object> creator = CreatorCache.Get(converterAttribute.ConverterType);
                 if (creator != null)
                 {
                     return (JsonConverter)creator(converterAttribute.ConverterParameters);
@@ -202,13 +202,13 @@ namespace Newtonsoft.Json.Serialization
         /// If <c>null</c>, the default constructor is used.</param>
         public static JsonConverter CreateJsonConverterInstance(Type converterType, object[] args)
         {
-            Serialization.Func<object[], object> converterCreator = CreatorCache.Get(converterType);
+            Func<object[], object> converterCreator = CreatorCache.Get(converterType);
             return (JsonConverter)converterCreator(args);
         }
 
         public static NamingStrategy CreateNamingStrategyInstance(Type namingStrategyType, object[] args)
         {
-            Serialization.Func<object[], object> converterCreator = CreatorCache.Get(namingStrategyType);
+            Func<object[], object> converterCreator = CreatorCache.Get(namingStrategyType);
             return (NamingStrategy)converterCreator(args);
         }
 
@@ -227,9 +227,9 @@ namespace Newtonsoft.Json.Serialization
             return containerAttribute.NamingStrategyInstance;
         }
 
-        private static Serialization.Func<object[], object> GetCreator(Type type)
+        private static Func<object[], object> GetCreator(Type type)
         {
-            Serialization.Func<object> defaultConstructor = (ReflectionUtils.HasDefaultConstructor(type, false))
+            Func<object> defaultConstructor = (ReflectionUtils.HasDefaultConstructor(type, false))
                 ? ReflectionDelegateFactory.CreateDefaultConstructor<object>(type)
                 : null;
 
@@ -516,10 +516,10 @@ namespace Newtonsoft.Json.Serialization
             get
             {
 #if !(PORTABLE40 || PORTABLE || DOTNET || NETSTANDARD2_0)
-                //if (DynamicCodeGeneration)
-                //{
-                //    return DynamicReflectionDelegateFactory.Instance;
-                //}
+                if (DynamicCodeGeneration)
+                {
+                    return DynamicReflectionDelegateFactory.Instance;
+                }
 
                 return LateBoundReflectionDelegateFactory.Instance;
 #else

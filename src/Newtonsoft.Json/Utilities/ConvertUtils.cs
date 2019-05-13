@@ -248,10 +248,10 @@ namespace Newtonsoft.Json.Utilities
 #endif
         }
 
-        private static readonly ThreadSafeStore<StructMultiKey<Type, Type>, Serialization.Func<object, object>> CastConverters =
-            new ThreadSafeStore<StructMultiKey<Type, Type>, Serialization.Func<object, object>>(CreateCastConverter);
+        private static readonly ThreadSafeStore<StructMultiKey<Type, Type>, Func<object, object>> CastConverters =
+            new ThreadSafeStore<StructMultiKey<Type, Type>, Func<object, object>>(CreateCastConverter);
 
-        private static Serialization.Func<object, object> CreateCastConverter(StructMultiKey<Type, Type> t)
+        private static Func<object, object> CreateCastConverter(StructMultiKey<Type, Type> t)
         {
             Type initialType = t.Value1;
             Type targetType = t.Value2;
@@ -599,7 +599,7 @@ namespace Newtonsoft.Json.Utilities
                     return value;
                 }
 
-                Serialization.Func<object, object> castConverter = CastConverters.Get(new StructMultiKey<Type, Type>(valueType, targetType));
+                Func<object, object> castConverter = CastConverters.Get(new StructMultiKey<Type, Type>(valueType, targetType));
                 if (castConverter != null)
                 {
                     return castConverter(value);

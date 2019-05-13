@@ -45,7 +45,7 @@ namespace Newtonsoft.Json.Serialization
         /// Gets or sets the dictionary key resolver.
         /// </summary>
         /// <value>The dictionary key resolver.</value>
-        public Serialization.Func<string, string> DictionaryKeyResolver { get; set; }
+        public Func<string, string> DictionaryKeyResolver { get; set; }
 
         /// <summary>
         /// Gets the <see cref="System.Type"/> of the dictionary keys.
@@ -66,7 +66,7 @@ namespace Newtonsoft.Json.Serialization
         private Type _genericWrapperType;
         private ObjectConstructor<object> _genericWrapperCreator;
 
-        private Serialization.Func<object> _genericTemporaryDictionaryCreator;
+        private Func<object> _genericTemporaryDictionaryCreator;
 
         internal bool ShouldCreateWrapper { get; }
 
