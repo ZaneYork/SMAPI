@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ApplicationName">Stardew ModLoader</string>
+    <string name="Extract">Extract</string>
+    <string name="Generate">Generate</string>
+    <string name="Launch">Launch</string>
+    <string name="Disable">Disable</string>
+    <string name="Enable">Enable</string>
+    <string name="Wiki">Wiki</string>
+    <string name="UpdateTip">Update Available</string>
+    <string name="Update">Upgrade</string>
+    <string name="Ignore">Ignore</string>
+    <string name="ExtractingMessage">Extracting game resources</string>
+    <string name="ExtractedMessage">Extracted</string>
+    <string name="GeneratingMessage">Generating Dlls</string>
+    <string name="GeneratedMessage">Generated</string>
+    <string name="NotInstalledMessage">Install the Stardew Valley First</string>
+    <string name="NotExtractedMessage">Press Extract First</string>
+    <string name="NotGeneratedMessage">Press Generate First</string>
+</resources>

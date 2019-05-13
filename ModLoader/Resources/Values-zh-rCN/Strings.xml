@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ApplicationName">Stardew ModLoader</string>
+    <string name="Extract">解压</string>
+    <string name="Generate">生成</string>
+    <string name="Launch">启动</string>
+    <string name="Disable">禁用</string>
+    <string name="Enable">启用</string>
+    <string name="Wiki">Wiki</string>
+    <string name="UpdateTip">发现新版本</string>
+    <string name="Update">立即更新</string>
+    <string name="Ignore">暂时忽略</string>
+    <string name="ExtractingMessage">正在解压游戏资源</string>
+    <string name="ExtractedMessage">解压完成</string>
+    <string name="GeneratingMessage">正在生成DLL文件</string>
+    <string name="GeneratedMessage">生成完成</string>
+    <string name="NotInstalledMessage">请先安装游戏本体</string>
+    <string name="NotExtractedMessage">请先点击解压按钮</string>
+    <string name="NotGeneratedMessage">请先点击生成按钮</string>
+</resources>
