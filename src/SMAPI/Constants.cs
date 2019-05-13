@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Android.App;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
@@ -34,6 +35,10 @@ namespace StardewModdingAPI
         /// <summary>The path to the game folder.</summary>
         public static string ExecutionPath { get; } = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path , "SMDroid");
 
+
+        /// <summary>The path to the Assets folder.</summary>
+        public static string AssetsPath { get; } = Path.Combine(ExecutionPath, "Game/assets/Content");
+
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
         public static string DataPath { get; } = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid");
 
@@ -57,6 +62,9 @@ namespace StardewModdingAPI
 
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
         internal static readonly string InternalFilesPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid/smapi-internal");
+
+        /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
+        internal static readonly string GameAssembliesPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid/Game/assemblies");
 
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.config.json");
@@ -96,6 +104,9 @@ namespace StardewModdingAPI
 
         /// <summary>The game's assembly name.</summary>
         internal static string GameAssemblyName = "StardewValley";
+
+        /// <summary>The game's package name.</summary>
+        internal static string PackageName { get; } = Application.Context.PackageName;
 
 
         /*********

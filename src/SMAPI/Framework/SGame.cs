@@ -1949,10 +1949,7 @@ namespace StardewModdingAPI.Framework
                         string s = Game1.content.LoadString(@"Strings\StringsFromCSFiles:DayTimeMoneyBox.cs.10378");
                         SpriteText.drawStringWithScrollBackground(Game1.spriteBatch, s, 0x60, 0x20, "", 1f, -1, 0.088f);
                     }
-                    events.Rendered.RaiseEmpty();
-#if !SMAPI_3_0_STRICT
-                    events.Legacy_OnPostRenderEvent.Raise();
-#endif
+
                     _spriteBatchEnd.Invoke();
                     drawOverlays.Invoke(Game1.spriteBatch);
                     renderScreenBuffer.Invoke(BlendState.Opaque);
@@ -1997,6 +1994,12 @@ namespace StardewModdingAPI.Framework
                         DrawUnscaledActiveClickableMenuForPinchZoom.Invoke();
                         DrawNativeScaledActiveClickableMenuForPinchZoom.Invoke();
                     }
+                    SpriteBatchBegin.Invoke(Game1.options.zoomLevel);
+                    events.Rendered.RaiseEmpty();
+#if !SMAPI_3_0_STRICT
+                    events.Legacy_OnPostRenderEvent.Raise();
+#endif
+                    _spriteBatchEnd.Invoke();
                     if ((_drawHUD.GetValue() && (Game1.hudMessages.Count > 0)) && (!Game1.eventUp || Game1.isFestival()))
                     {
                         Game1.SetSpriteBatchBeginNextID("A-F");

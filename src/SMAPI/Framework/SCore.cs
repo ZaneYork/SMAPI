@@ -11,6 +11,8 @@ using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Android.App;
+using Android.Content.PM;
 using Microsoft.Xna.Framework.Graphics;
 #if SMAPI_FOR_WINDOWS
 using System.Windows.Forms;
@@ -161,7 +163,7 @@ namespace StardewModdingAPI.Framework
 
             // init logging
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
-            this.Monitor.Log($"SMDroid 1.4.0 for Stardew Valley Android release {MainActivity.instance.GetBuild()}", LogLevel.Info);
+            this.Monitor.Log($"SMDroid 1.4.0 for Stardew Valley Android release {Application.Context.PackageManager.GetPackageInfo(Application.Context.PackageName, (PackageInfoFlags)0).VersionCode}", LogLevel.Info);
             this.Monitor.Log($"Mods go here: {modsPath}", LogLevel.Info);
             if (modsPath != Constants.DefaultModsPath)
                 this.Monitor.Log("(Using custom --mods-path argument.)", LogLevel.Trace);

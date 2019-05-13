@@ -15,7 +15,6 @@ namespace SMDroid
 {
     public class ModEntry : ModHooks
     {
-
         private SCore core;
         /// <summary>Whether the next content manager requested by the game will be for <see cref="Game1.content"/>.</summary>
         private bool NextContentManagerIsMain;
@@ -40,6 +39,10 @@ namespace SMDroid
             // NOTE: this method is called before the SGame constructor runs. Don't depend on anything being initialised at this point.
             if (this.ContentCore == null)
             {
+                //if (Constants.PackageName == "com.zane.smdroid")
+                //{
+                //    rootDirectory = Constants.AssetsPath;
+                //}
                 this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, SGame.ConstructorHack.Monitor, SGame.ConstructorHack.Reflection, SGame.ConstructorHack.JsonHelper, SGame.OnLoadingFirstAsset ?? SGame.ConstructorHack?.OnLoadingFirstAsset);
                 this.NextContentManagerIsMain = true;
                 __result = this.ContentCore.CreateGameContentManager("Game1._temporaryContent");
