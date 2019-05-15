@@ -1,0 +1,215 @@
+[
+  {
+    "UniqueID": "Pathoschild.ContentPatcher",
+    "Name": "Content Patcher",
+    "Description": "Loads content packs which edit game data and images without changing the game files.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/ContentPatcher.zip",
+    "Version": "1.6.4",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "spacechase0.JsonAssets",
+    "Name": "Json Assets",
+    "Description": "Allow custom stuff.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/JsonAssets.zip",
+    "Version": "1.3.3",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "Pathoschild.Automate",
+    "Name": "Automate",
+    "Description": "Lets you automate crafting machines, fruit trees, and more by connecting them to chests.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/Automate.zip",
+    "Version": "1.11.1",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "VirtualKeyboad",
+    "Name": "VirtualKeyboard",
+    "Description": "Virtual keyboard for mods",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/VirtualKeyboad.zip",
+    "Version": "1.0.1",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "CJBok.CheatsMenu",
+    "Name": "CJB Cheats Menu",
+    "Description": "Simple in-game cheats menu!",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/CJBCheatsMenu.zip",
+    "Version": "1.19.0",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "CJBok.ItemSpawner",
+    "Name": "CJB Item Spawner",
+    "Description": "Simple in-game item spawner!",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/CJBItemSpawner.zip",
+    "Version": "1.11.3",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "WhiteMind.AF",
+    "Name": "AutoFish",
+    "Description": "Auto play fish minigame and fishing rod auto hit.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/AutoFish.zip",
+    "Version": "1.2.0",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "jwdred.AnimalSitter",
+    "Name": "Animal Sitter",
+    "Description": "Let someone else pet all those pesky animals!",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/AnimalSitter.zip",
+    "Version": "1.1.1-unofficial.3-pathoschild",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "cantorsdust.TimeSpeed",
+    "Name": "TimeSpeed",
+    "Description": "Lets you control the flow of time in the game: speed it up, slow it down, or freeze it altogether.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/TimeSpeed.zip",
+    "Version": "2.4.2",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "Cdaragorn.UiInfoSuite",
+    "Name": "UI Info Suite",
+    "Description": "Adds a lot of useful information to the user interface. This is based on Demiacle's excellent UIModSuite.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/UI%20Info%20Suite.zip",
+    "Version": "1.7.23",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "spacechase0.SpaceCore",
+    "Name": "SpaceCore",
+    "Description": "Required by a few mods.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/SpaceCore.zip",
+    "Version": "1.2.5",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "stokastic.PrismaticTools",
+    "Name": "Prismatic Tools",
+    "Description": "Adds prismatic tools and sprinklers to the game.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/PrismaticTools.zip",
+    "Version": "1.7.1-unofficial.6-pathoschild",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "SkullCavernElevator",
+    "Name": "SkullCavernElevator",
+    "Description": "Elevator for the Skull Cavern",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/SkullCavernElevator.zip",
+    "Version": "1.2.4",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "aEnigma.ConvenientChests",
+    "Name": "Convenient Chests",
+    "Description": "Makes your life easier: Allows crafting from and auto-stashing to nearby chests.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/ConvenientChests.zip",
+    "Version": "1.2.0",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "cat.betterartisangoodicons",
+    "Name": "Better Artisan Good Icons",
+    "Description": "Makes jelly, pickles, wine, juice, and honey icons be based on the fruit, vegetable, or flower used to make them.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/Better%20Artisan%20Good%20Icons.zip",
+    "Version": "1.5.0",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "SilentOak.QualityProducts",
+    "Name": "Quality Products",
+    "Description": "Add quality to cooking and artisan products made from quality ingredients",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/Quality%20Products.zip",
+    "Version": "2.1.2",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "Platonymous.Toolkit",
+    "Name": "Platonymous Toolkit",
+    "Description": "Platonymous Toolkit",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/PyTK.zip",
+    "Version": "1.6.3",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "Platonymous.TMXLoader",
+    "Name": "TMXLoader",
+    "Description": "Load TMX Maps into the Game",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/TMX%20Loader.zip",
+    "Version": "1.6.3",
+    "Dependencies": [
+      {
+        "UniqueID": "Platonymous.Toolkit",
+        "MinimumVersion": "1.6.0"
+      }
+    ]
+  },
+  {
+    "UniqueID": "Platonymous.CustomFarming",
+    "Name": "Custom Farming Redux",
+    "Description": "Mod for Custom Machine creation.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/Custom%20Farming%20Redux.zip",
+    "Version": "2.10.10",
+    "Dependencies": [
+      {
+        "UniqueID": "Platonymous.Toolkit",
+        "MinimumVersion": "1.5.0"
+      }
+    ]
+  },
+  {
+    "UniqueID": "Platonymous.CFAutomate",
+    "Name": "Custom Farming Automate Bridge",
+    "Description": "Allows Custom Farming to work with Automate",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/CFAutomate.zip",
+    "Version": "2.10.9",
+    "Dependencies": [
+      {
+        "UniqueID": "Pathoschild.Automate"
+      },
+      {
+        "UniqueID": "Platonymous.CustomFarming"
+      }
+    ]
+  },
+  {
+    "UniqueID": "cat.stackeverything",
+    "Name": "Stack Everything",
+    "Description": "Lets you stack BigCraftables (scarecrows, furnaces, casks, etc), Furniture, and Wallpapers up to 999.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/StackEverything.zip",
+    "Version": "2.14.0",
+    "Dependencies": [
+      {
+        "UniqueID": "Platonymous.CustomFarming",
+        "IsRequired": false
+      }
+    ]
+  },
+  {
+    "UniqueID": "mmanlapat.ScytheHarvesting",
+    "Name": "Scythe Harvesting",
+    "Description": "Harvest crops and flowers using a Scythe! Grants XP and Sunflower Seeds.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/ScytheHarvesting.zip",
+    "Version": "2.0.0",
+    "Dependencies": []
+  },
+  {
+    "UniqueID": "Platonymous.ScaleUp",
+    "Name": "ScaleUp",
+    "Description": "Allows adding higher resolution textures via ContentPatcher",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/Scale%20Up.zip",
+    "Version": "1.0.1",
+    "Dependencies": [
+      {
+        "UniqueID": "Platonymous.Toolkit"
+      },
+      {
+        "UniqueID": "Pathoschild.ContentPatcher"
+      }
+    ]
+  }
+]
