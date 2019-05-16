@@ -19,21 +19,25 @@
             android:text="@string/Extract"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="96sp"
             android:id="@+id/buttonExtract" />
         <Button
             android:text="@string/Generate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="96sp"
             android:id="@+id/buttonGenerate" />
         <Button
             android:text="@string/Launch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="96sp"
             android:id="@+id/buttonLaunch" />
         <Button
             android:text="@string/Wiki"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="96sp"
             android:id="@+id/buttonWiki" />
     </LinearLayout>
     <LinearLayout

@@ -89,7 +89,9 @@ namespace StardewModdingAPI.Framework
         private bool IsDisposed;
 
         public static SCore Instance;
-        
+
+        public bool HarmonyDetourBridgeFailed = false;
+
         /// <summary>Regex patterns which match console messages to suppress from the console and log.</summary>
         private readonly Regex[] SuppressConsolePatterns =
         {
@@ -254,7 +256,15 @@ namespace StardewModdingAPI.Framework
 
                 // override game
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper, this.InitialiseBeforeFirstAssetLoaded);
-                HarmonyDetourBridge.Init();
+                try
+                {
+                    HarmonyDetourBridge.Init();
+                }
+                catch
+                {
+                    this.HarmonyDetourBridgeFailed = true;
+                }
+
                 // override game
                 this.GameInstance = new SGame(
                     monitor: this.Monitor,
@@ -304,31 +314,13 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log($"SMAPI failed to initialise: {ex.GetLogSummary()}", LogLevel.Error);
                 return;
             }
-
-            // check update marker
-            if (File.Exists(Constants.UpdateMarker))
-            {
-                string rawUpdateFound = File.ReadAllText(Constants.UpdateMarker);
-                if (SemanticVersion.TryParse(rawUpdateFound, out ISemanticVersion updateFound))
-                {
-                    if (Constants.ApiVersion.IsPrerelease() && updateFound.IsNewerThan(Constants.ApiVersion))
-                    {
-                        this.Monitor.Log("A new version of SMAPI was detected last time you played.", LogLevel.Error);
-                        this.Monitor.Log($"You can update to {updateFound}: https://smapi.io.", LogLevel.Error);
-                        this.Monitor.Log("Press any key to continue playing anyway. (This only appears when using a SMAPI beta.)", LogLevel.Info);
-                        Console.ReadKey();
-                    }
-                }
-                File.Delete(Constants.UpdateMarker);
-            }
-
+            
             // show details if game crashed during last session
             if (File.Exists(Constants.FatalCrashMarker))
             {
                 this.Monitor.Log("The game crashed last time you played. That can be due to bugs in the game, but if it happens repeatedly you can ask for help here: https://community.playstarbound.com/threads/108375/.", LogLevel.Error);
                 this.Monitor.Log("If you ask for help, make sure to share your SMAPI log: https://log.smapi.io.", LogLevel.Error);
                 this.Monitor.Log("Press any key to delete the crash data and continue playing.", LogLevel.Info);
-                Console.ReadKey();
                 File.Delete(Constants.FatalCrashLog);
                 File.Delete(Constants.FatalCrashMarker);
             }
@@ -420,6 +412,8 @@ namespace StardewModdingAPI.Framework
             this.GameInstance.IsSuspended = true;
             new Thread(() =>
             {
+                while (!this.GameInstance.IsAfterInitialize)
+                    Thread.Sleep(10);
                 // load mod data
                 ModToolkit toolkit = new ModToolkit();
                 ModDatabase modDatabase = toolkit.GetModDatabase(Constants.ApiMetadataPath);
@@ -1009,7 +1003,7 @@ namespace StardewModdingAPI.Framework
                 Assembly modAssembly;
                 try
                 {
-                    modAssembly = assemblyLoader.Load(mod, assemblyPath, true/*assumeCompatible: mod.DataRecord?.Status == ModStatus.AssumeCompatible*/);
+                    modAssembly = assemblyLoader.Load(mod, assemblyPath, assumeCompatible: mod.DataRecord?.Status == ModStatus.AssumeCompatible);
                     this.ModRegistry.TrackAssemblies(mod, modAssembly);
                 }
                 catch (IncompatibleInstructionException) // details already in trace logs

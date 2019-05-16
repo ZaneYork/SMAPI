@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Widget;
@@ -39,18 +42,46 @@ namespace ModLoader.Common
             fs.Close();
         }
 
-        public static void MakeToast(Context context, string message, ToastLength toastLength)
+        public static void InvokeLooperThread(Action action)
         {
             new Thread(() =>
             {
 
                 Looper.Prepare();
-                new Handler().Post(() =>
-                {
-                    Toast.MakeText(context, message, toastLength).Show();
-                });
+                new Handler().Post(action);
                 Looper.Loop();
             }).Start();
+        }
+
+        public static void MakeToast(Context context, string message, ToastLength toastLength)
+        {
+            InvokeLooperThread(() => Toast.MakeText(context, message, toastLength).Show());
+        }
+
+        public static void ShowProgressDialog(Context context, int titleId, string message, Action<AlertDialog> returnCallback)
+        {
+            InvokeLooperThread(() =>
+            {
+                ProgressDialog dialog = new ProgressDialog(context);
+                dialog.SetTitle(titleId);
+                dialog.SetMessage(message);
+                dialog.SetCancelable(false);
+                dialog.SetProgressStyle(ProgressDialogStyle.Spinner);
+                dialog.Show();
+                returnCallback(dialog);
+            });
+        }
+
+        public static void ShowConfirmDialog(Context context, int titleId, int messageId, int confirmId, int cancelId, Action onConfirm = null,
+            Action onCancel = null)
+        {
+            InvokeLooperThread(() =>
+            {
+                new AlertDialog.Builder(context).SetTitle(titleId).SetMessage(messageId).SetCancelable(true)
+                    .SetPositiveButton(confirmId, (sender, args) => onConfirm?.Invoke())
+                    .SetNegativeButton(cancelId, (sender, args) => onCancel?.Invoke())
+                    .Show();
+            });
         }
     }
 }

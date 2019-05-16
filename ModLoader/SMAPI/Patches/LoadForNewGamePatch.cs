@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Reflection;
 using Harmony;
 using StardewModdingAPI.Enums;
+using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
@@ -59,7 +60,10 @@ namespace StardewModdingAPI.Patches
             MethodInfo prefix = AccessTools.Method(this.GetType(), nameof(LoadForNewGamePatch.Prefix));
             MethodInfo postfix = AccessTools.Method(this.GetType(), nameof(LoadForNewGamePatch.Postfix));
 
-            harmony.Patch(method, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
+            if (!SCore.Instance.HarmonyDetourBridgeFailed)
+            {
+                harmony.Patch(method, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
+            }
         }
 
 

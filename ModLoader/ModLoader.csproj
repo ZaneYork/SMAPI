@@ -28,6 +28,8 @@
     <AndroidSigningStorePass>ZaneYork</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>keystore.alias</AndroidSigningKeyAlias>
     <AndroidSigningKeyPass>ZaneYork</AndroidSigningKeyPass>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -55,7 +57,7 @@
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
     <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
-    <AndroidSupportedAbis>armeabi-v7a;x86;x86_64</AndroidSupportedAbis>
+    <AndroidSupportedAbis>armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <DocumentationFile>
     </DocumentationFile>
@@ -65,8 +67,9 @@
     <AotAssemblies>false</AotAssemblies>
     <EnableLLVM>false</EnableLLVM>
     <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
-    <AndroidLinkSkip>mscorlib;System;System.Xml;System.Core;System.Xml.Linq;System.Net.Http;System.Runtime.Serialization;StardewModdingAPI;StardewValley;xTile;BmFont</AndroidLinkSkip>
+    <AndroidLinkSkip>mscorlib;System;System.Xml;System.Core;System.Xml.Linq;System.Net.Http;System.Runtime.Serialization;MonoGame.Framework;StardewModdingAPI;StardewValley;xTile;BmFont</AndroidLinkSkip>
     <LangVersion>7.3</LangVersion>
+    <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BmFont">
@@ -110,6 +113,7 @@
       <Private>True</Private>
       <HintPath>..\Mods\assemblies\Mono.Android.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Security" />
     <Reference Include="MonoGame.Framework, Version=3.7.1.189, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\MonoGame.Framework.dll</HintPath>
@@ -123,12 +127,8 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
-    <Reference Include="Xamarin.Android.Arch.Core.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Mods\assemblies\Xamarin.Android.Arch.Core.Common.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="Xamarin.Android.Arch.Lifecycle.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Mods\assemblies\Xamarin.Android.Arch.Lifecycle.Common.dll</HintPath>
@@ -173,6 +173,7 @@
   <ItemGroup>
     <Compile Include="Activity1.cs" />
     <Compile Include="Common\Constants.cs" />
+    <Compile Include="Common\ModInfo.cs" />
     <Compile Include="Common\ModListAdapter.cs" />
     <Compile Include="Common\Utils.cs" />
     <Compile Include="Common\MethodPatcher.cs" />
@@ -1013,6 +1014,7 @@
       <Generator>MSBuild:UpdateGeneratedFiles</Generator>
     </AndroidResource>
     <AndroidResource Include="Resources\Raw\SMDroidFiles.zip" />
+    <AndroidResource Include="Resources\Raw\ModList.json" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\Values\Strings.xml" />

@@ -1,21 +1,27 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
- 
-    <LinearLayout
-        android:id="@+id/ll_view"
-        android:gravity="center"
-        android:layout_margin="10dp"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-           android:layout_marginLeft="20dp"
-            android:layout_weight="1"
-            android:text="test1"
-            android:textColor="@android:color/black"
-            android:id="@+id/textModName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-</LinearLayout>
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_view"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent" >
+    <Button
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:text="@android:string/cancel"
+        android:id="@+id/buttonAddOrRemove"
+        android:layout_height="wrap_content"
+        android:layout_width="80sp" />
+    <TextView
+        android:id="@+id/textModName"
+        android:textColor="@android:color/black"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:paddingRight="88sp"
+        android:textSize="18sp" />
+    <TextView
+        android:id="@+id/textDescription"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:paddingRight="88sp"
+        android:layout_below="@+id/textModName" />
+</RelativeLayout>

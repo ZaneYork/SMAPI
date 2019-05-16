@@ -233,7 +233,9 @@ namespace StardewModdingAPI.Framework
         public List<IMod> HookReceiver = new List<IMod>();
 
         public bool IsSuspended;
-        
+
+        public bool IsAfterInitialize = false; 
+
 
         /*********
         ** Protected methods
@@ -389,6 +391,8 @@ namespace StardewModdingAPI.Framework
         {
             if (this.IsSuspended)
             {
+                if(!this.IsAfterInitialize)
+                    this.IsAfterInitialize = true;
                 if (Game1.graphics.GraphicsDevice != null)
                 {
                     this.Reflection.GetMethod(Game1.game1, "_updateAudioEngine").Invoke();
@@ -1437,6 +1441,7 @@ namespace StardewModdingAPI.Framework
                             _spriteBatchEnd.Invoke();
                             Game1.RestoreViewportAndZoom();
                         }
+                        return;
                     }
                     if (Game1.showingEndOfNightStuff)
                     {
@@ -1555,7 +1560,7 @@ namespace StardewModdingAPI.Framework
                         }
                         Game1.currentLocation?.drawWater(Game1.spriteBatch);
                         _farmerShadows.GetValue().Clear();
-                        if (((Game1.currentLocation.currentEvent != null) && !Game1.currentLocation.currentEvent.isFestival) && (Game1.currentLocation.currentEvent.farmerActors.Count > 0))
+                        if (Game1.currentLocation != null && ((Game1.currentLocation.currentEvent != null) && !Game1.currentLocation.currentEvent.isFestival) && (Game1.currentLocation.currentEvent.farmerActors.Count > 0))
                         {
                             foreach (Farmer farmer in Game1.currentLocation.currentEvent.farmerActors)
                             {

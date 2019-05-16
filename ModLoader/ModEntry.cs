@@ -1,6 +1,7 @@
 using System;
 using StardewValley;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Patches;
 using StardewValley.Menus;
 
 namespace SMDroid
@@ -24,7 +25,17 @@ namespace SMDroid
         {
             switch (hookName)
             {
+                case "StardewValley.Object.getDescription":
+                    if (SCore.Instance.HarmonyDetourBridgeFailed && !ObjectErrorPatch.Object_GetDescription_Prefix(__instance as StardewValley.Object, ref __result))
+                    {
+                        return false;
+                    }
+                    return this.core.GameInstance.OnCommonHook_Prefix(hookName, __instance, ref param1, ref param2, ref param3, ref param4, ref __result);
                 default:
+                    if ((hookName == "StardewValley.Dialogue..ctor") && SCore.Instance.HarmonyDetourBridgeFailed && !DialogueErrorPatch.Prefix(__instance as Dialogue, (string)param1, param2 as NPC))
+                    {
+                        return false;
+                    }
                     return this.core.GameInstance.OnCommonHook_Prefix(hookName, __instance, ref param1, ref param2, ref param3, ref param4, ref __result);
             }
         }
@@ -51,6 +62,10 @@ namespace SMDroid
         }
         public override bool OnCommonHook10_Prefix(string hookName, object __instance, ref object param1, ref object param2, ref object param3, ref object param4, ref object param5, ref object param6, ref object param7, ref object param8, ref object param9, ref object __result)
         {
+            if (SCore.Instance.HarmonyDetourBridgeFailed && (hookName == "StardewValley.Menus.IClickableMenu.drawToolTip") && !ObjectErrorPatch.IClickableMenu_DrawTooltip_Prefix(__instance as IClickableMenu, param4 as Item))
+            {
+                return false;
+            }
             return this.core.GameInstance.OnCommonHook10_Prefix(hookName, __instance, ref param1, ref param2, ref param3, ref param4, ref param5, ref param6, ref param7, ref param8, ref param9, ref __result);
         }
         public override void OnCommonStaticHook10_Postfix(string hookName, ref object param1, ref object param2, ref object param3, ref object param4, ref object param5, ref object param6, ref object param7, ref object param8, ref object param9, ref object param10, ref bool __state, ref object __result)

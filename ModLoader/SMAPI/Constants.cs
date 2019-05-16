@@ -35,10 +35,6 @@ namespace StardewModdingAPI
         /// <summary>The path to the game folder.</summary>
         public static string ExecutionPath { get; } = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path , "SMDroid");
 
-
-        /// <summary>The path to the Assets folder.</summary>
-        public static string AssetsPath { get; } = Path.Combine(ExecutionPath, "Game/assets/Content");
-
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
         public static string DataPath { get; } = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid");
 
@@ -61,10 +57,10 @@ namespace StardewModdingAPI
         internal const string HomePageUrl = "https://smapi.io";
 
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
-        internal static readonly string InternalFilesPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid/smapi-internal");
+        internal static readonly string InternalFilesPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid/smapi-internal".Replace('/', Path.DirectorySeparatorChar));
 
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
-        internal static readonly string GameAssembliesPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid/Game/assemblies");
+        internal static readonly string GameAssembliesPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SMDroid/Game/assemblies".Replace('/', Path.DirectorySeparatorChar));
 
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.config.json");

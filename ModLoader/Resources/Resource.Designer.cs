@@ -249,32 +249,35 @@ namespace ModLoader
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f0c0017
-			public const int action0 = 2131492887;
-			
-			// aapt resource value: 0x7f0c0014
-			public const int action_container = 2131492884;
-			
-			// aapt resource value: 0x7f0c001b
-			public const int action_divider = 2131492891;
-			
-			// aapt resource value: 0x7f0c0015
-			public const int action_image = 2131492885;
+			// aapt resource value: 0x7f0c0019
+			public const int action0 = 2131492889;
 			
 			// aapt resource value: 0x7f0c0016
-			public const int action_text = 2131492886;
+			public const int action_container = 2131492886;
 			
-			// aapt resource value: 0x7f0c0025
-			public const int actions = 2131492901;
+			// aapt resource value: 0x7f0c001d
+			public const int action_divider = 2131492893;
 			
-			// aapt resource value: 0x7f0c0029
-			public const int appIcon = 2131492905;
+			// aapt resource value: 0x7f0c0017
+			public const int action_image = 2131492887;
+			
+			// aapt resource value: 0x7f0c0018
+			public const int action_text = 2131492888;
+			
+			// aapt resource value: 0x7f0c0027
+			public const int actions = 2131492903;
+			
+			// aapt resource value: 0x7f0c002b
+			public const int appIcon = 2131492907;
 			
 			// aapt resource value: 0x7f0c0006
 			public const int async = 2131492870;
 			
 			// aapt resource value: 0x7f0c0007
 			public const int blocking = 2131492871;
+			
+			// aapt resource value: 0x7f0c0013
+			public const int buttonAddOrRemove = 2131492883;
 			
 			// aapt resource value: 0x7f0c000d
 			public const int buttonExtract = 2131492877;
@@ -288,17 +291,17 @@ namespace ModLoader
 			// aapt resource value: 0x7f0c0010
 			public const int buttonWiki = 2131492880;
 			
-			// aapt resource value: 0x7f0c0018
-			public const int cancel_action = 2131492888;
+			// aapt resource value: 0x7f0c001a
+			public const int cancel_action = 2131492890;
 			
-			// aapt resource value: 0x7f0c0020
-			public const int chronometer = 2131492896;
+			// aapt resource value: 0x7f0c0022
+			public const int chronometer = 2131492898;
 			
-			// aapt resource value: 0x7f0c002e
-			public const int description = 2131492910;
+			// aapt resource value: 0x7f0c0030
+			public const int description = 2131492912;
 			
-			// aapt resource value: 0x7f0c0027
-			public const int end_padder = 2131492903;
+			// aapt resource value: 0x7f0c0029
+			public const int end_padder = 2131492905;
 			
 			// aapt resource value: 0x7f0c0008
 			public const int forever = 2131492872;
@@ -306,14 +309,14 @@ namespace ModLoader
 			// aapt resource value: 0x7f0c000b
 			public const int gridLayout1 = 2131492875;
 			
-			// aapt resource value: 0x7f0c0022
-			public const int icon = 2131492898;
+			// aapt resource value: 0x7f0c0024
+			public const int icon = 2131492900;
 			
-			// aapt resource value: 0x7f0c0026
-			public const int icon_group = 2131492902;
+			// aapt resource value: 0x7f0c0028
+			public const int icon_group = 2131492904;
 			
-			// aapt resource value: 0x7f0c0021
-			public const int info = 2131492897;
+			// aapt resource value: 0x7f0c0023
+			public const int info = 2131492899;
 			
 			// aapt resource value: 0x7f0c0009
 			public const int italic = 2131492873;
@@ -333,44 +336,44 @@ namespace ModLoader
 			// aapt resource value: 0x7f0c0012
 			public const int ll_view = 2131492882;
 			
-			// aapt resource value: 0x7f0c001a
-			public const int media_actions = 2131492890;
+			// aapt resource value: 0x7f0c001c
+			public const int media_actions = 2131492892;
 			
 			// aapt resource value: 0x7f0c000a
 			public const int normal = 2131492874;
 			
-			// aapt resource value: 0x7f0c0028
-			public const int notificationLayout = 2131492904;
-			
-			// aapt resource value: 0x7f0c0024
-			public const int notification_background = 2131492900;
-			
-			// aapt resource value: 0x7f0c001d
-			public const int notification_main_column = 2131492893;
-			
-			// aapt resource value: 0x7f0c001c
-			public const int notification_main_column_container = 2131492892;
-			
-			// aapt resource value: 0x7f0c002d
-			public const int progress_bar = 2131492909;
-			
-			// aapt resource value: 0x7f0c002c
-			public const int progress_bar_frame = 2131492908;
-			
 			// aapt resource value: 0x7f0c002a
-			public const int progress_text = 2131492906;
+			public const int notificationLayout = 2131492906;
 			
-			// aapt resource value: 0x7f0c0023
-			public const int right_icon = 2131492899;
+			// aapt resource value: 0x7f0c0026
+			public const int notification_background = 2131492902;
+			
+			// aapt resource value: 0x7f0c001f
+			public const int notification_main_column = 2131492895;
 			
 			// aapt resource value: 0x7f0c001e
-			public const int right_side = 2131492894;
+			public const int notification_main_column_container = 2131492894;
 			
 			// aapt resource value: 0x7f0c002f
-			public const int spacer = 2131492911;
+			public const int progress_bar = 2131492911;
 			
-			// aapt resource value: 0x7f0c0019
-			public const int status_bar_latest_event_content = 2131492889;
+			// aapt resource value: 0x7f0c002e
+			public const int progress_bar_frame = 2131492910;
+			
+			// aapt resource value: 0x7f0c002c
+			public const int progress_text = 2131492908;
+			
+			// aapt resource value: 0x7f0c0025
+			public const int right_icon = 2131492901;
+			
+			// aapt resource value: 0x7f0c0020
+			public const int right_side = 2131492896;
+			
+			// aapt resource value: 0x7f0c0031
+			public const int spacer = 2131492913;
+			
+			// aapt resource value: 0x7f0c001b
+			public const int status_bar_latest_event_content = 2131492891;
 			
 			// aapt resource value: 0x7f0c0002
 			public const int tag_transition_group = 2131492866;
@@ -381,14 +384,17 @@ namespace ModLoader
 			// aapt resource value: 0x7f0c0004
 			public const int text2 = 2131492868;
 			
-			// aapt resource value: 0x7f0c0013
-			public const int textModName = 2131492883;
+			// aapt resource value: 0x7f0c0015
+			public const int textDescription = 2131492885;
 			
-			// aapt resource value: 0x7f0c001f
-			public const int time = 2131492895;
+			// aapt resource value: 0x7f0c0014
+			public const int textModName = 2131492884;
 			
-			// aapt resource value: 0x7f0c002b
-			public const int time_remaining = 2131492907;
+			// aapt resource value: 0x7f0c0021
+			public const int time = 2131492897;
+			
+			// aapt resource value: 0x7f0c002d
+			public const int time_remaining = 2131492909;
 			
 			// aapt resource value: 0x7f0c0005
 			public const int title = 2131492869;
@@ -493,7 +499,10 @@ namespace ModLoader
 		{
 			
 			// aapt resource value: 0x7f050000
-			public const int SMDroidFiles = 2131034112;
+			public const int ModList = 2131034112;
+			
+			// aapt resource value: 0x7f050001
+			public const int SMDroidFiles = 2131034113;
 			
 			static Raw()
 			{
@@ -511,6 +520,12 @@ namespace ModLoader
 			// aapt resource value: 0x7f090018
 			public const int ApplicationName = 2131296280;
 			
+			// aapt resource value: 0x7f090026
+			public const int Cancel = 2131296294;
+			
+			// aapt resource value: 0x7f090024
+			public const int Confirm = 2131296292;
+			
 			// aapt resource value: 0x7f09001c
 			public const int Disable = 2131296284;
 			
@@ -520,44 +535,65 @@ namespace ModLoader
 			// aapt resource value: 0x7f090019
 			public const int Extract = 2131296281;
 			
-			// aapt resource value: 0x7f090023
-			public const int ExtractedMessage = 2131296291;
+			// aapt resource value: 0x7f090028
+			public const int ExtractedMessage = 2131296296;
 			
-			// aapt resource value: 0x7f090022
-			public const int ExtractingMessage = 2131296290;
+			// aapt resource value: 0x7f090027
+			public const int ExtractingMessage = 2131296295;
 			
 			// aapt resource value: 0x7f09001a
 			public const int Generate = 2131296282;
 			
-			// aapt resource value: 0x7f090025
-			public const int GeneratedMessage = 2131296293;
+			// aapt resource value: 0x7f09002a
+			public const int GeneratedMessage = 2131296298;
 			
-			// aapt resource value: 0x7f090024
-			public const int GeneratingMessage = 2131296292;
+			// aapt resource value: 0x7f090029
+			public const int GeneratingMessage = 2131296297;
 			
-			// aapt resource value: 0x7f090021
-			public const int Ignore = 2131296289;
+			// aapt resource value: 0x7f090023
+			public const int Ignore = 2131296291;
 			
 			// aapt resource value: 0x7f09001b
 			public const int Launch = 2131296283;
 			
-			// aapt resource value: 0x7f090027
-			public const int NotExtractedMessage = 2131296295;
-			
-			// aapt resource value: 0x7f090028
-			public const int NotGeneratedMessage = 2131296296;
-			
-			// aapt resource value: 0x7f090026
-			public const int NotInstalledMessage = 2131296294;
-			
-			// aapt resource value: 0x7f090020
-			public const int Update = 2131296288;
-			
-			// aapt resource value: 0x7f09001f
-			public const int UpdateTip = 2131296287;
+			// aapt resource value: 0x7f09002b
+			public const int ModDownloadingMessage = 2131296299;
 			
 			// aapt resource value: 0x7f09001e
-			public const int Wiki = 2131296286;
+			public const int ModInstall = 2131296286;
+			
+			// aapt resource value: 0x7f09002d
+			public const int ModInstalledMessage = 2131296301;
+			
+			// aapt resource value: 0x7f09001f
+			public const int ModRemove = 2131296287;
+			
+			// aapt resource value: 0x7f09002e
+			public const int ModRemovedMessage = 2131296302;
+			
+			// aapt resource value: 0x7f09002c
+			public const int NetworkErrorMessage = 2131296300;
+			
+			// aapt resource value: 0x7f090030
+			public const int NotExtractedMessage = 2131296304;
+			
+			// aapt resource value: 0x7f090031
+			public const int NotGeneratedMessage = 2131296305;
+			
+			// aapt resource value: 0x7f09002f
+			public const int NotInstalledMessage = 2131296303;
+			
+			// aapt resource value: 0x7f090025
+			public const int RemoveConfirmMessage = 2131296293;
+			
+			// aapt resource value: 0x7f090022
+			public const int Update = 2131296290;
+			
+			// aapt resource value: 0x7f090021
+			public const int UpdateTip = 2131296289;
+			
+			// aapt resource value: 0x7f090020
+			public const int Wiki = 2131296288;
 			
 			// aapt resource value: 0x7f090001
 			public const int kilobytes_per_second = 2131296257;

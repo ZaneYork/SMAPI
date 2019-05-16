@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Harmony;
+using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
 using StardewValley.Menus;
@@ -24,17 +25,20 @@ namespace StardewModdingAPI.Patches
         /// <param name="harmony">The Harmony instance.</param>
         public void Apply(HarmonyInstance harmony)
         {
-            // object.getDescription
-            harmony.Patch(
-                original: AccessTools.Method(typeof(SObject), nameof(SObject.getDescription)),
-                prefix: new HarmonyMethod(AccessTools.Method(this.GetType(), nameof(ObjectErrorPatch.Object_GetDescription_Prefix)))
-            );
+            if (!SCore.Instance.HarmonyDetourBridgeFailed)
+            {
+                // object.getDescription
+                harmony.Patch(
+                    original: AccessTools.Method(typeof(SObject), nameof(SObject.getDescription)),
+                    prefix: new HarmonyMethod(AccessTools.Method(this.GetType(), nameof(ObjectErrorPatch.Object_GetDescription_Prefix)))
+                );
 
-            // IClickableMenu.drawToolTip
-            harmony.Patch(
-                original: AccessTools.Method(typeof(IClickableMenu), nameof(IClickableMenu.drawToolTip)),
-                prefix: new HarmonyMethod(AccessTools.Method(this.GetType(), nameof(ObjectErrorPatch.IClickableMenu_DrawTooltip_Prefix)))
-            );
+                // IClickableMenu.drawToolTip
+                harmony.Patch(
+                    original: AccessTools.Method(typeof(IClickableMenu), nameof(IClickableMenu.drawToolTip)),
+                    prefix: new HarmonyMethod(AccessTools.Method(this.GetType(), nameof(ObjectErrorPatch.IClickableMenu_DrawTooltip_Prefix)))
+                );
+            }
         }
 
 
@@ -47,7 +51,7 @@ namespace StardewModdingAPI.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony.")]
-        private static bool Object_GetDescription_Prefix(SObject __instance, ref object __result)
+        public static bool Object_GetDescription_Prefix(SObject __instance, ref object __result)
         {
             // invalid bigcraftables crash instead of showing '???' like invalid non-bigcraftables
             if (!__instance.IsRecipe && __instance.bigCraftable.Value && !Game1.bigCraftablesInformation.ContainsKey(__instance.ParentSheetIndex))
@@ -65,7 +69,7 @@ namespace StardewModdingAPI.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony.")]
-        private static bool IClickableMenu_DrawTooltip_Prefix(IClickableMenu __instance, Item hoveredItem)
+        public static bool IClickableMenu_DrawTooltip_Prefix(IClickableMenu __instance, Item hoveredItem)
         {
             // invalid edible item cause crash when drawing tooltips
             if (hoveredItem is SObject obj && obj.Edibility != -300 && !Game1.objectInformation.ContainsKey(obj.ParentSheetIndex))

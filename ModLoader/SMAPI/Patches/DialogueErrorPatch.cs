@@ -50,7 +50,10 @@ namespace StardewModdingAPI.Patches
             ConstructorInfo constructor = AccessTools.Constructor(typeof(Dialogue), new[] { typeof(string), typeof(NPC) });
             MethodInfo prefix = AccessTools.Method(this.GetType(), nameof(DialogueErrorPatch.Prefix));
 
-            harmony.Patch(constructor, new HarmonyMethod(prefix), null);
+            if (!SCore.Instance.HarmonyDetourBridgeFailed)
+            {
+                harmony.Patch(constructor, new HarmonyMethod(prefix), null);
+            }
         }
 
 
@@ -64,7 +67,7 @@ namespace StardewModdingAPI.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony.")]
-        private static bool Prefix(Dialogue __instance, string masterDialogue, NPC speaker)
+        public static bool Prefix(Dialogue __instance, string masterDialogue, NPC speaker)
         {
             // get private members
             bool nameArraysTranslated = DialogueErrorPatch.Reflection.GetField<bool>(typeof(Dialogue), "nameArraysTranslated").GetValue();
