@@ -48,6 +48,14 @@
     "Dependencies": []
   },
   {
+    "UniqueID": "Pathoschild.ChestsAnywhere",
+    "Name": "Chests Anywhere",
+    "Description": "Access your chests from anywhere and organise them your way.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/ChestsAnywhere.zip",
+    "Version": "1.15.1",
+    "Dependencies": []
+  },
+  {
     "UniqueID": "WhiteMind.AF",
     "Name": "AutoFish",
     "Description": "Auto play fish minigame and fishing rod auto hit.",
