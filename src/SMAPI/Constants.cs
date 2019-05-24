@@ -160,7 +160,7 @@ namespace StardewModdingAPI
         internal static string ModsPath { get; set; }
 
         /// <summary>The game's current semantic version.</summary>
-        internal static ISemanticVersion GameVersion { get; } = new GameVersion(Game1.version);
+        internal static ISemanticVersion GameVersion { get; } = new GameVersion("1.3.36");
 
         /// <summary>The target game platform as a SMAPI toolkit constant.</summary>
         internal static Platform Platform { get; } = (Platform)Constants.TargetPlatform;
