@@ -419,6 +419,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return new FileInfo(path).Exists;
         }
 
+#if SMAPI_FOR_MOBILE
         public T ModedLoad<T>(string assetName, LanguageCode language)
         {
             if (language != LanguageCode.en)
@@ -509,6 +510,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
             return (T)obj2;
         }
+#endif
 
     }
 }

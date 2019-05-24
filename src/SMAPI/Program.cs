@@ -11,9 +11,7 @@ using Android.App;
 #endif
 using StardewModdingAPI.Framework;
 
-[assembly: InternalsVisibleTo("SMAPI.Tests")]
-[assembly: InternalsVisibleTo("ConsoleCommands")] // for performance monitoring commands
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // Moq for unit testing
+/// <summary>The main entry point for SMAPI, responsible for hooking into and launching the game.</summary>
 namespace StardewModdingAPI
 {
     /// <summary>The main entry point for SMAPI, responsible for hooking into and launching the game.</summary>
@@ -91,6 +89,8 @@ namespace StardewModdingAPI
                 {
                     if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.OrdinalIgnoreCase))
                         return Assembly.LoadFrom(dll.FullName);
+                    }
+
                 }
 
                 return null;
