@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="9" android:versionName="1.3" android:installLocation="auto" package="com.zane.smdroid" platformBuildVersionCode="28" platformBuildVersionName="9">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="16" android:versionName="1.4" android:installLocation="auto" package="com.zane.smdroid" platformBuildVersionCode="28" platformBuildVersionName="9">
 	<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="28" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -16,9 +16,6 @@
 	<uses-permission android:name="android.permission.GET_TASKS" />
 	<application android:label="SMDroid" android:icon="@drawable/icon" android:name=".MainApplication" android:allowBackup="false" android:resizeableActivity="false" android:usesCleartextTraffic="true" android:theme="@style/Theme.Splash">
 		<meta-data android:name="android.max_aspect" android:value="2.1" />
-		<provider android:name="android.support.v4.content.FileProvider" android:authorities="com.zane.smdroid.fileProvider" android:grantUriPermissions="true" android:exported="false">
-			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
-		</provider>
 		<provider android:name="com.pgyersdk.PgyerProvider" android:authorities="com.zane.smdroid.com.pgyer.provider" android:exported="false" />
 	</application>
 </manifest>

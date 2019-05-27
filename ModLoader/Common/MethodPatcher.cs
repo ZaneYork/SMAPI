@@ -152,8 +152,21 @@ namespace DllRewrite
             var isRainingField = this.GetFieldReference("isRaining", "StardewValley.RainManager", this.StardewValley);
             processor.Emit(OpCodes.Ldfld, isRainingField);
             processor.Emit(OpCodes.Ret);
+
+            propertyDefinition.SetMethod = new MethodDefinition("set_isRaining",
+                MethodAttributes.Public | MethodAttributes.ReuseSlot | MethodAttributes.SpecialName |
+                MethodAttributes.Static | MethodAttributes.HideBySig, this.GetTypeReference("System.Void"));
+            propertyDefinition.SetMethod.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, this.GetTypeReference("System.Boolean")));
+            propertyDefinition.SetMethod.SemanticsAttributes = MethodSemanticsAttributes.Setter;
+            processor = propertyDefinition.SetMethod.Body.GetILProcessor();
+            processor.Emit(OpCodes.Callvirt, getMethod);
+            processor.Emit(OpCodes.Ldarg_0);
+            processor.Emit(OpCodes.Stfld, isRainingField);
+            processor.Emit(OpCodes.Ret);
             typeGame1.Methods.Add(propertyDefinition.GetMethod);
+            typeGame1.Methods.Add(propertyDefinition.SetMethod);
             typeGame1.Properties.Add(propertyDefinition);
+
 
             propertyDefinition = new PropertyDefinition("isDebrisWeather", PropertyAttributes.None,
                 this.GetTypeReference("System.Boolean"));
@@ -169,8 +182,22 @@ namespace DllRewrite
                 this.StardewValley);
             processor.Emit(OpCodes.Ldfld, isDebrisWeatherField);
             processor.Emit(OpCodes.Ret);
+
+            propertyDefinition.SetMethod = new MethodDefinition("set_isDebrisWeather",
+                MethodAttributes.Public | MethodAttributes.ReuseSlot | MethodAttributes.SpecialName |
+                MethodAttributes.Static | MethodAttributes.HideBySig, this.GetTypeReference("System.Void"));
+            propertyDefinition.SetMethod.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, this.GetTypeReference("System.Boolean")));
+            propertyDefinition.SetMethod.SemanticsAttributes = MethodSemanticsAttributes.Setter;
+            processor = propertyDefinition.SetMethod.Body.GetILProcessor();
+            processor.Emit(OpCodes.Callvirt, getMethod);
+            processor.Emit(OpCodes.Ldarg_0);
+            processor.Emit(OpCodes.Stfld, isDebrisWeatherField);
+            processor.Emit(OpCodes.Ret);
             typeGame1.Methods.Add(propertyDefinition.GetMethod);
+            typeGame1.Methods.Add(propertyDefinition.SetMethod);
             typeGame1.Properties.Add(propertyDefinition);
+
+
 
             //HUDMessage..ctor
             var typeHUDMessage = this.StardewValley.MainModule.GetType("StardewValley.HUDMessage");

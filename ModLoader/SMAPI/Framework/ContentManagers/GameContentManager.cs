@@ -122,66 +122,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return this.Coordinator.CreateGameContentManager("(temporary)");
         }
 
-
-        public T ModedLoad<T>(string assetName, LanguageCode language)
-        {
-            if (language != LanguageCode.en)
-            {
-                string key = assetName + "." + this.LanguageCodeString(language);
-                Dictionary<string, bool> _localizedAsset = this.Reflector.GetField<Dictionary<string, bool>>(this, "_localizedAsset").GetValue();
-                if (!_localizedAsset.TryGetValue(key, out bool flag) | flag)
-                {
-                    try
-                    {
-                        _localizedAsset[key] = true;
-                        return this.ModedLoad<T>(key);
-                    }
-                    catch (ContentLoadException)
-                    {
-                        _localizedAsset[key] = false;
-                    }
-                }
-            }
-            return this.ModedLoad<T>(assetName);
-        }
-
-        public T ModedLoad<T>(string assetName)
-        {
-            if (string.IsNullOrEmpty(assetName))
-            {
-                throw new ArgumentNullException("assetName");
-            }
-            T local = default(T);
-            string key = assetName.Replace('\\', '/');
-            Dictionary<string, object> loadedAssets = this.Reflector.GetField<Dictionary<string, object>>(this, "loadedAssets").GetValue();
-            if (loadedAssets.TryGetValue(key, out object obj2) && (obj2 is T))
-            {
-                return (T)obj2;
-            }
-            local = this.ReadAsset<T>(assetName, null);
-            loadedAssets[key] = local;
-            return local;
-        }
-
-        protected override Stream OpenStream(string assetName)
-        {
-            Stream stream;
-            try
-            {
-                stream = new FileStream(Path.Combine(Constants.ExecutionPath, "Game/assets", this.RootDirectory, assetName) + ".xnb", FileMode.Open, FileAccess.Read);
-                MemoryStream destination = new MemoryStream();
-                stream.CopyTo(destination);
-                destination.Seek(0L, SeekOrigin.Begin);
-                stream.Close();
-                stream = destination;
-            }
-            catch (Exception exception3)
-            {
-                throw new ContentLoadException("Opening stream error.", exception3);
-            }
-            return stream;
-        }
-
         /*********
         ** Private methods
         *********/

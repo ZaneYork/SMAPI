@@ -246,6 +246,44 @@ namespace StardewModdingAPI.Framework.ModLoading
         /****
         ** Assembly rewriting
         ****/
+        IEnumerable<TypeReference> GetAttributeTypes(IEnumerable<CustomAttribute> attributes)
+        {
+            foreach (var attribute in attributes)
+            {
+                if(!attribute.AttributeType.FullName.StartsWith("System."))
+                    yield return attribute.AttributeType;
+                if (!attribute.AttributeType.FullName.StartsWith("System."))
+                    yield return attribute.Constructor.ReturnType;
+                if (!attribute.AttributeType.FullName.StartsWith("System."))
+                    yield return attribute.Constructor.DeclaringType;
+                foreach (var constructorArgument in attribute.Constructor.Parameters)
+                {
+                    if (!attribute.AttributeType.FullName.StartsWith("System."))
+                        yield return constructorArgument.ParameterType;
+                }
+                foreach (var constructorArgument in attribute.ConstructorArguments)
+                {
+                    if (!attribute.AttributeType.FullName.StartsWith("System."))
+                        yield return constructorArgument.Type;
+                    if (constructorArgument.Value is TypeReference reference)
+                    {
+                        if (!attribute.AttributeType.FullName.StartsWith("System."))
+                            yield return reference;
+                    }
+                }
+                foreach (var property in attribute.Properties)
+                {
+                    if (!attribute.AttributeType.FullName.StartsWith("System."))
+                        yield return property.Argument.Type;
+                }
+                foreach (var field in attribute.Fields)
+                {
+                    if (!attribute.AttributeType.FullName.StartsWith("System."))
+                        yield return field.Argument.Type;
+                }
+            }
+        }
+
         /// <summary>Rewrite the types referenced by an assembly.</summary>
         /// <param name="mod">The mod for which the assembly is being loaded.</param>
         /// <param name="assembly">The assembly to rewrite.</param>
@@ -279,6 +317,9 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                 // rewrite type scopes to use target assemblies
                 IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
+                typeReferences = typeReferences.Concat(module.Types.SelectMany(t => this.GetAttributeTypes(t.CustomAttributes)));
+                typeReferences = typeReferences.Concat(module.Types.SelectMany(t => this.GetAttributeTypes(t.Properties.SelectMany(p=>p.CustomAttributes))));
+                typeReferences = typeReferences.Concat(module.Types.SelectMany(t => this.GetAttributeTypes(t.Fields.SelectMany(p => p.CustomAttributes))));
                 foreach (TypeReference type in typeReferences)
                     this.ChangeTypeScope(type);
             }

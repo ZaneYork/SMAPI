@@ -13,8 +13,11 @@
     <string name="Update">Upgrade</string>
     <string name="Ignore">Ignore</string>
     <string name="Confirm">Confirm</string>
+    <string name="Error">Error</string>
+    <string name="Config">Config</string>
     <string name="RemoveConfirmMessage">Are you sure to remove this mod?</string>
     <string name="Cancel">Cancel</string>
+    <string name="StorageIsFullMessage">Not enough storage free space</string>
     <string name="ExtractingMessage">Extracting game resources</string>
     <string name="ExtractedMessage">Extracted</string>
     <string name="GeneratingMessage">Generating Dlls</string>

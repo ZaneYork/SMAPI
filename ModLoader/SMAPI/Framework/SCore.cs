@@ -19,6 +19,7 @@ using MonoMod.RuntimeDetour;
 using System.Windows.Forms;
 #endif
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using SMDroid;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Events;
@@ -169,7 +170,7 @@ namespace StardewModdingAPI.Framework
 
             // init logging
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
-            this.Monitor.Log($"SMDroid 1.4.0 for Stardew Valley Android release {Application.Context.PackageManager.GetPackageInfo(Application.Context.PackageName, (PackageInfoFlags)0).VersionCode}", LogLevel.Info);
+            this.Monitor.Log($"SMDroid {Constants.CoreVersion.ToString()} for Stardew Valley Android release {Application.Context.PackageManager.GetPackageInfo(Application.Context.PackageName, (PackageInfoFlags)0).VersionCode}", LogLevel.Info);
             this.Monitor.Log($"Mods go here: {modsPath}", LogLevel.Info);
             if (modsPath != Constants.DefaultModsPath)
                 this.Monitor.Log("(Using custom --mods-path argument.)", LogLevel.Trace);
@@ -256,13 +257,9 @@ namespace StardewModdingAPI.Framework
 
                 // override game
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper, this.InitialiseBeforeFirstAssetLoaded);
-                try
+                if(!this.HarmonyDetourBridgeFailed)
                 {
                     HarmonyDetourBridge.Init();
-                }
-                catch
-                {
-                    this.HarmonyDetourBridgeFailed = true;
                 }
 
                 // override game
@@ -281,9 +278,10 @@ namespace StardewModdingAPI.Framework
                 StardewValley.Program.gamePtr = Game1.game1;
                 // apply game patches
                 new GamePatcher(this.Monitor).Apply(
+                    new EventErrorPatch(this.MonitorForGame),
                     new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
                     new ObjectErrorPatch(),
-                    new LoadForNewGamePatch(this.Reflection, this.GameInstance.OnLoadStageChanged)
+                    new LoadContextPatch(this.Reflection, this.GameInstance.OnLoadStageChanged)
                 );
                 // add exit handler
                 new Thread(() =>
@@ -318,10 +316,8 @@ namespace StardewModdingAPI.Framework
             // show details if game crashed during last session
             if (File.Exists(Constants.FatalCrashMarker))
             {
-                this.Monitor.Log("The game crashed last time you played. That can be due to bugs in the game, but if it happens repeatedly you can ask for help here: https://community.playstarbound.com/threads/108375/.", LogLevel.Error);
+                this.Monitor.Log("The game crashed last time you played. That can be due to bugs in the game, but if it happens repeatedly you can ask for help here: https://www.reddit.com/r/StardewValley/comments/bcm8w8/smapi_for_android_version/.", LogLevel.Error);
                 this.Monitor.Log("If you ask for help, make sure to share your SMAPI log: https://log.smapi.io.", LogLevel.Error);
-                this.Monitor.Log("Press any key to delete the crash data and continue playing.", LogLevel.Info);
-                File.Delete(Constants.FatalCrashLog);
                 File.Delete(Constants.FatalCrashMarker);
             }
 

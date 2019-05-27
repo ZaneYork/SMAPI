@@ -42,6 +42,32 @@ namespace ModLoader.Common
             fs.Close();
         }
 
+        public static long GetDirectoryLength(string dirPath)
+        {
+            //判断给定的路径是否存在,如果不存在则退出
+            if (!Directory.Exists(dirPath))
+                return 0;
+            long len = 0;
+            //定义一个DirectoryInfo对象
+            DirectoryInfo di = new DirectoryInfo(dirPath);
+            //通过GetFiles方法,获取di目录中的所有文件的大小
+            foreach (FileInfo fi in di.GetFiles())
+            {
+                len += fi.Length;
+            }
+            //获取di中所有的文件夹,并存到一个新的对象数组中,以进行递归
+            DirectoryInfo[] dis = di.GetDirectories();
+            if (dis.Length > 0)
+            {
+                for (int i = 0; i < dis.Length; i++)
+                {
+
+                    len += GetDirectoryLength(dis[i].FullName);
+                }
+            }
+            return len;
+        }
+
         public static void InvokeLooperThread(Action action)
         {
             new Thread(() =>
@@ -82,6 +108,43 @@ namespace ModLoader.Common
                     .SetNegativeButton(cancelId, (sender, args) => onCancel?.Invoke())
                     .Show();
             });
+        }
+
+        public static void ShowAlertDialog(Context context, int titleId, string message, int confirmId, Action onConfirm = null)
+        {
+            InvokeLooperThread(() =>
+            {
+                new AlertDialog.Builder(context).SetTitle(titleId).SetMessage(message).SetCancelable(true)
+                    .SetPositiveButton(confirmId, (sender, args) => onConfirm?.Invoke())
+                    .Show();
+            });
+        }
+        public static void OpenAppSettingsOnPhone(Context context)
+        {
+            Intent intent = new Intent();
+            intent.SetAction("android.settings.APPLICATION_DETAILS_SETTINGS");
+            Android.Net.Uri data = Android.Net.Uri.FromParts("package", context.PackageName, (string)null);
+            intent.SetData(data);
+            context.StartActivity(intent);
+        }
+        public static void OpenInPlayStore()
+        {
+            try
+            {
+                Intent intent = new Intent("android.intent.action.VIEW", Android.Net.Uri.Parse("market://details?id=" + Constants.GamePackageName));
+                intent.AddFlags(ActivityFlags.NewTask);
+                Application.Context.StartActivity(intent);
+            }
+            catch (ActivityNotFoundException)
+            {
+                Intent intent = new Intent("android.intent.action.VIEW", Android.Net.Uri.Parse("https://play.google.com/store/apps/details?id=" + Constants.GamePackageName));
+                intent.AddFlags(ActivityFlags.NewTask);
+                Application.Context.StartActivity(intent);
+            }
+            catch (System.Exception ex)
+            {
+                Microsoft.AppCenter.Crashes.Crashes.TrackError(ex);
+            }
         }
     }
 }

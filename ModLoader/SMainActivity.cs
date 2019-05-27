@@ -1,12 +1,16 @@
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Threading.Tasks;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Provider;
 using Android.Views;
 using Google.Android.Vending.Licensing;
+using ModLoader.Common;
 using StardewModdingAPI;
 using StardewModdingAPI.Framework;
 using StardewValley;
@@ -15,7 +19,8 @@ using Constants = ModLoader.Common.Constants;
 namespace ModLoader
 {
     [Activity(Label = "Stardew Valley", Icon = "@drawable/icon", Theme = "@style/Theme.Splash", MainLauncher = false, AlwaysRetainTaskState = true, LaunchMode = LaunchMode.SingleInstance, ScreenOrientation = ScreenOrientation.SensorLandscape, ConfigurationChanges = (ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.Orientation | ConfigChanges.ScreenLayout | ConfigChanges.ScreenSize | ConfigChanges.UiMode))]
-    public class SMainActivity : MainActivity
+    [SuppressMessage("ReSharper", "ArrangeThisQualifier")]
+    public class SMainActivity : MainActivity, ILicenseCheckerCallback
     {
 
         protected override void OnCreate(Bundle bundle)
@@ -42,6 +47,10 @@ namespace ModLoader
             this.SetPaddingForMenus();
             new GameConsole();
             SCore core = new SCore(Constants.ModPath, false);
+            if (Build.VERSION.SdkInt <= BuildVersionCodes.LollipopMr1)
+            {
+                core.HarmonyDetourBridgeFailed = true;
+            }
             core.RunInteractively();
             Game1 game1 = StardewValley.Program.gamePtr;
             typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, game1);
@@ -57,6 +66,31 @@ namespace ModLoader
             LicenseChecker licenseChecker = new LicenseChecker(this, policy, "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAry4fecehDpCohQk4XhiIZX9ylIGUThWZxfN9qwvQyTh53hvnpQl/lCrjfflKoPz6gz5jJn6JI1PTnoBy/iXVx1+kbO99qBgJE2V8PS5pq+Usbeqqmqqzx4lEzhiYQ2um92v4qkldNYZFwbTODYPIMbSbaLm7eK9ZyemaRbg9ssAl4QYs0EVxzDK1DjuXilRk28WxiK3lNJTz4cT38bfs4q6Zvuk1vWUvnMqcxiugox6c/9j4zZS5C4+k+WY6mHjUMuwssjCY3G+aImWDSwnU3w9G41q8EoPvJ1049PIi7GJXErusTYZITmqfonyejmSFLPt8LHtux9AmJgFSrC3UhwIDAQAB");
             typeof(MainActivity).GetField("_licenseChecker", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, licenseChecker);
             licenseChecker.CheckAccess(this);
+        }
+        public new void Allow(PolicyResponse response)
+        {
+            typeof(MainActivity).GetMethod("CheckToDownloadExpansion", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(this, null);
+        }
+
+        public new void DontAllow(PolicyResponse response)
+        {
+            if (response == PolicyResponse.Retry)
+                this.WaitThenCheckForValidLicense();
+            else if (response == PolicyResponse.Licensed)
+            {
+                typeof(MainActivity).GetMethod("CheckToDownloadExpansion", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(this, null);
+            }
+            else
+            {
+                Utils.OpenInPlayStore();
+                this.Finish();
+            }
+        }
+
+        private async void WaitThenCheckForValidLicense()
+        {
+            await Task.Delay(TimeSpan.FromSeconds(30.0));
+            this.CheckUsingServerManagedPolicy();
         }
     }
 }

@@ -1,15 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using Java.Util.Zip;
 
 namespace ModLoader.Helper
@@ -43,23 +33,33 @@ namespace ModLoader.Helper
                     }
                     if (fileName != string.Empty)
                     {
-                        using (FileStream streamWriter = File.Create(unZipDir + theEntry.Name))
+                        FileStream streamWriter = null;
+                        try
                         {
 
-                            int size;
-                            byte[] data = new byte[2048];
-                            while (true)
+                            using (streamWriter = File.Create(unZipDir + theEntry.Name))
                             {
-                                size = s.Read(data, 0, data.Length);
-                                if (size > 0)
+
+                                int size;
+                                byte[] data = new byte[2048];
+                                while (true)
                                 {
-                                    streamWriter.Write(data, 0, size);
-                                }
-                                else
-                                {
-                                    break;
+                                    size = s.Read(data, 0, data.Length);
+                                    if (size > 0)
+                                    {
+                                        streamWriter.Write(data, 0, size);
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
                                 }
                             }
+                        }
+                        catch (IOException) { }
+                        finally
+                        {
+                            streamWriter?.Close();
                         }
                     }
                 }

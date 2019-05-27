@@ -2,26 +2,40 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ll_view"
+    android:background="@android:color/background_light"
     android:layout_height="fill_parent"
     android:layout_width="fill_parent" >
     <Button
-        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
         android:text="@android:string/cancel"
         android:id="@+id/buttonAddOrRemove"
+        android:layout_height="wrap_content"
+        android:layout_width="80sp" />
+    <Button
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/buttonAddOrRemove"
+        android:text="@string/Config"
+        android:id="@+id/buttonConfig"
         android:layout_height="wrap_content"
         android:layout_width="80sp" />
     <TextView
         android:id="@+id/textModName"
         android:textColor="@android:color/black"
+        android:text="textModName"
         android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
-        android:paddingRight="88sp"
+        android:layout_width="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/buttonConfig"
+        android:paddingLeft="8sp"
         android:textSize="18sp" />
     <TextView
         android:id="@+id/textDescription"
+        android:text="textDescription"
         android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
-        android:paddingRight="88sp"
+        android:layout_width="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:paddingLeft="8sp"
+        android:layout_toLeftOf="@id/buttonConfig"
         android:layout_below="@+id/textModName" />
 </RelativeLayout>

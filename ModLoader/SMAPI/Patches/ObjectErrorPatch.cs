@@ -25,20 +25,17 @@ namespace StardewModdingAPI.Patches
         /// <param name="harmony">The Harmony instance.</param>
         public void Apply(HarmonyInstance harmony)
         {
-            if (!SCore.Instance.HarmonyDetourBridgeFailed)
-            {
-                // object.getDescription
-                harmony.Patch(
-                    original: AccessTools.Method(typeof(SObject), nameof(SObject.getDescription)),
-                    prefix: new HarmonyMethod(AccessTools.Method(this.GetType(), nameof(ObjectErrorPatch.Object_GetDescription_Prefix)))
-                );
+            // object.getDescription
+            harmony.Patch(
+                original: AccessTools.Method(typeof(SObject), nameof(SObject.getDescription)),
+                prefix: new HarmonyMethod(AccessTools.Method(this.GetType(), nameof(ObjectErrorPatch.Object_GetDescription_Prefix)))
+            );
 
-                // IClickableMenu.drawToolTip
-                harmony.Patch(
-                    original: AccessTools.Method(typeof(IClickableMenu), nameof(IClickableMenu.drawToolTip)),
-                    prefix: new HarmonyMethod(AccessTools.Method(this.GetType(), nameof(ObjectErrorPatch.IClickableMenu_DrawTooltip_Prefix)))
-                );
-            }
+            // IClickableMenu.drawToolTip
+            harmony.Patch(
+                original: AccessTools.Method(typeof(IClickableMenu), nameof(IClickableMenu.drawToolTip)),
+                prefix: new HarmonyMethod(AccessTools.Method(this.GetType(), nameof(ObjectErrorPatch.IClickableMenu_DrawTooltip_Prefix)))
+            );
         }
 
 

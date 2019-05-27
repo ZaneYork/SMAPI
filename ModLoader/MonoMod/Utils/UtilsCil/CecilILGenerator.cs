@@ -12,8 +12,8 @@ using SRE = System.Reflection.Emit;
 using Mono.Cecil;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
 using OpCode = Mono.Cecil.Cil.OpCode;
-using ExceptionHandler = Mono.Cecil.Cil.ExceptionHandler;
 using Mono.Collections.Generic;
+using ExceptionHandler = Mono.Cecil.Cil.ExceptionHandler;
 
 namespace MonoMod.Utils.Cil {
     public sealed class CecilILGenerator : ILGeneratorShim {

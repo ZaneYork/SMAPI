@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using StardewModdingAPI.Framework;
 
 namespace Harmony
 {
@@ -60,7 +61,9 @@ namespace Harmony
 
 		public List<DynamicMethod> Patch()
 		{
-			lock (locker)
+            if(SCore.Instance.HarmonyDetourBridgeFailed)
+                return new List<DynamicMethod>();
+            lock (locker)
 			{
 				var dynamicMethods = new List<DynamicMethod>();
 				foreach (var original in originals)

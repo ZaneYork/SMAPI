@@ -69,7 +69,7 @@
     <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
     <AndroidLinkSkip>mscorlib;System;System.Xml;System.Core;System.Xml.Linq;System.Net.Http;System.Runtime.Serialization;MonoGame.Framework;StardewModdingAPI;StardewValley;xTile;BmFont</AndroidLinkSkip>
     <LangVersion>7.3</LangVersion>
-    <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
+    <AndroidEnableSGenConcurrent>false</AndroidEnableSGenConcurrent>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BmFont">
@@ -870,6 +870,7 @@
     <Compile Include="SMAPI\Framework\ModLoading\Rewriters\FieldToPropertyRewriter.cs" />
     <Compile Include="SMAPI\Framework\ModLoading\Rewriters\MethodParentRewriter.cs" />
     <Compile Include="SMAPI\Framework\ModLoading\Rewriters\StaticFieldToConstantRewriter.cs" />
+    <Compile Include="SMAPI\Framework\ModLoading\Rewriters\TypeFieldToTypeFieldRewriter.cs" />
     <Compile Include="SMAPI\Framework\ModLoading\Rewriters\TypeReferenceRewriter.cs" />
     <Compile Include="SMAPI\Framework\ModLoading\TypeReferenceComparer.cs" />
     <Compile Include="SMAPI\Framework\ModRegistry.cs" />
@@ -962,7 +963,8 @@
     <Compile Include="SMAPI\Metadata\InstructionMetadata.cs" />
     <Compile Include="SMAPI\Mod.cs" />
     <Compile Include="SMAPI\Patches\DialogueErrorPatch.cs" />
-    <Compile Include="SMAPI\Patches\LoadForNewGamePatch.cs" />
+    <Compile Include="SMAPI\Patches\EventErrorPatch.cs" />
+    <Compile Include="SMAPI\Patches\LoadContextPatch.cs" />
     <Compile Include="SMAPI\Patches\ObjectErrorPatch.cs" />
     <Compile Include="SMAPI\PatchMode.cs" />
     <Compile Include="SMAPI\Program.cs" />
@@ -1050,15 +1052,21 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\Xml\file_paths.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\JarBinding\JarBinding.csproj">
       <Project>{a8fbe3c3-bde1-42c5-a4b9-f34ce5a68f46}</Project>
       <Name>JarBinding</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\splash_screen.xml">
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\splash_logos_crop.png">
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+    </AndroidResource>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

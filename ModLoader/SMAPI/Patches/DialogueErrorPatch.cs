@@ -50,10 +50,7 @@ namespace StardewModdingAPI.Patches
             ConstructorInfo constructor = AccessTools.Constructor(typeof(Dialogue), new[] { typeof(string), typeof(NPC) });
             MethodInfo prefix = AccessTools.Method(this.GetType(), nameof(DialogueErrorPatch.Prefix));
 
-            if (!SCore.Instance.HarmonyDetourBridgeFailed)
-            {
-                harmony.Patch(constructor, new HarmonyMethod(prefix), null);
-            }
+            harmony.Patch(constructor, new HarmonyMethod(prefix), null);
         }
 
 

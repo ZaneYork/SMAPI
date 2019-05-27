@@ -818,6 +818,15 @@ namespace StardewModdingAPI.Framework
                         this.Monitor.Log($"Context: menu changed from {was?.GetType().FullName ?? "none"} to {now?.GetType().FullName ?? "none"}.", LogLevel.Trace);
 
                     // raise menu events
+                    int forSaleCount = 0;
+                    Dictionary<Item, int[]> itemPriceAndStock;
+                    List<Item> forSale;
+                    if (now is ShopMenu shop && !(was is ShopMenu))
+                    {
+                        itemPriceAndStock = this.Reflection.GetField<Dictionary<Item, int[]>>(shop, "itemPriceAndStock").GetValue();
+                        forSale = this.Reflection.GetField<List<Item>>(shop, "forSale").GetValue();
+                        forSaleCount = forSale.Count;
+                    }
                     events.MenuChanged.Raise(new MenuChangedEventArgs(was, now));
 #if !SMAPI_3_0_STRICT
                     if (now != null)
@@ -825,8 +834,7 @@ namespace StardewModdingAPI.Framework
                     else
                         events.Legacy_MenuClosed.Raise(new EventArgsClickableMenuClosed(was));
 #endif
-                    GameMenu gameMenu = now as GameMenu;
-                    if (gameMenu != null)
+                    if (now is GameMenu gameMenu)
                     {
                         foreach (IClickableMenu menuPage in gameMenu.pages)
                         {
@@ -844,6 +852,15 @@ namespace StardewModdingAPI.Framework
                                 }
                                 this.Reflection.GetMethod(optionsPage, "updateContentPositions").Invoke();
                             }
+                        }
+                    }
+                    else if (now is ShopMenu shopMenu && !(was is ShopMenu))
+                    {
+                        itemPriceAndStock = this.Reflection.GetField<Dictionary<Item, int[]>>(shopMenu, "itemPriceAndStock").GetValue();
+                        forSale = this.Reflection.GetField<List<Item>>(shopMenu, "forSale").GetValue();
+                        if (forSaleCount != forSale.Count)
+                        {
+                            Game1.activeClickableMenu = new ShopMenu(itemPriceAndStock, this.Reflection.GetField<int>(shopMenu, "currency").GetValue(), this.Reflection.GetField<string>(shopMenu, "personName").GetValue());
                         }
                     }
                 }
@@ -1048,7 +1065,7 @@ namespace StardewModdingAPI.Framework
                 }
 
                 // preloaded
-                if (Context.IsSaveLoaded && Context.LoadStage != LoadStage.Loaded && Context.LoadStage != LoadStage.Ready)
+                if (Context.IsSaveLoaded && Context.LoadStage != LoadStage.Loaded && Context.LoadStage != LoadStage.Ready && Game1.dayOfMonth != 0)
                     this.OnLoadStageChanged(LoadStage.Loaded);
 
                 // update tick

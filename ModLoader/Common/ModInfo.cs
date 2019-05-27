@@ -14,8 +14,11 @@ namespace ModLoader.Common
         internal ModInfo(IModMetadata metadata)
         {
             this.Metadata = metadata;
-            if(metadata != null)
+            if (metadata != null)
+            {
                 this.Name = metadata?.DisplayName;
+                this.Description = metadata?.Manifest?.Description;
+            }
         }
 
         public string UniqueID { get; set; }
