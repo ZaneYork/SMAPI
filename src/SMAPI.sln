@@ -59,6 +59,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loader", "Loader\Loader.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI", "StardewModdingAPI\StardewModdingAPI.csproj", "{9898B56E-51EB-40CF-8B1F-ACEB4B6397A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StardewModdingAPI.Mods.VirtualKeyboard", "StardewModdingAPI.Mods.VirtualKeyboard\StardewModdingAPI.Mods.VirtualKeyboard.csproj", "{29CCE9C9-6811-415D-A681-A6D47073924D}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		SMAPI.Internal\SMAPI.Internal.projitems*{85208f8d-6fd1-4531-be05-7142490f59fe}*SharedItemsImports = 13
