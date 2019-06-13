@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Harmony;
-using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
 

@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public static bool IsSameType(Type type, TypeReference reference)
         {
             // same namespace & name
-            if (type.Namespace != reference.Namespace || type.Name != reference.Name)
+            if ((type.Namespace != reference.Namespace && reference.Namespace == "" && type.Namespace != reference.DeclaringType.Namespace)|| type.Name != reference.Name)
                 return false;
 
             // same generic parameters
@@ -96,12 +96,35 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
             return true;
         }
+        public static bool HasMatchingSignature(ConstructorInfo definition, MethodReference reference)
+        {
+            // same name
+            if (definition.Name != reference.Name)
+                return false;
+
+            // same arguments
+            ParameterInfo[] definitionParameters = definition.GetParameters();
+            ParameterDefinition[] referenceParameters = reference.Parameters.ToArray();
+            if (referenceParameters.Length != definitionParameters.Length)
+                return false;
+            for (int i = 0; i < referenceParameters.Length; i++)
+            {
+                if (!RewriteHelper.IsSameType(definitionParameters[i].ParameterType, referenceParameters[i].ParameterType))
+                    return false;
+            }
+            return true;
+        }
 
         /// <summary>Get whether a type has a method whose signature matches the one expected by a method reference.</summary>
         /// <param name="type">The type to check.</param>
         /// <param name="reference">The method reference.</param>
         public static bool HasMatchingSignature(Type type, MethodReference reference)
         {
+            if (reference.Name == ".ctor")
+            {
+                return type.GetConstructors(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public)
+                    .Any(method => RewriteHelper.HasMatchingSignature(method, reference));
+            }
             return type
                 .GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public)
                 .Any(method => RewriteHelper.HasMatchingSignature(method, reference));

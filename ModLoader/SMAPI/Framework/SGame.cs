@@ -261,7 +261,8 @@ namespace StardewModdingAPI.Framework
                 throw new InvalidOperationException($"The game didn't initialise its first content manager before SMAPI's {nameof(SGame)} constructor. This indicates an incompatible lifecycle change.");
 
             // init XNA
-            Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
+            if(GraphicsAdapter.DefaultAdapter.IsProfileSupported(GraphicsProfile.HiDef))
+                Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
             // init SMAPI
             this.Monitor = monitor;
@@ -884,8 +885,8 @@ namespace StardewModdingAPI.Framework
 
                             if (this.Monitor.IsVerbose)
                             {
-                                string addedText = this.Watchers.LocationsWatcher.Added.Any() ? string.Join(", ", added.Select(p => p.Name)) : "none";
-                                string removedText = this.Watchers.LocationsWatcher.Removed.Any() ? string.Join(", ", removed.Select(p => p.Name)) : "none";
+                                string addedText = added.Any() ? string.Join(", ", added.Select(p => p.Name)) : "none";
+                                string removedText = removed.Any() ? string.Join(", ", removed.Select(p => p.Name)) : "none";
                                 this.Monitor.Log($"Context: location list changed (added {addedText}; removed {removedText}).", LogLevel.Trace);
                             }
 
@@ -1110,6 +1111,7 @@ namespace StardewModdingAPI.Framework
 #endif
                 base.Update(gameTime);
                 events.UpdateTicked.RaiseEmpty();
+                events.UnvalidatedUpdateTicked.RaiseEmpty();
                 this.UpdateCrashTimer.Reset();
             }
             catch (Exception ex)
@@ -1605,7 +1607,8 @@ namespace StardewModdingAPI.Framework
                                 {
                                     if (((!npc.swimming) && !npc.HideShadow) && (!npc.IsInvisible && !Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(npc.getTileLocation())))
                                     {
-                                        Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, npc.Position + new Vector2(((float)(npc.Sprite.SpriteWidth * 4)) / 2f, (float)(npc.GetBoundingBox().Height + (npc.IsMonster ? 0 : 12)))), new Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)((4f + (((float)npc.yJumpOffset) / 40f)) * npc.scale), SpriteEffects.None, Math.Max((float)0f, (float)(((float)npc.getStandingY()) / 10000f)) - 1E-06f);
+                                        if (npc.Sprite != null)
+                                            Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, npc.Position + new Vector2(((float)(npc.Sprite.SpriteWidth * 4)) / 2f, (float)(npc.GetBoundingBox().Height + (npc.IsMonster ? 0 : 12)))), new Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)((4f + (((float)npc.yJumpOffset) / 40f)) * npc.scale), SpriteEffects.None, Math.Max((float)0f, (float)(((float)npc.getStandingY()) / 10000f)) - 1E-06f);
                                     }
                                 }
                             }
@@ -1615,7 +1618,8 @@ namespace StardewModdingAPI.Framework
                                 {
                                     if (((!npc2.swimming) && !npc2.HideShadow) && !Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(npc2.getTileLocation()))
                                     {
-                                        Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, npc2.Position + new Vector2(((float)(npc2.Sprite.SpriteWidth * 4)) / 2f, (float)(npc2.GetBoundingBox().Height + (npc2.IsMonster ? 0 : ((npc2.Sprite.SpriteHeight <= 0x10) ? -4 : 12))))), new Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)((4f + (((float)npc2.yJumpOffset) / 40f)) * npc2.scale), SpriteEffects.None, Math.Max((float)0f, (float)(((float)npc2.getStandingY()) / 10000f)) - 1E-06f);
+                                        if (npc2.Sprite != null)
+                                            Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, npc2.Position + new Vector2(((float)(npc2.Sprite.SpriteWidth * 4)) / 2f, (float)(npc2.GetBoundingBox().Height + (npc2.IsMonster ? 0 : ((npc2.Sprite.SpriteHeight <= 0x10) ? -4 : 12))))), new Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)((4f + (((float)npc2.yJumpOffset) / 40f)) * npc2.scale), SpriteEffects.None, Math.Max((float)0f, (float)(((float)npc2.getStandingY()) / 10000f)) - 1E-06f);
                                     }
                                 }
                             }
@@ -1651,7 +1655,8 @@ namespace StardewModdingAPI.Framework
                                 {
                                     if (((!npc3.swimming) && !npc3.HideShadow) && Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(npc3.getTileLocation()))
                                     {
-                                        Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, npc3.Position + new Vector2(((float)(npc3.Sprite.SpriteWidth * 4)) / 2f, (float)(npc3.GetBoundingBox().Height + (npc3.IsMonster ? 0 : 12)))), new Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)((4f + (((float)npc3.yJumpOffset) / 40f)) * npc3.scale), SpriteEffects.None, Math.Max((float)0f, (float)(((float)npc3.getStandingY()) / 10000f)) - 1E-06f);
+                                        if (npc3.Sprite != null)
+                                            Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, npc3.Position + new Vector2(((float)(npc3.Sprite.SpriteWidth * 4)) / 2f, (float)(npc3.GetBoundingBox().Height + (npc3.IsMonster ? 0 : 12)))), new Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)((4f + (((float)npc3.yJumpOffset) / 40f)) * npc3.scale), SpriteEffects.None, Math.Max((float)0f, (float)(((float)npc3.getStandingY()) / 10000f)) - 1E-06f);
                                     }
                                 }
                             }
@@ -1661,7 +1666,8 @@ namespace StardewModdingAPI.Framework
                                 {
                                     if (((!npc4.swimming) && !npc4.HideShadow) && Game1.currentLocation.shouldShadowBeDrawnAboveBuildingsLayer(npc4.getTileLocation()))
                                     {
-                                        Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, npc4.Position + new Vector2(((float)(npc4.Sprite.SpriteWidth * 4)) / 2f, (float)(npc4.GetBoundingBox().Height + (npc4.IsMonster ? 0 : 12)))), new Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)((4f + (((float)npc4.yJumpOffset) / 40f)) * npc4.scale), SpriteEffects.None, Math.Max((float)0f, (float)(((float)npc4.getStandingY()) / 10000f)) - 1E-06f);
+                                        if (npc4.Sprite != null)
+                                            Game1.spriteBatch.Draw(Game1.shadowTexture, Game1.GlobalToLocal(Game1.viewport, npc4.Position + new Vector2(((float)(npc4.Sprite.SpriteWidth * 4)) / 2f, (float)(npc4.GetBoundingBox().Height + (npc4.IsMonster ? 0 : 12)))), new Rectangle?(Game1.shadowTexture.Bounds), Color.White, 0f, new Vector2((float)Game1.shadowTexture.Bounds.Center.X, (float)Game1.shadowTexture.Bounds.Center.Y), (float)((4f + (((float)npc4.yJumpOffset) / 40f)) * npc4.scale), SpriteEffects.None, Math.Max((float)0f, (float)(((float)npc4.getStandingY()) / 10000f)) - 1E-06f);
                                     }
                                 }
                             }

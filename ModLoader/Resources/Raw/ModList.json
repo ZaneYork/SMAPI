@@ -219,5 +219,12 @@
         "UniqueID": "Pathoschild.ContentPatcher"
       }
     ]
+  },{
+    "UniqueID": "SgtPickles.MTN",
+    "Name": "MTN",
+    "Description": "Greatly Customizes farms, along with managing multitude amount of custom farm types.",
+    "DownloadUrl": "http://smd.zaneyork.cn/bin/download/Main/%E7%A7%BB%E6%A4%8DMOD/WebHome/mtn-2.0.0-alpha8.zip",
+    "Version": "2.0.0-alpha8",
+    "Dependencies": []
   }
 ]

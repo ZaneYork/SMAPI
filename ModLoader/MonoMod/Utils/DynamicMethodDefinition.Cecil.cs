@@ -32,7 +32,9 @@ namespace MonoMod.Utils {
                 module = ModuleDefinition.CreateModule(name, new ModuleParameters() {
                     Kind = ModuleKind.Dll,
                     AssemblyResolver = new AssemblyCecilDefinitionResolver(_ModuleGen, new DefaultAssemblyResolver()),
+#if !CECIL0_9
                     ReflectionImporterProvider = new ReflectionCecilImporterProvider(null)
+#endif
                 });
 
 #if !NETSTANDARD1_X
@@ -158,8 +160,10 @@ namespace MonoMod.Utils {
                 return _Postbuild(asm.GetType(typeDef.FullName.Replace("+", "\\+"), false, false).GetMethod(clone.Name));
 
             } finally {
+#if !CECIL0_9
                 if (moduleIsPrivate)
                     module.Dispose();
+#endif
             }
         }
 

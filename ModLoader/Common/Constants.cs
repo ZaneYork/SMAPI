@@ -21,5 +21,7 @@ namespace ModLoader.Common
         public static string ModPath { get; } = Path.Combine(GamePath, "Mods");
         public static string ContentPath { get; } = Path.Combine(Constants.GamePath, "Game/assets/Content".Replace('/', Path.DirectorySeparatorChar));
         public static string GameInternalPath { get; } = Path.Combine(Constants.GamePath, "smapi-internal");
-    }
+        public static bool CompatCheck { get; set; } = true;
+        public static bool UpgradeCheck { get; set; } = true;
+    };
 }

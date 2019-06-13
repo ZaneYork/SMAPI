@@ -1,7 +1,6 @@
 using System;
 using Harmony;
 using StardewModdingAPI.Enums;
-using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;

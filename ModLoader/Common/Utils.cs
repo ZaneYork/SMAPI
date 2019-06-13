@@ -146,5 +146,32 @@ namespace ModLoader.Common
                 Microsoft.AppCenter.Crashes.Crashes.TrackError(ex);
             }
         }
+
+        public static void OpenTextFile(Context context, string filename)
+        {
+            Intent intent = new Intent(Intent.ActionView);
+            intent.AddCategory(Intent.CategoryDefault);
+            Java.IO.File configFile = new Java.IO.File(filename);
+            intent.SetDataAndType(Android.Net.Uri.FromFile(configFile), "text/plain");
+            intent.AddFlags(ActivityFlags.NewTask);
+            try
+            {
+                context.StartActivity(intent);
+            }
+            catch (ActivityNotFoundException) { }
+        }
+
+        public static string GetConfig(Context context, string key, string defValue)
+        {
+            ISharedPreferences sp = context.GetSharedPreferences("main_prefs", FileCreationMode.Private);
+            return sp.GetString(key, defValue);
+        }
+        public static void SetConfig(Context context, string key, string value)
+        {
+            ISharedPreferences sp = context.GetSharedPreferences("main_prefs", FileCreationMode.Private);
+            ISharedPreferencesEditor editor = sp.Edit();
+            editor.PutString(key, value);
+            editor.Apply();
+        }
     }
 }

@@ -14,7 +14,7 @@
         android:background="@android:color/darker_gray"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/linearLayout1" >
+        android:id="@+id/linearLayout1">
         <Button
             android:text="@string/Extract"
             android:layout_width="wrap_content"
@@ -39,6 +39,12 @@
             android:layout_height="wrap_content"
             android:minWidth="96sp"
             android:id="@+id/buttonWiki" />
+        <Button
+            android:text="@string/Setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="96sp"
+            android:id="@+id/buttonSetting" />
     </LinearLayout>
     <LinearLayout
         android:layout_marginLeft="@dimen/compat_button_padding_vertical_material"

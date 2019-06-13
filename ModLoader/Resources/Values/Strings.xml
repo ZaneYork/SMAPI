@@ -13,6 +13,9 @@
     <string name="Update">Upgrade</string>
     <string name="Ignore">Ignore</string>
     <string name="Confirm">Confirm</string>
+    <string name="Setting">Setting</string>
+    <string name="CompatCheck">Mod Compatibility Check</string>
+    <string name="UpgradeCheck">Upgrade Check</string>
     <string name="Error">Error</string>
     <string name="Config">Config</string>
     <string name="RemoveConfirmMessage">Are you sure to remove this mod?</string>
@@ -27,6 +30,9 @@
     <string name="ModInstalledMessage">Mod Installed Successfully</string>
     <string name="ModRemovedMessage">Mod Removed Successfully</string>
     <string name="NotInstalledMessage">Install the Stardew Valley First</string>
-    <string name="NotExtractedMessage">Press Extract First</string>
     <string name="NotGeneratedMessage">Press Generate First</string>
+    <string name="NotExtractedMessage">Press Extract First</string>
+    <string name="CrashReportMessage">Crash report detected</string>
+    <string name="View">View</string>
+    <string name="Dismiss">Dismiss</string>
 </resources>

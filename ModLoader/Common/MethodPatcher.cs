@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using Android.Graphics;
 using ModLoader.Common;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using OpCodes = Mono.Cecil.Cil.OpCodes;
 
 namespace DllRewrite
 {
@@ -15,6 +17,7 @@ namespace DllRewrite
         private AssemblyDefinition MonoGame_Framework;
         private readonly AssemblyDefinition mscorlib;
         private readonly AssemblyDefinition Mono_Android;
+        private readonly AssemblyDefinition System_Xml;
         private readonly DefaultAssemblyResolver resolver;
         private readonly AssemblyDefinition StardewValley;
         private readonly Dictionary<string, TypeReference> typeDict = new Dictionary<string, TypeReference>();
@@ -25,6 +28,8 @@ namespace DllRewrite
             this.resolver.AddSearchDirectory(Constants.AssemblyPath);
             this.mscorlib = this.resolver.Resolve(new AssemblyNameReference("mscorlib", new Version("0.0.0.0")));
             this.Mono_Android = this.resolver.Resolve(new AssemblyNameReference("Mono.Android", new Version("0.0.0.0")));
+            this.System_Xml =
+                this.resolver.Resolve(new AssemblyNameReference("System.Xml", new Version("0.0.0.0")));
             this.MonoGame_Framework =
                 this.resolver.Resolve(new AssemblyNameReference("MonoGame.Framework", new Version("0.0.0.0")));
             this.StardewValley =
@@ -196,6 +201,26 @@ namespace DllRewrite
             typeGame1.Methods.Add(propertyDefinition.GetMethod);
             typeGame1.Methods.Add(propertyDefinition.SetMethod);
             typeGame1.Properties.Add(propertyDefinition);
+
+            // GameLocation.hook
+            var typeGameLocation = this.StardewValley.MainModule.GetType("StardewValley.GameLocation");
+            var typeDebrisManager = this.StardewValley.MainModule.GetType("StardewValley.DebrisManager");
+            var getDebrisNetCollection = typeDebrisManager.Methods.First(m => m.Name == "get_debrisNetCollection");
+            var typeDebrisCollection = getDebrisNetCollection.ReturnType;
+            propertyDefinition = new PropertyDefinition("debrisCollection", PropertyAttributes.None, typeDebrisCollection);
+            propertyDefinition.CustomAttributes.Add(new CustomAttribute(this.GetMethodReference(".ctor", "System.Xml.Serialization.XmlIgnoreAttribute", this.System_Xml)));
+            propertyDefinition.GetMethod = new MethodDefinition("get_debrisCollection",
+                MethodAttributes.Public | MethodAttributes.ReuseSlot | MethodAttributes.SpecialName |
+                MethodAttributes.HideBySig, typeDebrisCollection);
+            propertyDefinition.GetMethod.SemanticsAttributes = MethodSemanticsAttributes.Getter;
+            processor = propertyDefinition.GetMethod.Body.GetILProcessor();
+            processor.Emit(OpCodes.Ldarg_0);
+            getMethod = typeGameLocation.Methods.FirstOrDefault(m => m.Name == "get_debris");
+            processor.Emit(OpCodes.Callvirt, getMethod);
+            processor.Emit(OpCodes.Callvirt, getDebrisNetCollection);
+            processor.Emit(OpCodes.Ret);
+            typeGameLocation.Methods.Add(propertyDefinition.GetMethod);
+            typeGameLocation.Properties.Add(propertyDefinition);
 
 
 

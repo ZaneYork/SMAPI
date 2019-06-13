@@ -6,6 +6,7 @@ using StardewModdingAPI.Framework.ModLoading.Finders;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewModdingAPI.Framework.RewriteFacades;
 using StardewValley;
+using StardewValley.BellsAndWhistles;
 using StardewValley.Menus;
 
 namespace StardewModdingAPI.Metadata
@@ -59,11 +60,23 @@ namespace StardewModdingAPI.Metadata
 
             yield return new FieldToPropertyRewriter(typeof(Game1), "isDebrisWeather");
 
+            yield return new FieldToPropertyRewriter(typeof(GameLocation), "debris", "debrisCollection");
+
+            yield return new FieldReplaceRewriter(typeof(Farmer), "daysUntilHouseUpgrade", "daysUntilHouseUpgrade");
+
             yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods));
 
             yield return new MethodParentRewriter(typeof(Game1), typeof(Game1Methods));
 
             yield return new MethodParentRewriter(typeof(Farmer), typeof(FarmerMethods));
+
+            yield return new MethodParentRewriter(typeof(TextBox), typeof(TextBoxMethods));
+
+            yield return new MethodParentRewriter(typeof(SpriteText), typeof(SpriteTextMethods));
+            
+            yield return new MethodParentRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods));
+
+            yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));
 
             /****
             ** detect mod issues

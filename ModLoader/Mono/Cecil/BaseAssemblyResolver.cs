@@ -332,10 +332,11 @@ namespace Mono.Cecil {
 
 		static string GetCurrentMonoGac ()
 		{
-			return Path.Combine (
-				Directory.GetParent (
-					Path.GetDirectoryName (typeof (object).Module.FullyQualifiedName)).FullName,
-				"gac");
+		    if (Path.GetDirectoryName(typeof(object).Module.FullyQualifiedName) != "")
+		        return Path.Combine(
+		            Directory.GetParent(Path.GetDirectoryName(typeof(object).Module.FullyQualifiedName)).FullName,
+		            "gac");
+		    return null;
 		}
 
 		AssemblyDefinition GetAssemblyInGac (AssemblyNameReference reference, ReaderParameters parameters)

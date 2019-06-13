@@ -13,6 +13,7 @@ using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using xTile;
 using xTile.Format;
+using xTile.ObjectModel;
 using xTile.Tiles;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -247,7 +248,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 return;
             relativeMapPath = this.ModContentManager.AssertAndNormaliseAssetName(relativeMapPath); // Mono's Path.GetDirectoryName doesn't handle Windows dir separators
             string relativeMapFolder = Path.GetDirectoryName(relativeMapPath) ?? ""; // folder path containing the map, relative to the mod folder
-
+            bool isOutdoors = map.Properties.TryGetValue("Outdoors", out PropertyValue outdoorsProperty) && outdoorsProperty != null;
             // fix tilesheets
             foreach (TileSheet tilesheet in map.TileSheets)
             {
@@ -259,7 +260,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
                 // get seasonal name (if applicable)
                 string seasonalImageSource = null;
-                if (Context.IsSaveLoaded && Game1.currentSeason != null)
+                if (isOutdoors && Context.IsSaveLoaded && Game1.currentSeason != null)
                 {
                     string filename = Path.GetFileName(imageSource) ?? throw new InvalidOperationException($"The '{imageSource}' tilesheet couldn't be loaded: filename is unexpectedly null.");
                     bool hasSeasonalPrefix =

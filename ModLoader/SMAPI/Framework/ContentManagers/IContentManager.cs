@@ -60,7 +60,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Assert that the given key has a valid format and return a normalised form consistent with the underlying cache.</summary>
         /// <param name="assetName">The asset key to check.</param>
         /// <exception cref="SContentLoadException">The asset key is empty or contains invalid characters.</exception>
-        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Parameter is only used for assertion checks by design.")]
         string AssertAndNormaliseAssetName(string assetName);
 
         /// <summary>Get the current content locale.</summary>

@@ -259,7 +259,15 @@ namespace StardewModdingAPI.Framework
                 SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper, this.InitialiseBeforeFirstAssetLoaded);
                 if(!this.HarmonyDetourBridgeFailed)
                 {
-                    HarmonyDetourBridge.Init();
+                    try
+                    {
+                        HarmonyDetourBridge.Init();
+                    }
+                    catch (Exception)
+                    {
+                        this.HarmonyDetourBridgeFailed = true;
+                        this.Monitor.Log("HarmonyDetourBridge Init Failed", LogLevel.Warn);
+                    }
                 }
 
                 // override game
@@ -999,7 +1007,7 @@ namespace StardewModdingAPI.Framework
                 Assembly modAssembly;
                 try
                 {
-                    modAssembly = assemblyLoader.Load(mod, assemblyPath, assumeCompatible: mod.DataRecord?.Status == ModStatus.AssumeCompatible);
+                    modAssembly = assemblyLoader.Load(mod, assemblyPath, assumeCompatible:!ModLoader.Common.Constants.CompatCheck || mod.DataRecord?.Status == ModStatus.AssumeCompatible);
                     this.ModRegistry.TrackAssemblies(mod, modAssembly);
                 }
                 catch (IncompatibleInstructionException) // details already in trace logs

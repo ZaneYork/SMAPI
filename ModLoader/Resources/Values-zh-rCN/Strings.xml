@@ -13,6 +13,9 @@
     <string name="Update">更新</string>
     <string name="Ignore">忽略</string>
     <string name="Confirm">确认</string>
+    <string name="Setting">设置</string>
+    <string name="CompatCheck">Mod兼容性检查</string>
+    <string name="UpgradeCheck">检查更新</string>
     <string name="Error">错误</string>
     <string name="Config">配置</string>
     <string name="RemoveConfirmMessage">确认移除这个插件？</string>
@@ -29,4 +32,7 @@
     <string name="NotInstalledMessage">请先安装游戏本体</string>
     <string name="NotExtractedMessage">请先点击解压按钮</string>
     <string name="NotGeneratedMessage">请先点击生成按钮</string>
+    <string name="CrashReportMessage">检测到崩溃日志</string>
+    <string name="View">查看</string>
+    <string name="Dismiss">关闭</string>
 </resources>

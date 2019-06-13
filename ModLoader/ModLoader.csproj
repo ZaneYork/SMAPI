@@ -46,6 +46,7 @@
     <AndroidHttpClientHandlerType>
     </AndroidHttpClientHandlerType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activity1.cs" />
+    <Compile Include="ActivitySetting.cs" />
     <Compile Include="Common\Constants.cs" />
     <Compile Include="Common\ModInfo.cs" />
     <Compile Include="Common\ModListAdapter.cs" />
@@ -894,7 +896,11 @@
     <Compile Include="SMAPI\Framework\RewriteFacades\FarmerMethods.cs" />
     <Compile Include="SMAPI\Framework\RewriteFacades\Game1Methods.cs" />
     <Compile Include="SMAPI\Framework\RewriteFacades\IClickableMenuMethods.cs" />
+    <Compile Include="SMAPI\Framework\RewriteFacades\MapPageMethods.cs" />
     <Compile Include="SMAPI\Framework\RewriteFacades\SpriteBatchMethods.cs" />
+    <Compile Include="SMAPI\Framework\RewriteFacades\SpriteTextMethods.cs" />
+    <Compile Include="SMAPI\Framework\RewriteFacades\ItemGrabMenuMethods.cs" />
+    <Compile Include="SMAPI\Framework\RewriteFacades\TextBoxMethods.cs" />
     <Compile Include="SMAPI\Framework\SCore.cs" />
     <Compile Include="SMAPI\Framework\Serialisation\ColorConverter.cs" />
     <Compile Include="SMAPI\Framework\Serialisation\PointConverter.cs" />
@@ -1065,6 +1071,11 @@
   <ItemGroup>
     <AndroidResource Include="Resources\Drawable\splash_logos_crop.png">
       <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Layout\layout_setting.axml">
+      <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />

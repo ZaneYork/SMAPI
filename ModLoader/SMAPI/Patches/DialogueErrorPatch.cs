@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Harmony;
-using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
@@ -14,7 +13,7 @@ namespace StardewModdingAPI.Patches
     internal class DialogueErrorPatch : IHarmonyPatch
     {
         /*********
-        ** Private methods
+        ** Fields
         *********/
         /// <summary>Writes messages to the console and log file on behalf of the game.</summary>
         private static IMonitor MonitorForGame;
@@ -47,10 +46,10 @@ namespace StardewModdingAPI.Patches
         /// <param name="harmony">The Harmony instance.</param>
         public void Apply(HarmonyInstance harmony)
         {
-            ConstructorInfo constructor = AccessTools.Constructor(typeof(Dialogue), new[] { typeof(string), typeof(NPC) });
-            MethodInfo prefix = AccessTools.Method(this.GetType(), nameof(DialogueErrorPatch.Prefix));
-
-            harmony.Patch(constructor, new HarmonyMethod(prefix), null);
+            harmony.Patch(
+                original: AccessTools.Constructor(typeof(Dialogue), new[] { typeof(string), typeof(NPC) }),
+                prefix: new HarmonyMethod(this.GetType(), nameof(DialogueErrorPatch.Prefix))
+            );
         }
 
 
@@ -72,6 +71,7 @@ namespace StardewModdingAPI.Patches
             IReflectedMethod parseDialogueString = DialogueErrorPatch.Reflection.GetMethod(__instance, "parseDialogueString");
             IReflectedMethod checkForSpecialDialogueAttributes = DialogueErrorPatch.Reflection.GetMethod(__instance, "checkForSpecialDialogueAttributes");
             IReflectedField<List<string>> dialogues = DialogueErrorPatch.Reflection.GetField<List<string>>(__instance, "dialogues");
+
             // replicate base constructor
             if (dialogues.GetValue() == null)
                 dialogues.SetValue(new List<string>());

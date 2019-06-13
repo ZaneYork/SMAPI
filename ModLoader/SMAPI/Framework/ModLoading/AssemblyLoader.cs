@@ -318,7 +318,8 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // rewrite type scopes to use target assemblies
                 IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
                 typeReferences = typeReferences.Concat(module.Types.SelectMany(t => this.GetAttributeTypes(t.CustomAttributes)));
-                typeReferences = typeReferences.Concat(module.Types.SelectMany(t => this.GetAttributeTypes(t.Properties.SelectMany(p=>p.CustomAttributes))));
+                typeReferences = typeReferences.Concat(module.Types.SelectMany(t => this.GetAttributeTypes(t.Methods.SelectMany(p => p.CustomAttributes))));
+                typeReferences = typeReferences.Concat(module.Types.SelectMany(t => this.GetAttributeTypes(t.Properties.SelectMany(p => p.CustomAttributes))));
                 typeReferences = typeReferences.Concat(module.Types.SelectMany(t => this.GetAttributeTypes(t.Fields.SelectMany(p => p.CustomAttributes))));
                 foreach (TypeReference type in typeReferences)
                     this.ChangeTypeScope(type);

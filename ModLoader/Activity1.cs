@@ -128,6 +128,7 @@ namespace ModLoader
         private readonly Mutex _working = new Mutex(false);
 
         public static Activity1 Instance { get; private set; }
+
         private readonly HttpClient _httpClient = new HttpClient();
 
         private static readonly Dictionary<int, Action> MessageHandler = new Dictionary<int, Action>();
@@ -150,10 +151,29 @@ namespace ModLoader
         protected override void OnCreate(Bundle bundle)
         {
             Instance = this;
-            Type[] services = { typeof(Analytics), typeof(Crashes) };
-            AppCenter.Start("b8eaba94-d276-4c97-9953-0c91e7357e21", services);
             base.OnCreate(bundle);
             this.RequestWindowFeature(WindowFeatures.NoTitle);
+            if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.N)
+            {
+                StrictMode.SetVmPolicy(new StrictMode.VmPolicy.Builder().Build());
+            }
+            try { 
+                File errorLog = this.FilesDir.ListFiles().FirstOrDefault(f => f.IsDirectory && f.Name == "error")?.ListFiles().FirstOrDefault(f => f.Name.EndsWith(".dat"));
+                if (errorLog != null)
+                {
+                    string errorLogPath = Path.Combine(this.ExternalCacheDir.AbsolutePath, "error.dat");
+                    StreamToFile(new FileStream(errorLog.AbsolutePath, FileMode.Open), errorLogPath);
+                    ShowConfirmDialog(this, Resource.String.Error, Resource.String.CrashReportMessage, Resource.String.View, Resource.String.Dismiss, () => { OpenTextFile(this, errorLogPath); });
+                }
+                Type[] services = { typeof(Analytics), typeof(Crashes) };
+                AppCenter.Start("b8eaba94-d276-4c97-9953-0c91e7357e21", services);
+                IEnumerable<File> errorLogs = this.FilesDir.ListFiles().FirstOrDefault(f => f.IsDirectory && f.Name == "error")?.ListFiles().ToList().FindAll(f => f.Name.EndsWith(".dat") || f.Name.EndsWith(".throwable"));
+                if (errorLogs != null) foreach (var file in errorLogs) file.Delete();
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
             if (Build.VERSION.SdkInt >= BuildVersionCodes.P)
             {
                 this.Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
@@ -169,13 +189,18 @@ namespace ModLoader
 
         private void OnCreatePartTwo()
         {
-            if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.N)
-            {
-                StrictMode.SetVmPolicy(new StrictMode.VmPolicy.Builder().Build());
-            }
-
-            new PgyUpdateManager.Builder().SetForced(false).SetUserCanRetry(true).SetDeleteHistroyApk(true).Register();
+            if (GetConfig(this, "compatCheck", "true") == "false")
+                Constants.CompatCheck = false;
+            if (GetConfig(this, "upgradeCheck", "true") == "false")
+                Constants.UpgradeCheck = false;
+            else
+                new PgyUpdateManager.Builder().SetForced(false).SetUserCanRetry(true).SetDeleteHistroyApk(true).Register();
             this.InitEnvironment();
+            this.FindViewById<Button>(Resource.Id.buttonSetting).Click += (sender, args) =>
+            {
+                this.StartActivity(typeof(ActivitySetting));
+            };
+
             this.FindViewById<Button>(Resource.Id.buttonExtract).Click += (sender, args) =>
             {
                 new Thread(() =>
@@ -251,6 +276,8 @@ namespace ModLoader
                             FileAccess.Write, FileShare.Read);
                         monoFramework.Write(stream);
                         stream.Close();
+                        Stream stream2 = this.Resources.OpenRawResource(Resource.Raw.SMDroidFiles);
+                        ZipHelper.UnZip(stream2, Constants.GamePath);
                         dialog.Dismiss();
                         MakeToast(this, this.Resources.GetText(Resource.String.GeneratedMessage),
                             ToastLength.Long);
@@ -406,16 +433,7 @@ namespace ModLoader
         }
         internal void ConfigMod(string configPath)
         {
-            Intent intent = new Intent(Intent.ActionView);
-            intent.AddCategory(Intent.CategoryDefault);
-            File configFile = new File(configPath);
-            intent.SetDataAndType(Android.Net.Uri.FromFile(configFile), "text/plain");
-            intent.AddFlags(ActivityFlags.NewTask);
-            try
-            {
-                this.StartActivity(intent);
-            }
-            catch (ActivityNotFoundException) { }
+            OpenTextFile(this, configPath);
         }
 
         internal void RemoveMod(ModInfo mod)
@@ -439,6 +457,10 @@ namespace ModLoader
 
         private void PrepareModList()
         {
+            if (!new File(Constants.ModPath).Exists())
+            {
+                Directory.CreateDirectory(Constants.ModPath);
+            }
             string modListFileName = Path.Combine(Constants.GameInternalPath, "ModList.json");
             new JsonHelper().ReadJsonFileIfExists(modListFileName, out ModInfo[] modInfos);
             Dictionary<string, ModInfo> modInfoDictionary = modInfos.ToDictionary(info => info.UniqueID, info => info);

@@ -22,7 +22,7 @@ namespace StardewModdingAPI
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
         public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.0.0");
-        public static ISemanticVersion CoreVersion { get; } = new Toolkit.SemanticVersion("1.4.2");
+        public static ISemanticVersion CoreVersion { get; } = new Toolkit.SemanticVersion("1.4.3");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.3.36");
@@ -182,7 +182,6 @@ namespace StardewModdingAPI
                         "Microsoft.Xna.Framework.Graphics",
                         "Microsoft.Xna.Framework.Xact",
                         "0Harmony",
-                        "Newtonsoft.Json",
                         "StardewModdingAPI.Toolkit",
                         "StardewModdingAPI.Toolkit.CoreInterfaces"
                     };
