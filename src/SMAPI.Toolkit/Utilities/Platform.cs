@@ -13,6 +13,9 @@ namespace StardewModdingAPI.Toolkit.Utilities
         Mac,
 
         /// <summary>The Windows version of the game.</summary>
-        Windows
+        Windows,
+
+        /// <summary>The Windows version of the game.</summary>
+        Android
     }
 }
