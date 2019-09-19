@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// <summary>The Windows version of the game.</summary>
         Windows,
 
-        /// <summary>The Windows version of the game.</summary>
+        /// <summary>The Android version of the game.</summary>
         Android
     }
 }
