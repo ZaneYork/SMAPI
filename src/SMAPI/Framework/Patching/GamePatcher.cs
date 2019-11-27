@@ -74,6 +74,11 @@ namespace StardewModdingAPI.Framework.Patching
                 }
 #endif
             }
+
+            //Keeping for reference
+            //if (Build.VERSION.SdkInt > BuildVersionCodes.LollipopMr1)
+            //{
+            //}
         }
     }
 }
