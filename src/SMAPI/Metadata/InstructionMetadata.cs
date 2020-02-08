@@ -95,6 +95,8 @@ namespace StardewModdingAPI.Metadata
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ShopMenu), typeof(ShopMenuMethods), "categoriesToSellHere", "CategoriesToSellHereProp");
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods), "trashCan", "TrashCanProp");
 
+            yield return new PropertyToFieldRewriter(typeof(Game1), "toolSpriteSheet", "toolSpriteSheet");
+
             //Method Rewrites
             yield return new MethodParentRewriter(typeof(Game1), typeof(Game1Methods));
             yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods));
