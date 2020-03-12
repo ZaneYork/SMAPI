@@ -199,6 +199,9 @@
     <Compile Include="Framework\GameVersion.cs" />
     <Compile Include="Framework\IModMetadata.cs" />
     <Compile Include="Framework\Input\GamePadStateBuilder.cs" />
+    <Compile Include="Framework\Input\IInputStateBuilder.cs" />
+    <Compile Include="Framework\Input\KeyboardStateBuilder.cs" />
+    <Compile Include="Framework\Input\MouseStateBuilder.cs" />
     <Compile Include="Framework\Input\SInputState.cs" />
     <Compile Include="Framework\InternalExtensions.cs" />
     <Compile Include="Framework\Logging\ConsoleInterceptionManager.cs" />
@@ -271,6 +274,8 @@
     <Compile Include="Framework\Reflection\ReflectedMethod.cs" />
     <Compile Include="Framework\Reflection\ReflectedProperty.cs" />
     <Compile Include="Framework\Reflection\Reflector.cs" />
+    <Compile Include="Framework\Rendering\SDisplayDevice.cs" />
+    <Compile Include="Framework\Rendering\SXnaDisplayDevice.cs" />
     <Compile Include="Framework\RequestExitDelegate.cs" />
     <Compile Include="Framework\RewriteFacades\DebrisMethods.cs" />
     <Compile Include="Framework\RewriteFacades\GameMenuMethods.cs" />
@@ -396,6 +401,7 @@
     <None Include="i18n\de.json" />
     <None Include="i18n\default.json" />
     <None Include="i18n\es.json" />
+    <None Include="i18n\hu.json" />
     <None Include="i18n\ja.json" />
     <None Include="i18n\pt.json" />
     <None Include="i18n\ru.json" />

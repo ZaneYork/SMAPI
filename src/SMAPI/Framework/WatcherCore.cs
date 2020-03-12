@@ -60,7 +60,7 @@ namespace StardewModdingAPI.Framework
         {
             // init watchers
             this.CursorWatcher = WatcherFactory.ForEquatable(() => inputState.CursorPosition);
-            this.MouseWheelScrollWatcher = WatcherFactory.ForEquatable(() => inputState.RealMouse.ScrollWheelValue);
+            this.MouseWheelScrollWatcher = WatcherFactory.ForEquatable(() => inputState.LastMouse.ScrollWheelValue);
             this.SaveIdWatcher = WatcherFactory.ForEquatable(() => Game1.hasLoadedGame ? Game1.uniqueIDForThisGame : 0);
             this.WindowSizeWatcher = WatcherFactory.ForEquatable(() => new Point(Game1.viewport.Width, Game1.viewport.Height));
             this.TimeWatcher = WatcherFactory.ForEquatable(() => Game1.timeOfDay);

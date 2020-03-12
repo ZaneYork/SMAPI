@@ -41,14 +41,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="button">The button.</param>
         public bool IsSuppressed(SButton button)
         {
-            return this.InputState.SuppressButtons.Contains(button);
+            return this.InputState.IsSuppressed(button);
         }
 
         /// <summary>Prevent the game from handling a button press. This doesn't prevent other mods from receiving the event.</summary>
         /// <param name="button">The button to suppress.</param>
         public void Suppress(SButton button)
         {
-            this.InputState.SuppressButtons.Add(button);
+            this.InputState.OverrideButton(button, setDown: false);
         }
 
         /// <summary>Get the state of a button.</summary>

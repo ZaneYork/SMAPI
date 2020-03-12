@@ -19,6 +19,7 @@ using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.PerformanceMonitoring;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.Rendering;
 using StardewModdingAPI.Framework.StateTracking.Comparers;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
@@ -204,6 +205,13 @@ namespace StardewModdingAPI.Framework
             SGame.instance = this;
         }
 
+        /// <summary>Load content when the game is launched.</summary>
+        protected override void LoadContent()
+        {
+            base.LoadContent();
+            Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, this.GraphicsDevice);
+        }
+
         /// <summary>Initialize just before the game's first update tick.</summary>
         private void InitializeAfterGameStarted()
         {
@@ -263,12 +271,12 @@ namespace StardewModdingAPI.Framework
             // update data
             LoadStage oldStage = Context.LoadStage;
             Context.LoadStage = newStage;
+            this.Monitor.VerboseLog($"Context: load stage changed to {newStage}");
             if (newStage == LoadStage.None)
             {
                 this.Monitor.Log("Context: returned to title", LogLevel.Trace);
-                this.Multiplayer.CleanupOnMultiplayerExit();
+                this.OnReturnedToTitle();
             }
-            this.Monitor.VerboseLog($"Context: load stage changed to {newStage}");
 
             // raise events
             this.Events.LoadStageChanged.Raise(new LoadStageChangedEventArgs(oldStage, newStage));
@@ -292,6 +300,15 @@ namespace StardewModdingAPI.Framework
                 foreach (object instance in removed)
                     this.ReloadAssetInterceptorsQueue.Add(new AssetInterceptorChange(mod, instance, wasAdded: false));
             }
+        }
+
+        /// <summary>Perform cleanup when the game returns to the title screen.</summary>
+        private void OnReturnedToTitle()
+        {
+            this.Multiplayer.CleanupOnMultiplayerExit();
+
+            if (!(Game1.mapDisplayDevice is SDisplayDevice))
+                Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, this.GraphicsDevice);
         }
 
         /// <summary>Constructor a content manager to read XNB files.</summary>
@@ -669,7 +686,7 @@ namespace StardewModdingAPI.Framework
                             }
 
                             // raise input button events
-                            foreach (var pair in inputState.ActiveButtons)
+                            foreach (var pair in inputState.LastButtonStates)
                             {
                                 SButton button = pair.Key;
                                 SButtonState status = pair.Value;
@@ -873,7 +890,7 @@ namespace StardewModdingAPI.Framework
                         events.OneSecondUpdateTicking.RaiseEmpty();
                     try
                     {
-                        this.Input.UpdateSuppression();
+                        this.Input.ApplyOverrides(); // if mods added any new overrides since the update, process them now
                         SGame.TicksElapsed++;
                         base.Update(gameTime);
                     }

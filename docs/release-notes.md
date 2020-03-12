@@ -2,8 +2,21 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Updated translations. Thanks to Annosz (added Hungarian)!
+
+* For modders:
+  * Added support for flipped and rotated map tiles (in collaboration with Platonymous).
+  * Added support for `.tmx` maps using zlib compression (thanks to Platonymous!).
+  * Mods are no longer prevented from suppressing key presses in the chatbox. Use this power wisely.
+
 * For the web UI:
   * Added option to upload files using a file picker.
+  * Optimized log parser for very long multi-line log messages.
+  * Fixed log parser not detecting folder path in recent versions of SMAPI.
+
+* For SMAPI developers:
+  * Added internal API to send custom input to the game/mods. This is mainly meant to support Virtual Keyboard on Android, but might be exposed as a public API in future versions.
 
 ## 3.3.2
 Released 22 February 2020 for Stardew Valley 1.4.1 or later.
