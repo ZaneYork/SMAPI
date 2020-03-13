@@ -81,5 +81,16 @@ namespace StardewModdingAPI.Framework.RewriteFacades
         {
             panScreen(x, y, 0);
         }
+
+        public static void removeSquareDebrisFromTile(int tileX, int tileY)
+        {
+            Game1.currentLocation.debris.debrisNetCollection.Filter(debris => {
+                if ((debris.debrisType == 2) && (((int)(debris.Chunks[0].position.X / 64f)) == tileX))
+                {
+                    return (debris.chunkFinalYLevel / 0x40) != tileY;
+                }
+                return true;
+            });
+        }
     }
 }

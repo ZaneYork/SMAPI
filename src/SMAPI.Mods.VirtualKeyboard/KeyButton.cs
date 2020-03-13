@@ -58,12 +58,6 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
 
             object score = this.GetSCore(this.helper);
             object eventManager = score.GetType().GetField("EventManager", BindingFlags.Public | BindingFlags.Instance).GetValue(score);
-
-            this.buttonPressed = eventManager.GetType().GetField("ButtonPressed", BindingFlags.Public | BindingFlags.Instance).GetValue(eventManager);
-            this.buttonReleased = eventManager.GetType().GetField("ButtonReleased", BindingFlags.Public | BindingFlags.Instance).GetValue(eventManager);
-
-            this.RaiseButtonPressed = this.buttonPressed.GetType().GetMethod("Raise", BindingFlags.Public | BindingFlags.Instance);
-            this.RaiseButtonReleased = this.buttonReleased.GetType().GetMethod("Raise", BindingFlags.Public | BindingFlags.Instance);
         }
 
         private object GetSCore(IModHelper helper)
@@ -73,9 +67,9 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
             return score;
         }
 
-        private bool shouldTrigger(Vector2 screenPixels)
+        private bool shouldTrigger(Vector2 screenPixels, SButton button)
         {
-            if (this.buttonRectangle.Contains(screenPixels.X * Game1.options.zoomLevel, screenPixels.Y * Game1.options.zoomLevel) && !this.hidden)
+            if (this.buttonRectangle.Contains(screenPixels.X * Game1.options.zoomLevel, screenPixels.Y * Game1.options.zoomLevel) && !this.hidden && button == SButton.MouseLeft)
             {
                 if (!this.hidden)
                     Toolbar.toolbarPressed = true;
@@ -92,21 +86,12 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
             }
 
             Vector2 screenPixels = e.Cursor.ScreenPixels;
-            if (this.shouldTrigger(screenPixels))
+            if (this.shouldTrigger(screenPixels, e.Button))
             {
-                object inputState = e.GetType().GetField("InputState", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(e);
-
-                object buttonPressedEventArgs = Activator.CreateInstance(typeof(ButtonPressedEventArgs), BindingFlags.NonPublic | BindingFlags.Instance, null, new object[] { this.buttonKey, e.Cursor, inputState }, null);
-                try
-                {
-                    this.raisingPressed = true;
-
-                    this.RaiseButtonPressed.Invoke(this.buttonPressed, new object[] { buttonPressedEventArgs });
-                }
-                finally
-                {
-                    this.raisingPressed = false;
-                }
+                object input = this.helper.Reflection.GetField<object>(typeof(Game1), "input").GetValue();
+                this.raisingPressed = true;
+                input.GetType().GetMethod("OverrideButton").Invoke(input, new object[] { this.buttonKey, true });
+                this.raisingPressed = false;
             }
         }
 
@@ -118,7 +103,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
             }
 
             Vector2 screenPixels = e.Cursor.ScreenPixels;
-            if (this.shouldTrigger(screenPixels))
+            if (this.shouldTrigger(screenPixels, e.Button))
             {
                 if (this.buttonKey == SButton.RightWindows)
                 {
@@ -143,17 +128,10 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
                     this.SendCommand(this.command);
                     return;
                 }
-                object inputState = e.GetType().GetField("InputState", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(e);
-                object buttonReleasedEventArgs = Activator.CreateInstance(typeof(ButtonReleasedEventArgs), BindingFlags.NonPublic | BindingFlags.Instance, null, new object[] { this.buttonKey, e.Cursor, inputState }, null);
-                try
-                {
-                    this.raisingReleased = true;
-                    this.RaiseButtonReleased.Invoke(this.buttonReleased, new object[] { buttonReleasedEventArgs });
-                }
-                finally
-                {
-                    this.raisingReleased = false;
-                }
+                object input = this.helper.Reflection.GetField<object>(typeof(Game1), "input").GetValue();
+                this.raisingReleased = true;
+                input.GetType().GetMethod("OverrideButton").Invoke(input, new object[] { this.buttonKey, false });
+                this.raisingReleased = false;
             }
         }
 
