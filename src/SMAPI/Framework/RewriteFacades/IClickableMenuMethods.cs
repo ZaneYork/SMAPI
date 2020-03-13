@@ -36,19 +36,26 @@ namespace StardewModdingAPI.Framework.RewriteFacades
         [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
         public new void drawHorizontalPartition(SpriteBatch b, int yPosition, bool small = false, int red = -1, int green = -1, int blue = -1)
         {
-            this.drawMobileHorizontalPartition(b, 0, yPosition, 64, small);
+            base.drawMobileHorizontalPartition(b, 0, yPosition, 64, small);
         }
 
         [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
         public new void drawVerticalUpperIntersectingPartition(SpriteBatch b, int xPosition, int partitionHeight, int red = -1, int green = -1, int blue = -1)
         {
-            this.drawVerticalUpperIntersectingPartition(b, xPosition, partitionHeight);
+            base.drawVerticalUpperIntersectingPartition(b, xPosition, partitionHeight);
         }
 
         [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
         public new void drawVerticalIntersectingPartition(SpriteBatch b, int xPosition, int yPosition, int red = -1, int green = -1, int blue = -1)
         {
-            this.drawVerticalIntersectingPartition(b, xPosition, yPosition);
+            base.drawVerticalIntersectingPartition(b, xPosition, yPosition);
         }
+
+        [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
+        public new void drawVerticalPartition(SpriteBatch b, int xPosition, bool small = false, int red = -1, int green = -1, int blue = -1)
+        {
+            base.drawVerticalPartition(b, xPosition, small);
+        }
+
     }
 }
