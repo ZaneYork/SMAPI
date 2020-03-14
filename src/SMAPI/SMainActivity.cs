@@ -130,6 +130,12 @@ namespace StardewModdingAPI
                     Instance.OnCreatePartTwo(retry + 1);
                 }).Start();
             }
+            catch (Exception ex)
+            {
+                SAlertDialogUtil.AlertMessage($"SMAPI failed to initialize: {ex}");
+                Microsoft.AppCenter.Crashes.Crashes.TrackError(ex);
+                this.Finish();
+            }
         }
 
         public new void CheckAppPermissions()
