@@ -20,6 +20,7 @@ using System.Linq;
 using System.IO;
 using File = Java.IO.File;
 using Microsoft.AppCenter;
+using Newtonsoft.Json;
 
 namespace StardewModdingAPI
 {
@@ -112,8 +113,17 @@ namespace StardewModdingAPI
                 new SGameConsole();
 
                 Program.Main(null);
-
-                this.core = new SCore(System.IO.Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "StardewValley/Mods"), false);
+                string modPath = null;
+                if (System.IO.File.Exists(Constants.ApiUserConfigPath))
+                {
+                    var Settings = JsonConvert.DeserializeObject<Framework.Models.SConfig>(System.IO.File.ReadAllText(Constants.ApiUserConfigPath));
+                    modPath = Settings.ModsPath;
+                }
+                if (string.IsNullOrWhiteSpace(modPath))
+                {
+                    modPath = "StardewValley/Mods";
+                }
+                this.core = new SCore(System.IO.Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, modPath), false);
                 this.core.RunInteractively();
 
                 typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.GameInstance);

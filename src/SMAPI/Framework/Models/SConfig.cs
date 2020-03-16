@@ -25,7 +25,8 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(GitHubProjectName)] = "MartyrPher/SMAPI-Android-Installer",
             [nameof(WebApiBaseUrl)] = "https://smapi.io/api/",
             [nameof(VerboseLogging)] = false,
-            [nameof(LogNetworkTraffic)] = false
+            [nameof(LogNetworkTraffic)] = false,
+            [nameof(ModsPath)] = "StardewValley/Mods"
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>
@@ -69,6 +70,7 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The mod IDs SMAPI should ignore when performing update checks or validating update keys.</summary>
         public string[] SuppressUpdateChecks { get; set; }
 
+        public string ModsPath { get; set; }
 
         /********
         ** Public methods
