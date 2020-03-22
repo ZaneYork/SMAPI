@@ -21,6 +21,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
         private List<KeyButton> keyboardExtend = new List<KeyButton>();
         private ModConfig modConfig;
         private Texture2D texture;
+        private int lastPressTick = 0;
 
         public VirtualToggle(IModHelper helper, IMonitor monitor)
         {
@@ -91,8 +92,14 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
 
         private bool shouldTrigger(Vector2 screenPixels)
         {
+            int tick = Game1.ticks;
+            if(tick - this.lastPressTick <= 6)
+            {
+                return false;
+            }
             if (this.virtualToggleButton.containsPoint((int)(screenPixels.X * Game1.options.zoomLevel), (int)(screenPixels.Y * Game1.options.zoomLevel)))
             {
+                this.lastPressTick = tick;
                 Toolbar.toolbarPressed = true;
                 return true;
             }
