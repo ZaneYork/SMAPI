@@ -17,13 +17,14 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
     <TargetFrameworkVersion>v9.0</TargetFrameworkVersion>
+    <DefineConstants>$(DefineConstants);ANDROID_TARGET_SAMSUNG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_SAMSUNG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>latest</LangVersion>
@@ -52,23 +53,48 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>..\..\..\..\..\AndroidStudioProjects\SMAPI Android Installer\app\src\main\assets\Stardew\0Harmony.dll</HintPath>
-    </Reference>
+  <ItemGroup Condition="!$(DefineConstants.Contains('ANDROID_TARGET_SAMSUNG'))">
     <Reference Include="Google.Android.Vending.Expansion.Downloader">
       <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.142\assemblies\Google.Android.Vending.Expansion.Downloader.dll</HintPath>
     </Reference>
     <Reference Include="Google.Android.Vending.Licensing">
       <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.142\assemblies\Google.Android.Vending.Licensing.dll</HintPath>
     </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.142\assemblies\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="StardewValley">
+      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.142\assemblies\StardewValley.dll</HintPath>
+    </Reference>
+    <Reference Include="StardewValley.GameData">
+      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.142\assemblies\StardewValley.GameData.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_SAMSUNG'))">
+    <Reference Include="Google.Android.Vending.Expansion.Downloader">
+      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\samsung_base_1.4.5.144\assemblies\Google.Android.Vending.Expansion.Downloader.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Android.Vending.Licensing">
+      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\samsung_base_1.4.5.144\assemblies\Google.Android.Vending.Licensing.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\samsung_base_1.4.5.144\assemblies\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="StardewValley">
+      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\samsung_base_1.4.5.144\assemblies\StardewValley.dll</HintPath>
+    </Reference>
+    <Reference Include="StardewValley.GameData">
+      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\samsung_base_1.4.5.144\assemblies\StardewValley.GameData.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\..\AndroidStudioProjects\SMAPI Android Installer\app\src\main\assets\Stardew\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Android" />
     <Reference Include="Mono.Cecil">
       <HintPath>..\..\..\..\..\AndroidStudioProjects\SMAPI Android Installer\app\src\main\assets\Stardew\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.142\assemblies\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
       <HintPath>..\..\..\..\..\AndroidStudioProjects\SMAPI Android Installer\app\src\main\assets\Stardew\MonoMod.RuntimeDetour.dll</HintPath>
@@ -84,12 +110,6 @@
     </Reference>
     <Reference Include="SMAPI.Toolkit.CoreInterfaces">
       <HintPath>..\SMAPI.Toolkit.CoreInterfaces\bin\Debug\net4.5\SMAPI.Toolkit.CoreInterfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="StardewValley">
-      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.142\assemblies\StardewValley.dll</HintPath>
-    </Reference>
-    <Reference Include="StardewValley.GameData">
-      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.142\assemblies\StardewValley.GameData.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
