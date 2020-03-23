@@ -20,7 +20,7 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.3.2.4", allowNonStandard: true);
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.4.0");
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.5");
@@ -53,7 +53,7 @@ namespace StardewModdingAPI
         ** Internal
         ****/
         /// <summary>The URL of the SMAPI home page.</summary>
-        internal const string HomePageUrl = "https://github.com/MartyrPher/SMAPI-Android-Installer/releases/latest";
+        internal const string HomePageUrl = "https://smapi.io";
 
         /// <summary>The default performance counter name for unknown event handlers.</summary>
         internal const string GamePerformanceCounterName = "<StardewValley>";

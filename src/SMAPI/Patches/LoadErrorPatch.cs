@@ -67,36 +67,13 @@ namespace StardewModdingAPI.Patches
         private static bool Before_SaveGame_LoadDataToLocations(List<GameLocation> gamelocations)
         {
             bool removedAny =
-                LoadErrorPatch.RemoveInvalidLocations(gamelocations)
-                | LoadErrorPatch.RemoveBrokenBuildings(gamelocations)
+                LoadErrorPatch.RemoveBrokenBuildings(gamelocations)
                 | LoadErrorPatch.RemoveInvalidNpcs(gamelocations);
 
             if (removedAny)
                 LoadErrorPatch.OnContentRemoved();
 
             return true;
-        }
-
-        /// <summary>Remove locations which don't exist in-game.</summary>
-        /// <param name="locations">The current game locations.</param>
-        private static bool RemoveInvalidLocations(List<GameLocation> locations)
-        {
-            bool removedAny = false;
-
-            foreach (GameLocation location in locations.ToArray())
-            {
-                if (location is Cellar)
-                    continue; // missing cellars will be added by the game code
-
-                if (Game1.getLocationFromName(location.name) == null)
-                {
-                    LoadErrorPatch.Monitor.Log($"Removed invalid location '{location.Name}' to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom location mod?)", LogLevel.Warn);
-                    locations.Remove(location);
-                    removedAny = true;
-                }
-            }
-
-            return removedAny;
         }
 
         /// <summary>Remove buildings which don't exist in the game data.</summary>

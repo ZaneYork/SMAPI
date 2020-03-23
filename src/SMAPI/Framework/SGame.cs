@@ -209,7 +209,7 @@ namespace StardewModdingAPI.Framework
         protected override void LoadContent()
         {
             base.LoadContent();
-            //Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, this.GraphicsDevice);
+            Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, this.GraphicsDevice);
         }
 
         /// <summary>Initialize just before the game's first update tick.</summary>
@@ -307,8 +307,8 @@ namespace StardewModdingAPI.Framework
         {
             this.Multiplayer.CleanupOnMultiplayerExit();
 
-            //if (!(Game1.mapDisplayDevice is SDisplayDevice))
-            //    Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, this.GraphicsDevice);
+            if (!(Game1.mapDisplayDevice is SDisplayDevice))
+                Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, this.GraphicsDevice);
         }
 
         /// <summary>Constructor a content manager to read XNB files.</summary>

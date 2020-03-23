@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Internal.ConsoleWriting;
@@ -25,6 +26,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The maximum length of the <see cref="LogLevel"/> values.</summary>
         private static readonly int MaxLevelLength = (from level in Enum.GetValues(typeof(LogLevel)).Cast<LogLevel>() select level.ToString().Length).Max();
+
+        /// <summary>A cache of messages that should only be logged once.</summary>
+        private readonly HashSet<string> LogOnceCache = new HashSet<string>();
 
 
         /*********
@@ -72,6 +76,15 @@ namespace StardewModdingAPI.Framework
         public void Log(string message, LogLevel level = LogLevel.Trace)
         {
             this.LogImpl(this.Source, message, (ConsoleLogLevel)level);
+        }
+
+        /// <summary>Log a message for the player or developer, but only if it hasn't already been logged since the last game launch.</summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="level">The log severity level.</param>
+        public void LogOnce(string message, LogLevel level = LogLevel.Trace)
+        {
+            if (this.LogOnceCache.Add($"{message}|{level}"))
+                this.LogImpl(this.Source, message, (ConsoleLogLevel)level);
         }
 
         /// <summary>Log a message that only appears when <see cref="IMonitor.IsVerbose"/> is enabled.</summary>

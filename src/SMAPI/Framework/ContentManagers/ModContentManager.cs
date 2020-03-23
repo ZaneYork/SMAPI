@@ -247,13 +247,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <remarks>Based on <a href="https://gamedev.stackexchange.com/a/26037">code by David Gouveia</a>.</remarks>
         private Texture2D PremultiplyTransparency(Texture2D texture)
         {
-            // Textures loaded by Texture2D.FromStream are already premultiplied on Linux/Mac, even
-            // though the XNA documentation explicitly says otherwise. That's a glitch in MonoGame
-            // fixed in newer versions, but the game uses a bundled version that will always be
-            // affected. See https://github.com/MonoGame/MonoGame/issues/4820 for more info.
-            if (Constants.TargetPlatform != GamePlatform.Windows && Constants.TargetPlatform != GamePlatform.Android)
-                return texture;
-
             // premultiply pixels
             Color[] data = new Color[texture.Width * texture.Height];
             texture.GetData(data);

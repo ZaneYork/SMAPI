@@ -67,7 +67,7 @@ Chinese    | ✓ [fully translated](../src/SMAPI/i18n/zh.json)
 French     | ✓ [fully translated](../src/SMAPI/i18n/fr.json)
 German     | ✓ [fully translated](../src/SMAPI/i18n/de.json)
 Hungarian  | ✓ [fully translated](../src/SMAPI/i18n/hu.json)
-Italian    | ❑ not translated
+Italian    | ✓ [fully translated](../src/SMAPI/i18n/it.json)
 Japanese   | ✓ [fully translated](../src/SMAPI/i18n/ja.json)
 Korean     | ❑ not translated
 Portuguese | ✓ [fully translated](../src/SMAPI/i18n/pt.json)

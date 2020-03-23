@@ -1,14 +1,20 @@
 &larr; [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.4
+Released 22 March 2020 for Stardew Valley 1.4.1 or later.
+
 * For players:
+  * Fixed semi-transparency issues on Linux/Mac in recent versions of Mono (e.g. pink shadows).
+  * Fixed `player_add` command error if you have broken XNB mods.
+  * Removed invalid-location check now handled by the game.
   * Updated translations. Thanks to Annosz (added Hungarian)!
 
 * For modders:
   * Added support for flipped and rotated map tiles (in collaboration with Platonymous).
   * Added support for `.tmx` maps using zlib compression (thanks to Platonymous!).
-  * Mods are no longer prevented from suppressing key presses in the chatbox. Use this power wisely.
+  * Added `this.Monitor.LogOnce` method.
+  * Mods are no longer prevented from suppressing key presses in the chatbox.
 
 * For the web UI:
   * Added option to upload files using a file picker.
