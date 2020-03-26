@@ -66,9 +66,11 @@ namespace StardewModdingAPI.Framework.Input
         {
             foreach (var pair in overrides)
             {
-                bool isDown = pair.Value.IsDown();
                 if (this.ButtonStates.ContainsKey(pair.Key))
-                    this.ButtonStates[pair.Key] = isDown ? ButtonState.Pressed : ButtonState.Released;
+                {
+                    this.State = null;
+                    this.ButtonStates[pair.Key] = pair.Value.IsDown() ? ButtonState.Pressed : ButtonState.Released;
+                }
             }
 
             return this;

@@ -951,7 +951,14 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Get all NPCs in the game (excluding farm animals).</summary>
         private IEnumerable<NPC> GetCharacters()
         {
-            return this.GetLocations().SelectMany(p => p.characters);
+            foreach (NPC character in this.GetLocations().SelectMany(p => p.characters))
+                yield return character;
+
+            if (Game1.CurrentEvent?.actors != null)
+            {
+                foreach (NPC character in Game1.CurrentEvent.actors)
+                    yield return character;
+            }
         }
 
         /// <summary>Get all farm animals in the game.</summary>
