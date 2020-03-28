@@ -92,5 +92,19 @@ namespace StardewModdingAPI.Framework.RewriteFacades
                 return true;
             });
         }
+
+        public static void randomizeDebrisWeatherPositions(List<WeatherDebris> debris)
+        {
+            if (debris != null)
+            {
+                using (List<WeatherDebris>.Enumerator enumerator = debris.GetEnumerator())
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        enumerator.Current.position = Utility.getRandomPositionOnScreen();
+                    }
+                }
+            }
+        }
     }
 }
