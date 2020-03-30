@@ -1,8 +1,8 @@
 {
   "Name": "VirtualKeyboard",
-  "Author": "MartyrPher",
-  "Version": "3.1.0",
-  "MinimumApiVersion": "3.1.0",
+  "Author": "SMAPI",
+  "Version": "3.2.2",
+  "MinimumApiVersion": "3.4.0",
   "Description": "A much needed Virtual Keyboard for SMAPI Android.",
   "UniqueID": "VirtualKeyboard",
   "EntryDll": "VirtualKeyboard.dll",

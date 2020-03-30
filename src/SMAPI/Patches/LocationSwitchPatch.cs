@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Patches
         {
             try
             {
-                if (value.tapToMove == null)
+                if (value != null && value.tapToMove == null)
                 {
                     if (value.map != null)
                     {

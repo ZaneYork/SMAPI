@@ -627,6 +627,7 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log("Checking for updates...", LogLevel.Trace);
 
                 // check SMAPI version
+#if DO_ANDROID_SMAPI_UPDATE_CHECK
                 ISemanticVersion updateFound = null;
                 try
                 {
@@ -658,7 +659,7 @@ namespace StardewModdingAPI.Framework
                 // show update message on next launch
                 if (updateFound != null)
                     File.WriteAllText(Constants.UpdateMarker, updateFound.ToString());
-
+#endif
                 // check mod versions
                 if (mods.Any())
                 {
@@ -1296,8 +1297,8 @@ namespace StardewModdingAPI.Framework
                             errors.Add($"{file.Name} file couldn't be read"); // should never happen, since we're iterating files that exist
                             continue;
                         }
-
-                        translations[locale] = data;
+                        if(data != null)
+                            translations[locale] = data;
                     }
                     catch (Exception ex)
                     {

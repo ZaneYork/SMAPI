@@ -14,6 +14,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
         private readonly IMonitor Monitor;
 
         private int enabledStage = 0;
+        private bool autoHidden = true;
         private bool isDefault = true;
         private ClickableTextureComponent virtualToggleButton;
 
@@ -37,12 +38,29 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
 
             if (this.modConfig.vToggle.rectangle.X != 36 || this.modConfig.vToggle.rectangle.Y != 12)
                 this.isDefault = false;
+            this.autoHidden = this.modConfig.vToggle.autoHidden;
 
             this.virtualToggleButton = new ClickableTextureComponent(new Rectangle(Game1.toolbarPaddingX + 64, 12, 128, 128), this.texture, new Rectangle(0, 0, 16, 16), 5.75f, false);
             helper.WriteConfig(this.modConfig);
 
             this.helper.Events.Display.Rendered += this.OnRendered;
+            this.helper.Events.Display.MenuChanged += this.OnMenuChanged;
             this.helper.Events.Input.ButtonPressed += this.VirtualToggleButtonPressed;
+        }
+
+        private void OnMenuChanged(object sender, MenuChangedEventArgs e)
+        {
+            if(this.autoHidden && e.NewMenu != null) {
+                foreach (var keys in this.keyboard)
+                {
+                    keys.hidden = true;
+                }
+                foreach (var keys in this.keyboardExtend)
+                {
+                    keys.hidden = true;
+                }
+                this.enabledStage = 0;
+            }
         }
 
         private void VirtualToggleButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -80,7 +98,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
                             keys.hidden = true;
                         }
                         this.enabledStage = 0;
-                        if (Game1.activeClickableMenu is IClickableMenu menu)
+                        if (Game1.activeClickableMenu is IClickableMenu menu && !(Game1.activeClickableMenu is DialogueBox))
                         {
                             menu.exitThisMenu();
                             Toolbar.toolbarPressed = true;

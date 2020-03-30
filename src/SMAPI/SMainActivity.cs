@@ -104,6 +104,9 @@ namespace StardewModdingAPI
                     SAlertDialogUtil.AlertMessage(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected");
                 }
                 Type[] services = new Type[] { typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes) };
+                CustomProperties properties = new CustomProperties();
+                properties.Set("SMAPI", Constants.ApiVersion.ToString());
+                AppCenter.SetCustomProperties(properties);
                 AppCenter.Start(Constants.MicrosoftAppSecret, services);
             }
             catch { }
