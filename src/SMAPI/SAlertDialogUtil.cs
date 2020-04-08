@@ -24,10 +24,7 @@ namespace StardewModdingAPI
                     {
                         Looper.Prepare();
                     }
-                    catch (System.Exception e)
-                    {
-                        Crashes.TrackError(e);
-                    }
+                    catch { }
                     Looper.Loop();
                 }
             }

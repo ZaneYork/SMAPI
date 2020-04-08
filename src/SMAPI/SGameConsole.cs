@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -157,6 +158,29 @@ namespace StardewModdingAPI
             }
             returnString.TrimEnd('\n');
             return returnString;
+        }
+
+        public string getLatestCrashText()
+        {
+            StringBuilder sb = new StringBuilder();
+            lock (this.consoleMessageQueue)
+            {
+                foreach (var log in this.consoleMessageQueue)
+                {
+                    switch (log.Key)
+                    {
+                        case ConsoleLogLevel.Critical:
+                        case ConsoleLogLevel.Error:
+                            sb.Append(log.Value);
+                            break;
+                        case ConsoleLogLevel.Alert:
+                        case ConsoleLogLevel.Warn:
+                            sb.Append(log.Value);
+                            break;
+                    }
+                }
+            }
+            return sb.ToString();
         }
 
         public override void draw(SpriteBatch b)

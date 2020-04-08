@@ -20,6 +20,7 @@ using System.IO;
 using File = Java.IO.File;
 using Microsoft.AppCenter;
 using Newtonsoft.Json;
+using Microsoft.AppCenter.Crashes;
 
 namespace StardewModdingAPI
 {
@@ -104,10 +105,16 @@ namespace StardewModdingAPI
                     SAlertDialogUtil.AlertMessage(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected");
                 }
                 Type[] services = new Type[] { typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes) };
-                CustomProperties properties = new CustomProperties();
-                properties.Set("SMAPI", Constants.ApiVersion.ToString());
-                AppCenter.SetCustomProperties(properties);
                 AppCenter.Start(Constants.MicrosoftAppSecret, services);
+                AppCenter.SetUserId(Constants.ApiVersion.ToString());
+                Crashes.GetErrorAttachments = (ErrorReport report) =>
+                {
+                    return new ErrorAttachmentLog[]
+                        {
+                            ErrorAttachmentLog.AttachmentWithText(Constants.ApiVersion.ToString(), "SMAPI_Version.txt"),
+                            ErrorAttachmentLog.AttachmentWithText(SGameConsole.Instance?.getLatestCrashText(), "SMAPI_Crash.txt")
+                        };
+                };
             }
             catch { }
             base.OnCreate(bundle);
@@ -131,7 +138,7 @@ namespace StardewModdingAPI
                 {
                     modPath = "StardewValley/Mods";
                 }
-                this.core = new SCore(System.IO.Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, modPath), false);
+                this.core = new SCore(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, modPath), false);
                 this.core.RunInteractively();
 
                 typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.GameInstance);
@@ -151,7 +158,7 @@ namespace StardewModdingAPI
             catch (Exception ex)
             {
                 SAlertDialogUtil.AlertMessage($"SMAPI failed to initialize: {ex}");
-                Microsoft.AppCenter.Crashes.Crashes.TrackError(ex);
+                Crashes.TrackError(ex);
                 this.Finish();
             }
         }

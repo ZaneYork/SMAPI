@@ -274,7 +274,8 @@ namespace StardewModdingAPI.Framework
                     new SaveBackupPatch(this.EventManager),
                     new JunimoHarvesterPatch(this.Monitor),
                     new LocationSwitchPatch(this.Monitor),
-                    new SpriteFontPatch(this.Monitor)
+                    new SpriteFontPatch(this.Monitor),
+                    new ThreadSilenceExitPatch(this.Monitor)
                 );
 
                 // add exit handler

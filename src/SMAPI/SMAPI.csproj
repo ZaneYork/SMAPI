@@ -399,6 +399,7 @@
     <Compile Include="Mod.cs" />
     <Compile Include="Patches\DialogueErrorPatch.cs" />
     <Compile Include="Patches\EventErrorPatch.cs" />
+    <Compile Include="Patches\ThreadSilenceExitPatch.cs" />
     <Compile Include="Patches\LocationSwitchPatch.cs" />
     <Compile Include="Patches\SpriteFontPatch.cs" />
     <Compile Include="Patches\LoadContextPatch.cs" />
