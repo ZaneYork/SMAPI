@@ -89,6 +89,7 @@ namespace StardewModdingAPI.Metadata
             yield return new MethodParentRewriter(typeof(Utility), typeof(UtilityMethods));
             yield return new MethodParentRewriter(typeof(DayTimeMoneyBox), typeof(DayTimeMoneyBoxMethods));
             yield return new MethodParentRewriter(typeof(SaveGame), typeof(SaveGameMethods));
+            yield return new MethodParentRewriter(typeof(GameLocation), typeof(GameLocationMethods));
 
             //Constructor Rewrites
             yield return new MethodParentRewriter(typeof(HUDMessage), typeof(HUDMessageMethods));

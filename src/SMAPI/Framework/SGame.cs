@@ -748,7 +748,7 @@ namespace StardewModdingAPI.Framework
                                     shopMenu.onPurchase, shopMenu.onSell, shopMenu.storeContext);
                             }
                         }
-                }
+                    }
 
                     /*********
                     ** World & player events
@@ -977,7 +977,9 @@ namespace StardewModdingAPI.Framework
                     this.ExitGameImmediately("The game crashed when drawing, and SMAPI was unable to recover the game.");
                     return;
                 }
-
+            }
+            finally
+            {
                 // recover sprite batch
                 try
                 {

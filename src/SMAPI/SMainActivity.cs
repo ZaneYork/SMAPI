@@ -21,6 +21,7 @@ using File = Java.IO.File;
 using Microsoft.AppCenter;
 using Newtonsoft.Json;
 using Microsoft.AppCenter.Crashes;
+using Android.Content;
 
 namespace StardewModdingAPI
 {
@@ -178,7 +179,11 @@ namespace StardewModdingAPI
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
         {
-            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+            try
+            {
+                base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+            }
+            catch (ActivityNotFoundException) { }
             if (this.HasPermissions)
                 this.OnCreatePartTwo();
         }

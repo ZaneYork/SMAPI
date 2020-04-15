@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
@@ -105,6 +106,15 @@ namespace StardewModdingAPI.Framework.RewriteFacades
                     }
                 }
             }
+        }
+        public static new void createItemDebris(Item item, Vector2 origin, int direction, GameLocation location = null, int groundLevel = -1)
+        {
+            Game1.createItemDebris(item, origin, direction, location, groundLevel);
+        }
+
+        public static void changeMusicTrack(string newTrackName)
+        {
+            Game1.changeMusicTrack(newTrackName, false, MusicContext.Default);
         }
     }
 }

@@ -91,6 +91,12 @@ namespace StardewModdingAPI.Framework.ModLoading
             if (definition.Name != reference.Name)
                 return false;
 
+            // same return type
+            if(definition is MethodInfo methodDefinition)
+            {
+                if(!RewriteHelper.IsSameType(methodDefinition.ReturnType, reference.ReturnType))
+                    return false;
+            }
             // same arguments
             ParameterInfo[] definitionParameters = definition.GetParameters();
             ParameterDefinition[] referenceParameters = reference.Parameters.ToArray();

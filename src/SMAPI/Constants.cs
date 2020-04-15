@@ -20,7 +20,7 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.4.1.2", allowNonStandard: true);
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.4.1.5", allowNonStandard: true);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.5");
@@ -108,6 +108,8 @@ namespace StardewModdingAPI
 
         /// <summary>The language code for non-translated mod assets.</summary>
         internal static LocalizedContentManager.LanguageCode DefaultLanguage { get; } = LocalizedContentManager.LanguageCode.en;
+
+        internal static bool MonoModInit { get; set; } = true;
 
 
         /*********

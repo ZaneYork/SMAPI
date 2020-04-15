@@ -29,11 +29,12 @@ namespace StardewModdingAPI.Framework.Patching
         /// <param name="patches">The patches to apply.</param>
         public void Apply(params IHarmonyPatch[] patches)
         {
-            if (Build.VERSION.SdkInt < BuildVersionCodes.M)
-                return;
-            if (!HarmonyDetourBridge.Initialized)
+            if (!HarmonyDetourBridge.Initialized && Constants.MonoModInit)
             {
-                HarmonyDetourBridge.Init();
+                try {
+                    HarmonyDetourBridge.Init();
+                }
+                catch { Constants.MonoModInit = false; }
             }
 
             HarmonyInstance harmony = HarmonyInstance.Create("io.smapi");
@@ -41,19 +42,16 @@ namespace StardewModdingAPI.Framework.Patching
             {
                 try
                 {
-                    patch.Apply(harmony);
+                    if(Constants.MonoModInit)
+                        patch.Apply(harmony);
                 }
                 catch (Exception ex)
                 {
+                    Constants.MonoModInit = false;
                     this.Monitor.Log($"Couldn't apply runtime patch '{patch.Name}' to the game. Some SMAPI features may not work correctly. See log file for details.", LogLevel.Error);
                     this.Monitor.Log(ex.GetLogSummary(), LogLevel.Trace);
                 }
             }
-
-            //Keeping for reference
-            //if (Build.VERSION.SdkInt > BuildVersionCodes.LollipopMr1)
-            //{
-            //}
         }
     }
 }
