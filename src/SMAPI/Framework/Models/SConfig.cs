@@ -26,7 +26,9 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(WebApiBaseUrl)] = "https://smapi.io/api/",
             [nameof(VerboseLogging)] = false,
             [nameof(LogNetworkTraffic)] = false,
-            [nameof(ModsPath)] = "StardewValley/Mods"
+            [nameof(ModsPath)] = "StardewValley/Mods",
+            [nameof(DisableMonoMod)] = false,
+            [nameof(MaxLogSize)] = int.MaxValue
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>
@@ -71,6 +73,10 @@ namespace StardewModdingAPI.Framework.Models
         public string[] SuppressUpdateChecks { get; set; }
 
         public string ModsPath { get; set; }
+
+        public bool DisableMonoMod { get; set; }
+
+        public int MaxLogSize { get; set; } = int.MaxValue;
 
         /********
         ** Public methods

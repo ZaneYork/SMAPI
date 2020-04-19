@@ -263,6 +263,7 @@
     <Compile Include="Framework\ModLoading\RewriteHelper.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\FieldReplaceRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\FieldToPropertyRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\MethodToAnotherStaticMethodRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\MethodParentRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\PropertyToFieldRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\StaticFieldToConstantRewriter.cs" />
@@ -300,6 +301,7 @@
     <Compile Include="Framework\RequestExitDelegate.cs" />
     <Compile Include="Framework\RewriteFacades\DebrisMethods.cs" />
     <Compile Include="Framework\RewriteFacades\GameMenuMethods.cs" />
+    <Compile Include="Framework\RewriteFacades\HarmonyInstanceMethods.cs" />
     <Compile Include="Framework\RewriteFacades\InventoryMenuMethods.cs" />
     <Compile Include="Framework\RewriteFacades\DiscreteColorPickerMethods.cs" />
     <Compile Include="Framework\RewriteFacades\CraftingPageMobileMethods.cs" />

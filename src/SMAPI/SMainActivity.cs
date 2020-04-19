@@ -134,6 +134,7 @@ namespace StardewModdingAPI
                 {
                     var Settings = JsonConvert.DeserializeObject<Framework.Models.SConfig>(System.IO.File.ReadAllText(Constants.ApiUserConfigPath));
                     modPath = Settings.ModsPath;
+                    Constants.MonoModInit = !Settings.DisableMonoMod;
                 }
                 if (string.IsNullOrWhiteSpace(modPath))
                 {

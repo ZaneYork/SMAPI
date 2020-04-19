@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Harmony;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
@@ -90,6 +91,14 @@ namespace StardewModdingAPI.Metadata
             yield return new MethodParentRewriter(typeof(DayTimeMoneyBox), typeof(DayTimeMoneyBoxMethods));
             yield return new MethodParentRewriter(typeof(SaveGame), typeof(SaveGameMethods));
             yield return new MethodParentRewriter(typeof(GameLocation), typeof(GameLocationMethods));
+
+            // MonoMod fix
+            if (!Constants.MonoModInit)
+            {
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "Patch", typeof(HarmonyInstanceMethods), "Patch");
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "PatchAll" && method.Parameters.Count == 0, typeof(HarmonyInstanceMethods), "PatchAll");
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "PatchAll" && method.Parameters.Count == 1, typeof(HarmonyInstanceMethods), "PatchAllToAssembly");
+            }
 
             //Constructor Rewrites
             yield return new MethodParentRewriter(typeof(HUDMessage), typeof(HUDMessageMethods));

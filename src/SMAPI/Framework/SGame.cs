@@ -1302,7 +1302,7 @@ namespace StardewModdingAPI.Framework
                                 }
                                 else if (drawGame)
                                 {
-                                    if (drawLighting)
+                                    if (drawLighting && currentLocation != null)
                                     {
                                         base.GraphicsDevice.SetRenderTarget(lightmap);
                                         base.GraphicsDevice.Clear(Color.White * 0f);
@@ -1380,7 +1380,7 @@ namespace StardewModdingAPI.Framework
                                     _spriteBatchBeginNextID.SetValue("L6");
                                     _farmerShadows.GetValue().Clear();
                                     _spriteBatchBeginNextID.SetValue("L7");
-                                    if (currentLocation.currentEvent != null && !currentLocation.currentEvent.isFestival && currentLocation.currentEvent.farmerActors.Count > 0)
+                                    if (currentLocation != null && currentLocation.currentEvent != null && !currentLocation.currentEvent.isFestival && currentLocation.currentEvent.farmerActors.Count > 0)
                                     {
                                         _spriteBatchBeginNextID.SetValue("L8");
                                         foreach (Farmer farmerActor in currentLocation.currentEvent.farmerActors)
@@ -1510,7 +1510,7 @@ namespace StardewModdingAPI.Framework
                                     SetSpriteBatchBeginNextID("M");
                                     _spriteBatchBegin.Invoke(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, new Matrix?());
                                     _spriteBatchBeginNextID.SetValue("M1");
-                                    if (!currentLocation.shouldHideCharacters())
+                                    if (currentLocation != null && !currentLocation.shouldHideCharacters())
                                     {
                                         _spriteBatchBeginNextID.SetValue("M2");
                                         if (CurrentEvent == null)
@@ -1559,27 +1559,27 @@ namespace StardewModdingAPI.Framework
                                         }
                                     }
                                     _spriteBatchBeginNextID.SetValue("M9");
-                                    if ((eventUp || killScreen) && !killScreen && currentLocation.currentEvent != null)
+                                    if ((eventUp || killScreen) && !killScreen && currentLocation?.currentEvent != null)
                                     {
                                         _spriteBatchBeginNextID.SetValue("M10");
                                         currentLocation.currentEvent.draw(spriteBatch);
                                         _spriteBatchBeginNextID.SetValue("M11");
                                     }
                                     _spriteBatchBeginNextID.SetValue("M12");
-                                    if (player.currentUpgrade != null && player.currentUpgrade.daysLeftTillUpgradeDone <= 3 && currentLocation.Name.Equals("Farm"))
+                                    if (currentLocation != null && player.currentUpgrade != null && player.currentUpgrade.daysLeftTillUpgradeDone <= 3 && currentLocation.Name.Equals("Farm"))
                                     {
                                         _spriteBatchBeginNextID.SetValue("M13");
                                         spriteBatch.Draw(player.currentUpgrade.workerTexture, GlobalToLocal(Game1.viewport, player.currentUpgrade.positionOfCarpenter), player.currentUpgrade.getSourceRectangle(), Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, (player.currentUpgrade.positionOfCarpenter.Y + 48f) / 10000f);
                                         _spriteBatchBeginNextID.SetValue("M14");
                                     }
                                     _spriteBatchBeginNextID.SetValue("M15");
-                                    currentLocation.draw(spriteBatch);
+                                    currentLocation?.draw(spriteBatch);
                                     using (Dictionary<Vector2, int>.KeyCollection.Enumerator enumerator = Game1.crabPotOverlayTiles.Keys.GetEnumerator())
                                     {
                                         while (enumerator.MoveNext())
                                         {
                                             Vector2 current = enumerator.Current;
-                                            Tile tile = Game1.currentLocation.Map.GetLayer("Buildings").Tiles[(int)current.X, (int)current.Y];
+                                            Tile tile = Game1.currentLocation?.Map.GetLayer("Buildings").Tiles[(int)current.X, (int)current.Y];
                                             if (tile != null)
                                             {
                                                 Vector2 local = Game1.GlobalToLocal(Game1.viewport, current * 64f);
@@ -1596,7 +1596,7 @@ namespace StardewModdingAPI.Framework
                                         _spriteBatchBeginNextID.SetValue("M18");
                                     }
                                     _spriteBatchBeginNextID.SetValue("M19");
-                                    if (currentLocation.Name.Equals("Farm"))
+                                    if (currentLocation != null && currentLocation.Name.Equals("Farm"))
                                     {
                                         _spriteBatchBeginNextID.SetValue("M20");
                                         this.drawFarmBuildings();
@@ -1614,7 +1614,7 @@ namespace StardewModdingAPI.Framework
                                         _spriteBatchBeginNextID.SetValue("M25");
                                         spriteBatch.Draw(fadeToBlackRect, new Microsoft.Xna.Framework.Rectangle((int)System.Math.Floor((double)(getOldMouseX() + Game1.viewport.X) / 64.0) * 64 - Game1.viewport.X, (int)System.Math.Floor((double)(getOldMouseY() + Game1.viewport.Y) / 64.0) * 64 - Game1.viewport.Y, 64, 64), Color.Lime * 0.75f);
                                         _spriteBatchBeginNextID.SetValue("M26");
-                                        foreach (Warp warp in currentLocation.warps)
+                                        foreach (Warp warp in currentLocation?.warps)
                                         {
                                             spriteBatch.Draw(fadeToBlackRect, new Microsoft.Xna.Framework.Rectangle(warp.X * 64 - Game1.viewport.X, warp.Y * 64 - Game1.viewport.Y, 64, 64), Color.Red * 0.75f);
                                         }
@@ -1625,7 +1625,7 @@ namespace StardewModdingAPI.Framework
                                     _spriteBatchBeginNextID.SetValue("M29");
                                     try
                                     {
-                                        currentLocation.Map.GetLayer("Front").Draw(mapDisplayDevice, Game1.viewport, Location.Origin, wrapAround: false, 4);
+                                        currentLocation?.Map.GetLayer("Front").Draw(mapDisplayDevice, Game1.viewport, Location.Origin, wrapAround: false, 4);
                                         _spriteBatchBeginNextID.SetValue("M30");
                                     }
                                     catch (KeyNotFoundException exception3)
@@ -1635,9 +1635,9 @@ namespace StardewModdingAPI.Framework
                                     _spriteBatchBeginNextID.SetValue("M31");
                                     mapDisplayDevice.EndScene();
                                     _spriteBatchBeginNextID.SetValue("M32");
-                                    currentLocation.drawAboveFrontLayer(spriteBatch);
+                                    currentLocation?.drawAboveFrontLayer(spriteBatch);
                                     _spriteBatchBeginNextID.SetValue("M33");
-                                    if (currentLocation.tapToMove.targetNPC == null && (displayHUD || eventUp) && currentBillboard == 0 && gameMode == 3 && !freezeControls && !panMode && !HostPaused)
+                                    if (currentLocation != null && currentLocation.tapToMove.targetNPC == null && (displayHUD || eventUp) && currentBillboard == 0 && gameMode == 3 && !freezeControls && !panMode && !HostPaused)
                                     {
                                         _spriteBatchBeginNextID.SetValue("M34");
                                         DrawTapToMoveTarget.Invoke();
@@ -1647,13 +1647,13 @@ namespace StardewModdingAPI.Framework
                                     _spriteBatchEnd.Invoke();
                                     SetSpriteBatchBeginNextID("N");
                                     _spriteBatchBegin.Invoke(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, new Matrix?());
-                                    if (displayFarmer && player.ActiveObject != null && (bool)player.ActiveObject.bigCraftable && this.checkBigCraftableBoundariesForFrontLayer() && currentLocation.Map.GetLayer("Front").PickTile(new Location(player.getStandingX(), player.getStandingY()), Game1.viewport.Size) == null)
+                                    if (currentLocation != null && displayFarmer && player.ActiveObject != null && (bool)player.ActiveObject.bigCraftable && this.checkBigCraftableBoundariesForFrontLayer() && currentLocation.Map.GetLayer("Front").PickTile(new Location(player.getStandingX(), player.getStandingY()), Game1.viewport.Size) == null)
                                     {
                                         drawPlayerHeldObject(player);
                                     }
                                     else if (displayFarmer && player.ActiveObject != null)
                                     {
-                                        if (Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location((int)Game1.player.Position.X, (int)Game1.player.Position.Y - 38), Game1.viewport.Size) == null || ((IDictionary<string, PropertyValue>)Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location((int)Game1.player.Position.X, (int)Game1.player.Position.Y - 38), Game1.viewport.Size).TileIndexProperties).ContainsKey("FrontAlways"))
+                                        if (currentLocation != null && Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location((int)Game1.player.Position.X, (int)Game1.player.Position.Y - 38), Game1.viewport.Size) == null || ((IDictionary<string, PropertyValue>)Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location((int)Game1.player.Position.X, (int)Game1.player.Position.Y - 38), Game1.viewport.Size).TileIndexProperties).ContainsKey("FrontAlways"))
                                         {
                                             Layer layer1 = Game1.currentLocation.Map.GetLayer("Front");
                                             rectangle = Game1.player.GetBoundingBox();
@@ -1674,9 +1674,9 @@ namespace StardewModdingAPI.Framework
                                         Game1.drawPlayerHeldObject(Game1.player);
                                     }
 label_168:
-                                    if ((Game1.player.UsingTool || Game1.pickingTool) && Game1.player.CurrentTool != null && ((!Game1.player.CurrentTool.Name.Equals("Seeds") || Game1.pickingTool) && (Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), (int)Game1.player.Position.Y - 38), Game1.viewport.Size) != null && Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), Game1.player.getStandingY()), Game1.viewport.Size) == null)))
+                                    if (Game1.currentLocation != null && (Game1.player.UsingTool || Game1.pickingTool) && Game1.player.CurrentTool != null && ((!Game1.player.CurrentTool.Name.Equals("Seeds") || Game1.pickingTool) && (Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), (int)Game1.player.Position.Y - 38), Game1.viewport.Size) != null && Game1.currentLocation.Map.GetLayer("Front").PickTile(new Location(Game1.player.getStandingX(), Game1.player.getStandingY()), Game1.viewport.Size) == null)))
                                         Game1.drawTool(Game1.player);
-                                    if (currentLocation.Map.GetLayer("AlwaysFront") != null)
+                                    if (currentLocation != null && currentLocation.Map.GetLayer("AlwaysFront") != null)
                                     {
                                         mapDisplayDevice.BeginScene(spriteBatch);
                                         try
@@ -1715,7 +1715,7 @@ label_168:
                                     {
                                         farmEvent.draw(spriteBatch);
                                     }
-                                    if (currentLocation.LightLevel > 0f && timeOfDay < 2000)
+                                    if (currentLocation != null && currentLocation.LightLevel > 0f && timeOfDay < 2000)
                                     {
                                         spriteBatch.Draw(fadeToBlackRect, graphics.GraphicsDevice.Viewport.Bounds, Color.Black * currentLocation.LightLevel);
                                     }
@@ -1723,7 +1723,7 @@ label_168:
                                     {
                                         spriteBatch.Draw(fadeToBlackRect, graphics.GraphicsDevice.Viewport.Bounds, screenGlowColor * screenGlowAlpha);
                                     }
-                                    currentLocation.drawAboveAlwaysFrontLayer(spriteBatch);
+                                    currentLocation?.drawAboveAlwaysFrontLayer(spriteBatch);
                                     if (player.CurrentTool != null && player.CurrentTool is FishingRod && ((player.CurrentTool as FishingRod).isTimingCast || (player.CurrentTool as FishingRod).castingChosenCountdown > 0f || (player.CurrentTool as FishingRod).fishCaught || (player.CurrentTool as FishingRod).showingTreasure))
                                     {
                                         player.CurrentTool.draw(spriteBatch);
@@ -1731,7 +1731,7 @@ label_168:
                                     _spriteBatchEnd.Invoke();
                                     SetSpriteBatchBeginNextID("O");
                                     _spriteBatchBegin.Invoke(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, new Matrix?());
-                                    if (eventUp && currentLocation.currentEvent != null)
+                                    if (eventUp && currentLocation != null && currentLocation.currentEvent != null)
                                     {
                                         currentLocation.currentEvent.drawAboveAlwaysFrontLayer(spriteBatch);
                                         foreach (NPC actor3 in currentLocation.currentEvent.actors)
@@ -1758,7 +1758,7 @@ label_168:
                                         SetSpriteBatchBeginNextID("P");
                                         _spriteBatchBegin.Invoke(SpriteSortMode.Deferred, lightingBlend.GetValue(), SamplerState.LinearClamp, null, null, null, new Matrix?());
                                         spriteBatch.Draw(lightmap, Vector2.Zero, lightmap.Bounds, Color.White, 0f, Vector2.Zero, options.lightingQuality / 2, SpriteEffects.None, 1f);
-                                        if (RainManager.Instance.isRaining && (bool)currentLocation.isOutdoors && !(currentLocation is Desert))
+                                        if (RainManager.Instance.isRaining && currentLocation != null && (bool)currentLocation.isOutdoors && !(currentLocation is Desert))
                                         {
                                             spriteBatch.Draw(staminaRect, graphics.GraphicsDevice.Viewport.Bounds, Color.OrangeRed * 0.45f);
                                         }
@@ -1820,7 +1820,7 @@ label_168:
                                         this.drawBillboard();
                                     if ((Game1.displayHUD || Game1.eventUp) && (Game1.currentBillboard == 0 && Game1.gameMode == (byte)3) && (!Game1.freezeControls && !Game1.panMode && !Game1.HostPaused))
                                     {
-                                        if (!Game1.eventUp && Game1.farmEvent == null && (Game1.currentBillboard == 0 && Game1.gameMode == (byte)3) && (!this.takingMapScreenshot && Game1.isOutdoorMapSmallerThanViewport()))
+                                        if (currentLocation != null && !Game1.eventUp && Game1.farmEvent == null && (Game1.currentBillboard == 0 && Game1.gameMode == (byte)3) && (!this.takingMapScreenshot && Game1.isOutdoorMapSmallerThanViewport()))
                                         {
                                             SpriteBatch spriteBatch1 = Game1.spriteBatch;
                                             Texture2D fadeToBlackRect1 = Game1.fadeToBlackRect;

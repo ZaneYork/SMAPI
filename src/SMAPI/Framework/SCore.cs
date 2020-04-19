@@ -163,7 +163,7 @@ namespace StardewModdingAPI.Framework
             if (File.Exists(Constants.ApiUserConfigPath))
                 JsonConvert.PopulateObject(File.ReadAllText(Constants.ApiUserConfigPath), this.Settings);
 
-            this.LogFile = new LogFileManager(logPath);
+            this.LogFile = new LogFileManager(logPath, this.Settings.MaxLogSize);
             this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.Settings.ConsoleColors, this.Settings.VerboseLogging)
             {
                 WriteToConsole = writeToConsole,

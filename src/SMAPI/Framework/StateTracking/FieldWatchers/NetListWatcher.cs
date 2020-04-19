@@ -34,6 +34,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <summary>The values removed since the last reset.</summary>
         public IEnumerable<TValue> Removed => this.RemovedImpl;
 
+        private readonly NetRef<NetArray<TValue, NetRef<TValue>>> innerArray;
 
         /*********
         ** Public methods
@@ -43,8 +44,32 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         public NetListWatcher(NetList<TValue, NetRef<TValue>> field)
         {
             this.Field = field;
+            this.innerArray = (NetRef<NetArray<TValue, NetRef<TValue>>>)this.Field.GetType().GetField("array", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(this.Field);
+            this.hookArray(this.innerArray.Value);
+            this.innerArray.fieldChangeVisibleEvent += (arrayRef, oldArray, newArray) =>
+            {
+                if (newArray != null)
+                    this.hookArray(newArray);
+                this.OnArrayReplaced(this.Field, oldArray, newArray);
+            };
             //field.OnElementChanged += this.OnElementChanged;
             //field.OnArrayReplaced += this.OnArrayReplaced;
+        }
+        private void hookField(int index, NetRef<TValue> field)
+        {
+            if (field == default)
+                return;
+            field.fieldChangeVisibleEvent += (f, oldValue, newValue) =>
+            {
+                this.OnElementChanged(this.Field, index, oldValue, newValue);
+            };
+        }
+
+        private void hookArray(NetArray<TValue, NetRef<TValue>> array)
+        {
+            for (int index = 0; index < array.Count; ++index)
+                this.hookField(index, array.Fields[index]);
+            //this.innerArray.OnFieldCreate += new NetArray<TValue, NetRef<TValue>>.FieldCreateEvent(this.hookField);
         }
 
         /// <summary>Set the current value as the baseline.</summary>
