@@ -34,7 +34,6 @@ namespace StardewModdingAPI
     {
         private SCore core;
         private LicenseChecker _licenseChecker;
-        private PowerManager.WakeLock _wakeLock;
 #if !ANDROID_TARGET_SAMSUNG
         private ServerManagedPolicyExtended _serverManagedPolicyExtended;
 #endif
@@ -73,12 +72,11 @@ namespace StardewModdingAPI
             get
             {
                 List<string> list = new List<string>();
-                string[] requiredPermissions = this.requiredPermissions;
-                for (int i = 0; i < requiredPermissions.Length; i++)
+                for (int i = 0; i < this.requiredPermissions.Length; i++)
                 {
-                    if (ContextCompat.CheckSelfPermission(this, requiredPermissions[i]) != 0)
+                    if (ContextCompat.CheckSelfPermission(this, this.requiredPermissions[i]) != 0)
                     {
-                        list.Add(requiredPermissions[i]);
+                        list.Add(this.requiredPermissions[i]);
                     }
                 }
                 return list.ToArray();
@@ -87,7 +85,7 @@ namespace StardewModdingAPI
 
         protected override void OnCreate(Bundle bundle)
         {
-            instance = this;
+            MainActivity.instance = this;
             base.RequestWindowFeature(WindowFeatures.NoTitle);
             if (Build.VERSION.SdkInt >= BuildVersionCodes.P)
             {
@@ -96,7 +94,7 @@ namespace StardewModdingAPI
             this.Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
             this.Window.SetFlags(WindowManagerFlags.KeepScreenOn, WindowManagerFlags.KeepScreenOn);
 
-            Instance = this;
+            SMainActivity.Instance = this;
             try
             {
                 File errorLog = this.FilesDir.ListFiles().FirstOrDefault(f => f.IsDirectory && f.Name == "error")?.ListFiles().FirstOrDefault(f => f.Name.EndsWith(".dat"));
@@ -105,7 +103,7 @@ namespace StardewModdingAPI
                     string errorLogPath = Path.Combine(this.ExternalCacheDir.AbsolutePath, "error.dat");
                     SAlertDialogUtil.AlertMessage(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected");
                 }
-                Type[] services = new Type[] { typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes) };
+                Type[] services = { typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes) };
                 AppCenter.Start(Constants.MicrosoftAppSecret, services);
                 AppCenter.SetUserId(Constants.ApiVersion.ToString());
                 Crashes.GetErrorAttachments = (ErrorReport report) =>
@@ -117,7 +115,11 @@ namespace StardewModdingAPI
                         };
                 };
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
+
             base.OnCreate(bundle);
             this.CheckAppPermissions();
         }
@@ -132,9 +134,9 @@ namespace StardewModdingAPI
                 string modPath = null;
                 if (System.IO.File.Exists(Constants.ApiUserConfigPath))
                 {
-                    var Settings = JsonConvert.DeserializeObject<Framework.Models.SConfig>(System.IO.File.ReadAllText(Constants.ApiUserConfigPath));
-                    modPath = Settings.ModsPath;
-                    Constants.MonoModInit = !Settings.DisableMonoMod;
+                    var settings = JsonConvert.DeserializeObject<Framework.Models.SConfig>(System.IO.File.ReadAllText(Constants.ApiUserConfigPath));
+                    modPath = settings.ModsPath;
+                    Constants.MonoModInit = !settings.DisableMonoMod;
                 }
                 if (string.IsNullOrWhiteSpace(modPath))
                 {
@@ -151,11 +153,13 @@ namespace StardewModdingAPI
             }
             catch when (retry < 3)
             {
-                new Thread(() =>
+                void RetryStart()
                 {
                     Thread.Sleep(100);
-                    Instance.OnCreatePartTwo(retry + 1);
-                }).Start();
+                    SMainActivity.Instance.OnCreatePartTwo(retry + 1);
+                }
+
+                new Thread(RetryStart).Start();
             }
             catch (Exception ex)
             {
@@ -176,7 +180,7 @@ namespace StardewModdingAPI
         public new void PromptForPermissions()
         {
             ActivityCompat.RequestPermissions(this, this.DeniedPermissionsArray, 0);
-        } 
+        }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
         {

@@ -5,7 +5,7 @@
     <RootNamespace>StardewModdingAPI.Toolkit</RootNamespace>
     <Description>A library which encapsulates mod-handling logic for mod managers and tools. Not intended for use by mods.</Description>
     <TargetFrameworks>net4.5;netstandard2.0</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8</LangVersion>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\SMAPI.Toolkit.xml</DocumentationFile>
     <PlatformTarget Condition="'$(TargetFramework)' == 'net4.5'">x86</PlatformTarget>
     <RootNamespace>StardewModdingAPI.Toolkit</RootNamespace>
