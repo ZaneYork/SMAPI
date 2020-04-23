@@ -1941,6 +1941,9 @@ namespace StardewModdingAPI
 			// aapt resource value: 0x7f0a002c
 			public static int always = 2131361836;
 			
+			// aapt resource value: 0x7f0a0086
+			public static int appIcon = 2131361926;
+			
 			// aapt resource value: 0x7f0a003f
 			public static int async = 2131361855;
 			
@@ -1997,6 +2000,9 @@ namespace StardewModdingAPI
 			
 			// aapt resource value: 0x7f0a0049
 			public static int default_activity_button = 2131361865;
+			
+			// aapt resource value: 0x7f0a008b
+			public static int description = 2131361931;
 			
 			// aapt resource value: 0x7f0a0014
 			public static int disableHome = 2131361812;
@@ -2085,6 +2091,9 @@ namespace StardewModdingAPI
 			// aapt resource value: 0x7f0a0012
 			public static int normal = 2131361810;
 			
+			// aapt resource value: 0x7f0a0085
+			public static int notificationLayout = 2131361925;
+			
 			// aapt resource value: 0x7f0a007f
 			public static int notification_background = 2131361919;
 			
@@ -2097,11 +2106,20 @@ namespace StardewModdingAPI
 			// aapt resource value: 0x7f0a004e
 			public static int parentPanel = 2131361870;
 			
+			// aapt resource value: 0x7f0a008a
+			public static int progress_bar = 2131361930;
+			
+			// aapt resource value: 0x7f0a0089
+			public static int progress_bar_frame = 2131361929;
+			
 			// aapt resource value: 0x7f0a0005
 			public static int progress_circular = 2131361797;
 			
 			// aapt resource value: 0x7f0a0006
 			public static int progress_horizontal = 2131361798;
+			
+			// aapt resource value: 0x7f0a0087
+			public static int progress_text = 2131361927;
 			
 			// aapt resource value: 0x7f0a0061
 			public static int radio = 2131361889;
@@ -2222,6 +2240,9 @@ namespace StardewModdingAPI
 			
 			// aapt resource value: 0x7f0a0080
 			public static int time = 2131361920;
+			
+			// aapt resource value: 0x7f0a0088
+			public static int time_remaining = 2131361928;
 			
 			// aapt resource value: 0x7f0a0010
 			public static int title = 2131361808;
@@ -2406,7 +2427,10 @@ namespace StardewModdingAPI
 			public static int select_dialog_singlechoice_material = 2130903076;
 			
 			// aapt resource value: 0x7f030025
-			public static int support_simple_spinner_dropdown_item = 2130903077;
+			public static int status_bar_ongoing_event_progress_bar = 2130903077;
+			
+			// aapt resource value: 0x7f030026
+			public static int support_simple_spinner_dropdown_item = 2130903078;
 			
 			static Layout()
 			{
@@ -3111,6 +3135,21 @@ namespace StardewModdingAPI
 			
 			// aapt resource value: 0x7f07006e
 			public static int Base_Widget_AppCompat_Toolbar_Button_Navigation = 2131165294;
+			
+			// aapt resource value: 0x7f07015d
+			public static int ButtonBackground = 2131165533;
+			
+			// aapt resource value: 0x7f07015b
+			public static int NotificationText = 2131165531;
+			
+			// aapt resource value: 0x7f07015a
+			public static int NotificationTextSecondary = 2131165530;
+			
+			// aapt resource value: 0x7f07015e
+			public static int NotificationTextShadow = 2131165534;
+			
+			// aapt resource value: 0x7f07015c
+			public static int NotificationTitle = 2131165532;
 			
 			// aapt resource value: 0x7f07006f
 			public static int Platform_AppCompat = 2131165295;
