@@ -100,20 +100,11 @@ namespace StardewModdingAPI
                 File errorLog = this.FilesDir.ListFiles().FirstOrDefault(f => f.IsDirectory && f.Name == "error")?.ListFiles().FirstOrDefault(f => f.Name.EndsWith(".dat"));
                 if (errorLog != null)
                 {
-                    string errorLogPath = Path.Combine(this.ExternalCacheDir.AbsolutePath, "error.dat");
                     SAlertDialogUtil.AlertMessage(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected");
                 }
                 Type[] services = { typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes) };
                 AppCenter.Start(Constants.MicrosoftAppSecret, services);
                 AppCenter.SetUserId(Constants.ApiVersion.ToString());
-                Crashes.GetErrorAttachments = (ErrorReport report) =>
-                {
-                    return new ErrorAttachmentLog[]
-                        {
-                            ErrorAttachmentLog.AttachmentWithText(Constants.ApiVersion.ToString(), "SMAPI_Version.txt"),
-                            ErrorAttachmentLog.AttachmentWithText(SGameConsole.Instance?.getLatestCrashText(), "SMAPI_Crash.txt")
-                        };
-                };
             }
             catch
             {

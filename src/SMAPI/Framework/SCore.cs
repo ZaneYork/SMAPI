@@ -275,7 +275,8 @@ namespace StardewModdingAPI.Framework
                     new JunimoHarvesterPatch(this.Monitor),
                     new LocationSwitchPatch(this.Monitor),
                     new SpriteFontPatch(this.Monitor),
-                    new ThreadSilenceExitPatch(this.Monitor)
+                    new ThreadSilenceExitPatch(this.Monitor),
+                    new SaveGamePatch(this.Translator)
                 );
 
                 // add exit handler
@@ -319,7 +320,7 @@ namespace StardewModdingAPI.Framework
                     {
                         this.Monitor.Log("A new version of SMAPI was detected last time you played.", LogLevel.Error);
                         this.Monitor.Log($"You can update to {updateFound}: https://smapi.io.", LogLevel.Error);
-                        this.Monitor.Log("Press any key to continue playing anyway. (This only appears when using a SMAPI beta.)", LogLevel.Info);       
+                        this.Monitor.Log("Press any key to continue playing anyway. (This only appears when using a SMAPI beta.)", LogLevel.Info);
                         //Console.ReadKey();
                     }
                     Toast.MakeText(SMainActivity.instance, $"You can update to {updateFound}: {Constants.HomePageUrl}.", ToastLength.Long).Show();
