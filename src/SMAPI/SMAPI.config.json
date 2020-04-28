@@ -73,6 +73,7 @@ copy all the settings, or you may cause bugs due to overridden changes in future
      *    automatically on Linux or Windows.
      *  - LightBackground: use darker text colors that look better on a white or light background.
      *  - DarkBackground: use lighter text colors that look better on a black or dark background.
+     *  - None: disables all colors, so everything is written in the default terminal color.
      *
      * For available color codes, see https://docs.microsoft.com/en-us/dotnet/api/system.consolecolor.
      *

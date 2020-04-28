@@ -88,8 +88,8 @@ namespace StardewModdingApi.Installer
             yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs"); // remove old log files
         }
 
-        /// <summary>Handles writing color-coded text to the console.</summary>
-        private ColorfulConsoleWriter ConsoleWriter;
+        /// <summary>Handles writing text to the console.</summary>
+        private IConsoleWriter ConsoleWriter;
 
 
         /*********

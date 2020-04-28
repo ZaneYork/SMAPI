@@ -19,9 +19,6 @@ namespace StardewModdingAPI.Patches
         /// <summary>Writes messages to the console and log file on behalf of the game.</summary>
         private static IMonitor MonitorForGame;
 
-        /// <summary>Whether the target is currently being intercepted.</summary>
-        private static bool IsIntercepting;
-
 
         /*********
         ** Accessors
@@ -62,12 +59,12 @@ namespace StardewModdingAPI.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         private static bool Before_NPC_parseMasterSchedule(string rawData, NPC __instance, ref Dictionary<int, SchedulePathDescription> __result, MethodInfo __originalMethod)
         {
-            if (ScheduleErrorPatch.IsIntercepting)
+            const string key = nameof(Before_NPC_parseMasterSchedule);
+            if (!PatchHelper.StartIntercept(key))
                 return true;
 
             try
             {
-                ScheduleErrorPatch.IsIntercepting = true;
                 __result = (Dictionary<int, SchedulePathDescription>)__originalMethod.Invoke(__instance, new object[] { rawData });
                 return false;
             }
@@ -79,7 +76,7 @@ namespace StardewModdingAPI.Patches
             }
             finally
             {
-                ScheduleErrorPatch.IsIntercepting = false;
+                PatchHelper.StopIntercept(key);
             }
         }
     }

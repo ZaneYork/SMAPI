@@ -73,7 +73,7 @@ namespace SMAPI.Tests.Core
                 [nameof(IManifest.Description)] = Sample.String(),
                 [nameof(IManifest.UniqueID)] = $"{Sample.String()}.{Sample.String()}",
                 [nameof(IManifest.EntryDll)] = $"{Sample.String()}.dll",
-                [nameof(IManifest.MinimumApiVersion)] = $"{Sample.Int()}.{Sample.Int()}-{Sample.String()}",
+                [nameof(IManifest.MinimumApiVersion)] = $"{Sample.Int()}.{Sample.Int()}.{Sample.Int()}-{Sample.String()}",
                 [nameof(IManifest.Dependencies)] = new[] { originalDependency },
                 ["ExtraString"] = Sample.String(),
                 ["ExtraInt"] = Sample.Int()

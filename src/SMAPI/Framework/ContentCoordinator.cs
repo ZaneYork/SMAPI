@@ -14,6 +14,7 @@ using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
+using xTile;
 
 namespace StardewModdingAPI.Framework
 {
@@ -228,16 +229,32 @@ namespace StardewModdingAPI.Framework
         public IEnumerable<string> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
             // invalidate cache & track removed assets
-            IDictionary<string, ISet<object>> removedAssets = new Dictionary<string, ISet<object>>(StringComparer.InvariantCultureIgnoreCase);
+            IDictionary<string, Type> removedAssets = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
             this.ContentManagerLock.InReadLock(() =>
             {
+                // cached assets
                 foreach (IContentManager contentManager in this.ContentManagers)
                 {
                     foreach (var entry in contentManager.InvalidateCache(predicate, dispose))
                     {
-                        if (!removedAssets.TryGetValue(entry.Key, out ISet<object> assets))
-                            removedAssets[entry.Key] = assets = new HashSet<object>(new ObjectReferenceComparer<object>());
-                        assets.Add(entry.Value);
+                        if (!removedAssets.TryGetValue(entry.Key, out Type type))
+                            removedAssets[entry.Key] = entry.Value.GetType();
+                    }
+                }
+
+                // special case: maps may be loaded through a temporary content manager that's removed while the map is still in use.
+                // This notably affects the town and farmhouse maps.
+                if (Game1.locations != null)
+                {
+                    foreach (GameLocation location in Game1.locations)
+                    {
+                        if (location.map == null || string.IsNullOrWhiteSpace(location.mapPath.Value))
+                            continue;
+
+                        // get map path
+                        string mapPath = this.MainContentManager.AssertAndNormalizeAssetName(location.mapPath.Value);
+                        if (!removedAssets.ContainsKey(mapPath) && predicate(mapPath, typeof(Map)))
+                            removedAssets[mapPath] = typeof(Map);
                     }
                 }
             });
@@ -245,7 +262,7 @@ namespace StardewModdingAPI.Framework
             // reload core game assets
             if (removedAssets.Any())
             {
-                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(this.MainContentManager, removedAssets.ToDictionary(p => p.Key, p => p.Value.First().GetType())); // use an intercepted content manager
+                IDictionary<string, bool> propagated = this.CoreAssets.Propagate(this.MainContentManager, removedAssets.ToDictionary(p => p.Key, p => p.Value)); // use an intercepted content manager
                 this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
             }
             else

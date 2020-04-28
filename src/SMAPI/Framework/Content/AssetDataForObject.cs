@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using xTile;
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -39,6 +40,13 @@ namespace StardewModdingAPI.Framework.Content
         public IAssetDataForImage AsImage()
         {
             return new AssetDataForImage(this.Locale, this.AssetName, this.GetData<Texture2D>(), this.GetNormalizedPath, this.ReplaceWith);
+        }
+
+        /// <summary>Get a helper to manipulate the data as a map.</summary>
+        /// <exception cref="InvalidOperationException">The content being read isn't a map.</exception>
+        public IAssetDataForMap AsMap()
+        {
+            return new AssetDataForMap(this.Locale, this.AssetName, this.GetData<Map>(), this.GetNormalizedPath, this.ReplaceWith);
         }
 
         /// <summary>Get the data as a given type.</summary>

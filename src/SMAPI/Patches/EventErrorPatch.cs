@@ -18,9 +18,6 @@ namespace StardewModdingAPI.Patches
         /// <summary>Writes messages to the console and log file on behalf of the game.</summary>
         private static IMonitor MonitorForGame;
 
-        /// <summary>Whether the method is currently being intercepted.</summary>
-        private static bool IsIntercepted;
-
 
         /*********
         ** Accessors
@@ -61,12 +58,12 @@ namespace StardewModdingAPI.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         private static bool Before_GameLocation_CheckEventPrecondition(GameLocation __instance, ref int __result, string precondition, MethodInfo __originalMethod)
         {
-            if (EventErrorPatch.IsIntercepted)
+            const string key = nameof(Before_GameLocation_CheckEventPrecondition);
+            if (!PatchHelper.StartIntercept(key))
                 return true;
 
             try
             {
-                EventErrorPatch.IsIntercepted = true;
                 __result = (int)__originalMethod.Invoke(__instance, new object[] { precondition });
                 return false;
             }
@@ -78,7 +75,7 @@ namespace StardewModdingAPI.Patches
             }
             finally
             {
-                EventErrorPatch.IsIntercepted = false;
+                PatchHelper.StopIntercept(key);
             }
         }
     }

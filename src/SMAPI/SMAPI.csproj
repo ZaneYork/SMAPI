@@ -191,6 +191,7 @@
     <Compile Include="Framework\Content\AssetData.cs" />
     <Compile Include="Framework\Content\AssetDataForDictionary.cs" />
     <Compile Include="Framework\Content\AssetDataForImage.cs" />
+    <Compile Include="Framework\Content\AssetDataForMap.cs" />
     <Compile Include="Framework\Content\AssetDataForObject.cs" />
     <Compile Include="Framework\Content\AssetInfo.cs" />
     <Compile Include="Framework\Content\AssetInterceptorChange.cs" />
@@ -279,6 +280,7 @@
     <Compile Include="Framework\Networking\RemoteContextModModel.cs" />
     <Compile Include="Framework\Patching\GamePatcher.cs" />
     <Compile Include="Framework\Patching\IHarmonyPatch.cs" />
+    <Compile Include="Framework\Patching\PatchHelper.cs" />
     <Compile Include="Framework\PerformanceMonitoring\AlertContext.cs" />
     <Compile Include="Framework\PerformanceMonitoring\AlertEntry.cs" />
     <Compile Include="Framework\PerformanceMonitoring\PeakEntry.cs" />
@@ -368,6 +370,7 @@
     <Compile Include="IAssetData.cs" />
     <Compile Include="IAssetDataForDictionary.cs" />
     <Compile Include="IAssetDataForImage.cs" />
+    <Compile Include="IAssetDataForMap.cs" />
     <Compile Include="IAssetEditor.cs" />
     <Compile Include="IAssetInfo.cs" />
     <Compile Include="IAssetLoader.cs" />
@@ -444,6 +447,7 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="i18n\ko.json" />
     <Content Include="icon.ico" />
     <Content Include="steam_appid.txt" />
   </ItemGroup>

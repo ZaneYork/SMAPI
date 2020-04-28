@@ -24,9 +24,6 @@ namespace StardewModdingAPI.Patches
         /// <summary>Simplifies access to private code.</summary>
         private static Reflector Reflection;
 
-        /// <summary>Whether the <see cref="NPC.CurrentDialogue"/> getter is currently being intercepted.</summary>
-        private static bool IsInterceptingCurrentDialogue;
-
 
         /*********
         ** Accessors
@@ -112,12 +109,12 @@ namespace StardewModdingAPI.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         private static bool Before_NPC_CurrentDialogue(NPC __instance, ref Stack<Dialogue> __result, MethodInfo __originalMethod)
         {
-            if (DialogueErrorPatch.IsInterceptingCurrentDialogue)
+            const string key = nameof(Before_NPC_CurrentDialogue);
+            if (!PatchHelper.StartIntercept(key))
                 return true;
 
             try
             {
-                DialogueErrorPatch.IsInterceptingCurrentDialogue = true;
                 __result = (Stack<Dialogue>)__originalMethod.Invoke(__instance, new object[0]);
                 return false;
             }
@@ -129,7 +126,7 @@ namespace StardewModdingAPI.Patches
             }
             finally
             {
-                DialogueErrorPatch.IsInterceptingCurrentDialogue = false;
+                PatchHelper.StopIntercept(key);
             }
         }
     }

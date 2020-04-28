@@ -15,8 +15,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>The name of the module which logs messages using this instance.</summary>
         private readonly string Source;
 
-        /// <summary>Handles writing color-coded text to the console.</summary>
-        private readonly ColorfulConsoleWriter ConsoleWriter;
+        /// <summary>Handles writing text to the console.</summary>
+        private readonly IConsoleWriter ConsoleWriter;
 
         /// <summary>Manages access to the console output.</summary>
         private readonly ConsoleInterceptionManager ConsoleInterceptor;

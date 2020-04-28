@@ -154,8 +154,8 @@ namespace StardewModdingAPI
             }
 
             // load SMAPI
-            using (SCore core = new SCore(modsPath, writeToConsole))
-                core.RunInteractively();
+            using SCore core = new SCore(modsPath, writeToConsole);
+            core.RunInteractively();
         }
 
         /// <summary>Write an error directly to the console and exit.</summary>

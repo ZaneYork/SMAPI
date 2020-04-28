@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewValley;
@@ -162,6 +163,19 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             this.Monitor.Log("Requested cache invalidation for all assets matching a predicate.", LogLevel.Trace);
             return this.ContentCore.InvalidateCache(predicate).Any();
+        }
+
+        /// <summary>Get a patch helper for arbitrary data.</summary>
+        /// <typeparam name="T">The data type.</typeparam>
+        /// <param name="data">The asset data.</param>
+        /// <param name="assetName">The asset name. This is only used for tracking purposes and has no effect on the patch helper.</param>
+        public IAssetData GetPatchHelper<T>(T data, string assetName = null)
+        {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data), "Can't get a patch helper for a null value.");
+
+            assetName ??= $"temp/{Guid.NewGuid():N}";
+            return new AssetDataForObject(this.CurrentLocale, assetName, data, this.NormalizeAssetName);
         }
 
 

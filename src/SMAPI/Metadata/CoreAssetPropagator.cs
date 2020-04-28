@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Buildings;
@@ -892,11 +893,13 @@ namespace StardewModdingAPI.Metadata
             // doesn't store the text itself.
             foreach (NPC villager in villagers)
             {
+                bool shouldSayMarriageDialogue = villager.shouldSayMarriageDialogue.Value;
                 MarriageDialogueReference[] marriageDialogue = villager.currentMarriageDialogue.ToArray();
 
                 villager.resetSeasonalDialogue(); // doesn't only affect seasonal dialogue
                 villager.resetCurrentDialogue();
 
+                villager.shouldSayMarriageDialogue.Set(shouldSayMarriageDialogue);
                 villager.currentMarriageDialogue.Set(marriageDialogue);
             }
 
@@ -1039,9 +1042,9 @@ namespace StardewModdingAPI.Metadata
         /// <param name="path">The path to check.</param>
         private string[] GetSegments(string path)
         {
-            if (path == null)
-                return new string[0];
-            return path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return path != null
+                ? PathUtilities.GetSegments(path)
+                : new string[0];
         }
 
         /// <summary>Count the number of segments in a path (e.g. 'a/b' is 2).</summary>

@@ -1,4 +1,5 @@
 using System.Linq;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
@@ -40,6 +41,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
             // handle
             Game1.currentSeason = season.ToLower();
             Game1.setGraphicsForSeason();
+            Game1.stats.DaysPlayed = (uint)SDate.Now().DaysSinceStart;
             monitor.Log($"OK, the date is now {Game1.currentSeason} {Game1.dayOfMonth}.", LogLevel.Info);
         }
     }

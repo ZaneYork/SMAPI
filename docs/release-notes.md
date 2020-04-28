@@ -1,6 +1,33 @@
 &larr; [README](README.md)
 
 # Release notes
+## 3.5
+Released 27 April 2020 for Stardew Valley 1.4.1 or later.
+
+* For players:
+  * SMAPI now prevents more game errors due to broken items, so you no longer need save editing to remove them.
+  * Added option to disable console colors.
+  * Updated compatibility list.
+  * Improved translations.¹
+
+* For the Console Commands mod:
+  * Commands like `world_setday` now also affect the 'days played' stat, so in-game events/randomization match what you'd get if you played to that date normally (thanks to kdau!).
+
+* For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.13.
+  * Fixed rare intermittent "CGI application encountered an error" errors.
+
+* For modders:
+  * Added map patching to the content API (via `asset.AsMap()`).
+  * Added support for using patch helpers with arbitrary data (via `helper.Content.GetPatchHelper`).
+  * Added `SDate` fields/methods: `SeasonIndex`, `FromDaysSinceStart`, `FromWorldDate`, `ToWorldDate`, and `ToLocaleString` (thanks to kdau!).
+  * Added `SDate` translations taken from the Lookup Anything mod.¹
+  * Fixed asset propagation for certain maps loaded through temporary content managers. This notably fixes unreliable patches to the farmhouse and town maps.
+  * Fixed asset propagation on Linux/Mac for monster sprites, NPC dialogue, and NPC schedules.
+  * Fixed asset propagation for NPC dialogue sometimes causing a spouse to skip marriage dialogue or not allow kisses.
+
+¹ Date format translations were taken from the Lookup Anything mod; thanks to translators FixThisPlz (improved Russian), LeecanIt (added Italian), pomepome (added Japanese), S2SKY (added Korean), Sasara (added German), SteaNN (added Russian), ThomasGabrielDelavault (added Spanish), VincentRoth (added French), Yllelder (improved Spanish), and yuwenlan (added Chinese). Some translations for Korean, Hungarian, and Turkish were derived from the game translations.
+
 ## 3.4.1
 Released 24 March 2020 for Stardew Valley 1.4.1 or later.
 

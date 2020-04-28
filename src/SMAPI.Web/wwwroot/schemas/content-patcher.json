@@ -11,9 +11,9 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
             "type": "string",
-            "const": "1.11.0",
+            "const": "1.13.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.11.0'."
+                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.13.0'."
             }
         },
         "ConfigSchema": {
@@ -268,6 +268,48 @@
                             "type": "string"
                         }
                     },
+                    "MapTiles": {
+                        "title": "Map tiles",
+                        "description": "The individual map tiles to add, edit, or remove.",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "Layer": {
+                                    "description": "The map layer name to change.",
+                                    "type": "string"
+                                },
+                                "Position": {
+                                    "description": "The tile coordinates to change. You can use the Debug Mode mod to see tile coordinates in-game.",
+                                    "$ref": "#/definitions/Position"
+                                },
+                                "SetTilesheet": {
+                                    "title": "Set tilesheet",
+                                    "description": "Sets the tilesheet ID for the tile index.",
+                                    "type": "string"
+                                },
+                                "SetIndex": {
+                                    "title": "Set tile index",
+                                    "description": "Sets the tile index in the tilesheet.",
+                                    "type": [ "string", "number" ]
+                                },
+                                "SetProperties": {
+                                    "title": "Set tile properties",
+                                    "description": "The properties to set or remove. This is merged into the existing tile properties, if any. To remove a property, set its value to `null` (not \"null\" in quotes).",
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    }
+                                },
+                                "Remove": {
+                                    "description": "Whether to remove the current tile and all its properties on that layer. If combined with the other fields, a new tile is created from the other fields as if the tile didn't previously exist.",
+                                    "type": "boolean"
+                                }
+                            },
+
+                            "required": [ "Layer", "Position" ]
+                        }
+                    },
                     "When": {
                         "title": "When",
                         "description": "Only apply the patch if the given conditions match.",
@@ -335,7 +377,7 @@
                                 }
                             },
                             "propertyNames": {
-                                "enum": [ "Action", "Target", "LogName", "Enabled", "When", "FromFile", "FromArea", "ToArea", "MapProperties" ]
+                                "enum": [ "Action", "Target", "LogName", "Enabled", "When", "FromFile", "FromArea", "ToArea", "MapProperties", "MapTiles" ]
                             }
                         }
                     }
@@ -361,17 +403,37 @@
                 "type": [ "boolean", "string" ]
             }
         },
+        "Position": {
+            "type": "object",
+            "properties": {
+                "X": {
+                    "title": "X position",
+                    "description": "The X position, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
+                    "minimum:": 0
+                },
+                "Y": {
+                    "title": "Y position",
+                    "description": "The Y position, measured in pixels for a texture or tiles for a map. This can contain tokens.",
+                    "type": [ "integer", "string" ],
+                    "minimum:": 0
+                }
+            },
+
+            "required": [ "X", "Y" ],
+            "additionalProperties": false
+        },
         "Rectangle": {
             "type": "object",
             "properties": {
                 "X": {
-                    "title": "X-Coordinate",
+                    "title": "X position",
                     "description": "The X position of the area's top-left corner, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
                     "minimum:": 0
                 },
                 "Y": {
-                    "title": "Y-Coordinate",
+                    "title": "Y position",
                     "description": "The Y position of the area's top-left corner, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
                     "minimum:": 0

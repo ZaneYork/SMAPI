@@ -155,7 +155,7 @@
         *********/
         "Auto Quality Patch": {
             "ID": "SilentOak.AutoQualityPatch",
-            "~2.1.3-unofficial.7 | Status": "AssumeBroken" // runtime errors
+            "~2.1.3-unofficial.7-mizzion | Status": "AssumeBroken" // runtime errors
         },
 
         "Fix Dice": {
