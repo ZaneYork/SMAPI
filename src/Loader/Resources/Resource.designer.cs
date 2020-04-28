@@ -638,6 +638,7 @@ namespace Loader
 			global::StardewModdingAPI.Resource.Id.alertTitle = global::Loader.Resource.Id.alertTitle;
 			global::StardewModdingAPI.Resource.Id.all = global::Loader.Resource.Id.all;
 			global::StardewModdingAPI.Resource.Id.always = global::Loader.Resource.Id.always;
+			global::StardewModdingAPI.Resource.Id.appIcon = global::Loader.Resource.Id.appIcon;
 			global::StardewModdingAPI.Resource.Id.async = global::Loader.Resource.Id.async;
 			global::StardewModdingAPI.Resource.Id.beginning = global::Loader.Resource.Id.beginning;
 			global::StardewModdingAPI.Resource.Id.blocking = global::Loader.Resource.Id.blocking;
@@ -657,6 +658,7 @@ namespace Loader
 			global::StardewModdingAPI.Resource.Id.customPanel = global::Loader.Resource.Id.customPanel;
 			global::StardewModdingAPI.Resource.Id.decor_content_parent = global::Loader.Resource.Id.decor_content_parent;
 			global::StardewModdingAPI.Resource.Id.default_activity_button = global::Loader.Resource.Id.default_activity_button;
+			global::StardewModdingAPI.Resource.Id.description = global::Loader.Resource.Id.description;
 			global::StardewModdingAPI.Resource.Id.disableHome = global::Loader.Resource.Id.disableHome;
 			global::StardewModdingAPI.Resource.Id.edit_query = global::Loader.Resource.Id.edit_query;
 			global::StardewModdingAPI.Resource.Id.end = global::Loader.Resource.Id.end;
@@ -686,12 +688,16 @@ namespace Loader
 			global::StardewModdingAPI.Resource.Id.never = global::Loader.Resource.Id.never;
 			global::StardewModdingAPI.Resource.Id.none = global::Loader.Resource.Id.none;
 			global::StardewModdingAPI.Resource.Id.normal = global::Loader.Resource.Id.normal;
+			global::StardewModdingAPI.Resource.Id.notificationLayout = global::Loader.Resource.Id.notificationLayout;
 			global::StardewModdingAPI.Resource.Id.notification_background = global::Loader.Resource.Id.notification_background;
 			global::StardewModdingAPI.Resource.Id.notification_main_column = global::Loader.Resource.Id.notification_main_column;
 			global::StardewModdingAPI.Resource.Id.notification_main_column_container = global::Loader.Resource.Id.notification_main_column_container;
 			global::StardewModdingAPI.Resource.Id.parentPanel = global::Loader.Resource.Id.parentPanel;
+			global::StardewModdingAPI.Resource.Id.progress_bar = global::Loader.Resource.Id.progress_bar;
+			global::StardewModdingAPI.Resource.Id.progress_bar_frame = global::Loader.Resource.Id.progress_bar_frame;
 			global::StardewModdingAPI.Resource.Id.progress_circular = global::Loader.Resource.Id.progress_circular;
 			global::StardewModdingAPI.Resource.Id.progress_horizontal = global::Loader.Resource.Id.progress_horizontal;
+			global::StardewModdingAPI.Resource.Id.progress_text = global::Loader.Resource.Id.progress_text;
 			global::StardewModdingAPI.Resource.Id.radio = global::Loader.Resource.Id.radio;
 			global::StardewModdingAPI.Resource.Id.right = global::Loader.Resource.Id.right;
 			global::StardewModdingAPI.Resource.Id.right_icon = global::Loader.Resource.Id.right_icon;
@@ -732,6 +738,7 @@ namespace Loader
 			global::StardewModdingAPI.Resource.Id.textSpacerNoButtons = global::Loader.Resource.Id.textSpacerNoButtons;
 			global::StardewModdingAPI.Resource.Id.textSpacerNoTitle = global::Loader.Resource.Id.textSpacerNoTitle;
 			global::StardewModdingAPI.Resource.Id.time = global::Loader.Resource.Id.time;
+			global::StardewModdingAPI.Resource.Id.time_remaining = global::Loader.Resource.Id.time_remaining;
 			global::StardewModdingAPI.Resource.Id.title = global::Loader.Resource.Id.title;
 			global::StardewModdingAPI.Resource.Id.titleDividerNoCustom = global::Loader.Resource.Id.titleDividerNoCustom;
 			global::StardewModdingAPI.Resource.Id.title_template = global::Loader.Resource.Id.title_template;
@@ -784,6 +791,7 @@ namespace Loader
 			global::StardewModdingAPI.Resource.Layout.select_dialog_item_material = global::Loader.Resource.Layout.select_dialog_item_material;
 			global::StardewModdingAPI.Resource.Layout.select_dialog_multichoice_material = global::Loader.Resource.Layout.select_dialog_multichoice_material;
 			global::StardewModdingAPI.Resource.Layout.select_dialog_singlechoice_material = global::Loader.Resource.Layout.select_dialog_singlechoice_material;
+			global::StardewModdingAPI.Resource.Layout.status_bar_ongoing_event_progress_bar = global::Loader.Resource.Layout.status_bar_ongoing_event_progress_bar;
 			global::StardewModdingAPI.Resource.Layout.support_simple_spinner_dropdown_item = global::Loader.Resource.Layout.support_simple_spinner_dropdown_item;
 			global::StardewModdingAPI.Resource.String.abc_action_bar_home_description = global::Loader.Resource.String.abc_action_bar_home_description;
 			global::StardewModdingAPI.Resource.String.abc_action_bar_up_description = global::Loader.Resource.String.abc_action_bar_up_description;
@@ -1011,6 +1019,11 @@ namespace Loader
 			global::StardewModdingAPI.Resource.Style.Base_Widget_AppCompat_TextView_SpinnerItem = global::Loader.Resource.Style.Base_Widget_AppCompat_TextView_SpinnerItem;
 			global::StardewModdingAPI.Resource.Style.Base_Widget_AppCompat_Toolbar = global::Loader.Resource.Style.Base_Widget_AppCompat_Toolbar;
 			global::StardewModdingAPI.Resource.Style.Base_Widget_AppCompat_Toolbar_Button_Navigation = global::Loader.Resource.Style.Base_Widget_AppCompat_Toolbar_Button_Navigation;
+			global::StardewModdingAPI.Resource.Style.ButtonBackground = global::Loader.Resource.Style.ButtonBackground;
+			global::StardewModdingAPI.Resource.Style.NotificationText = global::Loader.Resource.Style.NotificationText;
+			global::StardewModdingAPI.Resource.Style.NotificationTextSecondary = global::Loader.Resource.Style.NotificationTextSecondary;
+			global::StardewModdingAPI.Resource.Style.NotificationTextShadow = global::Loader.Resource.Style.NotificationTextShadow;
+			global::StardewModdingAPI.Resource.Style.NotificationTitle = global::Loader.Resource.Style.NotificationTitle;
 			global::StardewModdingAPI.Resource.Style.Platform_AppCompat = global::Loader.Resource.Style.Platform_AppCompat;
 			global::StardewModdingAPI.Resource.Style.Platform_AppCompat_Light = global::Loader.Resource.Style.Platform_AppCompat_Light;
 			global::StardewModdingAPI.Resource.Style.Platform_ThemeOverlay_AppCompat = global::Loader.Resource.Style.Platform_ThemeOverlay_AppCompat;
@@ -3817,6 +3830,9 @@ namespace Loader
 			// aapt resource value: 0x7f0c002c
 			public const int always = 2131492908;
 			
+			// aapt resource value: 0x7f0c0090
+			public const int appIcon = 2131493008;
+			
 			// aapt resource value: 0x7f0c003f
 			public const int async = 2131492927;
 			
@@ -3891,6 +3907,9 @@ namespace Loader
 			
 			// aapt resource value: 0x7f0c0049
 			public const int default_activity_button = 2131492937;
+			
+			// aapt resource value: 0x7f0c0095
+			public const int description = 2131493013;
 			
 			// aapt resource value: 0x7f0c0014
 			public const int disableHome = 2131492884;
@@ -3985,6 +4004,9 @@ namespace Loader
 			// aapt resource value: 0x7f0c0012
 			public const int normal = 2131492882;
 			
+			// aapt resource value: 0x7f0c008f
+			public const int notificationLayout = 2131493007;
+			
 			// aapt resource value: 0x7f0c008b
 			public const int notification_background = 2131493003;
 			
@@ -3997,11 +4019,20 @@ namespace Loader
 			// aapt resource value: 0x7f0c004e
 			public const int parentPanel = 2131492942;
 			
+			// aapt resource value: 0x7f0c0094
+			public const int progress_bar = 2131493012;
+			
+			// aapt resource value: 0x7f0c0093
+			public const int progress_bar_frame = 2131493011;
+			
 			// aapt resource value: 0x7f0c0005
 			public const int progress_circular = 2131492869;
 			
 			// aapt resource value: 0x7f0c0006
 			public const int progress_horizontal = 2131492870;
+			
+			// aapt resource value: 0x7f0c0091
+			public const int progress_text = 2131493009;
 			
 			// aapt resource value: 0x7f0c0061
 			public const int radio = 2131492961;
@@ -4125,6 +4156,9 @@ namespace Loader
 			
 			// aapt resource value: 0x7f0c0087
 			public const int time = 2131492999;
+			
+			// aapt resource value: 0x7f0c0092
+			public const int time_remaining = 2131493010;
 			
 			// aapt resource value: 0x7f0c0010
 			public const int title = 2131492880;
@@ -4342,7 +4376,10 @@ namespace Loader
 			public const int select_dialog_singlechoice_material = 2130968623;
 			
 			// aapt resource value: 0x7f040030
-			public const int support_simple_spinner_dropdown_item = 2130968624;
+			public const int status_bar_ongoing_event_progress_bar = 2130968624;
+			
+			// aapt resource value: 0x7f040031
+			public const int support_simple_spinner_dropdown_item = 2130968625;
 			
 			static Layout()
 			{
@@ -5076,6 +5113,21 @@ namespace Loader
 			// aapt resource value: 0x7f09006e
 			public const int Base_Widget_AppCompat_Toolbar_Button_Navigation = 2131296366;
 			
+			// aapt resource value: 0x7f090162
+			public const int ButtonBackground = 2131296610;
+			
+			// aapt resource value: 0x7f090160
+			public const int NotificationText = 2131296608;
+			
+			// aapt resource value: 0x7f09015f
+			public const int NotificationTextSecondary = 2131296607;
+			
+			// aapt resource value: 0x7f090163
+			public const int NotificationTextShadow = 2131296611;
+			
+			// aapt resource value: 0x7f090161
+			public const int NotificationTitle = 2131296609;
+			
 			// aapt resource value: 0x7f09006f
 			public const int Platform_AppCompat = 2131296367;
 			
@@ -5403,8 +5455,8 @@ namespace Loader
 			// aapt resource value: 0x7f090102
 			public const int Theme_AppCompat_NoActionBar = 2131296514;
 			
-			// aapt resource value: 0x7f09015f
-			public const int Theme_Splash = 2131296607;
+			// aapt resource value: 0x7f090164
+			public const int Theme_Splash = 2131296612;
 			
 			// aapt resource value: 0x7f090103
 			public const int ThemeOverlay_AppCompat = 2131296515;
