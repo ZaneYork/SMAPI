@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Harmony;
@@ -19,6 +20,8 @@ namespace StardewModdingAPI.Patches
         /// <summary>An Instance of <see cref="EventManager"/>.</summary>
         private static EventManager Events;
 
+        /// <summary>Writes messages to the console and log file.</summary>
+        private static IMonitor Monitor;
 
         /*********
         ** Public methods
@@ -26,9 +29,10 @@ namespace StardewModdingAPI.Patches
         /// <summary>Construct an instance.</summary>
         /// <param name="eventManager">SMAPI's EventManager Instance</param>
 
-        public SaveBackupPatch(EventManager eventManager)
+        public SaveBackupPatch(EventManager eventManager, Monitor monitor)
         {
             SaveBackupPatch.Events = eventManager;
+            SaveBackupPatch.Monitor = monitor;
         }
 
 
@@ -40,11 +44,10 @@ namespace StardewModdingAPI.Patches
             MethodInfo makeFullBackup = AccessTools.Method(typeof(Game1), nameof(Game1.MakeFullBackup));
             MethodInfo saveWholeBackup = AccessTools.Method(typeof(Game1), nameof(Game1.saveWholeBackup));
 
-            MethodInfo prefix = AccessTools.Method(this.GetType(), nameof(SaveBackupPatch.Prefix));
-            MethodInfo postfix = AccessTools.Method(this.GetType(), nameof(SaveBackupPatch.PostFix));
+            MethodInfo prefix = AccessTools.Method(this.GetType(), nameof(SaveBackupPatch.GameSave_Prefix));
 
-            harmony.Patch(makeFullBackup, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
-            harmony.Patch(saveWholeBackup, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
+            harmony.Patch(makeFullBackup, new HarmonyMethod(prefix));
+            harmony.Patch(saveWholeBackup, new HarmonyMethod(prefix));
         }
 
 
@@ -54,14 +57,28 @@ namespace StardewModdingAPI.Patches
         /// <summary>The method to call instead of <see cref="StardewValley.Object.getDescription"/>.</summary>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony.")]
-        private static void Prefix()
+        private static bool GameSave_Prefix(MethodInfo __originalMethod)
         {
+            const string key = nameof(SaveBackupPatch.GameSave_Prefix);
+            if (!PatchHelper.StartIntercept(key))
+                return true;
             SaveBackupPatch.Events.Saving.RaiseEmpty();
+            try
+            {
+                __originalMethod.Invoke(null, new object[] { });
+            }
+            catch (Exception ex)
+            {
+                SaveBackupPatch.Monitor.Log($"Failed to save the game :\n{ex.InnerException ?? ex}", LogLevel.Error);
+                Game1.addHUDMessage(new HUDMessage("An error occurs during save the game.Check the error log for details.", HUDMessage.error_type));
+            }
+            finally
+            {
+                PatchHelper.StopIntercept(key);
+            }
+            SaveBackupPatch.Events.Saved.RaiseEmpty();
+            return false;
         }
 
-        private static void PostFix()
-        {
-            SaveBackupPatch.Events.Saved.RaiseEmpty();
-        }
     }
 }

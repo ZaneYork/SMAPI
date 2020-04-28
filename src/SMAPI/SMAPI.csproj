@@ -401,6 +401,7 @@
     <Compile Include="Mod.cs" />
     <Compile Include="Patches\DialogueErrorPatch.cs" />
     <Compile Include="Patches\EventErrorPatch.cs" />
+    <Compile Include="Patches\OnAppPausePatch.cs" />
     <Compile Include="Patches\SaveGamePatch.cs" />
     <Compile Include="Patches\ThreadSilenceExitPatch.cs" />
     <Compile Include="Patches\LocationSwitchPatch.cs" />

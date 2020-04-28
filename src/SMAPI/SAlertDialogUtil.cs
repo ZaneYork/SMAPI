@@ -2,6 +2,7 @@ using System;
 using Android.App;
 using Android.OS;
 using Java.Lang;
+using Exception = System.Exception;
 
 namespace StardewModdingAPI
 {
@@ -56,14 +57,14 @@ namespace StardewModdingAPI
                     {
                         Looper.Prepare();
                     }
-                    catch
+                    catch (Exception)
                     {
                     }
 
                     Looper.Loop();
                 }
             }
-            catch
+            catch(Exception)
             {
                 // ignored
             }
