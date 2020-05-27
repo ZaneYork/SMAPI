@@ -14,6 +14,7 @@ using StardewModdingAPI.Toolkit.Utilities;
 [assembly: InternalsVisibleTo("SMAPI.Tests")]
 [assembly: InternalsVisibleTo("ConsoleCommands")] // for performance monitoring commands
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // Moq for unit testing
+
 namespace StardewModdingAPI
 {
     /// <summary>The main entry point for SMAPI, responsible for hooking into and launching the game.</summary>
@@ -46,13 +47,14 @@ namespace StardewModdingAPI
             catch (BadImageFormatException ex) when (ex.FileName == "StardewValley")
             {
                 string executableName = Program.GetExecutableAssemblyName();
-                SAlertDialogUtil.AlertMessage($"SMAPI failed to initialize because your game's {executableName}.exe seems to be invalid.\nThis may be a pirated version which modified the executable in an incompatible way; if so, you can try a different download or buy a legitimate version.\n\nTechnical details:\n{ex}");
-                SMainActivity.Instance.Finish();
+                SAlertDialogUtil.AlertMessage(
+                    $"SMAPI failed to initialize because your game's {executableName}.exe seems to be invalid.\nThis may be a pirated version which modified the executable in an incompatible way; if so, you can try a different download or buy a legitimate version.\n\nTechnical details:\n{ex}",
+                    callback: type => { SMainActivity.Instance.Finish(); });
             }
             catch (Exception ex)
             {
-                SAlertDialogUtil.AlertMessage($"SMAPI failed to initialize: {ex}");
-                SMainActivity.Instance.Finish();
+                SAlertDialogUtil.AlertMessage($"SMAPI failed to initialize: {ex}",
+                    callback: type => { SMainActivity.Instance.Finish(); });
             }
         }
 
@@ -63,8 +65,8 @@ namespace StardewModdingAPI
         {
             if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
             {
-                SAlertDialogUtil.AlertMessage($"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI.");
-                SMainActivity.Instance.Finish();
+                SAlertDialogUtil.AlertMessage($"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI.",
+                    callback: type => SMainActivity.Instance.Finish());
             }
         }
 
@@ -81,6 +83,7 @@ namespace StardewModdingAPI
                     if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.InvariantCultureIgnoreCase))
                         return Assembly.LoadFrom(dll.FullName);
                 }
+
                 return null;
             }
             catch (Exception ex)
@@ -115,7 +118,6 @@ namespace StardewModdingAPI
             // max version
             else if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
                 Program.PrintErrorAndExit($"Oops! You're running Stardew Valley {Constants.GameVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI: https://smapi.io.");
-
         }
 
         /// <summary>Get the game's executable assembly name.</summary>

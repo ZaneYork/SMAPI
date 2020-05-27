@@ -60,8 +60,9 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>Extract mod metadata from the wiki compatibility list.</summary>
         public async Task<WikiModList> GetWikiCompatibilityListAsync()
         {
-            var client = new WikiClient(this.UserAgent);
-            return await client.FetchModsAsync();
+            // var client = new WikiClient(this.UserAgent);
+            // return await client.FetchModsAsync();
+            return null;
         }
 
         /// <summary>Get SMAPI's internal mod database.</summary>

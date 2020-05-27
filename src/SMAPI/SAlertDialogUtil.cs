@@ -10,15 +10,28 @@ namespace StardewModdingAPI
     {
         internal enum ActionType
         {
-            POSITIVE, NEGATIVE
+            POSITIVE,
+            NEGATIVE
         }
+
         public static void AlertMessage(string message, string title = "Error",
             string positive = null, string negative = null,
             Action<ActionType> callback = null)
         {
             try
             {
-                Handler handler = new Handler((msg) => throw new RuntimeException());
+                SMainActivity.Instance.RunOnUiThread(() => SAlertDialogUtil.ShowDialog(message, title, positive, negative, callback));
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
+        private static void ShowDialog(string message, string title, string positive, string negative, Action<ActionType> callback)
+        {
+            try
+            {
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SMainActivity.Instance)
                     .SetTitle(title)
                     .SetMessage(message)
@@ -27,7 +40,6 @@ namespace StardewModdingAPI
                 {
                     dialogBuilder.SetPositiveButton(positive, (sender, args) =>
                     {
-                        handler.SendEmptyMessage(0);
                         callback?.Invoke(ActionType.POSITIVE);
                     });
                 }
@@ -36,7 +48,6 @@ namespace StardewModdingAPI
                 {
                     dialogBuilder.SetNegativeButton(negative, (sender, args) =>
                     {
-                        handler.SendEmptyMessage(0);
                         callback?.Invoke(ActionType.NEGATIVE);
                     });
                 }
@@ -44,7 +55,6 @@ namespace StardewModdingAPI
                 {
                     dialogBuilder.SetPositiveButton("OK", (sender, args) =>
                     {
-                        handler.SendEmptyMessage(0);
                         callback?.Invoke(ActionType.POSITIVE);
                     });
                 }
@@ -53,18 +63,9 @@ namespace StardewModdingAPI
                 if (!SMainActivity.Instance.IsFinishing)
                 {
                     dialog.Show();
-                    try
-                    {
-                        Looper.Prepare();
-                    }
-                    catch (Exception)
-                    {
-                    }
-
-                    Looper.Loop();
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 // ignored
             }

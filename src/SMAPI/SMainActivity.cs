@@ -14,7 +14,6 @@ using StardewValley;
 using System.Reflection;
 using Android.Content.Res;
 using Java.Interop;
-using System.Threading;
 using System.Linq;
 using System.IO;
 using File = Java.IO.File;
@@ -22,11 +21,14 @@ using Microsoft.AppCenter;
 using Newtonsoft.Json;
 using Microsoft.AppCenter.Crashes;
 using Android.Content;
+using Java.Lang;
+using Exception = System.Exception;
+using Thread = System.Threading.Thread;
 
 namespace StardewModdingAPI
 {
     [Activity(Label = "SMAPI Stardew Valley", Icon = "@mipmap/ic_launcher", Theme = "@style/Theme.Splash", MainLauncher = true, AlwaysRetainTaskState = true, LaunchMode = LaunchMode.SingleInstance, ScreenOrientation = ScreenOrientation.SensorLandscape, ConfigurationChanges = (ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.Orientation | ConfigChanges.ScreenLayout | ConfigChanges.ScreenSize | ConfigChanges.UiMode))]
-#if ANDROID_TARGET_SAMSUNG
+#if !ANDROID_TARGET_GOOGLE
     public class SMainActivity: MainActivity
 #else
     public class SMainActivity : MainActivity, ILicenseCheckerCallback, IJavaObject, IDisposable, IJavaPeerable
@@ -34,7 +36,7 @@ namespace StardewModdingAPI
     {
         private SCore core;
         private LicenseChecker _licenseChecker;
-#if !ANDROID_TARGET_SAMSUNG
+#if ANDROID_TARGET_GOOGLE
         private ServerManagedPolicyExtended _serverManagedPolicyExtended;
 #endif
 
@@ -45,13 +47,13 @@ namespace StardewModdingAPI
             get
             {
                 return this.PackageManager.CheckPermission("android.permission.ACCESS_NETWORK_STATE", this.PackageName) == Permission.Granted
-                    && this.PackageManager.CheckPermission("android.permission.ACCESS_WIFI_STATE", this.PackageName) == Permission.Granted
-                    && this.PackageManager.CheckPermission("android.permission.INTERNET", this.PackageName) == Permission.Granted
-                    && this.PackageManager.CheckPermission("android.permission.READ_EXTERNAL_STORAGE", this.PackageName) == Permission.Granted
-                    && this.PackageManager.CheckPermission("android.permission.VIBRATE", this.PackageName) == Permission.Granted
-                    && this.PackageManager.CheckPermission("android.permission.WAKE_LOCK", this.PackageName) == Permission.Granted
-                    && this.PackageManager.CheckPermission("android.permission.WRITE_EXTERNAL_STORAGE", this.PackageName) == Permission.Granted
-                    && this.PackageManager.CheckPermission("com.android.vending.CHECK_LICENSE", this.PackageName) == Permission.Granted;
+                       && this.PackageManager.CheckPermission("android.permission.ACCESS_WIFI_STATE", this.PackageName) == Permission.Granted
+                       && this.PackageManager.CheckPermission("android.permission.INTERNET", this.PackageName) == Permission.Granted
+                       && this.PackageManager.CheckPermission("android.permission.READ_EXTERNAL_STORAGE", this.PackageName) == Permission.Granted
+                       && this.PackageManager.CheckPermission("android.permission.VIBRATE", this.PackageName) == Permission.Granted
+                       && this.PackageManager.CheckPermission("android.permission.WAKE_LOCK", this.PackageName) == Permission.Granted
+                       && this.PackageManager.CheckPermission("android.permission.WRITE_EXTERNAL_STORAGE", this.PackageName) == Permission.Granted
+                       && this.PackageManager.CheckPermission("com.android.vending.CHECK_LICENSE", this.PackageName) == Permission.Granted;
             }
         }
 
@@ -79,6 +81,7 @@ namespace StardewModdingAPI
                         list.Add(this.requiredPermissions[i]);
                     }
                 }
+
                 return list.ToArray();
             }
         }
@@ -91,6 +94,7 @@ namespace StardewModdingAPI
             {
                 this.Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
             }
+
             this.Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
             this.Window.SetFlags(WindowManagerFlags.KeepScreenOn, WindowManagerFlags.KeepScreenOn);
 
@@ -98,11 +102,19 @@ namespace StardewModdingAPI
             try
             {
                 File errorLog = this.FilesDir.ListFiles().FirstOrDefault(f => f.IsDirectory && f.Name == "error")?.ListFiles().FirstOrDefault(f => f.Name.EndsWith(".dat"));
-                if (errorLog != null)
+                try
                 {
-                    SAlertDialogUtil.AlertMessage(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected");
+                    Handler handler = new Handler((msg) => throw new RuntimeException());
+                    SAlertDialogUtil.AlertMessage(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected",
+                        callback: type => { handler.SendEmptyMessage(0); });
+                    Looper.Loop();
                 }
-                Type[] services = { typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes) };
+                catch (Exception)
+                {
+                    // ignored
+                }
+
+                Type[] services = {typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes)};
                 AppCenter.Start(Constants.MicrosoftAppSecret, services);
                 AppCenter.SetUserId(Constants.ApiVersion.ToString());
             }
@@ -110,7 +122,6 @@ namespace StardewModdingAPI
             {
                 // ignored
             }
-
             base.OnCreate(bundle);
             this.CheckAppPermissions();
         }
@@ -129,16 +140,22 @@ namespace StardewModdingAPI
                     modPath = settings.ModsPath;
                     Constants.MonoModInit = !settings.DisableMonoMod;
                 }
+
                 if (string.IsNullOrWhiteSpace(modPath))
                 {
                     modPath = "StardewValley/Mods";
                 }
+
                 this.core = new SCore(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, modPath), false);
                 this.core.RunInteractively();
-
+                Game1 game1 = (Game1) typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(this);
+                if (game1 != null)
+                {
+                    game1.Exit();
+                }
                 typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.GameInstance);
 
-                this.SetContentView((View)this.core.GameInstance.Services.GetService(typeof(View)));
+                this.SetContentView((View) this.core.GameInstance.Services.GetService(typeof(View)));
 
                 this.CheckUsingServerManagedPolicy();
             }
@@ -154,9 +171,12 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                SAlertDialogUtil.AlertMessage($"SMAPI failed to initialize: {ex}");
-                Crashes.TrackError(ex);
-                this.Finish();
+                SAlertDialogUtil.AlertMessage($"SMAPI failed to initialize: {ex}",
+                    callback: type =>
+                    {
+                        Crashes.TrackError(ex);
+                        this.Finish();
+                    });
             }
         }
 
@@ -179,7 +199,10 @@ namespace StardewModdingAPI
             {
                 base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
             }
-            catch (ActivityNotFoundException) { }
+            catch (ActivityNotFoundException)
+            {
+            }
+
             if (this.HasPermissions)
                 this.OnCreatePartTwo();
         }
@@ -187,7 +210,7 @@ namespace StardewModdingAPI
 
         private void CheckUsingServerManagedPolicy()
         {
-#if !ANDROID_TARGET_SAMSUNG
+#if ANDROID_TARGET_GOOGLE
             this._serverManagedPolicyExtended = new ServerManagedPolicyExtended(this, new AESObfuscator(new byte[15]
             {
                 46,
@@ -211,7 +234,7 @@ namespace StardewModdingAPI
 #endif
         }
 
-#if !ANDROID_TARGET_SAMSUNG
+#if ANDROID_TARGET_GOOGLE
         public new void Allow(PolicyResponse response)
         {
             typeof(MainActivity).GetMethod("CheckToDownloadExpansion", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(this, null);
@@ -230,29 +253,5 @@ namespace StardewModdingAPI
             }
         }
 #endif
-        protected override void OnResume()
-        {
-            base.OnResume();
-        }
-
-        protected override void OnPause()
-        {
-            base.OnPause();
-        }
-
-        protected override void OnStop()
-        {
-            base.OnStop();
-        }
-
-        public override void OnWindowFocusChanged(bool hasFocus)
-        {
-            base.OnWindowFocusChanged(hasFocus);
-        }
-
-        public override void OnConfigurationChanged(Configuration newConfig)
-        {
-            base.OnConfigurationChanged(newConfig);
-        }
     }
 }
