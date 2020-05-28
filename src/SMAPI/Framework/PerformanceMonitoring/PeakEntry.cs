@@ -3,7 +3,7 @@ using System;
 namespace StardewModdingAPI.Framework.PerformanceMonitoring
 {
     /// <summary>A peak invocation time.</summary>
-    internal struct PeakEntry
+    internal readonly struct PeakEntry
     {
         /*********
         ** Accessors

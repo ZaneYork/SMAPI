@@ -1,21 +1,24 @@
 using System;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using StardewModdingAPI.Framework.ModLoading.Finders;
+using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
     /// <summary>Rewrites field references into property references.</summary>
-    internal class FieldToPropertyRewriter : FieldFinder
+    internal class FieldToPropertyRewriter : BaseInstructionHandler
     {
         /*********
         ** Fields
         *********/
-        /// <summary>The type whose field to which references should be rewritten.</summary>
+        /// <summary>The type containing the field to which references should be rewritten.</summary>
         private readonly Type Type;
 
-        /// <summary>The property name.</summary>
-        private readonly string PropertyName;
+        /// <summary>The field name to which references should be rewritten.</summary>
+        private readonly string FromFieldName;
+
+        /// <summary>The new property name.</summary>
+        private readonly string ToPropertyName;
 
 
         /*********
@@ -26,10 +29,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="fieldName">The field name to rewrite.</param>
         /// <param name="propertyName">The property name (if different).</param>
         public FieldToPropertyRewriter(Type type, string fieldName, string propertyName)
-            : base(type.FullName, fieldName, InstructionHandleResult.None)
+            : base(defaultPhrase: $"{type.FullName}.{fieldName} field")
         {
             this.Type = type;
-            this.PropertyName = propertyName;
+            this.FromFieldName = fieldName;
+            this.ToPropertyName = propertyName;
         }
 
         /// <summary>Construct an instance.</summary>
@@ -38,22 +42,24 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         public FieldToPropertyRewriter(Type type, string fieldName)
             : this(type, fieldName, fieldName) { }
 
-        /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
+        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The instruction to handle.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        /// <param name="instruction">The CIL instruction to handle.</param>
+        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
+        /// <returns>Returns whether the instruction was changed.</returns>
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
-            if (!this.IsMatch(instruction))
-                return InstructionHandleResult.None;
+            // get field ref
+            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+            if (!RewriteHelper.IsFieldReferenceTo(fieldRef, this.Type.FullName, this.FromFieldName))
+                return false;
 
+            // replace with property
             string methodPrefix = instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld ? "get" : "set";
-            MethodReference propertyRef = module.ImportReference(this.Type.GetMethod($"{methodPrefix}_{this.PropertyName}"));
-            cil.Replace(instruction, cil.Create(OpCodes.Call, propertyRef));
-
-            return InstructionHandleResult.Rewritten;
+            MethodReference propertyRef = module.ImportReference(this.Type.GetMethod($"{methodPrefix}_{this.ToPropertyName}"));
+            replaceWith(cil.Create(OpCodes.Call, propertyRef));
+            return this.MarkRewritten();
         }
     }
 }

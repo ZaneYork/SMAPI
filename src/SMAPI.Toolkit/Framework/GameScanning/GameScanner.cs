@@ -124,8 +124,8 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
             XElement root;
             try
             {
-                using (FileStream stream = file.OpenRead())
-                    root = XElement.Load(stream);
+                using FileStream stream = file.OpenRead();
+                root = XElement.Load(stream);
             }
             catch
             {

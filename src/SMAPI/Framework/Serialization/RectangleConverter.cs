@@ -39,7 +39,7 @@ namespace StardewModdingAPI.Framework.Serialization
 
             var match = Regex.Match(str, @"^\{X:(?<x>\d+) Y:(?<y>\d+) Width:(?<width>\d+) Height:(?<height>\d+)\}$", RegexOptions.IgnoreCase);
             if (!match.Success)
-                throw new SParseException($"Can't parse {typeof(Rectangle).Name} from invalid value '{str}' (path: {path}).");
+                throw new SParseException($"Can't parse {nameof(Rectangle)} from invalid value '{str}' (path: {path}).");
 
             int x = Convert.ToInt32(match.Groups["x"].Value);
             int y = Convert.ToInt32(match.Groups["y"].Value);

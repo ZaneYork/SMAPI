@@ -1,6 +1,6 @@
 using System;
+using HarmonyLib;
 using Android.OS;
-using Harmony;
 using MonoMod.RuntimeDetour;
 
 namespace StardewModdingAPI.Framework.Patching
@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Framework.Patching
                 catch { Constants.MonoModInit = false; }
             }
 
-            HarmonyInstance harmony = HarmonyInstance.Create("io.smapi");
+            Harmony harmony = new Harmony("io.smapi");
             foreach (IHarmonyPatch patch in patches)
             {
                 try

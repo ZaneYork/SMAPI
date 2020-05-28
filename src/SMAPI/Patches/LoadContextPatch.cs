@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Harmony;
+using HarmonyLib;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Patches
 
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        public void Apply(HarmonyInstance harmony)
+        public void Apply(Harmony harmony)
         {
             // detect CreatedBasicInfo
             harmony.Patch(

@@ -3,7 +3,7 @@ using System;
 namespace StardewModdingAPI.Framework.PerformanceMonitoring
 {
     /// <summary>A single performance counter entry.</summary>
-    internal struct PerformanceCounterEntry
+    internal readonly struct PerformanceCounterEntry
     {
         /*********
         ** Accessors

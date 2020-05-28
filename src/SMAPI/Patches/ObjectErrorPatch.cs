@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using Harmony;
+using HarmonyLib;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
 using StardewValley.Menus;
@@ -27,7 +27,7 @@ namespace StardewModdingAPI.Patches
         *********/
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        public void Apply(HarmonyInstance harmony)
+        public void Apply(Harmony harmony)
         {
             // object.getDescription
             harmony.Patch(
@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Patches
             // object.getDisplayName
             harmony.Patch(
                 original: AccessTools.Method(typeof(SObject), "loadDisplayName"),
-                prefix: new HarmonyMethod(this.GetType(), nameof(ObjectErrorPatch.Before_Object_loadDisplayName))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(ObjectErrorPatch.Finalize_Object_loadDisplayName))
             );
 
             // IClickableMenu.drawToolTip
@@ -68,42 +68,25 @@ namespace StardewModdingAPI.Patches
             return true;
         }
 
-        /// <summary>The method to call instead of <see cref="StardewValley.Object.loadDisplayName"/>.</summary>
-        /// <param name="__instance">The instance being patched.</param>
+        /// <summary>The method to call after <see cref="StardewValley.Object.loadDisplayName"/>.</summary>
         /// <param name="__result">The patched method's return value.</param>
-        /// <param name="__originalMethod">The method being wrapped.</param>
-        /// <returns>Returns whether to execute the original method.</returns>
-        private static bool Before_Object_loadDisplayName(SObject __instance, ref string __result, MethodInfo __originalMethod)
+        /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
+        /// <returns>Returns the exception to throw, if any.</returns>
+        private static Exception Finalize_Object_loadDisplayName(ref string __result, Exception __exception)
         {
-            const string key = nameof(Before_Object_loadDisplayName);
-            if (!PatchHelper.StartIntercept(key))
-                return true;
-
-            try
-            {
-                __result = (string)__originalMethod.Invoke(__instance, new object[0]);
-                return false;
-            }
-            catch (TargetInvocationException ex) when (ex.InnerException is KeyNotFoundException)
+            if (__exception is KeyNotFoundException)
             {
                 __result = "???";
-                return false;
+                return null;
             }
-            catch
-            {
-                return true;
-            }
-            finally
-            {
-                PatchHelper.StopIntercept(key);
-            }
+
+            return __exception;
         }
 
         /// <summary>The method to call instead of <see cref="IClickableMenu.drawToolTip"/>.</summary>
-        /// <param name="__instance">The instance being patched.</param>
         /// <param name="hoveredItem">The item for which to draw a tooltip.</param>
         /// <returns>Returns whether to execute the original method.</returns>
-        private static bool Before_IClickableMenu_DrawTooltip(IClickableMenu __instance, Item hoveredItem)
+        private static bool Before_IClickableMenu_DrawTooltip(Item hoveredItem)
         {
             // invalid edible item cause crash when drawing tooltips
             if (hoveredItem is SObject obj && obj.Edibility != -300 && !Game1.objectInformation.ContainsKey(obj.ParentSheetIndex))

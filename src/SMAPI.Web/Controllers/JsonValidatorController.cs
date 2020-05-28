@@ -275,21 +275,20 @@ namespace StardewModdingAPI.Web.Controllers
                 errors = new Dictionary<string, string>(errors, StringComparer.InvariantCultureIgnoreCase);
 
                 // match error by type and message
-                foreach (var pair in errors)
+                foreach ((string target, string errorMessage) in errors)
                 {
-                    if (!pair.Key.Contains(":"))
+                    if (!target.Contains(":"))
                         continue;
 
-                    string[] parts = pair.Key.Split(':', 2);
+                    string[] parts = target.Split(':', 2);
                     if (parts[0].Equals(error.ErrorType.ToString(), StringComparison.InvariantCultureIgnoreCase) && Regex.IsMatch(error.Message, parts[1]))
-                        return pair.Value?.Trim();
+                        return errorMessage?.Trim();
                 }
 
                 // match by type
-                if (errors.TryGetValue(error.ErrorType.ToString(), out string message))
-                    return message?.Trim();
-
-                return null;
+                return errors.TryGetValue(error.ErrorType.ToString(), out string message)
+                    ? message?.Trim()
+                    : null;
             }
 
             return GetRawOverrideError()
@@ -304,10 +303,10 @@ namespace StardewModdingAPI.Web.Controllers
         {
             if (schema.ExtensionData != null)
             {
-                foreach (var pair in schema.ExtensionData)
+                foreach ((string curKey, JToken value) in schema.ExtensionData)
                 {
-                    if (pair.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase))
-                        return pair.Value.ToObject<T>();
+                    if (curKey.Equals(key, StringComparison.InvariantCultureIgnoreCase))
+                        return value.ToObject<T>();
                 }
             }
 
@@ -318,14 +317,11 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="value">The value to format.</param>
         private string FormatValue(object value)
         {
-            switch (value)
+            return value switch
             {
-                case List<string> list:
-                    return string.Join(", ", list);
-
-                default:
-                    return value?.ToString() ?? "null";
-            }
+                List<string> list => string.Join(", ", list),
+                _ => value?.ToString() ?? "null"
+            };
         }
     }
 }

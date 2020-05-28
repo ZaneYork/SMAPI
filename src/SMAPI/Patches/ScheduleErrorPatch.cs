@@ -1,7 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using Harmony;
+using HarmonyLib;
+using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
 
@@ -39,11 +40,11 @@ namespace StardewModdingAPI.Patches
 
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        public void Apply(HarmonyInstance harmony)
+        public void Apply(Harmony harmony)
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(NPC), "parseMasterSchedule"),
-                prefix: new HarmonyMethod(this.GetType(), nameof(ScheduleErrorPatch.Before_NPC_parseMasterSchedule))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(ScheduleErrorPatch.Finalize_NPC_parseMasterSchedule))
             );
         }
 
@@ -55,29 +56,17 @@ namespace StardewModdingAPI.Patches
         /// <param name="rawData">The raw schedule data to parse.</param>
         /// <param name="__instance">The instance being patched.</param>
         /// <param name="__result">The patched method's return value.</param>
-        /// <param name="__originalMethod">The method being wrapped.</param>
-        /// <returns>Returns whether to execute the original method.</returns>
-        private static bool Before_NPC_parseMasterSchedule(string rawData, NPC __instance, ref Dictionary<int, SchedulePathDescription> __result, MethodInfo __originalMethod)
+        /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
+        /// <returns>Returns the exception to throw, if any.</returns>
+        private static Exception Finalize_NPC_parseMasterSchedule(string rawData, NPC __instance, ref Dictionary<int, SchedulePathDescription> __result, Exception __exception)
         {
-            const string key = nameof(Before_NPC_parseMasterSchedule);
-            if (!PatchHelper.StartIntercept(key))
-                return true;
-
-            try
+            if (__exception != null)
             {
-                __result = (Dictionary<int, SchedulePathDescription>)__originalMethod.Invoke(__instance, new object[] { rawData });
-                return false;
-            }
-            catch (TargetInvocationException ex)
-            {
-                ScheduleErrorPatch.MonitorForGame.Log($"Failed parsing schedule for NPC {__instance.Name}:\n{rawData}\n{ex.InnerException ?? ex}", LogLevel.Error);
+                ScheduleErrorPatch.MonitorForGame.Log($"Failed parsing schedule for NPC {__instance.Name}:\n{rawData}\n{__exception.GetLogSummary()}", LogLevel.Error);
                 __result = new Dictionary<int, SchedulePathDescription>();
-                return false;
             }
-            finally
-            {
-                PatchHelper.StopIntercept(key);
-            }
+
+            return null;
         }
     }
 }

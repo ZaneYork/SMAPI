@@ -44,7 +44,7 @@ namespace StardewModdingAPI
                 Program.AssertAndroidGameVersion();
                 //Program.Start(args);
             }
-            catch (BadImageFormatException ex) when (ex.FileName == "StardewValley")
+            catch (BadImageFormatException ex) when (ex.FileName == "StardewValley" || ex.FileName == "Stardew Valley") // NOTE: don't use StardewModdingAPI.Constants here, assembly resolution isn't hooked up at this point
             {
                 string executableName = Program.GetExecutableAssemblyName();
                 SAlertDialogUtil.AlertMessage(

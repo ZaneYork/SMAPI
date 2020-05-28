@@ -30,10 +30,7 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// <summary>Detect the current OS.</summary>
         public static Platform DetectPlatform()
         {
-            if (EnvironmentUtility.CachedPlatform == null)
-                EnvironmentUtility.CachedPlatform = EnvironmentUtility.DetectPlatformImpl();
-
-            return EnvironmentUtility.CachedPlatform.Value;
+            return EnvironmentUtility.CachedPlatform ??= EnvironmentUtility.DetectPlatformImpl();
         }
 
 

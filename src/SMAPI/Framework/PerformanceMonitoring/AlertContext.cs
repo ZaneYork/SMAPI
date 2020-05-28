@@ -1,7 +1,7 @@
 namespace StardewModdingAPI.Framework.PerformanceMonitoring
 {
     /// <summary>The context for an alert.</summary>
-    internal struct AlertContext
+    internal readonly struct AlertContext
     {
         /*********
         ** Accessors

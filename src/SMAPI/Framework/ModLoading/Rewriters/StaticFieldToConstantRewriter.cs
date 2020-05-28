@@ -1,17 +1,23 @@
 using System;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using StardewModdingAPI.Framework.ModLoading.Finders;
+using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
     /// <summary>Rewrites static field references into constant values.</summary>
     /// <typeparam name="TValue">The constant value type.</typeparam>
-    internal class StaticFieldToConstantRewriter<TValue> : FieldFinder
+    internal class StaticFieldToConstantRewriter<TValue> : BaseInstructionHandler
     {
         /*********
         ** Fields
         *********/
+        /// <summary>The type containing the field to which references should be rewritten.</summary>
+        private readonly Type Type;
+
+        /// <summary>The field name to which references should be rewritten.</summary>
+        private readonly string FromFieldName;
+
         /// <summary>The constant value to replace with.</summary>
         private readonly TValue Value;
 
@@ -24,24 +30,29 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="fieldName">The field name to rewrite.</param>
         /// <param name="value">The constant value to replace with.</param>
         public StaticFieldToConstantRewriter(Type type, string fieldName, TValue value)
-            : base(type.FullName, fieldName, InstructionHandleResult.None)
+            : base(defaultPhrase: $"{type.FullName}.{fieldName} field")
         {
+            this.Type = type;
+            this.FromFieldName = fieldName;
             this.Value = value;
         }
 
-        /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
+        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The instruction to handle.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        /// <param name="instruction">The CIL instruction to handle.</param>
+        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
+        /// <returns>Returns whether the instruction was changed.</returns>
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
-            if (!this.IsMatch(instruction))
-                return InstructionHandleResult.None;
+            // get field reference
+            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+            if (!RewriteHelper.IsFieldReferenceTo(fieldRef, this.Type.FullName, this.FromFieldName))
+                return false;
 
-            cil.Replace(instruction, this.CreateConstantInstruction(cil, this.Value));
-            return InstructionHandleResult.Rewritten;
+            // rewrite to constant
+            replaceWith(this.CreateConstantInstruction(cil, this.Value));
+            return this.MarkRewritten();
         }
 
 

@@ -153,3 +153,7 @@ table.wikitable > caption {
 #mod-list td.smapi-3-col span {
     border-bottom: 1px dashed gray;
 }
+
+#mod-list .license-badge {
+    vertical-align: middle;
+}

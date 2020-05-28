@@ -1,4 +1,4 @@
-using Harmony;
+using HarmonyLib;
 
 namespace StardewModdingAPI.Framework.Patching
 {
@@ -10,6 +10,6 @@ namespace StardewModdingAPI.Framework.Patching
 
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        void Apply(HarmonyInstance harmony);
+        void Apply(Harmony harmony);
     }
 }

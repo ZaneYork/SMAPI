@@ -11,9 +11,9 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
             "type": "string",
-            "const": "1.13.0",
+            "const": "1.14.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.13.0'."
+                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.14.0'."
             }
         },
         "ConfigSchema": {

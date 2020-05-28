@@ -45,7 +45,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         private readonly Regex ModUpdateListEntryPattern = new Regex(@"^   (?<name>.+?) (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's update line.</summary>
-        private readonly Regex SMAPIUpdatePattern = new Regex(@"^You can update SMAPI to (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex SmapiUpdatePattern = new Regex(@"^You can update SMAPI to (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 
         /*********
@@ -181,9 +181,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             message.Section = LogSection.ModUpdateList;
                         }
 
-                        else if (message.Level == LogLevel.Alert && this.SMAPIUpdatePattern.IsMatch(message.Text))
+                        else if (message.Level == LogLevel.Alert && this.SmapiUpdatePattern.IsMatch(message.Text))
                         {
-                            Match match = this.SMAPIUpdatePattern.Match(message.Text);
+                            Match match = this.SmapiUpdatePattern.Match(message.Text);
                             string version = match.Groups["version"].Value;
                             string link = match.Groups["link"].Value;
                             smapiMod.UpdateVersion = version;

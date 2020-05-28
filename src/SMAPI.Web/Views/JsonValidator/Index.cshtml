@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="~/Content/css/json-validator.css?r=202002" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tmont/sunlight@1.22.0/src/themes/sunlight.default.min.css" />
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/tmont/sunlight@1.22.0/src/sunlight.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/tmont/sunlight@1.22.0/src/plugins/sunlight-plugin.linenumbers.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/tmont/sunlight@1.22.0/src/lang/sunlight.javascript.min.js" crossorigin="anonymous"></script>
@@ -40,7 +40,7 @@
     <script src="~/Content/js/json-validator.js?r=202002"></script>
     <script>
         $(function() {
-            smapi.jsonValidator(@Json.Serialize(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = "$schemaName", id = "$id" })), @Json.Serialize(Model.PasteID));
+            smapi.jsonValidator(@this.ForJson(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = "$schemaName", id = "$id" })), @this.ForJson(Model.PasteID));
         });
     </script>
 }

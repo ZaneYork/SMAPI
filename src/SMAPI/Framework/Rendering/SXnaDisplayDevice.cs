@@ -10,7 +10,7 @@ using xTile.Layers;
 using xTile.Tiles;
 using Rectangle = xTile.Dimensions.Rectangle;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.Rendering
 {
     /// <summary>A map display device which reimplements the default logic.</summary>
     /// <remarks>This is an exact copy of <see cref="XnaDisplayDevice"/>, except that private fields are protected and all methods are virtual.</remarks>

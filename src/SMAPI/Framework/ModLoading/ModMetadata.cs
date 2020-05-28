@@ -215,13 +215,14 @@ namespace StardewModdingAPI.Framework.ModLoading
             return this.GetUpdateKeys(validOnly: true).Any();
         }
 
-        /// <summary>Get whether the mod has a given warning and it hasn't been suppressed in the <see cref="DataRecord"/>.</summary>
-        /// <param name="warning">The warning to check.</param>
-        public bool HasUnsuppressWarning(ModWarning warning)
+        /// <summary>Get whether the mod has any of the given warnings which haven't been suppressed in the <see cref="IModMetadata.DataRecord"/>.</summary>
+        /// <param name="warnings">The warnings to check.</param>
+        public bool HasUnsuppressedWarnings(params ModWarning[] warnings)
         {
-            return
+            return warnings.Any(warning =>
                 this.Warnings.HasFlag(warning)
-                && (this.DataRecord?.DataRecord == null || !this.DataRecord.DataRecord.SuppressWarnings.HasFlag(warning));
+                && (this.DataRecord?.DataRecord == null || !this.DataRecord.DataRecord.SuppressWarnings.HasFlag(warning))
+            );
         }
 
         /// <summary>Get a relative path which includes the root folder name.</summary>

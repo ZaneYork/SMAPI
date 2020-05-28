@@ -1,5 +1,4 @@
 @using Humanizer
-@using Newtonsoft.Json
 @using StardewModdingAPI.Toolkit.Utilities
 @using StardewModdingAPI.Web.Framework
 @using StardewModdingAPI.Web.Framework.LogParsing.Models
@@ -12,7 +11,6 @@
         .GetValues(typeof(LogLevel))
         .Cast<LogLevel>()
         .ToDictionary(level => level.ToString().ToLower(), level => level != LogLevel.Trace);
-    JsonSerializerSettings noFormatting = new JsonSerializerSettings { Formatting = Formatting.None };
 
     string curPageUrl = this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }, absoluteUrl: true);
 }
@@ -25,19 +23,19 @@
     <link rel="stylesheet" href="~/Content/css/file-upload.css?r=202002" />
     <link rel="stylesheet" href="~/Content/css/log-parser.css?r=202002" />
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1" crossorigin="anonymous"></script>
     <script src="~/Content/js/file-upload.js?r=202002"></script>
     <script src="~/Content/js/log-parser.js?r=202002"></script>
     <script>
         $(function() {
             smapi.logParser({
-                logStarted: new Date(@Json.Serialize(Model.ParsedLog?.Timestamp)),
-                showPopup: @Json.Serialize(Model.ParsedLog == null),
-                showMods: @Json.Serialize(Model.ParsedLog?.Mods?.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, slug => true), noFormatting),
-                showSections: @Json.Serialize(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, section => false), noFormatting),
-                showLevels: @Json.Serialize(defaultFilters, noFormatting),
-                enableFilters: @Json.Serialize(!Model.ShowRaw)
+                logStarted: new Date(@this.ForJson(Model.ParsedLog?.Timestamp)),
+                showPopup: @this.ForJson(Model.ParsedLog == null),
+                showMods: @this.ForJson(Model.ParsedLog?.Mods?.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, slug => true)),
+                showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, section => false)),
+                showLevels: @this.ForJson(defaultFilters),
+                enableFilters: @this.ForJson(!Model.ShowRaw)
             }, '@this.Url.PlainAction("Index", "LogParser", values: null)');
         });
     </script>

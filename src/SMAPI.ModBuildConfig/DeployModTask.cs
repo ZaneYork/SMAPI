@@ -153,23 +153,22 @@ namespace StardewModdingAPI.ModBuildConfig
 
             // create zip file
             Directory.CreateDirectory(outputFolderPath);
-            using (Stream zipStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write))
-            using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
+            using Stream zipStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write);
+            using ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create);
+
+            foreach (var fileEntry in files)
             {
-                foreach (var fileEntry in files)
-                {
-                    string relativePath = fileEntry.Key;
-                    FileInfo file = fileEntry.Value;
+                string relativePath = fileEntry.Key;
+                FileInfo file = fileEntry.Value;
 
-                    // get file info
-                    string filePath = file.FullName;
-                    string entryName = folderName + '/' + relativePath.Replace(Path.DirectorySeparatorChar, '/');
+                // get file info
+                string filePath = file.FullName;
+                string entryName = folderName + '/' + relativePath.Replace(Path.DirectorySeparatorChar, '/');
 
-                    // add to zip
-                    using (Stream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                    using (Stream fileStreamInZip = archive.CreateEntry(entryName).Open())
-                        fileStream.CopyTo(fileStreamInZip);
-                }
+                // add to zip
+                using Stream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                using Stream fileStreamInZip = archive.CreateEntry(entryName).Open();
+                fileStream.CopyTo(fileStreamInZip);
             }
         }
 

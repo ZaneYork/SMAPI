@@ -1,5 +1,3 @@
-/* globals $ */
-
 var smapi = smapi || {};
 var app;
 smapi.modList = function (mods, enableBeta) {

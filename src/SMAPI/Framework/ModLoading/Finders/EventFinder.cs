@@ -1,10 +1,12 @@
+using System;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Finders
 {
     /// <summary>Finds incompatible CIL instructions that reference a given event.</summary>
-    internal class EventFinder : IInstructionHandler
+    internal class EventFinder : BaseInstructionHandler
     {
         /*********
         ** Fields
@@ -20,13 +22,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
 
 
         /*********
-        ** Accessors
-        *********/
-        /// <summary>A brief noun phrase indicating what the instruction finder matches.</summary>
-        public string NounPhrase { get; }
-
-
-        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
@@ -34,34 +29,25 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /// <param name="eventName">The event name for which to find references.</param>
         /// <param name="result">The result to return for matching instructions.</param>
         public EventFinder(string fullTypeName, string eventName, InstructionHandleResult result)
+            : base(defaultPhrase: $"{fullTypeName}.{eventName} event")
         {
             this.FullTypeName = fullTypeName;
             this.EventName = eventName;
             this.Result = result;
-            this.NounPhrase = $"{fullTypeName}.{eventName} event";
         }
 
-        /// <summary>Perform the predefined logic for a method if applicable.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="method">The method definition containing the instruction.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public virtual InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
-        {
-            return InstructionHandleResult.None;
-        }
-
-        /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
+        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The instruction to handle.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public virtual InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        /// <param name="instruction">The CIL instruction to handle.</param>
+        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
+        /// <returns>Returns whether the instruction was changed.</returns>
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
-            return this.IsMatch(instruction)
-                ? this.Result
-                : InstructionHandleResult.None;
+            if (!this.Flags.Contains(this.Result) && this.IsMatch(instruction))
+                this.MarkFlag(this.Result);
+
+            return false;
         }
 
 

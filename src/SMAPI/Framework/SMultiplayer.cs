@@ -231,7 +231,11 @@ namespace StardewModdingAPI.Framework
                         this.AddPeer(peer, canBeHost: false);
                     }
 
+                    // let game handle connection
                     resume();
+
+                    // raise event
+                    this.EventManager.PeerConnected.Raise(new PeerConnectedEventArgs(this.Peers[message.FarmerID]));
                     break;
 
                 // handle mod message

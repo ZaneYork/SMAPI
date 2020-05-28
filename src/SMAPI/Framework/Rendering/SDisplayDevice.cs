@@ -2,7 +2,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using StardewValley;
 using xTile.Dimensions;
 using xTile.Layers;
 using xTile.ObjectModel;
@@ -14,23 +13,13 @@ namespace StardewModdingAPI.Framework.Rendering
     internal class SDisplayDevice : SXnaDisplayDevice
     {
         /*********
-        ** Fields
-        *********/
-        /// <summary>The origin to use when rotating tiles.</summary>
-        private readonly Vector2 RotationOrigin;
-
-
-        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="contentManager">The content manager through which to load tiles.</param>
         /// <param name="graphicsDevice">The graphics device with which to render tiles.</param>
         public SDisplayDevice(ContentManager contentManager, GraphicsDevice graphicsDevice)
-            : base(contentManager, graphicsDevice)
-        {
-            this.RotationOrigin = new Vector2((Game1.tileSize * Game1.pixelZoom) / 2f);
-        }
+            : base(contentManager, graphicsDevice) { }
 
         /// <summary>Draw a tile to the screen.</summary>
         /// <param name="tile">The tile to draw.</param>

@@ -817,9 +817,18 @@ namespace StardewModdingAPI.Metadata
                     where key != null && lookup.Contains(key)
                     select new { Npc = npc, Key = key }
                 )
-                .ToArray();
-            if (!characters.Any())
-                return;
+                .ToList();
+
+            // special case: Gil is a private NPC field on the AdventureGuild class (only used for the portrait)
+            {
+                string gilKey = this.NormalizeAssetNameIgnoringEmpty("Portraits/Gil");
+                if (lookup.Contains(gilKey))
+                {
+                    GameLocation adventureGuild = Game1.getLocationFromName("AdventureGuild");
+                    if (adventureGuild != null)
+                        characters.Add(new { Npc = this.Reflection.GetField<NPC>(adventureGuild, "Gil").GetValue(), Key = gilKey });
+                }
+            }
 
             // update portrait
             foreach (var target in characters)

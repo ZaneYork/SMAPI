@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Harmony;
 
 namespace StardewModdingAPI.Framework.PerformanceMonitoring
 {
@@ -57,7 +56,7 @@ namespace StardewModdingAPI.Framework.PerformanceMonitoring
             // add entry
             if (this.Entries.Count > this.MaxEntries)
                 this.Entries.Pop();
-            this.Entries.Add(entry);
+            this.Entries.Push(entry);
 
             // update metrics
             if (this.PeakPerformanceCounterEntry == null || entry.ElapsedMilliseconds > this.PeakPerformanceCounterEntry.Value.ElapsedMilliseconds)

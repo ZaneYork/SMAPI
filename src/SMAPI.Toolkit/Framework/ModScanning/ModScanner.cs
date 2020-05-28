@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         {
             // OS metadata files
             new Regex(@"^__folder_managed_by_vortex$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Vortex mod manager
-            new Regex(@"^(?:__MACOSX|\._\.DS_Store|\.DS_Store|mcs)$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // MacOS
+            new Regex(@"(?:^\._|^\.DS_Store$|^__MACOSX$|^mcs$)", RegexOptions.Compiled | RegexOptions.IgnoreCase), // MacOS
             new Regex(@"^(?:desktop\.ini|Thumbs\.db)$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Windows
             new Regex(@"\.(?:url|lnk)$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Windows shortcut files
 

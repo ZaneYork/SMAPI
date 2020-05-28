@@ -89,19 +89,16 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Get the equivalent state.</summary>
         public MouseState GetState()
         {
-            if (this.State == null)
-            {
-                this.State = new MouseState(
-                    x: this.X,
-                    y: this.Y,
-                    scrollWheel: this.ScrollWheelValue,
-                    leftButton: this.ButtonStates[SButton.MouseLeft],
-                    middleButton: this.ButtonStates[SButton.MouseMiddle],
-                    rightButton: this.ButtonStates[SButton.MouseRight],
-                    xButton1: this.ButtonStates[SButton.MouseX1],
-                    xButton2: this.ButtonStates[SButton.MouseX2]
-                );
-            }
+            this.State ??= new MouseState(
+                x: this.X,
+                y: this.Y,
+                scrollWheel: this.ScrollWheelValue,
+                leftButton: this.ButtonStates[SButton.MouseLeft],
+                middleButton: this.ButtonStates[SButton.MouseMiddle],
+                rightButton: this.ButtonStates[SButton.MouseRight],
+                xButton1: this.ButtonStates[SButton.MouseX1],
+                xButton2: this.ButtonStates[SButton.MouseX2]
+            );
 
             return this.State.Value;
         }

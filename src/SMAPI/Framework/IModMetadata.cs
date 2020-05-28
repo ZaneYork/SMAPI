@@ -112,9 +112,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the mod has at least one valid update key set.</summary>
         bool HasValidUpdateKeys();
 
-        /// <summary>Get whether the mod has a given warning and it hasn't been suppressed in the <see cref="DataRecord"/>.</summary>
-        /// <param name="warning">The warning to check.</param>
-        bool HasUnsuppressWarning(ModWarning warning);
+        /// <summary>Get whether the mod has any of the given warnings which haven't been suppressed in the <see cref="DataRecord"/>.</summary>
+        /// <param name="warnings">The warnings to check.</param>
+        bool HasUnsuppressedWarnings(params ModWarning[] warnings);
 
         /// <summary>Get a relative path which includes the root folder name.</summary>
         string GetRelativePathWithRoot();

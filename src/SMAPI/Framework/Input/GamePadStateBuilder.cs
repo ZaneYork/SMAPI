@@ -205,16 +205,13 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Get the equivalent state.</summary>
         public GamePadState GetState()
         {
-            if (this.State == null)
-            {
-                this.State = new GamePadState(
-                    leftThumbStick: this.LeftStickPos,
-                    rightThumbStick: this.RightStickPos,
-                    leftTrigger: this.LeftTrigger,
-                    rightTrigger: this.RightTrigger,
-                    buttons: this.GetButtonBitmask() // MonoGame requires one bitmask here; don't specify multiple values
-                );
-            }
+            this.State ??= new GamePadState(
+                leftThumbStick: this.LeftStickPos,
+                rightThumbStick: this.RightStickPos,
+                leftTrigger: this.LeftTrigger,
+                rightTrigger: this.RightTrigger,
+                buttons: this.GetButtonBitmask() // MonoGame requires one bitmask here; don't specify multiple values
+            );
 
             return this.State.Value;
         }
