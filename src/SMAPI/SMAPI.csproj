@@ -17,14 +17,14 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
     <TargetFrameworkVersion>v9.0</TargetFrameworkVersion>
-    <DefineConstants>$(DefineConstants);ANDROID_TARGET_SAMSUNG</DefineConstants>
+    <DefineConstants>$(DefineConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_AMAZON</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_GOOGLE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>8.0</LangVersion>
@@ -34,7 +34,9 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_GOOGLE</DefineConstants>
+<!--    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_GOOGLE</DefineConstants>-->
+<!--    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_SAMSUNG</DefineConstants>-->
+    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_AMAZON</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>8.0</LangVersion>
