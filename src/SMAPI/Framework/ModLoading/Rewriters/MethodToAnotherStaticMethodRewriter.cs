@@ -39,23 +39,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             this.ToMethod = toMethod;
         }
 
-        /// <summary>Perform the predefined logic for a method if applicable.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="method">The method definition containing the instruction.</param>
-        /// <param name="replaceWith">Replaces the type reference with a new one.</param>
-        /// <returns>Returns whether the type was changed.</returns>
-        public InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, Action<Instruction> replaceWith)
-        {
-            return InstructionHandleResult.None;
-        }
-
         /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
         /// <param name="instruction">The instruction to handle.</param>
         /// <param name="replaceWith">Replaces the type reference with a new one.</param>
         /// <returns>Returns whether the type was changed.</returns>
-        public bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
             if (!this.IsMatch(instruction))
                 return false;
@@ -75,6 +65,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             return
                 methodRef != null
+                && methodRef.DeclaringType.FullName == this.FromType.FullName
                 && this.FromMethodSelector.Invoke(methodRef);
         }
     }
