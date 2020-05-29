@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Patches
             );
             harmony.Patch(
                 original: AccessTools.Method(typeof(SaveGameMenu), "update"),
-                prefix: new HarmonyMethod(this.GetType(), nameof(SaveGamePatch.SaveGameMenu_UpdatePrefix))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(SaveGamePatch.SaveGameMenu_UpdateFinalizer))
             );
         }
 
@@ -156,26 +156,14 @@ namespace StardewModdingAPI.Patches
         /// <summary>The method to call instead of <see cref="StardewValley.Menus.SaveGameMenu.update"/>.</summary>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony.")]
-        private static bool SaveGameMenu_UpdatePrefix(SaveGameMenu __instance, GameTime time, MethodInfo __originalMethod)
+        private static Exception SaveGameMenu_UpdateFinalizer(SaveGameMenu __instance, Exception __exception)
         {
-            const string key = nameof(SaveGamePatch.SaveGameMenu_UpdatePrefix);
-            if (!PatchHelper.StartIntercept(key))
-                return true;
-            try
-            {
-                __originalMethod.Invoke(__instance, new object[] {time});
-            }
-            catch (Exception ex)
-            {
-                SaveGamePatch.Monitor.Log($"Failed during SaveGameMenu.update method :\n{ex.InnerException ?? ex}", LogLevel.Error);
+            if(__exception != null) {
+                SaveGamePatch.Monitor.Log($"Failed during SaveGameMenu.update method :\n{__exception.InnerException ?? __exception}", LogLevel.Error);
                 __instance.complete();
                 Game1.addHUDMessage(new HUDMessage("An error occurs during save the game.Check the error log for details.", HUDMessage.error_type));
             }
-            finally
-            {
-                PatchHelper.StopIntercept(key);
-            }
-            return false;
+            return null;
         }
     }
 }

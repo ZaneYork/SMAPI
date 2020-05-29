@@ -332,7 +332,6 @@
     <Compile Include="Framework\Networking\RemoteContextModModel.cs" />
     <Compile Include="Framework\Patching\GamePatcher.cs" />
     <Compile Include="Framework\Patching\IHarmonyPatch.cs" />
-    <Compile Include="Framework\Patching\PatchHelper.cs" />
     <Compile Include="Framework\PerformanceMonitoring\AlertContext.cs" />
     <Compile Include="Framework\PerformanceMonitoring\AlertEntry.cs" />
     <Compile Include="Framework\PerformanceMonitoring\PeakEntry.cs" />

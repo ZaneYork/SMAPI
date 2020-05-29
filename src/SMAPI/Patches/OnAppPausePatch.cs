@@ -35,7 +35,7 @@ namespace StardewModdingAPI.Patches
         public void Apply(Harmony harmony)
         {
             harmony.Patch(AccessTools.Method(typeof(Game1), nameof(Game1.OnAppPause)),
-                new HarmonyMethod(AccessTools.Method(this.GetType(), nameof(OnAppPausePatch.Game_OnAppPausePrefix))));
+                finalizer:new HarmonyMethod(AccessTools.Method(this.GetType(), nameof(OnAppPausePatch.Game_OnAppPauseFinalizer))));
         }
 
 
@@ -45,24 +45,13 @@ namespace StardewModdingAPI.Patches
         /// <summary>The method to call instead of <see cref="StardewValley.Game1.OnAppPause"/>.</summary>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony.")]
-        private static bool Game_OnAppPausePrefix(Game1 __instance, MethodInfo __originalMethod)
+        private static Exception Game_OnAppPauseFinalizer(Exception __exception)
         {
-            const string key = nameof(OnAppPausePatch.Game_OnAppPausePrefix);
-            if (!PatchHelper.StartIntercept(key))
-                return true;
-            try
+            if (__exception != null)
             {
-                __originalMethod.Invoke(__instance, new object[] { });
+                OnAppPausePatch.Monitor.Log($"Failed during OnAppPause method :\n{__exception.InnerException ?? __exception}", LogLevel.Error);
             }
-            catch (Exception ex)
-            {
-                OnAppPausePatch.Monitor.Log($"Failed during OnAppPause method :\n{ex.InnerException ?? ex}", LogLevel.Error);
-            }
-            finally
-            {
-                PatchHelper.StopIntercept(key);
-            }
-            return false;
+            return null;
         }
 
     }

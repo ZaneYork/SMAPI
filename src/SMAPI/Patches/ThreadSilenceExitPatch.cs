@@ -45,7 +45,7 @@ namespace StardewModdingAPI.Patches
         {
             harmony.Patch(
                 original: AccessTools.Method(Type.GetType("System.Threading.ThreadHelper"), "ThreadStart_Context"),
-                prefix: new HarmonyMethod(this.GetType(), nameof(ThreadSilenceExitPatch.ThreadStart_Finalizer))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(ThreadSilenceExitPatch.ThreadStart_Finalizer))
             );
         }
 
@@ -56,26 +56,12 @@ namespace StardewModdingAPI.Patches
         /// <summary>The method to call instead of <see cref="System.Threading.ThreadHelper.ThreadStart_Context"/>.</summary>
         /// <param name="state">The thread context.</param>
         /// <returns>Returns whether to execute the original method.</returns>
-        private static bool ThreadStart_Finalizer(object state)
+        private static Exception ThreadStart_Finalizer(Exception __exception)
         {
-            try
-            {
-                object _start = state.GetType().GetField("_start", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(state);
-                if (_start is ThreadStart)
-                {
-                    ((ThreadStart)_start)();
-                }
-                else
-                {
-                    object _startArg = state.GetType().GetField("_startArg", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(state);
-                    ((ParameterizedThreadStart)_start)(_startArg);
-                }
+            if (__exception != null) {
+                Monitor.Log($"Thread failed:\n{__exception.InnerException ?? __exception}", LogLevel.Error);
             }
-            catch (Exception ex)
-            {
-                Monitor.Log($"Thread failed:\n{ex.InnerException ?? ex}", LogLevel.Error);
-            }
-            return false;
+            return null;
         }
     }
 }

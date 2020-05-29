@@ -45,9 +45,10 @@ namespace StardewModdingAPI.Patches
             MethodInfo saveWholeBackup = AccessTools.Method(typeof(Game1), nameof(Game1.saveWholeBackup));
 
             MethodInfo prefix = AccessTools.Method(this.GetType(), nameof(SaveBackupPatch.GameSave_Prefix));
+            MethodInfo finalizer = AccessTools.Method(this.GetType(), nameof(SaveBackupPatch.GameSave_Finalizer));
 
-            harmony.Patch(makeFullBackup, new HarmonyMethod(prefix));
-            harmony.Patch(saveWholeBackup, new HarmonyMethod(prefix));
+            harmony.Patch(makeFullBackup, new HarmonyMethod(prefix), finalizer: new HarmonyMethod(finalizer));
+            harmony.Patch(saveWholeBackup, new HarmonyMethod(prefix), finalizer: new HarmonyMethod(finalizer));
         }
 
 
@@ -57,28 +58,22 @@ namespace StardewModdingAPI.Patches
         /// <summary>The method to call instead of <see cref="StardewValley.Object.getDescription"/>.</summary>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony.")]
-        private static bool GameSave_Prefix(MethodInfo __originalMethod)
+        private static bool GameSave_Prefix()
         {
-            const string key = nameof(SaveBackupPatch.GameSave_Prefix);
-            if (!PatchHelper.StartIntercept(key))
-                return true;
             SaveBackupPatch.Events.Saving.RaiseEmpty();
-            try
-            {
-                __originalMethod.Invoke(null, new object[] { });
-            }
-            catch (Exception ex)
-            {
-                SaveBackupPatch.Monitor.Log($"Failed to save the game :\n{ex.InnerException ?? ex}", LogLevel.Error);
-                Game1.addHUDMessage(new HUDMessage("An error occurs during save the game.Check the error log for details.", HUDMessage.error_type));
-            }
-            finally
-            {
-                PatchHelper.StopIntercept(key);
-            }
-            SaveBackupPatch.Events.Saved.RaiseEmpty();
-            return false;
+            return true;
         }
 
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony.")]
+        private static Exception GameSave_Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                SaveBackupPatch.Monitor.Log($"Failed to save the game :\n{__exception.InnerException ?? __exception}", LogLevel.Error);
+                Game1.addHUDMessage(new HUDMessage("An error occurs during save the game.Check the error log for details.", HUDMessage.error_type));
+            }
+            SaveBackupPatch.Events.Saved.RaiseEmpty();
+            return null;
+        }
     }
 }
