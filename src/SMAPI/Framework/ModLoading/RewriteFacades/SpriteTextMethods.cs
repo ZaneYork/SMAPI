@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley.BellsAndWhistles;
 
-namespace StardewModdingAPI.Framework.RewriteFacades
+namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
     public class SpriteTextMethods : SpriteText
     {

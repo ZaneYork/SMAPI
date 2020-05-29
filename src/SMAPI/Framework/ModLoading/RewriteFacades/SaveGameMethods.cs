@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using StardewValley;
 
-namespace StardewModdingAPI.Framework.RewriteFacades
+namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
     public class SaveGameMethods : SaveGame
     {

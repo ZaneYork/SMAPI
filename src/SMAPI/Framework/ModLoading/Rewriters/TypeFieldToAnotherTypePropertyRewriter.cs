@@ -34,24 +34,24 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
         /// <param name="instruction">The instruction to handle.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
+        /// <returns>Returns whether the instruction was changed.</returns>
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
             if (!this.IsMatch(instruction))
-                return InstructionHandleResult.None;
+                return false;
 
             if (instruction.OpCode == OpCodes.Ldfld || instruction.OpCode == OpCodes.Ldsfld)
             {
                 MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetGetMethod());
-                cil.Replace(instruction, cil.Create(OpCodes.Call, methodRef));
+                replaceWith.Invoke(cil.Create(OpCodes.Call, methodRef));
             }
             else if (instruction.OpCode == OpCodes.Stfld || instruction.OpCode == OpCodes.Stsfld)
             {
                 MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetSetMethod());
-                cil.Replace(instruction, cil.Create(OpCodes.Call, methodRef));
+                replaceWith.Invoke(cil.Create(OpCodes.Call, methodRef));
             }
-            return InstructionHandleResult.Rewritten;
+            return this.MarkRewritten();
         }
     }
 }

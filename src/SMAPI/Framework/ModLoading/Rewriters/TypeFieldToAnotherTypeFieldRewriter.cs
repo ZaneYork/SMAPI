@@ -60,12 +60,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
         /// <param name="instruction">The instruction to handle.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
+        /// <returns>Returns whether the instruction was changed.</returns>
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
             if (!this.IsMatch(instruction))
-                return InstructionHandleResult.None;
+                return false;
 
             try
             {
@@ -75,7 +75,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                     FieldReference field = module.ImportReference(this.ToType.GetField(this.FieldName));
 
                     cil.InsertAfter(instruction, cil.Create(OpCodes.Ldfld, field));
-                    cil.Replace(instruction, cil.Create(OpCodes.Call, method));
+                    replaceWith.Invoke(cil.Create(OpCodes.Call, method));
                 }
                 else if (this.TestName != null && this.UsingInstance && !this.RainDropFix)
                 {
@@ -83,13 +83,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                     MethodReference field = module.ImportReference(this.ToType.GetMethod($"get_{this.TestName}"));
 
                     cil.InsertAfter(instruction, cil.Create(OpCodes.Callvirt, field));
-                    cil.Replace(instruction, cil.Create(OpCodes.Call, method));
+                    replaceWith.Invoke(cil.Create(OpCodes.Call, method));
                 }
                 else if (this.RainDropFix && !this.UsingInstance)
                 {
                     MethodReference getter = module.ImportReference(this.ToType.GetMethod($"get_{this.FieldName}"));
-
-                    cil.Replace(instruction, cil.Create(OpCodes.Call, getter));
+                    replaceWith.Invoke(cil.Create(OpCodes.Call, getter));
                 }
                 else
                 {
@@ -97,9 +96,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                     MethodReference field = module.ImportReference(this.ToType.GetMethod($"get_{this.TestName}"));
 
                     cil.InsertAfter(instruction, cil.Create(OpCodes.Callvirt, field));
-                    cil.Replace(instruction, cil.Create(OpCodes.Call, method));
+                    replaceWith.Invoke(cil.Create(OpCodes.Call, method));
                 }
-                
             }
             catch (Exception e)
             {
@@ -107,7 +105,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 this.Monitor.Log(e.StackTrace);
             }
 
-            return InstructionHandleResult.Rewritten;
+            return this.MarkRewritten();
         }
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
 
-namespace StardewModdingAPI.Framework.RewriteFacades
+namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
     public class IClickableMenuMethods : IClickableMenu
     {

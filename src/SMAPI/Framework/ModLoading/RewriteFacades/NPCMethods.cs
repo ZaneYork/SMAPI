@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using StardewValley;
 
-namespace StardewModdingAPI.Framework.RewriteFacades
+namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
     public class NPCMethods : NPC
     {

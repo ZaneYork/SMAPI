@@ -36,7 +36,7 @@
     <OutputPath>bin\Release\</OutputPath>
 <!--    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_GOOGLE</DefineConstants>-->
 <!--    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_SAMSUNG</DefineConstants>-->
-    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_AMAZON</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_GOOGLE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>8.0</LangVersion>
@@ -66,10 +66,8 @@
       <Version>2.0.0</Version>
     </PackageReference>
     <PackageReference Include="LargeAddressAware" Version="1.0.4" />
-    <PackageReference Include="Lib.Harmony" Version="2.0.0.10" />
     <PackageReference Include="Mono.Cecil" Version="0.11.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Platonymous.TMXTile" Version="1.3.4" />
   </ItemGroup>
   <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_GOOGLE'))">
 <!--    <Reference Include="MonoGame.Framework">-->
@@ -105,6 +103,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\Loader\libs\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>..\Loader\libs\MonoGame.Framework.dll</HintPath>
     </Reference>
@@ -126,6 +127,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
+    <Reference Include="TMXTile">
+      <HintPath>..\..\..\..\..\..\..\SteamLibrary\steamapps\common\Stardew Valley\smapi-internal\TMXTile.dll</HintPath>
+    </Reference>
     <Reference Include="xTile">
       <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\xTile.dll</HintPath>
     </Reference>
@@ -167,6 +171,7 @@
     <Compile Include="Events\ObjectListChangedEventArgs.cs" />
     <Compile Include="Events\OneSecondUpdateTickedEventArgs.cs" />
     <Compile Include="Events\OneSecondUpdateTickingEventArgs.cs" />
+    <Compile Include="Events\PeerConnectedEventArgs.cs" />
     <Compile Include="Events\PeerContextReceivedEventArgs.cs" />
     <Compile Include="Events\PeerDisconnectedEventArgs.cs" />
     <Compile Include="Events\RenderedActiveMenuEventArgs.cs" />
@@ -193,6 +198,10 @@
     <Compile Include="Events\WindowResizedEventArgs.cs" />
     <Compile Include="Framework\Command.cs" />
     <Compile Include="Framework\CommandManager.cs" />
+    <Compile Include="Framework\Commands\HarmonySummaryCommand.cs" />
+    <Compile Include="Framework\Commands\HelpCommand.cs" />
+    <Compile Include="Framework\Commands\IInternalCommand.cs" />
+    <Compile Include="Framework\Commands\ReloadI18nCommand.cs" />
     <Compile Include="Framework\ContentCoordinator.cs" />
     <Compile Include="Framework\ContentManagers\BaseContentManager.cs" />
     <Compile Include="Framework\ContentManagers\GameContentManager.cs" />
@@ -260,6 +269,9 @@
     <Compile Include="Framework\ModLoading\Finders\ReferenceToMemberWithUnexpectedTypeFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\ReferenceToMissingMemberFinder.cs" />
     <Compile Include="Framework\ModLoading\Finders\TypeFinder.cs" />
+    <Compile Include="Framework\ModLoading\Framework\BaseInstructionHandler.cs" />
+    <Compile Include="Framework\ModLoading\Framework\RecursiveRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Framework\RewriteHelper.cs" />
     <Compile Include="Framework\ModLoading\IInstructionHandler.cs" />
     <Compile Include="Framework\ModLoading\IncompatibleInstructionException.cs" />
     <Compile Include="Framework\ModLoading\InstructionHandleResult.cs" />
@@ -269,9 +281,38 @@
     <Compile Include="Framework\ModLoading\ModMetadataStatus.cs" />
     <Compile Include="Framework\ModLoading\ModResolver.cs" />
     <Compile Include="Framework\ModLoading\PlatformAssemblyMap.cs" />
-    <Compile Include="Framework\ModLoading\RewriteHelper.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\AccessToolsFacade.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\AnimalQueryMenuMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\CraftingPageMobileMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\DayTimeMoneyBoxMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\DebrisMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\DialogueBoxMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\DiscreteColorPickerMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\FarmerMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\FarmerRenderMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\Game1Methods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\GameLocationMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\GameMenuMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\HarmonyInstanceFacade.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\HarmonyInstanceMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\HarmonyMethodFacade.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\HUDMessageMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\IClickableMenuMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\InventoryMenuMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\ItemGrabMenuMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\MapPageMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\MenuWithInventoryMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\NPCMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\SaveGameMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\ShopMenuMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\SpriteBatchFacade.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\SpriteTextMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\TextBoxMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\UtilityMethods.cs" />
+    <Compile Include="Framework\ModLoading\RewriteFacades\WeatherDebrisMethods.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\FieldReplaceRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\FieldToPropertyRewriter.cs" />
+    <Compile Include="Framework\ModLoading\Rewriters\Harmony1AssemblyRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\MethodToAnotherStaticMethodRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\MethodParentRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\PropertyToFieldRewriter.cs" />
@@ -309,32 +350,6 @@
     <Compile Include="Framework\Rendering\SDisplayDevice.cs" />
     <Compile Include="Framework\Rendering\SXnaDisplayDevice.cs" />
     <Compile Include="Framework\RequestExitDelegate.cs" />
-    <Compile Include="Framework\RewriteFacades\DebrisMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\GameMenuMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\HarmonyInstanceMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\InventoryMenuMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\DiscreteColorPickerMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\CraftingPageMobileMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\DialogueBoxMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\DayTimeMoneyBoxMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\AnimalQueryMenuMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\ShopMenuMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\FarmerMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\FarmerRenderMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\Game1Methods.cs" />
-    <Compile Include="Framework\RewriteFacades\GameLocationMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\HUDMessageMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\IClickableMenuMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\MenuWithInventoryMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\ItemGrabMenuMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\MapPageMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\NPCMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\SpriteBatchMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\SpriteTextMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\TextBoxMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\UtilityMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\SaveGameMethods.cs" />
-    <Compile Include="Framework\RewriteFacades\WeatherDebrisMethods.cs" />
     <Compile Include="Framework\SCore.cs" />
     <Compile Include="Framework\Serialization\ColorConverter.cs" />
     <Compile Include="Framework\Serialization\PointConverter.cs" />

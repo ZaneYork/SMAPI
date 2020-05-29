@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Harmony;
+using HarmonyLib;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
@@ -94,14 +94,6 @@ namespace StardewModdingAPI.Metadata
             yield return new MethodParentRewriter(typeof(SaveGame), typeof(SaveGameMethods));
             yield return new MethodParentRewriter(typeof(GameLocation), typeof(GameLocationMethods));
 
-            // MonoMod fix
-            if (!Constants.MonoModInit)
-            {
-                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "Patch", typeof(HarmonyInstanceMethods), "Patch");
-                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "PatchAll" && method.Parameters.Count == 0, typeof(HarmonyInstanceMethods), "PatchAll");
-                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "PatchAll" && method.Parameters.Count == 1, typeof(HarmonyInstanceMethods), "PatchAllToAssembly");
-            }
-
             //Constructor Rewrites
             yield return new MethodParentRewriter(typeof(HUDMessage), typeof(HUDMessageMethods));
             yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));
@@ -132,6 +124,14 @@ namespace StardewModdingAPI.Metadata
 
             // rewrite for SMAPI 3.6 (Harmony 1.x => 2.0 update)
             yield return new Harmony1AssemblyRewriter();
+
+            // MonoMod fix
+            if (!Constants.MonoModInit)
+            {
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "Patch", typeof(HarmonyInstanceMethods), "Patch");
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "PatchAll" && method.Parameters.Count == 0, typeof(HarmonyInstanceMethods), "PatchAll");
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "PatchAll" && method.Parameters.Count == 1, typeof(HarmonyInstanceMethods), "PatchAllToAssembly");
+            }
 
             /****
             ** detect mod issues

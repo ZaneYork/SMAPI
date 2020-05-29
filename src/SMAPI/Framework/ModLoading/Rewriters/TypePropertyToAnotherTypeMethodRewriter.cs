@@ -2,6 +2,7 @@ using System;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Finders;
+using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
@@ -40,27 +41,27 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
         /// <param name="instruction">The instruction to handle.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public override InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
+        /// <returns>Returns whether the instruction was changed.</returns>
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
             if (!this.IsMatch(instruction))
-                return InstructionHandleResult.None;
+                return false;
 
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             if (this.GetterName != null && methodRef.Name == "get_" + this.PropertyName)
             {
                 methodRef = module.ImportReference(this.ToType.GetMethod(this.GetterName));
-                cil.Replace(instruction, cil.Create(OpCodes.Callvirt, methodRef));
-                return InstructionHandleResult.Rewritten;
+                replaceWith.Invoke(cil.Create(OpCodes.Callvirt, methodRef));
+                return true;
             }
             if(this.SetterName != null && methodRef.Name == "set_" + this.PropertyName)
             {
                 methodRef = module.ImportReference(this.ToType.GetMethod(this.SetterName));
-                cil.Replace(instruction, cil.Create(OpCodes.Callvirt, methodRef));
-                return InstructionHandleResult.Rewritten;
+                replaceWith.Invoke(cil.Create(OpCodes.Callvirt, methodRef));
+                return true;
             }
-            return InstructionHandleResult.None;
+            return this.MarkRewritten();
         }
     }
 }

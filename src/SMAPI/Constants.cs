@@ -7,6 +7,7 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
+using HarmonyLib;
 
 namespace StardewModdingAPI
 {
@@ -203,7 +204,7 @@ namespace StardewModdingAPI
                         typeof(Microsoft.Xna.Framework.Vector2).Assembly,
                         typeof(MonoMod.RuntimeDetour.HarmonyDetourBridge).Assembly,
                         typeof(MonoMod.Utils.Platform).Assembly,
-                        typeof(Harmony.HarmonyPatch).Assembly,
+                        typeof(HarmonyLib.Harmony).Assembly,
                         typeof(Mono.Cecil.MethodDefinition).Assembly,
                         typeof(StardewModdingAPI.IManifest).Assembly,
                     };

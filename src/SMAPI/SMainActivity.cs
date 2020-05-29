@@ -102,18 +102,7 @@ namespace StardewModdingAPI
             try
             {
                 File errorLog = this.FilesDir.ListFiles().FirstOrDefault(f => f.IsDirectory && f.Name == "error")?.ListFiles().FirstOrDefault(f => f.Name.EndsWith(".dat"));
-                try
-                {
-                    Handler handler = new Handler((msg) => throw new RuntimeException());
-                    SAlertDialogUtil.AlertMessage(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected",
-                        callback: type => { handler.SendEmptyMessage(0); });
-                    Looper.Loop();
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-
+                SAlertDialogUtil.AlertMessage(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected");
                 Type[] services = {typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes)};
                 AppCenter.Start(Constants.MicrosoftAppSecret, services);
                 AppCenter.SetUserId(Constants.ApiVersion.ToString());
@@ -130,6 +119,11 @@ namespace StardewModdingAPI
         {
             try
             {
+                Game1 game1 = (Game1) typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(this);
+                if (game1 != null)
+                {
+                    game1.Exit();
+                }
                 new SGameConsole();
 
                 Program.Main(null);
@@ -148,11 +142,6 @@ namespace StardewModdingAPI
 
                 this.core = new SCore(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, modPath), false);
                 this.core.RunInteractively();
-                Game1 game1 = (Game1) typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(this);
-                if (game1 != null)
-                {
-                    game1.Exit();
-                }
                 typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.GameInstance);
 
                 this.SetContentView((View) this.core.GameInstance.Services.GetService(typeof(View)));

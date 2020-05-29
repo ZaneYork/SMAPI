@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
-using Harmony;
+using HarmonyLib;
 using StardewModdingAPI.Framework.Patching;
 
 namespace StardewModdingAPI.Patches
@@ -41,7 +41,7 @@ namespace StardewModdingAPI.Patches
 
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        public void Apply(HarmonyInstance harmony)
+        public void Apply(Harmony harmony)
         {
             harmony.Patch(
                 original: AccessTools.Method(Type.GetType("System.Threading.ThreadHelper"), "ThreadStart_Context"),

@@ -1,11 +1,12 @@
 using System;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
     /// <summary>Rewrites method references from one parent type to another if the signatures match.</summary>
-    internal class MethodToAnotherStaticMethodRewriter : IInstructionHandler
+    internal class MethodToAnotherStaticMethodRewriter : BaseInstructionHandler
     {
         /*********
         ** Fields
@@ -23,13 +24,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         private readonly string ToMethod;
 
         /*********
-        ** Accessors
-        *********/
-        /// <summary>A brief noun phrase indicating what the instruction finder matches.</summary>
-        public string NounPhrase { get; }
-
-
-        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
@@ -37,20 +31,20 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="toType">The type with methods to map to.</param>
         /// <param name="onlyIfPlatformChanged">Whether to only rewrite references if loading the assembly on a different platform than it was compiled on.</param>
         public MethodToAnotherStaticMethodRewriter(Type fromType, Predicate<MethodReference> fromMethodSelector, Type toType, string toMethod)
+            : base( $"{fromType.Name} methods")
         {
             this.FromType = fromType;
             this.FromMethodSelector = fromMethodSelector;
             this.ToType = toType;
             this.ToMethod = toMethod;
-            this.NounPhrase = $"{fromType.Name} methods";
         }
 
         /// <summary>Perform the predefined logic for a method if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="method">The method definition containing the instruction.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        /// <param name="replaceWith">Replaces the type reference with a new one.</param>
+        /// <returns>Returns whether the type was changed.</returns>
+        public InstructionHandleResult Handle(ModuleDefinition module, MethodDefinition method, Action<Instruction> replaceWith)
         {
             return InstructionHandleResult.None;
         }
@@ -59,15 +53,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
         /// <param name="instruction">The instruction to handle.</param>
-        /// <param name="assemblyMap">Metadata for mapping assemblies to the current platform.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        public InstructionHandleResult Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, PlatformAssemblyMap assemblyMap, bool platformChanged)
+        /// <param name="replaceWith">Replaces the type reference with a new one.</param>
+        /// <returns>Returns whether the type was changed.</returns>
+        public bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
-            if (!this.IsMatch(instruction, platformChanged))
-                return InstructionHandleResult.None;
+            if (!this.IsMatch(instruction))
+                return false;
 
             instruction.Operand = module.ImportReference(this.ToType.GetMethod(this.ToMethod));
-            return InstructionHandleResult.Rewritten;
+            return this.MarkRewritten();
         }
 
 
@@ -76,8 +70,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         *********/
         /// <summary>Get whether a CIL instruction matches.</summary>
         /// <param name="instruction">The IL instruction.</param>
-        /// <param name="platformChanged">Whether the mod was compiled on a different platform.</param>
-        protected bool IsMatch(Instruction instruction, bool platformChanged)
+        protected bool IsMatch(Instruction instruction)
         {
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
             return

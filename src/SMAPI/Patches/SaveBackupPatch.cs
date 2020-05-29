@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using Harmony;
+using HarmonyLib;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Patching;
@@ -39,7 +39,7 @@ namespace StardewModdingAPI.Patches
 
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        public void Apply(HarmonyInstance harmony)
+        public void Apply(Harmony harmony)
         {
             MethodInfo makeFullBackup = AccessTools.Method(typeof(Game1), nameof(Game1.MakeFullBackup));
             MethodInfo saveWholeBackup = AccessTools.Method(typeof(Game1), nameof(Game1.saveWholeBackup));

@@ -5,7 +5,7 @@ using System.Reflection;
 using StardewValley;
 using StardewValley.Locations;
 
-namespace StardewModdingAPI.Framework.RewriteFacades
+namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
     public class UtilityMethods : Utility
     {

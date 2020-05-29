@@ -485,10 +485,12 @@ namespace StardewModdingAPI.Framework
                     this.CheckForUpdatesAsync(mods);
                 }
 
-                // prepare console since the console loop is disabled
+                // prepare console
                 this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
-                this.GameInstance.CommandManager.Add(null, "help", "Lists command documentation.\n\nUsage: help\nLists all available commands.\n\nUsage: help <cmd>\n- cmd: The name of a command whose documentation to display.", this.HandleCommand);
-                this.GameInstance.CommandManager.Add(null, "reload_i18n", "Reloads translation files for all mods.\n\nUsage: reload_i18n", this.HandleCommand);
+                this.GameInstance.CommandManager
+                    .Add(new HelpCommand(this.GameInstance.CommandManager), this.Monitor)
+                    .Add(new HarmonySummaryCommand(), this.Monitor)
+                    .Add(new ReloadI18nCommand(this.ReloadTranslations), this.Monitor);
 
                 // update window titles
                 int modsLoaded = this.ModRegistry.GetAll().Count();

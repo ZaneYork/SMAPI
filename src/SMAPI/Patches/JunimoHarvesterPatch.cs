@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Harmony;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Patches
 
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        public void Apply(HarmonyInstance harmony)
+        public void Apply(Harmony harmony)
         {
             harmony.Patch(
                 original: AccessTools.DeclaredConstructor(typeof(JunimoHarvester), new System.Type[] { typeof(Vector2), typeof(JunimoHut), typeof(int), typeof(Color?)}),

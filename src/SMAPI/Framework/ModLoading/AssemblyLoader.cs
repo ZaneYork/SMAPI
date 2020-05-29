@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewModdingAPI.Metadata;
@@ -321,7 +322,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                         rewritten |= handler.Handle(module, type, replaceWith);
                     return rewritten;
                 },
-                rewriteInstruction: (instruction, cil, replaceWith) =>
+                rewriteInstruction: (ref Instruction instruction, ILProcessor cil, Action<Instruction> replaceWith) =>
                 {
                     bool rewritten = false;
                     foreach (IInstructionHandler handler in handlers)

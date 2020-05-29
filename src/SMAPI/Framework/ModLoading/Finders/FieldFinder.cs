@@ -49,5 +49,19 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
 
             return false;
         }
+
+        /*********
+        ** Protected methods
+        *********/
+        /// <summary>Get whether a CIL instruction matches.</summary>
+        /// <param name="instruction">The IL instruction.</param>
+        protected bool IsMatch(Instruction instruction)
+        {
+            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+            return
+                fieldRef != null
+                && fieldRef.DeclaringType.FullName == this.FullTypeName
+                && fieldRef.Name == this.FieldName;
+        }
     }
 }
