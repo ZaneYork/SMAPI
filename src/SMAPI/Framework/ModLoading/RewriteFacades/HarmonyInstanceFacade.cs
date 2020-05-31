@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             if (original != null)
                 original = original.GetDeclaredMember();
 
-            if (!Constants.MonoModInit)
+            if (!Constants.HarmonyEnabled)
                 return null;
             // call Harmony 2.0 and show a detailed exception if it fails
             try

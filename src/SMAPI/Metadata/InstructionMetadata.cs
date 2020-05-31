@@ -126,7 +126,7 @@ namespace StardewModdingAPI.Metadata
             yield return new Harmony1AssemblyRewriter();
 
             // MonoMod fix
-            if (!Constants.MonoModInit)
+            if (!Constants.HarmonyEnabled)
             {
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "Patch", typeof(HarmonyInstanceMethods), "Patch");
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "PatchAll" && method.Parameters.Count == 0, typeof(HarmonyInstanceMethods), "PatchAll");

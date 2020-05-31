@@ -14,19 +14,19 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             HarmonyMethod transpiler = null,
             HarmonyMethod finalizer = null)
         {
-            if (Constants.MonoModInit)
+            if (Constants.HarmonyEnabled)
                 return instance.Patch(original, prefix, postfix, transpiler, finalizer);
             else
                 return null;
         }
         public static void PatchAll(Harmony instance)
         {
-            if (Constants.MonoModInit)
+            if (Constants.HarmonyEnabled)
                 instance.PatchAll();
         }
         public static void PatchAllToAssembly(Harmony instance, Assembly assembly)
         {
-            if (Constants.MonoModInit)
+            if (Constants.HarmonyEnabled)
                 instance.PatchAll(assembly);
         }
     }

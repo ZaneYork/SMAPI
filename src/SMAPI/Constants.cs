@@ -110,7 +110,7 @@ namespace StardewModdingAPI
         /// <summary>The language code for non-translated mod assets.</summary>
         internal static LocalizedContentManager.LanguageCode DefaultLanguage { get; } = LocalizedContentManager.LanguageCode.en;
 
-        internal static bool MonoModInit { get; set; } = true;
+        internal static bool HarmonyEnabled { get; set; } = true;
 
 
         /*********
@@ -202,8 +202,6 @@ namespace StardewModdingAPI
                     {
                         typeof(StardewValley.Game1).Assembly, // note: includes Netcode types on Linux/Mac
                         typeof(Microsoft.Xna.Framework.Vector2).Assembly,
-                        typeof(MonoMod.RuntimeDetour.HarmonyDetourBridge).Assembly,
-                        typeof(MonoMod.Utils.Platform).Assembly,
                         typeof(HarmonyLib.Harmony).Assembly,
                         typeof(Mono.Cecil.MethodDefinition).Assembly,
                         typeof(StardewModdingAPI.IManifest).Assembly,

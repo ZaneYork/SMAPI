@@ -29,25 +29,17 @@ namespace StardewModdingAPI.Framework.Patching
         /// <param name="patches">The patches to apply.</param>
         public void Apply(params IHarmonyPatch[] patches)
         {
-            if (!HarmonyDetourBridge.Initialized && Constants.MonoModInit)
-            {
-                try {
-                    HarmonyDetourBridge.Init();
-                }
-                catch { Constants.MonoModInit = false; }
-            }
-
             Harmony harmony = new Harmony("io.smapi");
             foreach (IHarmonyPatch patch in patches)
             {
                 try
                 {
-                    if(Constants.MonoModInit)
+                    if(Constants.HarmonyEnabled)
                         patch.Apply(harmony);
                 }
                 catch (Exception ex)
                 {
-                    Constants.MonoModInit = false;
+                    Constants.HarmonyEnabled = false;
                     this.Monitor.Log($"Couldn't apply runtime patch '{patch.Name}' to the game. Some SMAPI features may not work correctly. See log file for details.", LogLevel.Error);
                     this.Monitor.Log(ex.GetLogSummary(), LogLevel.Trace);
                 }
