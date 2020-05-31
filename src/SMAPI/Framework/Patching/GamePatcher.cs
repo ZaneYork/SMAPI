@@ -1,7 +1,5 @@
 using System;
 using HarmonyLib;
-using Android.OS;
-using MonoMod.RuntimeDetour;
 
 namespace StardewModdingAPI.Framework.Patching
 {
@@ -29,7 +27,7 @@ namespace StardewModdingAPI.Framework.Patching
         /// <param name="patches">The patches to apply.</param>
         public void Apply(params IHarmonyPatch[] patches)
         {
-            Harmony harmony = new Harmony("io.smapi");
+            Harmony harmony = new Harmony("SMAPI");
             foreach (IHarmonyPatch patch in patches)
             {
                 try
