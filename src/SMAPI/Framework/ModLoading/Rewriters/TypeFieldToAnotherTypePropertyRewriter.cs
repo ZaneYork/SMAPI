@@ -16,6 +16,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <summary>The property name.</summary>
         private readonly string PropertyName;
 
+        /// <summary>The property name.</summary>
+        private readonly string InstancePropertyName;
+
         /*********
         ** Public methods
         *********/
@@ -23,11 +26,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="type">The type whose field to which references should be rewritten.</param>
         /// <param name="fieldName">The field name to rewrite.</param>
         /// <param name="propertyName">The property name (if different).</param>
-        public TypeFieldToAnotherTypePropertyRewriter(Type type, Type toType, string fieldName, string propertyName)
+        public TypeFieldToAnotherTypePropertyRewriter(Type type, Type toType, string fieldName, string propertyName, string instancePropertyName = null)
             : base(type.FullName, fieldName, InstructionHandleResult.None)
         {
             this.ToType = toType;
             this.PropertyName = propertyName;
+            this.InstancePropertyName = instancePropertyName;
         }
 
         /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
@@ -43,13 +47,33 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
             if (instruction.OpCode == OpCodes.Ldfld || instruction.OpCode == OpCodes.Ldsfld)
             {
-                MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetGetMethod());
-                replaceWith.Invoke(cil.Create(OpCodes.Call, methodRef));
+                if (this.InstancePropertyName == null)
+                {
+                    MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetGetMethod());
+                    replaceWith.Invoke(cil.Create(OpCodes.Call, methodRef));
+                }
+                else
+                {
+                    MethodReference instanceMethodRef = module.ImportReference(this.ToType.GetProperty(this.InstancePropertyName).GetGetMethod());
+                    MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetGetMethod());
+                    cil.InsertAfter(instruction, cil.Create(OpCodes.Call, methodRef));
+                    replaceWith.Invoke(cil.Create(OpCodes.Call, instanceMethodRef));
+                }
             }
             else if (instruction.OpCode == OpCodes.Stfld || instruction.OpCode == OpCodes.Stsfld)
             {
-                MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetSetMethod());
-                replaceWith.Invoke(cil.Create(OpCodes.Call, methodRef));
+                if (this.InstancePropertyName == null)
+                {
+                    MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetSetMethod());
+                    replaceWith.Invoke(cil.Create(OpCodes.Call, methodRef));
+                }
+                else
+                {
+                    MethodReference instanceMethodRef = module.ImportReference(this.ToType.GetProperty(this.InstancePropertyName).GetGetMethod());
+                    MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetSetMethod());
+                    cil.InsertAfter(instruction, cil.Create(OpCodes.Call, methodRef));
+                    replaceWith.Invoke(cil.Create(OpCodes.Call, instanceMethodRef));
+                }
             }
             return this.MarkRewritten();
         }

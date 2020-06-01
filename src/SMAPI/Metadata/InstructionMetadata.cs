@@ -46,18 +46,14 @@ namespace StardewModdingAPI.Metadata
             if (platformChanged)
                 yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchFacade));
 
-            //isRaining and isDebrisWeather fix done.
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isRaining", "IsRainingProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isSnowing", "IsSnowingProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isDebrisWeather", "IsDebrisWeatherProp");
-
-            // Cause of System.Security.VerificationException : Invalid instruction target
-            //yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(Game1), typeof(RainManager), "isRaining", "Instance", this.Monitor);
-            //yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(Game1), typeof(WeatherDebrisManager), "isDebrisWeather", "Instance", this.Monitor);
-            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(GameLocation), typeof(DebrisManager), "debris", "Instance", this.Monitor, "debrisNetCollection", false);
-            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(Game1), typeof(WeatherDebrisManager), "debrisWeather", "Instance", this.Monitor, "weatherDebrisList");
-            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(Game1), typeof(Game1Methods), "rainDrops", "Instance", this.Monitor, null, false, true);
-            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(Game1), typeof(Game1Methods), "onScreenMenus", "", this.Monitor, null, false, true);
+            // Redirect reference
+            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(Game1), typeof(RainManager), "isRaining", "isRaining", "Instance");
+            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(Game1), typeof(WeatherDebrisManager), "isSnowing", "isSnowing", "Instance");
+            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(Game1), typeof(WeatherDebrisManager), "isDebrisWeather", "isDebrisWeather", "Instance");
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "rainDrops", "RainDropsProp");
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(GameLocation), typeof(DebrisManager), "debris", "debrisNetCollection", "Instance");
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(WeatherDebrisManager), "debrisWeather","weatherDebrisList", "Instance");
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "onScreenMenus", "onScreenMenus");
 
             yield return new PropertyToFieldRewriter(typeof(Game1), "toolSpriteSheet", "toolSpriteSheet");
 

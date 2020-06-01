@@ -10,44 +10,15 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
     public class Game1Methods : Game1
     {
-        public static RainDrop[] rainDrops => (typeof(RainManager).GetField("_rainDropList", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RainManager.Instance) as List<RainDrop>).ToArray();
+        public static RainDrop[] RainDropsProp
+        {
+            get
+            {
+                return (typeof(RainManager).GetField("_rainDropList", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RainManager.Instance) as List<RainDrop>).ToArray();
+            }
+        }
+
         public static new IList<IClickableMenu> onScreenMenus => Game1.onScreenMenus;
-
-        public static bool IsRainingProp
-        {
-            get
-            {
-                return RainManager.Instance.isRaining;
-            }
-            set
-            {
-                RainManager.Instance.isRaining = value;
-            }
-        }
-
-        public static bool IsSnowingProp
-        {
-            get
-            {
-                return WeatherDebrisManager.Instance.isSnowing;
-            }
-            set
-            {
-                WeatherDebrisManager.Instance.isSnowing = value;
-            }
-        }
-
-        public static bool IsDebrisWeatherProp
-        {
-            get
-            {
-                return WeatherDebrisManager.Instance.isDebrisWeather;
-            }
-            set
-            {
-                WeatherDebrisManager.Instance.isDebrisWeather = value;
-            }
-        }
 
         public static void updateDebrisWeatherForMovement(List<WeatherDebris> debris)
         {

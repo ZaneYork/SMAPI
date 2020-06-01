@@ -122,7 +122,7 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
     <Reference Include="TMXTile">
-      <HintPath>..\..\..\..\..\..\..\SteamLibrary\steamapps\common\Stardew Valley\smapi-internal\TMXTile.dll</HintPath>
+      <HintPath>..\Loader\libs\TMXTile.dll</HintPath>
     </Reference>
     <Reference Include="xTile">
       <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\xTile.dll</HintPath>

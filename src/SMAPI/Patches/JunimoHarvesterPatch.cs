@@ -69,7 +69,6 @@ namespace StardewModdingAPI.Patches
             try
             {
                 Netcode.NetGuid guid = new Netcode.NetGuid(Game1.getFarm().buildings.GuidOf(myHome));
-                Netcode.INetSerializable netFields = guid.NetFields;
                 AccessTools.Field(typeof(JunimoHarvester), "netHome").SetValue(__instance, guid);
             }
             catch (TargetInvocationException ex)

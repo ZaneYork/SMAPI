@@ -42,6 +42,8 @@ namespace StardewModdingAPI
 
         public static SMainActivity Instance;
 
+        private static bool ErrorDetected;
+
         public new bool HasPermissions
         {
             get
@@ -102,7 +104,14 @@ namespace StardewModdingAPI
             try
             {
                 File errorLog = this.FilesDir.ListFiles().FirstOrDefault(f => f.IsDirectory && f.Name == "error")?.ListFiles().FirstOrDefault(f => f.Name.EndsWith(".dat"));
-                SAlertDialogUtil.AlertMessage(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected");
+                if (errorLog != null)
+                {
+                    SMainActivity.ErrorDetected = true;
+                    SAlertDialogUtil.AlertMessage(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected", callback: (type =>
+                    {
+                        SMainActivity.ErrorDetected = false;
+                    }));
+                }
                 Type[] services = {typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes)};
                 AppCenter.Start(Constants.MicrosoftAppSecret, services);
                 AppCenter.SetUserId(Constants.ApiVersion.ToString());
@@ -123,6 +132,16 @@ namespace StardewModdingAPI
                 if (game1 != null)
                 {
                     game1.Exit();
+                }
+
+                if (SMainActivity.ErrorDetected)
+                {
+                    new Thread(() =>
+                    {
+                        Thread.Sleep(500);
+                        SMainActivity.Instance.RunOnUiThread(() => this.OnCreatePartTwo());
+                    }).Start();
+                    return;
                 }
                 new SGameConsole();
 

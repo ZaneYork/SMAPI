@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Finders;
@@ -10,51 +11,37 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /*********
         ** Fields
         *********/
-        /// <summary>The type whose field to which references should be rewritten.</summary>
-        private readonly Type Type;
-
         /// <summary>The type whose field to which references should be rewritten to.</summary>
         private readonly Type ToType;
 
-        /// <summary>The field name.</summary>
-        private readonly string FieldName;
-
         /// <summary>The property name.</summary>
-        private readonly string PropertyName;
+        private readonly string InstancePropertyName;
 
-        private readonly string TestName;
-
-        private readonly IMonitor Monitor;
-
-        private readonly bool UsingInstance;
-
-        private readonly bool RainDropFix;
+        private readonly string TargetFieldName;
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="type">The type whose field to which references should be rewritten.</param>
+        /// <param name="toType"></param>
         /// <param name="fieldName">The field name to rewrite.</param>
-        /// <param name="propertyName">The property name (if different).</param>
-        public TypeFieldToAnotherTypeFieldRewriter(Type type, Type toType, string fieldName, string propertyName, IMonitor monitor, string testName = null, bool usingInstance = true, bool rainDropFix = false)
+        /// <param name="targetFieldName"></param>
+        /// <param name="instancePropertyName">The property name (if different).</param>
+        public TypeFieldToAnotherTypeFieldRewriter(Type type, Type toType, string fieldName, string targetFieldName = null, string instancePropertyName = null)
             : base(type.FullName, fieldName, InstructionHandleResult.None)
         {
-            this.Monitor = monitor;
-            this.Type = type;
             this.ToType = toType;
-            this.FieldName = fieldName;
-            this.PropertyName = propertyName;
-            this.TestName = testName;
-            this.UsingInstance = usingInstance;
-            this.RainDropFix = rainDropFix;
+            this.InstancePropertyName = instancePropertyName;
+            if (targetFieldName == null)
+            {
+                this.TargetFieldName = fieldName;
+            }
+            else
+            {
+                this.TargetFieldName = targetFieldName;
+            }
         }
-
-        /// <summary>Construct an instance.</summary>
-        /// <param name="type">The type whose field to which references should be rewritten.</param>
-        /// <param name="fieldName">The field name to rewrite.</param>
-        public TypeFieldToAnotherTypeFieldRewriter(Type type, Type toType, string fieldName, IMonitor monitor, string testName = null, bool usingInstance = true, bool rainDropFix = false)
-            : this(type, toType, fieldName, fieldName, monitor, testName, usingInstance, rainDropFix) { }
 
         /// <summary>Perform the predefined logic for an instruction if applicable.</summary>
         /// <param name="module">The assembly module containing the instruction.</param>
@@ -67,44 +54,90 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             if (!this.IsMatch(instruction))
                 return false;
 
-            try
+            FieldInfo targetFieldInfo = this.ToType.GetField(this.TargetFieldName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            PropertyInfo targetPropertyInfo = null;
+            if (targetFieldInfo == null)
             {
-                if (this.TestName == null && !this.RainDropFix)
+                targetPropertyInfo = this.ToType.GetProperty(this.TargetFieldName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            }
+            if (this.InstancePropertyName != null)
+            {
+                MethodReference instanceMethod = module.ImportReference(this.ToType.GetMethod($"get_{this.InstancePropertyName}"));
+                if (targetFieldInfo != null)
                 {
-                    MethodReference method = module.ImportReference(this.ToType.GetMethod($"get_{this.PropertyName}"));
-                    FieldReference field = module.ImportReference(this.ToType.GetField(this.FieldName));
-
-                    cil.InsertAfter(instruction, cil.Create(OpCodes.Ldfld, field));
-                    replaceWith.Invoke(cil.Create(OpCodes.Call, method));
+                    FieldReference targetField = module.ImportReference(targetFieldInfo);
+                    if (instruction.OpCode == OpCodes.Ldfld)
+                    {
+                        cil.Replace(instruction.Previous, cil.Create(OpCodes.Call, instanceMethod));
+                        replaceWith.Invoke(cil.Create(instruction.OpCode, targetField));
+                    }
+                    else if (instruction.OpCode == OpCodes.Stfld)
+                    {
+                        cil.Replace(instruction.Previous.Previous, cil.Create(OpCodes.Call, instanceMethod));
+                        replaceWith.Invoke(cil.Create(instruction.OpCode, targetField));
+                    }
+                    else if(instruction.OpCode == OpCodes.Ldsfld)
+                    {
+                        cil.InsertAfter(instruction, cil.Create(instruction.OpCode, targetField));
+                        replaceWith.Invoke(cil.Create(OpCodes.Call, instanceMethod));
+                    }
+                    else if (instruction.OpCode == OpCodes.Stsfld)
+                    {
+                        cil.InsertBefore(instruction.Previous, cil.Create(OpCodes.Call, instanceMethod));
+                        replaceWith.Invoke(cil.Create(instruction.OpCode, targetField));
+                    }
                 }
-                else if (this.TestName != null && this.UsingInstance && !this.RainDropFix)
+                else if(targetPropertyInfo != null)
                 {
-                    MethodReference method = module.ImportReference(this.ToType.GetMethod($"get_{this.PropertyName}"));
-                    MethodReference field = module.ImportReference(this.ToType.GetMethod($"get_{this.TestName}"));
-
-                    cil.InsertAfter(instruction, cil.Create(OpCodes.Callvirt, field));
-                    replaceWith.Invoke(cil.Create(OpCodes.Call, method));
-                }
-                else if (this.RainDropFix && !this.UsingInstance)
-                {
-                    MethodReference getter = module.ImportReference(this.ToType.GetMethod($"get_{this.FieldName}"));
-                    replaceWith.Invoke(cil.Create(OpCodes.Call, getter));
+                    if (instruction.OpCode == OpCodes.Ldfld)
+                    {
+                        cil.Replace(instruction.Previous, cil.Create(OpCodes.Call, instanceMethod));
+                        replaceWith.Invoke(cil.Create(OpCodes.Call, module.ImportReference(targetPropertyInfo.GetGetMethod())));
+                    }
+                    else if (instruction.OpCode == OpCodes.Stfld)
+                    {
+                        cil.Replace(instruction.Previous.Previous, cil.Create(OpCodes.Call, instanceMethod));
+                        replaceWith.Invoke(cil.Create(OpCodes.Call, module.ImportReference(targetPropertyInfo.GetSetMethod())));
+                    }
+                    else if(instruction.OpCode == OpCodes.Ldsfld)
+                    {
+                        cil.InsertAfter(instruction, cil.Create(OpCodes.Call, module.ImportReference(targetPropertyInfo.GetGetMethod())));
+                        replaceWith.Invoke(cil.Create(OpCodes.Call, instanceMethod));
+                    }
+                    else if (instruction.OpCode == OpCodes.Stsfld)
+                    {
+                        cil.InsertBefore(instruction.Previous, cil.Create(OpCodes.Call, instanceMethod));
+                        replaceWith.Invoke(cil.Create(OpCodes.Call, module.ImportReference(targetPropertyInfo.GetSetMethod())));
+                    }
                 }
                 else
                 {
-                    MethodReference method = module.ImportReference(this.Type.GetMethod($"get_{this.FieldName}"));
-                    MethodReference field = module.ImportReference(this.ToType.GetMethod($"get_{this.TestName}"));
-
-                    cil.InsertAfter(instruction, cil.Create(OpCodes.Callvirt, field));
-                    replaceWith.Invoke(cil.Create(OpCodes.Call, method));
+                    return false;
                 }
             }
-            catch (Exception e)
+            else
             {
-                this.Monitor.Log(e.Message);
-                this.Monitor.Log(e.StackTrace);
+                if (targetFieldInfo != null)
+                {
+                    FieldReference targetField = module.ImportReference(targetFieldInfo);
+                    replaceWith.Invoke(cil.Create(instruction.OpCode, targetField));
+                }
+                else if (targetPropertyInfo != null)
+                {
+                    if (instruction.OpCode == OpCodes.Ldfld || instruction.OpCode == OpCodes.Ldsfld)
+                    {
+                        replaceWith.Invoke(cil.Create(OpCodes.Call, module.ImportReference(targetPropertyInfo.GetGetMethod())));
+                    }
+                    else
+                    {
+                        replaceWith.Invoke(cil.Create(OpCodes.Call, module.ImportReference(targetPropertyInfo.GetSetMethod())));
+                    }
+                }
+                else
+                {
+                    return false;
+                }
             }
-
             return this.MarkRewritten();
         }
     }
