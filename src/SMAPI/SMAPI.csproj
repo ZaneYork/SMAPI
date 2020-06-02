@@ -313,7 +313,6 @@
     <Compile Include="Framework\ModLoading\Rewriters\StaticFieldToConstantRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\TypePropertyToAnotherTypeMethodRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\TypeFieldToAnotherTypePropertyRewriter.cs" />
-    <Compile Include="Framework\ModLoading\Rewriters\TypeFieldToAnotherTypeFieldRewriter.cs" />
     <Compile Include="Framework\ModLoading\Rewriters\TypeReferenceRewriter.cs" />
     <Compile Include="Framework\ModLoading\TypeReferenceComparer.cs" />
     <Compile Include="Framework\ModRegistry.cs" />

@@ -47,9 +47,9 @@ namespace StardewModdingAPI.Metadata
                 yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchFacade));
 
             // Redirect reference
-            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(Game1), typeof(RainManager), "isRaining", "isRaining", "Instance");
-            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(Game1), typeof(WeatherDebrisManager), "isSnowing", "isSnowing", "Instance");
-            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(Game1), typeof(WeatherDebrisManager), "isDebrisWeather", "isDebrisWeather", "Instance");
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isRaining", "IsRainingProp");
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isSnowing", "IsSnowingProp");
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isDebrisWeather", "IsDebrisWeatherProp");
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "rainDrops", "RainDropsProp");
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(GameLocation), typeof(DebrisManager), "debris", "debrisNetCollection", "Instance");
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(WeatherDebrisManager), "debrisWeather","weatherDebrisList", "Instance");
