@@ -57,12 +57,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <returns>Returns whether the module was modified.</returns>
         public bool RewriteModule()
         {
-            bool anyRewritten = false;
-
-            foreach (TypeDefinition type in this.Module.GetTypes())
+            return this.Module.GetTypes().AsParallel().WithExecutionMode(ParallelExecutionMode.ForceParallelism).Select(type =>
             {
+                bool anyRewritten = false;
                 if (type.BaseType == null)
-                    continue; // special type like <Module>
+                    return false; // special type like <Module>
 
                 anyRewritten |= this.RewriteCustomAttributes(type.CustomAttributes);
                 anyRewritten |= this.RewriteGenericParameters(type.GenericParameters);
@@ -108,9 +107,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                         }
                     }
                 }
-            }
 
-            return anyRewritten;
+                return anyRewritten;
+            }).Max();
         }
 
 

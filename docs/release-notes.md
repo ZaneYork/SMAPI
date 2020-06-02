@@ -7,6 +7,7 @@
   * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.
   * Simplified paranoid warning logs and reduced their log level.
   * Fixed `BadImageFormatException` error detection.
+  * Fixed black maps on Android for mods which use `.tmx` files.
 
 * For the web UI:
   * Added GitHub licenses to mod compatibility list.
