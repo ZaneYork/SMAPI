@@ -119,7 +119,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                         return new Tuple<bool, Exception>(false, e.InnerException ?? e);
                     }
                 })
-                .TakeWhile(tuple => tuple.Item2 == null)    // Stop on any exception occurs
                 .Aggregate((tupleA, tupleB) => new Tuple<bool, Exception>(tupleA.Item1 | tupleB.Item1, tupleA.Item2 ?? tupleB.Item2)); // Aggregate result and exception
             if (aggregateResult.Item2 != null)
             {
