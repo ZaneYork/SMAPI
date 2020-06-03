@@ -57,59 +57,75 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <returns>Returns whether the module was modified.</returns>
         public bool RewriteModule()
         {
-            return this.Module.GetTypes().AsParallel().WithExecutionMode(ParallelExecutionMode.ForceParallelism).Select(type =>
-            {
-                bool anyRewritten = false;
-                if (type.BaseType == null)
-                    return false; // special type like <Module>
-
-                anyRewritten |= this.RewriteCustomAttributes(type.CustomAttributes);
-                anyRewritten |= this.RewriteGenericParameters(type.GenericParameters);
-
-                foreach (InterfaceImplementation @interface in type.Interfaces)
-                    anyRewritten |= this.RewriteTypeReference(@interface.InterfaceType, newType => @interface.InterfaceType = newType);
-
-                if (type.BaseType.FullName != "System.Object")
-                    anyRewritten |= this.RewriteTypeReference(type.BaseType, newType => type.BaseType = newType);
-
-                foreach (MethodDefinition method in type.Methods)
+            Tuple<bool,Exception> aggregateResult = this.Module.GetTypes()
+                .AsParallel().WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+                .Select(type =>
                 {
-                    anyRewritten |= this.RewriteTypeReference(method.ReturnType, newType => method.ReturnType = newType);
-                    anyRewritten |= this.RewriteGenericParameters(method.GenericParameters);
-                    anyRewritten |= this.RewriteCustomAttributes(method.CustomAttributes);
-
-                    foreach (ParameterDefinition parameter in method.Parameters)
-                        anyRewritten |= this.RewriteTypeReference(parameter.ParameterType, newType => parameter.ParameterType = newType);
-
-                    foreach (var methodOverride in method.Overrides)
-                        anyRewritten |= this.RewriteMethodReference(methodOverride);
-
-                    if (method.HasBody)
+                    try
                     {
-                        foreach (VariableDefinition variable in method.Body.Variables)
-                            anyRewritten |= this.RewriteTypeReference(variable.VariableType, newType => variable.VariableType = newType);
+                        bool anyRewritten = false;
+                        if (type.BaseType == null)
+                            return new Tuple<bool, Exception>(anyRewritten, null); // special type like <Module>
 
-                        // check CIL instructions
-                        ILProcessor cil = method.Body.GetILProcessor();
-                        Collection<Instruction> instructions = cil.Body.Instructions;
-                        for (int i = 0; i < instructions.Count; i++)
+                        anyRewritten |= this.RewriteCustomAttributes(type.CustomAttributes);
+                        anyRewritten |= this.RewriteGenericParameters(type.GenericParameters);
+
+                        foreach (InterfaceImplementation @interface in type.Interfaces)
+                            anyRewritten |= this.RewriteTypeReference(@interface.InterfaceType, newType => @interface.InterfaceType = newType);
+
+                        if (type.BaseType.FullName != "System.Object")
+                            anyRewritten |= this.RewriteTypeReference(type.BaseType, newType => type.BaseType = newType);
+
+                        foreach (MethodDefinition method in type.Methods)
                         {
-                            var instruction = instructions[i];
-                            if (instruction.OpCode.Code == Code.Nop)
-                                continue;
+                            anyRewritten |= this.RewriteTypeReference(method.ReturnType, newType => method.ReturnType = newType);
+                            anyRewritten |= this.RewriteGenericParameters(method.GenericParameters);
+                            anyRewritten |= this.RewriteCustomAttributes(method.CustomAttributes);
 
-                            anyRewritten |= this.RewriteInstruction(instruction, cil, newInstruction =>
+                            foreach (ParameterDefinition parameter in method.Parameters)
+                                anyRewritten |= this.RewriteTypeReference(parameter.ParameterType, newType => parameter.ParameterType = newType);
+
+                            foreach (var methodOverride in method.Overrides)
+                                anyRewritten |= this.RewriteMethodReference(methodOverride);
+
+                            if (method.HasBody)
                             {
-                                anyRewritten = true;
-                                cil.Replace(instruction, newInstruction);
-                                instruction = newInstruction;
-                            });
-                        }
-                    }
-                }
+                                foreach (VariableDefinition variable in method.Body.Variables)
+                                    anyRewritten |= this.RewriteTypeReference(variable.VariableType, newType => variable.VariableType = newType);
 
-                return anyRewritten;
-            }).Max();
+                                // check CIL instructions
+                                ILProcessor cil = method.Body.GetILProcessor();
+                                Collection<Instruction> instructions = cil.Body.Instructions;
+                                for (int i = 0; i < instructions.Count; i++)
+                                {
+                                    var instruction = instructions[i];
+                                    if (instruction.OpCode.Code == Code.Nop)
+                                        continue;
+
+                                    anyRewritten |= this.RewriteInstruction(instruction, cil, newInstruction =>
+                                    {
+                                        anyRewritten = true;
+                                        cil.Replace(instruction, newInstruction);
+                                        instruction = newInstruction;
+                                    });
+                                }
+                            }
+                        }
+
+                        return new Tuple<bool, Exception>(anyRewritten, null);
+                    }
+                    catch (Exception e)
+                    {
+                        return new Tuple<bool, Exception>(false, e.InnerException ?? e);
+                    }
+                })
+                .TakeWhile(tuple => tuple.Item2 == null)    // Stop on any exception occurs
+                .Aggregate((tupleA, tupleB) => new Tuple<bool, Exception>(tupleA.Item1 | tupleB.Item1, tupleA.Item2 ?? tupleB.Item2)); // Aggregate result and exception
+            if (aggregateResult.Item2 != null)
+            {
+                throw aggregateResult.Item2; // rethrow inner Exception
+            }
+            return aggregateResult.Item1;
         }
 
 
