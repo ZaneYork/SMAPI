@@ -6,6 +6,7 @@
   * Mod warnings are now listed alphabetically.
   * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.
   * Simplified paranoid warning logs and reduced their log level.
+  * Reduced startup time when loading mod DLLs (thanks to ZaneYork!).
   * Fixed `BadImageFormatException` error detection.
   * Fixed black maps on Android for mods which use `.tmx` files.
 
@@ -24,6 +25,7 @@
   * Improved mod rewriting for compatibility:
     * Fixed rewriting types in custom attributes.
     * Fixed rewriting generic types to method references.
+  * Fixed `helper.Reflection` blocking access to game methods/properties that were extended by SMAPI.
   * Fixed asset propagation for Gil's portraits.
   * Fixed `.pdb` files ignored for error stack traces for mods rewritten by SMAPI.
 

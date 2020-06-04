@@ -122,7 +122,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <returns>Returns the same property instance for convenience.</returns>
         private IReflectedProperty<T> AssertAccessAllowed<T>(IReflectedProperty<T> property)
         {
-            this.AssertAccessAllowed(property?.PropertyInfo);
+            this.AssertAccessAllowed(property?.PropertyInfo.GetMethod?.GetBaseDefinition());
+            this.AssertAccessAllowed(property?.PropertyInfo.SetMethod?.GetBaseDefinition());
             return property;
         }
 
@@ -131,7 +132,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <returns>Returns the same method instance for convenience.</returns>
         private IReflectedMethod AssertAccessAllowed(IReflectedMethod method)
         {
-            this.AssertAccessAllowed(method?.MethodInfo);
+            this.AssertAccessAllowed(method?.MethodInfo.GetBaseDefinition());
             return method;
         }
 

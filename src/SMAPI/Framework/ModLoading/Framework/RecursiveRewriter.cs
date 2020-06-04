@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
@@ -57,16 +58,22 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <returns>Returns whether the module was modified.</returns>
         public bool RewriteModule()
         {
-            Tuple<bool,Exception> aggregateResult = this.Module.GetTypes()
-                .AsParallel().WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+            // rewrite each type in the assembly, tracking whether any type was rewritten (Item1)
+            // and any exception that occurred during rewriting (Item2).
+            var cancellationToken = new CancellationTokenSource();
+            Tuple<bool, Exception> result = this.Module
+                .GetTypes()
+                .Where(type => type.BaseType != null) // skip special types like <Module>
+                .AsParallel()
+                .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                 .Select(type =>
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                        return Tuple.Create(false, null as Exception);
+
+                    bool anyRewritten = false;
                     try
                     {
-                        bool anyRewritten = false;
-                        if (type.BaseType == null)
-                            return new Tuple<bool, Exception>(anyRewritten, null); // special type like <Module>
-
                         anyRewritten |= this.RewriteCustomAttributes(type.CustomAttributes);
                         anyRewritten |= this.RewriteGenericParameters(type.GenericParameters);
 
@@ -112,19 +119,21 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                             }
                         }
 
-                        return new Tuple<bool, Exception>(anyRewritten, null);
+                        return Tuple.Create(anyRewritten, null as Exception);
                     }
                     catch (Exception e)
                     {
-                        return new Tuple<bool, Exception>(false, e.InnerException ?? e);
+                        cancellationToken.Cancel();
+                        return Tuple.Create(anyRewritten, e);
                     }
                 })
-                .Aggregate((tupleA, tupleB) => new Tuple<bool, Exception>(tupleA.Item1 | tupleB.Item1, tupleA.Item2 ?? tupleB.Item2)); // Aggregate result and exception
-            if (aggregateResult.Item2 != null)
-            {
-                throw aggregateResult.Item2; // rethrow inner Exception
-            }
-            return aggregateResult.Item1;
+                .Aggregate((a, b) => Tuple.Create(a.Item1 || b.Item1, a.Item2 ?? b.Item2));
+
+            bool rewritten = result.Item1;
+            Exception exception = result.Item2;
+            return exception == null
+                 ? rewritten
+                 : throw exception;
         }
 
 
