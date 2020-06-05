@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
@@ -58,47 +59,44 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <returns>Returns whether the module was modified.</returns>
         public bool RewriteModule()
         {
-            // rewrite each type in the assembly, tracking whether any type was rewritten (Item1)
-            // and any exception that occurred during rewriting (Item2).
-            var cancellationToken = new CancellationTokenSource();
-            Tuple<bool, Exception> result = this.Module
-                .GetTypes()
-                .Where(type => type.BaseType != null) // skip special types like <Module>
-                .AsParallel()
-                .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-                .Select(type =>
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                        return Tuple.Create(false, null as Exception);
+            int typesChanged = 0;
+            Exception exception = null;
 
-                    bool anyRewritten = false;
+            Parallel.ForEach(
+                source: this.Module.GetTypes().Where(type => type.BaseType != null), // skip special types like <Module>
+                body: type =>
+                {
+                    if (exception != null)
+                        return;
+
+                    bool changed = false;
                     try
                     {
-                        anyRewritten |= this.RewriteCustomAttributes(type.CustomAttributes);
-                        anyRewritten |= this.RewriteGenericParameters(type.GenericParameters);
+                        changed |= this.RewriteCustomAttributes(type.CustomAttributes);
+                        changed |= this.RewriteGenericParameters(type.GenericParameters);
 
                         foreach (InterfaceImplementation @interface in type.Interfaces)
-                            anyRewritten |= this.RewriteTypeReference(@interface.InterfaceType, newType => @interface.InterfaceType = newType);
+                            changed |= this.RewriteTypeReference(@interface.InterfaceType, newType => @interface.InterfaceType = newType);
 
                         if (type.BaseType.FullName != "System.Object")
-                            anyRewritten |= this.RewriteTypeReference(type.BaseType, newType => type.BaseType = newType);
+                            changed |= this.RewriteTypeReference(type.BaseType, newType => type.BaseType = newType);
 
                         foreach (MethodDefinition method in type.Methods)
                         {
-                            anyRewritten |= this.RewriteTypeReference(method.ReturnType, newType => method.ReturnType = newType);
-                            anyRewritten |= this.RewriteGenericParameters(method.GenericParameters);
-                            anyRewritten |= this.RewriteCustomAttributes(method.CustomAttributes);
+                            changed |= this.RewriteTypeReference(method.ReturnType, newType => method.ReturnType = newType);
+                            changed |= this.RewriteGenericParameters(method.GenericParameters);
+                            changed |= this.RewriteCustomAttributes(method.CustomAttributes);
 
                             foreach (ParameterDefinition parameter in method.Parameters)
-                                anyRewritten |= this.RewriteTypeReference(parameter.ParameterType, newType => parameter.ParameterType = newType);
+                                changed |= this.RewriteTypeReference(parameter.ParameterType, newType => parameter.ParameterType = newType);
 
                             foreach (var methodOverride in method.Overrides)
-                                anyRewritten |= this.RewriteMethodReference(methodOverride);
+                                changed |= this.RewriteMethodReference(methodOverride);
 
                             if (method.HasBody)
                             {
                                 foreach (VariableDefinition variable in method.Body.Variables)
-                                    anyRewritten |= this.RewriteTypeReference(variable.VariableType, newType => variable.VariableType = newType);
+                                    changed |= this.RewriteTypeReference(variable.VariableType, newType => variable.VariableType = newType);
 
                                 // check CIL instructions
                                 ILProcessor cil = method.Body.GetILProcessor();
@@ -109,31 +107,29 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                                     if (instruction.OpCode.Code == Code.Nop)
                                         continue;
 
-                                    anyRewritten |= this.RewriteInstruction(instruction, cil, newInstruction =>
+                                    changed |= this.RewriteInstruction(instruction, cil, newInstruction =>
                                     {
-                                        anyRewritten = true;
+                                        changed = true;
                                         cil.Replace(instruction, newInstruction);
                                         instruction = newInstruction;
                                     });
                                 }
                             }
                         }
-
-                        return Tuple.Create(anyRewritten, null as Exception);
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        cancellationToken.Cancel();
-                        return Tuple.Create(anyRewritten, e);
+                        exception ??= ex;
                     }
-                })
-                .Aggregate((a, b) => Tuple.Create(a.Item1 || b.Item1, a.Item2 ?? b.Item2));
 
-            bool rewritten = result.Item1;
-            Exception exception = result.Item2;
+                    if (changed)
+                        Interlocked.Increment(ref typesChanged);
+                }
+            );
+
             return exception == null
-                 ? rewritten
-                 : throw exception;
+                 ? typesChanged > 0
+                 : throw new Exception($"Rewriting {this.Module.Name} failed.", exception);
         }
 
 
