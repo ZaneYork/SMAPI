@@ -7,6 +7,7 @@
   * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.
   * Simplified paranoid warning logs and reduced their log level.
   * Reduced startup time when loading mod DLLs (thanks to ZaneYork!).
+  * Reduced processing time when a mod loads many unpacked images (thanks to Entoarox!).
   * Fixed `BadImageFormatException` error detection.
   * Fixed black maps on Android for mods which use `.tmx` files.
 
