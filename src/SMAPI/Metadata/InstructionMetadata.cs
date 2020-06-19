@@ -1,5 +1,9 @@
 using System.Collections.Generic;
+#if HARMONY_2
 using HarmonyLib;
+#else
+using Harmony;
+#endif
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
@@ -118,15 +122,23 @@ namespace StardewModdingAPI.Metadata
             yield return new FieldToPropertyRewriter(typeof(Game1), "activeClickableMenu");
             yield return new FieldToPropertyRewriter(typeof(Game1), "stats");
 
+#if HARMONY_2
             // rewrite for SMAPI 3.6 (Harmony 1.x => 2.0 update)
             yield return new Harmony1AssemblyRewriter();
+#endif
 
             // MonoMod fix
             if (!Constants.HarmonyEnabled)
             {
+#if HARMONY_2
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "Patch", typeof(HarmonyInstanceMethods), "Patch");
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "PatchAll" && method.Parameters.Count == 0, typeof(HarmonyInstanceMethods), "PatchAll");
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "PatchAll" && method.Parameters.Count == 1, typeof(HarmonyInstanceMethods), "PatchAllToAssembly");
+#else
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "Patch", typeof(HarmonyInstanceMethods), "Patch");
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "PatchAll" && method.Parameters.Count == 0, typeof(HarmonyInstanceMethods), "PatchAll");
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "PatchAll" && method.Parameters.Count == 1, typeof(HarmonyInstanceMethods), "PatchAllToAssembly");
+#endif
             }
 
             /****
@@ -139,7 +151,11 @@ namespace StardewModdingAPI.Metadata
             /****
             ** detect code which may impact game stability
             ****/
+#if HARMONY_2
             yield return new TypeFinder(typeof(HarmonyLib.Harmony).FullName, InstructionHandleResult.DetectedGamePatch);
+#else
+            yield return new TypeFinder(typeof(Harmony.HarmonyInstance).FullName, InstructionHandleResult.DetectedGamePatch);
+#endif
             yield return new TypeFinder("System.Runtime.CompilerServices.CallSite", InstructionHandleResult.DetectedDynamic);
             yield return new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.serializer), InstructionHandleResult.DetectedSaveSerializer);
             yield return new FieldFinder(typeof(SaveGame).FullName, nameof(SaveGame.farmerSerializer), InstructionHandleResult.DetectedSaveSerializer);

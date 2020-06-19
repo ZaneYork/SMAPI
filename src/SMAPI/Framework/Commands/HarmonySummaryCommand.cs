@@ -1,3 +1,4 @@
+#if HARMONY_2
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -166,3 +167,4 @@ namespace StardewModdingAPI.Framework.Commands
         }
     }
 }
+#endif

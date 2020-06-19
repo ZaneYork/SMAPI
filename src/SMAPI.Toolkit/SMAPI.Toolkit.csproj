@@ -1,11 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <AssemblyName>SMAPI.Toolkit</AssemblyName>
     <RootNamespace>StardewModdingAPI.Toolkit</RootNamespace>
     <Description>A library which encapsulates mod-handling logic for mod managers and tools. Not intended for use by mods.</Description>
-    <LangVersion>8</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\SMAPI.Toolkit.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PlatformTarget Condition="'$(TargetFramework)' == 'net4.5'">x86</PlatformTarget>
     <RootNamespace>StardewModdingAPI.Toolkit</RootNamespace>
     <TargetFramework>net45</TargetFramework>
@@ -24,5 +21,4 @@
   </ItemGroup>
 
   <Import Project="..\..\build\common.targets" />
-
 </Project>

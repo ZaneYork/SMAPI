@@ -15,6 +15,7 @@ This document is about SMAPI itself; see also [mod build package](mod-package.md
   * [Compiling from source](#compiling-from-source)
   * [Debugging a local build](#debugging-a-local-build)
   * [Preparing a release](#preparing-a-release)
+  * [Using a custom Harmony build](#using-a-custom-harmony-build)
 * [Release notes](#release-notes)
 
 ## Customisation
@@ -57,24 +58,22 @@ SMAPI uses a small number of conditional compilation constants, which you can se
 flag | purpose
 ---- | -------
 `SMAPI_FOR_WINDOWS` | Whether SMAPI is being compiled on Windows for players on Windows. Set automatically in `crossplatform.targets`.
+`HARMONY_2` | Whether to enable experimental Harmony 2.0 support. Existing Harmony 1._x_ mods will be rewritten automatically for compatibility.
 
 ## For SMAPI developers
 ### Compiling from source
-Using an official SMAPI release is recommended for most users.
+Using an official SMAPI release is recommended for most users, but you can compile from source
+directly if needed. There are no special steps (just open the project and compile), but SMAPI often
+uses the latest C# syntax. You may need the latest version of your IDE to compile it.
 
-SMAPI often uses the latest C# syntax. You may need the latest version of
-[Visual Studio](https://www.visualstudio.com/vs/community/) on Windows,
-[MonoDevelop](https://www.monodevelop.com/) on Linux,
-[Visual Studio for Mac](https://www.visualstudio.com/vs/visual-studio-mac/), or an equivalent IDE
-to compile it. It uses build configuration derived from the
-[crossplatform mod config](https://smapi.io/package/readme) to detect your current OS automatically
-and load the correct references. Compile output will be placed in a `bin` folder at the root of the
-git repository.
+SMAPI uses build configuration derived from the [crossplatform mod config](https://smapi.io/package/readme)
+to detect your current OS automatically and load the correct references. Compile output will be
+placed in a `bin` folder at the root of the Git repository.
 
 ### Debugging a local build
 Rebuilding the solution in debug mode will copy the SMAPI files into your game folder. Starting
 the `SMAPI` project with debugging from Visual Studio (on Mac or Windows) will launch SMAPI with
-the debugger attached, so you can intercept errors and step through the code being executed. This
+the debugger attached, so you can intercept errors and step through the code being executed. That
 doesn't work in MonoDevelop on Linux, unfortunately.
 
 ### Preparing a release
@@ -87,9 +86,9 @@ on the wiki for the first-time setup.
 
    build type | format                   | example
    :--------- | :----------------------- | :------
-   dev build  | `<version>-alpha.<date>` | `3.0-alpha.20171230`
-   prerelease | `<version>-beta.<count>` | `3.0-beta.2`
-   release    | `<version>`              | `3.0`
+   dev build  | `<version>-alpha.<date>` | `3.0.0-alpha.20171230`
+   prerelease | `<version>-beta.<count>` | `3.0.0-beta.2`
+   release    | `<version>`              | `3.0.0`
 
 2. In Windows:
    1. Rebuild the solution in Release mode.
@@ -102,6 +101,15 @@ on the wiki for the first-time setup.
       `bin/SMAPI installer for developers` folders.
    3. Rename the folders to `SMAPI <version> installer` and `SMAPI <version> installer for developers`.
    4. Zip the two folders.
+
+### Using a custom Harmony build
+The official SMAPI releases include [a custom build of Harmony](https://github.com/Pathoschild/Harmony),
+but compiling from source will use the official build. To use a custom build, put `0Harmony.dll` in
+the `build` folder and it'll be referenced automatically.
+
+Note that Harmony merges its dependencies into `0Harmony.dll` when compiled in release mode. To use
+a debug build of Harmony, you'll need to manually copy those dependencies into your game's
+`smapi-internal` folder.
 
 ## Release notes
 See [release notes](../release-notes.md).

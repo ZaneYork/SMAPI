@@ -1,11 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <AssemblyName>SaveBackup</AssemblyName>
     <RootNamespace>StardewModdingAPI.Mods.SaveBackup</RootNamespace>
     <TargetFramework>net45</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <OutputPath></OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
@@ -29,9 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Update="manifest.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />

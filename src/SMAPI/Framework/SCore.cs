@@ -175,7 +175,7 @@ namespace StardewModdingAPI.Framework
             this.MonitorForGame = this.GetSecondaryMonitor("game");
 
             SCore.PerformanceMonitor = new PerformanceMonitor(this.Monitor);
-            this.EventManager = new EventManager(this.Monitor, this.ModRegistry, SCore.PerformanceMonitor);
+            this.EventManager = new EventManager(this.ModRegistry, SCore.PerformanceMonitor);
             SCore.PerformanceMonitor.InitializePerformanceCounterCollections(this.EventManager);
 
             SCore.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
@@ -489,7 +489,9 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
                 this.GameInstance.CommandManager
                     .Add(new HelpCommand(this.GameInstance.CommandManager), this.Monitor)
+#if HARMONY_2
                     .Add(new HarmonySummaryCommand(), this.Monitor)
+#endif
                     .Add(new ReloadI18nCommand(this.ReloadTranslations), this.Monitor);
 
                 // update window titles
@@ -538,7 +540,9 @@ namespace StardewModdingAPI.Framework
             this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
             this.GameInstance.CommandManager
                 .Add(new HelpCommand(this.GameInstance.CommandManager), this.Monitor)
+#if HARMONY_2
                 .Add(new HarmonySummaryCommand(), this.Monitor)
+#endif
                 .Add(new ReloadI18nCommand(this.ReloadTranslations), this.Monitor);
 
             // start handling command line input
@@ -1020,7 +1024,7 @@ namespace StardewModdingAPI.Framework
                 }
                 catch (SAssemblyLoadFailedException ex)
                 {
-                    errorReasonPhrase = $"it DLL couldn't be loaded: {ex.Message}";
+                    errorReasonPhrase = $"its DLL couldn't be loaded: {ex.Message}";
                     return false;
                 }
                 catch (Exception ex)

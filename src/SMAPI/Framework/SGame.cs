@@ -304,7 +304,7 @@ namespace StardewModdingAPI.Framework
                 modIDs.Remove(message.FromModID); // don't send a broadcast back to the sender
 
             // raise events
-            this.Events.ModMessageReceived.RaiseForMods(new ModMessageReceivedEventArgs(message), mod => mod != null && modIDs.Contains(mod.Manifest.UniqueID));
+            this.Events.ModMessageReceived.Raise(new ModMessageReceivedEventArgs(message), mod => mod != null && modIDs.Contains(mod.Manifest.UniqueID));
         }
 
         /// <summary>A callback invoked when custom content is removed from the save data to avoid a crash.</summary>

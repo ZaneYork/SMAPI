@@ -7,8 +7,11 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
+#if HARMONY_2
 using HarmonyLib;
-
+#else
+using Harmony;
+#endif
 namespace StardewModdingAPI
 {
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -202,7 +205,11 @@ namespace StardewModdingAPI
                     {
                         typeof(StardewValley.Game1).Assembly, // note: includes Netcode types on Linux/Mac
                         typeof(Microsoft.Xna.Framework.Vector2).Assembly,
+#if HARMONY_2
                         typeof(HarmonyLib.Harmony).Assembly,
+#else
+                        typeof(Harmony.HarmonyInstance).Assembly,
+#endif
                         typeof(Mono.Cecil.MethodDefinition).Assembly,
                         typeof(StardewModdingAPI.IManifest).Assembly,
                     };

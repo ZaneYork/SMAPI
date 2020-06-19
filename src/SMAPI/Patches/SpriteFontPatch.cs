@@ -1,5 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
+#if HARMONY_2
 using HarmonyLib;
+#else
+using Harmony;
+#endif
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley.Characters;
@@ -41,7 +45,13 @@ namespace StardewModdingAPI.Patches
 
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        public void Apply(Harmony harmony)
+        public void Apply(
+#if HARMONY_2
+            Harmony harmony
+#else
+            HarmonyInstance harmony
+#endif
+            )
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(SpriteFont), "MeasureString", new System.Type[] { typeof(string)}),

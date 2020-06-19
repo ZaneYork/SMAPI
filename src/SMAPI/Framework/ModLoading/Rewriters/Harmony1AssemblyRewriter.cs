@@ -1,3 +1,4 @@
+#if HARMONY_2
 using System;
 using HarmonyLib;
 using Mono.Cecil;
@@ -125,3 +126,4 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         }
     }
 }
+#endif

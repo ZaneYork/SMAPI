@@ -4,7 +4,6 @@
     <AssemblyName>ConsoleCommands</AssemblyName>
     <RootNamespace>StardewModdingAPI.Mods.ConsoleCommands</RootNamespace>
     <TargetFramework>net45</TargetFramework>
-    <LangVersion>8</LangVersion>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>

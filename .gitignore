@@ -30,8 +30,8 @@ _ReSharper*/
 # sensitive files
 appsettings.Development.json
 
-# AWS generated files
-src/SMAPI.Web.LegacyRedirects/aws-beanstalk-tools-defaults.json
+# generated build files
+build/0Harmony.*
 
 # Azure generated files
 src/SMAPI.Web/Properties/PublishProfiles/*.pubxml

@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+#if HARMONY_2
 using HarmonyLib;
+#else
+using Harmony;
+#endif
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
@@ -49,7 +53,11 @@ namespace StardewModdingAPI.Patches
 
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
+#if HARMONY_2
         public void Apply(Harmony harmony)
+#else
+        public void Apply(HarmonyInstance harmony)
+#endif
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(SaveGame), nameof(SaveGame.loadDataToLocations)),
