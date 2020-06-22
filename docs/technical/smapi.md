@@ -58,7 +58,7 @@ SMAPI uses a small number of conditional compilation constants, which you can se
 flag | purpose
 ---- | -------
 `SMAPI_FOR_WINDOWS` | Whether SMAPI is being compiled on Windows for players on Windows. Set automatically in `crossplatform.targets`.
-`HARMONY_2` | Whether to enable experimental Harmony 2.0 support. Existing Harmony 1._x_ mods will be rewritten automatically for compatibility.
+`HARMONY_2` | Whether to enable experimental Harmony 2.0 support and rewrite existing Harmony 1._x_ mods for compatibility. Note that you need to replace `build/0Harmony.dll` with a Harmony 2.0 build (or switch to a package reference) to use this flag.
 
 ## For SMAPI developers
 ### Compiling from source
@@ -81,8 +81,8 @@ To prepare a crossplatform SMAPI release, you'll need to compile it on two platf
 [crossplatforming info](https://stardewvalleywiki.com/Modding:Modder_Guide/Test_and_Troubleshoot#Testing_on_all_platforms)
 on the wiki for the first-time setup.
 
-1. Update the version number in `.root/build/common.targets` and `Constants::Version`. Make sure
-  you use a [semantic version](https://semver.org). Recommended format:
+1. Update the version numbers in `build/common.targets`, `Constants`, and the `manifest.json` for
+   bundled mods. Make sure you use a [semantic version](https://semver.org). Recommended format:
 
    build type | format                   | example
    :--------- | :----------------------- | :------
@@ -102,14 +102,10 @@ on the wiki for the first-time setup.
    3. Rename the folders to `SMAPI <version> installer` and `SMAPI <version> installer for developers`.
    4. Zip the two folders.
 
-### Using a custom Harmony build
-The official SMAPI releases include [a custom build of Harmony](https://github.com/Pathoschild/Harmony),
-but compiling from source will use the official build. To use a custom build, put `0Harmony.dll` in
-the `build` folder and it'll be referenced automatically.
-
-Note that Harmony merges its dependencies into `0Harmony.dll` when compiled in release mode. To use
-a debug build of Harmony, you'll need to manually copy those dependencies into your game's
-`smapi-internal` folder.
+### Custom Harmony build
+SMAPI uses [a custom build of Harmony](https://github.com/Pathoschild/Harmony#readme), which is
+included in the `build` folder. To use a different build, just replace `0Harmony.dll` in that
+folder.
 
 ## Release notes
 See [release notes](../release-notes.md).

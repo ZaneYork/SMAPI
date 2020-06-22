@@ -1,16 +1,27 @@
-#if HARMONY_2
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+#if HARMONY_2
 using HarmonyLib;
+#else
+using Harmony;
+#endif
 
 namespace StardewModdingAPI.Framework.Commands
 {
     /// <summary>The 'harmony_summary' SMAPI console command.</summary>
     internal class HarmonySummaryCommand : IInternalCommand
     {
+#if !HARMONY_2
+        /*********
+        ** Fields
+        *********/
+        /// <summary>The Harmony instance through which to fetch patch info.</summary>
+        private readonly HarmonyInstance HarmonyInstance = HarmonyInstance.Create($"SMAPI.{nameof(HarmonySummaryCommand)}");
+#endif
+
         /*********
         ** Accessors
         *********/
@@ -45,7 +56,16 @@ namespace StardewModdingAPI.Framework.Commands
                     foreach (var ownerGroup in match.PatchTypesByOwner.OrderBy(p => p.Key))
                     {
                         var sortedTypes = ownerGroup.Value
-                            .OrderBy(p => p switch { PatchType.Prefix => 0, PatchType.Postfix => 1, PatchType.Finalizer => 2, PatchType.Transpiler => 3, _ => 4 });
+                            .OrderBy(p => p switch
+                            {
+                                PatchType.Prefix => 0,
+                                PatchType.Postfix => 1,
+#if HARMONY_2
+                                PatchType.Finalizer => 2,
+#endif
+                                PatchType.Transpiler => 3,
+                                _ => 4
+                            });
 
                         result.AppendLine($"      - {ownerGroup.Key} ({string.Join(", ", sortedTypes).ToLower()})");
                     }
@@ -91,15 +111,26 @@ namespace StardewModdingAPI.Framework.Commands
         /// <summary>Get all current Harmony patches.</summary>
         private IEnumerable<SearchResult> GetAllPatches()
         {
+#if HARMONY_2
             foreach (MethodBase method in Harmony.GetAllPatchedMethods())
+#else
+            foreach (MethodBase method in this.HarmonyInstance.GetPatchedMethods())
+#endif
             {
                 // get metadata for method
+#if HARMONY_2
                 HarmonyLib.Patches patchInfo = Harmony.GetPatchInfo(method);
+#else
+                Harmony.Patches patchInfo = this.HarmonyInstance.GetPatchInfo(method);
+#endif
+
                 IDictionary<PatchType, IReadOnlyCollection<Patch>> patchGroups = new Dictionary<PatchType, IReadOnlyCollection<Patch>>
                 {
                     [PatchType.Prefix] = patchInfo.Prefixes,
                     [PatchType.Postfix] = patchInfo.Postfixes,
+#if HARMONY_2
                     [PatchType.Finalizer] = patchInfo.Finalizers,
+#endif
                     [PatchType.Transpiler] = patchInfo.Transpilers
                 };
 
@@ -129,8 +160,10 @@ namespace StardewModdingAPI.Framework.Commands
             /// <summary>A postfix patch.</summary>
             Postfix,
 
+#if HARMONY_2
             /// <summary>A finalizer patch.</summary>
             Finalizer,
+#endif
 
             /// <summary>A transpiler patch.</summary>
             Transpiler
@@ -167,4 +200,3 @@ namespace StardewModdingAPI.Framework.Commands
         }
     }
 }
-#endif

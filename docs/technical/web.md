@@ -110,8 +110,9 @@ Available schemas:
 
 format | schema URL
 ------ | ----------
-[SMAPI `manifest.json`](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest) | https://smapi.io/schemas/manifest.json
-[Content Patcher `content.json`](https://github.com/Pathoschild/StardewMods/tree/develop/ContentPatcher#readme) | https://smapi.io/schemas/content-patcher.json
+[SMAPI: `manifest.json`](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest) | https://smapi.io/schemas/manifest.json
+[SMAPI: translations (`i18n` folder)](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Translation) | https://smapi.io/schemas/i18n.json
+[Content Patcher: `content.json`](https://github.com/Pathoschild/StardewMods/tree/develop/ContentPatcher#readme) | https://smapi.io/schemas/content-patcher.json
 
 ## Web API
 ### Overview

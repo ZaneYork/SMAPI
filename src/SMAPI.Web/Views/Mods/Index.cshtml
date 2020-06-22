@@ -8,8 +8,8 @@
 
     TimeSpan staleAge = DateTimeOffset.UtcNow - Model.LastUpdated;
 
-    bool hasBeta = true; // Model.BetaVersion != null;
-    string betaLabel = "SMAPI 3.6 only"; //"SDV @Model.BetaVersion only";
+    bool hasBeta = Model.BetaVersion != null;
+    string betaLabel = "SDV @Model.BetaVersion only";
 }
 @section Head {
     <link rel="stylesheet" href="~/Content/css/mods.css?r=20200218" />

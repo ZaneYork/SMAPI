@@ -2,6 +2,7 @@ using System;
 #if HARMONY_2
 using HarmonyLib;
 #else
+using MonoMod.RuntimeDetour;
 using Harmony;
 #endif
 
@@ -34,6 +35,13 @@ namespace StardewModdingAPI.Framework.Patching
 #if HARMONY_2
             Harmony harmony = new Harmony("SMAPI");
 #else
+            if (!HarmonyDetourBridge.Initialized && Constants.HarmonyEnabled)
+            {
+                try {
+                    HarmonyDetourBridge.Init();
+                }
+                catch { Constants.HarmonyEnabled = false; }
+            }
             HarmonyInstance harmony = HarmonyInstance.Create("SMAPI");
 #endif
             foreach (IHarmonyPatch patch in patches)

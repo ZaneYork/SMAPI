@@ -9,7 +9,6 @@
     string newUploadUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName });
     string schemaDisplayName = null;
     bool isValidSchema = Model.SchemaName != null && Model.SchemaFormats.TryGetValue(Model.SchemaName, out schemaDisplayName) && schemaDisplayName?.ToLower() != "none";
-    bool isEditView = Model.Content == null || Model.SchemaName?.ToLower() == "edit";
 
     // build title
     ViewData["Title"] = "JSON validator";
@@ -63,7 +62,7 @@ else if (Model.ParseError != null)
         <small v-pre>Error details: @Model.ParseError</small>
     </div>
 }
-else if (!isEditView && Model.PasteID != null)
+else if (!Model.IsEditView && Model.PasteID != null)
 {
     <div class="banner success">
         <strong>Share this link to let someone else see this page:</strong> <code>@curPageUrl</code><br />
@@ -84,7 +83,7 @@ else if (!isEditView && Model.PasteID != null)
 }
 
 @* upload new file *@
-@if (isEditView)
+@if (Model.IsEditView)
 {
     <h2>Upload a JSON file</h2>
     <form action="@this.Url.PlainAction("PostAsync", "JsonValidator")" method="post">
@@ -112,7 +111,7 @@ else if (!isEditView && Model.PasteID != null)
 }
 
 @* validation results *@
-@if (!isEditView)
+@if (!Model.IsEditView)
 {
     <div id="output">
         @if (Model.UploadError == null)
@@ -158,7 +157,7 @@ else if (!isEditView && Model.PasteID != null)
                 {
                     <option value="@pair.Key" selected="@(Model.SchemaName == pair.Key)">@pair.Value</option>
                 }
-            </select>) or <a href="@(this.Url.PlainAction("Index", "JsonValidator", new { id = this.Model.PasteID, schemaName = "edit" }))">edit this file</a>.
+            </select>) or <a href="@(this.Url.PlainAction("Index", "JsonValidator", new { id = this.Model.PasteID, schemaName = this.Model.SchemaName, operation = "edit" }))">edit this file</a>.
         </div>
         <pre id="raw-content" class="sunlight-highlight-javascript">@Model.Content</pre>
 

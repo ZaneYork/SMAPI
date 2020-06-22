@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,15 +57,20 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         }
 
         /// <summary>Rewrite the loaded module code.</summary>
+        /// <param name="rewriteInParallel">Whether to enable experimental parallel rewriting.</param>
         /// <returns>Returns whether the module was modified.</returns>
-        public bool RewriteModule()
+        public bool RewriteModule(bool rewriteInParallel)
         {
-            int typesChanged = 0;
-            Exception exception = null;
+            IEnumerable<TypeDefinition> types = this.Module.GetTypes().Where(type => type.BaseType != null); // skip special types like <Module>
 
-            Parallel.ForEach(
-                source: this.Module.GetTypes().Where(type => type.BaseType != null), // skip special types like <Module>
-                body: type =>
+            // experimental parallel rewriting
+            // This may cause intermittent startup errors and is disabled by default: https://github.com/Pathoschild/SMAPI/issues/721
+            if (rewriteInParallel)
+            {
+                int typesChanged = 0;
+                Exception exception = null;
+
+                Parallel.ForEach(types, type =>
                 {
                     if (exception != null)
                         return;
@@ -72,50 +78,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                     bool changed = false;
                     try
                     {
-                        changed |= this.RewriteCustomAttributes(type.CustomAttributes);
-                        changed |= this.RewriteGenericParameters(type.GenericParameters);
-
-                        foreach (InterfaceImplementation @interface in type.Interfaces)
-                            changed |= this.RewriteTypeReference(@interface.InterfaceType, newType => @interface.InterfaceType = newType);
-
-                        if (type.BaseType.FullName != "System.Object")
-                            changed |= this.RewriteTypeReference(type.BaseType, newType => type.BaseType = newType);
-
-                        foreach (MethodDefinition method in type.Methods)
-                        {
-                            changed |= this.RewriteTypeReference(method.ReturnType, newType => method.ReturnType = newType);
-                            changed |= this.RewriteGenericParameters(method.GenericParameters);
-                            changed |= this.RewriteCustomAttributes(method.CustomAttributes);
-
-                            foreach (ParameterDefinition parameter in method.Parameters)
-                                changed |= this.RewriteTypeReference(parameter.ParameterType, newType => parameter.ParameterType = newType);
-
-                            foreach (var methodOverride in method.Overrides)
-                                changed |= this.RewriteMethodReference(methodOverride);
-
-                            if (method.HasBody)
-                            {
-                                foreach (VariableDefinition variable in method.Body.Variables)
-                                    changed |= this.RewriteTypeReference(variable.VariableType, newType => variable.VariableType = newType);
-
-                                // check CIL instructions
-                                ILProcessor cil = method.Body.GetILProcessor();
-                                Collection<Instruction> instructions = cil.Body.Instructions;
-                                for (int i = 0; i < instructions.Count; i++)
-                                {
-                                    var instruction = instructions[i];
-                                    if (instruction.OpCode.Code == Code.Nop)
-                                        continue;
-
-                                    changed |= this.RewriteInstruction(instruction, cil, newInstruction =>
-                                    {
-                                        changed = true;
-                                        cil.Replace(instruction, newInstruction);
-                                        instruction = newInstruction;
-                                    });
-                                }
-                            }
-                        }
+                        changed = this.RewriteTypeDefinition(type);
                     }
                     catch (Exception ex)
                     {
@@ -124,18 +87,90 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
 
                     if (changed)
                         Interlocked.Increment(ref typesChanged);
-                }
-            );
+                });
 
-            return exception == null
-                 ? typesChanged > 0
-                 : throw new Exception($"Rewriting {this.Module.Name} failed.", exception);
+                return exception == null
+                    ? typesChanged > 0
+                    : throw new Exception($"Rewriting {this.Module.Name} failed.", exception);
+            }
+
+            // non-parallel rewriting
+            {
+                bool changed = false;
+
+                try
+                {
+                    foreach (var type in types)
+                        changed |= this.RewriteTypeDefinition(type);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Rewriting {this.Module.Name} failed.", ex);
+                }
+
+                return changed;
+            }
         }
 
 
         /*********
         ** Private methods
         *********/
+        /// <summary>Rewrite a loaded type definition.</summary>
+        /// <param name="type">The type definition to rewrite.</param>
+        /// <returns>Returns whether the type was modified.</returns>
+        private bool RewriteTypeDefinition(TypeDefinition type)
+        {
+            bool changed = false;
+
+            changed |= this.RewriteCustomAttributes(type.CustomAttributes);
+            changed |= this.RewriteGenericParameters(type.GenericParameters);
+
+            foreach (InterfaceImplementation @interface in type.Interfaces)
+                changed |= this.RewriteTypeReference(@interface.InterfaceType, newType => @interface.InterfaceType = newType);
+
+            if (type.BaseType.FullName != "System.Object")
+                changed |= this.RewriteTypeReference(type.BaseType, newType => type.BaseType = newType);
+
+            foreach (MethodDefinition method in type.Methods)
+            {
+                changed |= this.RewriteTypeReference(method.ReturnType, newType => method.ReturnType = newType);
+                changed |= this.RewriteGenericParameters(method.GenericParameters);
+                changed |= this.RewriteCustomAttributes(method.CustomAttributes);
+
+                foreach (ParameterDefinition parameter in method.Parameters)
+                    changed |= this.RewriteTypeReference(parameter.ParameterType, newType => parameter.ParameterType = newType);
+
+                foreach (var methodOverride in method.Overrides)
+                    changed |= this.RewriteMethodReference(methodOverride);
+
+                if (method.HasBody)
+                {
+                    foreach (VariableDefinition variable in method.Body.Variables)
+                        changed |= this.RewriteTypeReference(variable.VariableType, newType => variable.VariableType = newType);
+
+                    // check CIL instructions
+                    ILProcessor cil = method.Body.GetILProcessor();
+                    Collection<Instruction> instructions = cil.Body.Instructions;
+                    for (int i = 0; i < instructions.Count; i++)
+                    {
+                        var instruction = instructions[i];
+                        if (instruction.OpCode.Code == Code.Nop)
+                            continue;
+
+                        changed |= this.RewriteInstruction(instruction, cil, newInstruction =>
+                        {
+                            changed = true;
+                            cil.Replace(instruction, newInstruction);
+                            instruction = newInstruction;
+                        });
+                    }
+                }
+            }
+
+            return changed;
+        }
+
         /// <summary>Rewrite a CIL instruction if needed.</summary>
         /// <param name="instruction">The current CIL instruction.</param>
         /// <param name="cil">The CIL instruction processor.</param>

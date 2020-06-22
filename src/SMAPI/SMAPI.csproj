@@ -34,9 +34,9 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-<!--    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_GOOGLE</DefineConstants>-->
-<!--    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_SAMSUNG</DefineConstants>-->
-    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_GOOGLE;HARMONY_1</DefineConstants>
+<!--    <DefineConstants>ANDROID_TARGET_GOOGLE</DefineConstants>-->
+<!--    <DefineConstants>ANDROID_TARGET_SAMSUNG</DefineConstants>-->
+    <DefineConstants>ANDROID_TARGET_GOOGLE;HARMONY_1</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>8.0</LangVersion>
@@ -104,7 +104,13 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\Loader\libs\0Harmony.dll</HintPath>
+      <HintPath>..\..\build\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.RuntimeDetour">
+      <HintPath>..\Loader\libs\MonoMod.RuntimeDetour.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Utils">
+      <HintPath>..\Loader\libs\MonoMod.Utils.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>..\Loader\libs\MonoGame.Framework.dll</HintPath>

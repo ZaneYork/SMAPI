@@ -27,12 +27,13 @@ namespace StardewModdingAPI.Web.Controllers
         private readonly IDictionary<string, string> SchemaFormats = new Dictionary<string, string>
         {
             ["none"] = "None",
-            ["manifest"] = "Manifest",
+            ["manifest"] = "SMAPI: manifest",
+            ["i18n"] = "SMAPI: translations (i18n)",
             ["content-patcher"] = "Content Patcher"
         };
 
         /// <summary>The schema ID to use if none was specified.</summary>
-        private string DefaultSchemaID = "manifest";
+        private string DefaultSchemaID = "none";
 
         /// <summary>A token in an error message which indicates that the child errors should be displayed instead.</summary>
         private readonly string TransparentToken = "$transparent";
@@ -57,16 +58,22 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Render the schema validator UI.</summary>
         /// <param name="schemaName">The schema name with which to validate the JSON, or 'edit' to return to the edit screen.</param>
         /// <param name="id">The stored file ID.</param>
+        /// <param name="operation">The operation to perform for the selected log ID. This can be 'edit', or any other value to view.</param>
         [HttpGet]
         [Route("json")]
         [Route("json/{schemaName}")]
         [Route("json/{schemaName}/{id}")]
-        public async Task<ViewResult> Index(string schemaName = null, string id = null)
+        [Route("json/{schemaName}/{id}/{operation}")]
+        public async Task<ViewResult> Index(string schemaName = null, string id = null, string operation = null)
         {
+            // parse arguments
             schemaName = this.NormalizeSchemaName(schemaName);
+            bool hasId = !string.IsNullOrWhiteSpace(id);
+            bool isEditView = !hasId || operation?.Trim().ToLower() == "edit";
 
-            var result = new JsonValidatorModel(id, schemaName, this.SchemaFormats);
-            if (string.IsNullOrWhiteSpace(id))
+            // build result model
+            var result = this.GetModel(id, schemaName, isEditView);
+            if (!hasId)
                 return this.View("Index", result);
 
             // fetch raw JSON
@@ -76,7 +83,7 @@ namespace StardewModdingAPI.Web.Controllers
             result.SetContent(file.Content, expiry: file.Expiry, uploadWarning: file.Warning);
 
             // skip parsing if we're going to the edit screen
-            if (schemaName?.ToLower() == "edit")
+            if (isEditView)
                 return this.View("Index", result);
 
             // parse JSON
@@ -130,7 +137,7 @@ namespace StardewModdingAPI.Web.Controllers
         public async Task<ActionResult> PostAsync(JsonValidatorRequestModel request)
         {
             if (request == null)
-                return this.View("Index", this.GetModel(null, null).SetUploadError("The request seems to be invalid."));
+                return this.View("Index", this.GetModel(null, null, isEditView: true).SetUploadError("The request seems to be invalid."));
 
             // normalize schema name
             string schemaName = this.NormalizeSchemaName(request.SchemaName);
@@ -138,12 +145,12 @@ namespace StardewModdingAPI.Web.Controllers
             // get raw text
             string input = request.Content;
             if (string.IsNullOrWhiteSpace(input))
-                return this.View("Index", this.GetModel(null, schemaName).SetUploadError("The JSON file seems to be empty."));
+                return this.View("Index", this.GetModel(null, schemaName, isEditView: true).SetUploadError("The JSON file seems to be empty."));
 
             // upload file
             UploadResult result = await this.Storage.SaveAsync(input);
             if (!result.Succeeded)
-                return this.View("Index", this.GetModel(result.ID, schemaName).SetUploadError(result.UploadError));
+                return this.View("Index", this.GetModel(result.ID, schemaName, isEditView: true).SetContent(input, null).SetUploadError(result.UploadError));
 
             // redirect to view
             return this.Redirect(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = schemaName, id = result.ID }));
@@ -156,9 +163,10 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Build a JSON validator model.</summary>
         /// <param name="pasteID">The stored file ID.</param>
         /// <param name="schemaName">The schema name with which the JSON was validated.</param>
-        private JsonValidatorModel GetModel(string pasteID, string schemaName)
+        /// <param name="isEditView">Whether to show the edit view.</param>
+        private JsonValidatorModel GetModel(string pasteID, string schemaName, bool isEditView)
         {
-            return new JsonValidatorModel(pasteID, schemaName, this.SchemaFormats);
+            return new JsonValidatorModel(pasteID, schemaName, this.SchemaFormats, isEditView);
         }
 
         /// <summary>Get a normalized schema name, or the <see cref="DefaultSchemaID"/> if blank.</summary>

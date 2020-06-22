@@ -1,45 +1,58 @@
 &larr; [README](README.md)
 
 # Release notes
-## Upcoming release + 1
+<!--
+## Future release
 * For modders:
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
-  * Added `harmony_summary` console command which lists all current Harmony patches, optionally with a search filter.
+-->
 
-## Upcoming release
+## 3.6.1
+Released 21 June 2020 for Stardew Valley 1.4.1 or later.
+
+* Fixed event priority sorting.
+
+## 3.6
+Released 20 June 2020 for Stardew Valley 1.4.1 or later.
+
 * For players:
-  * Mod warnings are now listed alphabetically.
+  * Added crossplatform compatibility for mods which use the `[HarmonyPatch(type)]` attribute.
+  * Added experimental option to reduce startup time when loading mod DLLs (thanks to ZaneYork!). Enable `RewriteInParallel` in the `smapi-internal/config.json` to try it.
+  * Reduced processing time when a mod loads many unpacked images (thanks to Entoarox!).
+  * Mod load warnings are now listed alphabetically.
   * MacOS files starting with `._` are now ignored and can no longer cause skipped mods.
   * Simplified paranoid warning logs and reduced their log level.
-  * Reduced startup time when loading mod DLLs (thanks to ZaneYork!).
-  * Reduced processing time when a mod loads many unpacked images (thanks to Entoarox!).
-  * Fixed `BadImageFormatException` error detection.
   * Fixed black maps on Android for mods which use `.tmx` files.
+  * Fixed `BadImageFormatException` error detection.
+  * Fixed `reload_i18n` command not reloading content pack translations.
 
 * For the web UI:
   * Added GitHub licenses to mod compatibility list.
+  * Improved JSON validator:
+    * added SMAPI `i18n` schema;
+    * editing an uploaded file now remembers the selected schema;
+    * changed default schema to plain JSON.
   * Updated ModDrop URLs.
   * Internal changes to improve performance and reliability.
 
 * For modders:
   * Added [event priorities](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Custom_priority) (thanks to spacechase0!).
   * Added [update subkeys](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks#Update_subkeys).
+  * Added [a custom build of Harmony](https://github.com/Pathoschild/Harmony#readme) to provide more useful stack traces in error logs.
+  * Added `harmony_summary` console command to list or search current Harmony patches.
   * Added `Multiplayer.PeerConnected` event.
-  * Added ability to override update keys from the compatibility list.
-  * Harmony mods which use the `[HarmonyPatch(type)]` attribute now work crossplatform. Previously SMAPI couldn't rewrite types in custom attributes for compatibility.
-  * Improved mod rewriting for compatibility:
-    * Fixed rewriting types in custom attributes.
-    * Fixed rewriting generic types to method references.
-  * Fixed `helper.Reflection` blocking access to game methods/properties that were extended by SMAPI.
+  * Added support for overriding update keys from the wiki compatibility list.
+  * Improved mod rewriting for compatibility to support more cases (e.g. custom attributes and generic types).
+  * Fixed `helper.Reflection` blocking access to game methods/properties intercepted by SMAPI.
   * Fixed asset propagation for Gil's portraits.
-  * Fixed `.pdb` files ignored for error stack traces for mods rewritten by SMAPI.
+  * Fixed `.pdb` files ignored for error stack traces when mods are rewritten by SMAPI.
   * Fixed `ModMessageReceived` event handlers not tracked for performance monitoring.
 
 * For SMAPI developers:
-  * Added support for bundling a custom Harmony build for upcoming use.
   * Eliminated MongoDB storage in the web services, which complicated the code unnecessarily. The app still uses an abstract interface for storage, so we can wrap a distributed cache in the future if needed.
-  * Overhauled update checks to simplify individual clients, centralize common logic, and enable upcoming features.
+  * Overhauled update checks to simplify mod site integrations, centralize common logic, and enable upcoming features.
   * Merged the separate legacy redirects app on AWS into the main app on Azure.
+  * Changed SMAPI's Harmony ID from `io.smapi` to `SMAPI` for readability in Harmony summaries.
 
 ## 3.5
 Released 27 April 2020 for Stardew Valley 1.4.1 or later.

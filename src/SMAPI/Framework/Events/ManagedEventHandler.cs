@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Framework.Events
             if (!(obj is ManagedEventHandler<TEventArgs> other))
                 throw new ArgumentException("Can't compare to an unrelated object type.");
 
-            int priorityCompare = this.Priority.CompareTo(other.Priority);
+            int priorityCompare = -this.Priority.CompareTo(other.Priority); // higher value = sort first
             return priorityCompare != 0
                 ? priorityCompare
                 : this.RegistrationOrder.CompareTo(other.RegistrationOrder);
