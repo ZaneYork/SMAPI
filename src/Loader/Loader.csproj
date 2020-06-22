@@ -83,7 +83,7 @@
       <HintPath>libs\SMAPI.Toolkit.CoreInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>libs\0Harmony.dll</HintPath>
+      <HintPath>..\..\build\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="CPExtBmFont">
       <HintPath>libs\CPExtBmFont.dll</HintPath>
