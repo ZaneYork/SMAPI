@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework
         ** Fields
         *********/
         /// <summary>The commands registered with SMAPI.</summary>
-        private readonly IDictionary<string, Command> Commands = new Dictionary<string, Command>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly IDictionary<string, Command> Commands = new Dictionary<string, Command>(StringComparer.OrdinalIgnoreCase);
 
 
         /*********

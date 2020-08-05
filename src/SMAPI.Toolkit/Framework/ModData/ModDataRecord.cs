@@ -46,13 +46,13 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         public bool HasID(string id)
         {
             // try main ID
-            if (this.ID.Equals(id, StringComparison.InvariantCultureIgnoreCase))
+            if (this.ID.Equals(id, StringComparison.OrdinalIgnoreCase))
                 return true;
 
             // try former IDs
             foreach (string formerID in this.FormerIDs)
             {
-                if (formerID.Equals(id, StringComparison.InvariantCultureIgnoreCase))
+                if (formerID.Equals(id, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
 

@@ -89,7 +89,7 @@ namespace StardewModdingAPI.Framework.Content
         public string NormalizeKey(string key)
         {
             key = this.NormalizePathSeparators(key);
-            return key.EndsWith(".xnb", StringComparison.InvariantCultureIgnoreCase)
+            return key.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase)
                 ? key.Substring(0, key.Length - 4)
                 : this.NormalizeAssetNameForPlatform(key);
         }

@@ -123,7 +123,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             base.OnLocaleChanged();
 
             // find assets for which a translatable version was loaded
-            HashSet<string> removeAssetNames = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            HashSet<string> removeAssetNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (string key in this.IsLocalizableLookup.Where(p => p.Value).Select(p => p.Key))
                 removeAssetNames.Add(this.TryParseExplicitLanguageAssetKey(key, out string assetName, out _) ? assetName : key);
 
@@ -134,7 +134,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     || (this.TryParseExplicitLanguageAssetKey(key, out string assetName, out _) && removeAssetNames.Contains(assetName))
                 )
                 .Select(p => p.Key)
-                .OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase)
+                .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
             if (invalidated.Any())
                 this.Monitor.Log($"Invalidated {invalidated.Length} asset names: {string.Join(", ", invalidated)} for locale change.", LogLevel.Trace);

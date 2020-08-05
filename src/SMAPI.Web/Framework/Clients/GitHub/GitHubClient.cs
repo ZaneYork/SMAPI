@@ -150,7 +150,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
         /// <exception cref="ArgumentException">The repository key is invalid.</exception>
         private void AssertKeyFormat(string repo)
         {
-            if (repo == null || !repo.Contains("/") || repo.IndexOf("/", StringComparison.InvariantCultureIgnoreCase) != repo.LastIndexOf("/", StringComparison.InvariantCultureIgnoreCase))
+            if (repo == null || !repo.Contains("/") || repo.IndexOf("/", StringComparison.OrdinalIgnoreCase) != repo.LastIndexOf("/", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException($"The value '{repo}' isn't a valid GitHub repository key, must be a username and project name like 'Pathoschild/SMAPI'.", nameof(repo));
         }
     }

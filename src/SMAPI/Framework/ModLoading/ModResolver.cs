@@ -190,7 +190,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             // validate IDs are unique
             {
                 var duplicatesByID = mods
-                    .GroupBy(mod => mod.Manifest?.UniqueID?.Trim(), mod => mod, StringComparer.InvariantCultureIgnoreCase)
+                    .GroupBy(mod => mod.Manifest?.UniqueID?.Trim(), mod => mod, StringComparer.OrdinalIgnoreCase)
                     .Where(p => p.Count() > 1);
                 foreach (var group in duplicatesByID)
                 {

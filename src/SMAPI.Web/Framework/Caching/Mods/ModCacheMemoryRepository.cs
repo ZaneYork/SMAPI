@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Web.Framework.Caching.Mods
         ** Fields
         *********/
         /// <summary>The cached mod data indexed by <c>{site key}:{ID}</c>.</summary>
-        private readonly IDictionary<string, Cached<IModPage>> Mods = new Dictionary<string, Cached<IModPage>>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly IDictionary<string, Cached<IModPage>> Mods = new Dictionary<string, Cached<IModPage>>(StringComparer.OrdinalIgnoreCase);
 
 
         /*********

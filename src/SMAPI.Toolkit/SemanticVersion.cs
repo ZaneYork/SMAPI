@@ -278,9 +278,9 @@ namespace StardewModdingAPI.Toolkit
                 if (curParts[i] != otherParts[i])
                 {
                     // unofficial is always lower-precedence
-                    if (otherParts[i].Equals("unofficial", StringComparison.InvariantCultureIgnoreCase))
+                    if (otherParts[i].Equals("unofficial", StringComparison.OrdinalIgnoreCase))
                         return curNewer;
-                    if (curParts[i].Equals("unofficial", StringComparison.InvariantCultureIgnoreCase))
+                    if (curParts[i].Equals("unofficial", StringComparison.OrdinalIgnoreCase))
                         return curOlder;
 
                     // compare numerically if possible
@@ -295,7 +295,7 @@ namespace StardewModdingAPI.Toolkit
             }
 
             // fallback (this should never happen)
-            return string.Compare(this.ToString(), new SemanticVersion(otherMajor, otherMinor, otherPatch, otherPlatformRelease, otherTag).ToString(), StringComparison.InvariantCultureIgnoreCase);
+            return string.Compare(this.ToString(), new SemanticVersion(otherMajor, otherMinor, otherPatch, otherPlatformRelease, otherTag).ToString(), StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>Assert that the current version is valid.</summary>

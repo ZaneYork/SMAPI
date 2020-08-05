@@ -189,7 +189,7 @@ namespace StardewModdingAPI.Framework.PerformanceMonitoring
         public void ResetSource(string source)
         {
             foreach (var i in this.PerformanceCounters)
-                if (i.Value.Source.Equals(source, StringComparison.InvariantCultureIgnoreCase))
+                if (i.Value.Source.Equals(source, StringComparison.OrdinalIgnoreCase))
                     i.Value.Reset();
         }
 

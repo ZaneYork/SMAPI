@@ -280,7 +280,7 @@ namespace StardewModdingAPI.Web.Controllers
                 IDictionary<string, string> errors = this.GetExtensionField<Dictionary<string, string>>(error.Schema, "@errorMessages");
                 if (errors == null)
                     return null;
-                errors = new Dictionary<string, string>(errors, StringComparer.InvariantCultureIgnoreCase);
+                errors = new Dictionary<string, string>(errors, StringComparer.OrdinalIgnoreCase);
 
                 // match error by type and message
                 foreach ((string target, string errorMessage) in errors)
@@ -289,7 +289,7 @@ namespace StardewModdingAPI.Web.Controllers
                         continue;
 
                     string[] parts = target.Split(':', 2);
-                    if (parts[0].Equals(error.ErrorType.ToString(), StringComparison.InvariantCultureIgnoreCase) && Regex.IsMatch(error.Message, parts[1]))
+                    if (parts[0].Equals(error.ErrorType.ToString(), StringComparison.OrdinalIgnoreCase) && Regex.IsMatch(error.Message, parts[1]))
                         return errorMessage?.Trim();
                 }
 
@@ -313,7 +313,7 @@ namespace StardewModdingAPI.Web.Controllers
             {
                 foreach ((string curKey, JToken value) in schema.ExtensionData)
                 {
-                    if (curKey.Equals(key, StringComparison.InvariantCultureIgnoreCase))
+                    if (curKey.Equals(key, StringComparison.OrdinalIgnoreCase))
                         return value.ToObject<T>();
                 }
             }

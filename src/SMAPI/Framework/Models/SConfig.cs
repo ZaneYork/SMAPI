@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Framework.Models
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>
-        private static readonly HashSet<string> DefaultSuppressUpdateChecks = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        private static readonly HashSet<string> DefaultSuppressUpdateChecks = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "SMAPI.ConsoleCommands",
             "SMAPI.SaveBackup"
@@ -92,7 +92,7 @@ namespace StardewModdingAPI.Framework.Models
                     custom[pair.Key] = value;
             }
 
-            HashSet<string> curSuppressUpdateChecks = new HashSet<string>(this.SuppressUpdateChecks ?? new string[0], StringComparer.InvariantCultureIgnoreCase);
+            HashSet<string> curSuppressUpdateChecks = new HashSet<string>(this.SuppressUpdateChecks ?? new string[0], StringComparer.OrdinalIgnoreCase);
             if (SConfig.DefaultSuppressUpdateChecks.Count != curSuppressUpdateChecks.Count || SConfig.DefaultSuppressUpdateChecks.Any(p => !curSuppressUpdateChecks.Contains(p)))
                 custom[nameof(this.SuppressUpdateChecks)] = "[" + string.Join(", ", this.SuppressUpdateChecks ?? new string[0]) + "]";
 

@@ -23,7 +23,7 @@ namespace StardewModdingAPI.Framework.PerformanceMonitoring
         private readonly Stopwatch InvocationStopwatch = new Stopwatch();
 
         /// <summary>The underlying performance counter collections.</summary>
-        private readonly IDictionary<string, PerformanceCounterCollection> Collections = new Dictionary<string, PerformanceCounterCollection>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly IDictionary<string, PerformanceCounterCollection> Collections = new Dictionary<string, PerformanceCounterCollection>(StringComparer.OrdinalIgnoreCase);
 
 
         /*********

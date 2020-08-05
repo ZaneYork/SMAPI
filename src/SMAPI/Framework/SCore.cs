@@ -467,7 +467,7 @@ namespace StardewModdingAPI.Framework
                     {
                         string[] looseFiles = new DirectoryInfo(this.ModsPath).GetFiles().Select(p => p.Name).ToArray();
                         if (looseFiles.Any())
-                            this.Monitor.Log($"  Ignored loose files: {string.Join(", ", looseFiles.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}", LogLevel.Trace);
+                            this.Monitor.Log($"  Ignored loose files: {string.Join(", ", looseFiles.OrderBy(p => p, StringComparer.OrdinalIgnoreCase))}", LogLevel.Trace);
                     }
 
                     // load manifests
@@ -678,7 +678,7 @@ namespace StardewModdingAPI.Framework
                 {
                     try
                     {
-                        HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.InvariantCultureIgnoreCase);
+                        HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.OrdinalIgnoreCase);
 
                         // prepare search model
                         List<ModSearchEntryModel> searchMods = new List<ModSearchEntryModel>();
@@ -784,7 +784,7 @@ namespace StardewModdingAPI.Framework
             using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor, this.Settings.ParanoidWarnings))
             {
                 // init
-                HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.InvariantCultureIgnoreCase);
+                HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.OrdinalIgnoreCase);
                 InterfaceProxyFactory proxyFactory = new InterfaceProxyFactory();
                 void LogSkip(IModMetadata mod, string errorPhrase, string errorDetails)
                 {
@@ -1131,8 +1131,8 @@ namespace StardewModdingAPI.Framework
                 // find skipped dependencies
                 KeyValuePair<IModMetadata, Tuple<string, string>>[] skippedDependencies;
                 {
-                    HashSet<string> skippedDependencyIds = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-                    HashSet<string> skippedModIds = new HashSet<string>(from mod in skippedMods where mod.Key.HasID() select mod.Key.Manifest.UniqueID, StringComparer.InvariantCultureIgnoreCase);
+                    HashSet<string> skippedDependencyIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    HashSet<string> skippedModIds = new HashSet<string>(from mod in skippedMods where mod.Key.HasID() select mod.Key.Manifest.UniqueID, StringComparer.OrdinalIgnoreCase);
                     foreach (IModMetadata mod in skippedMods.Keys)
                     {
                         foreach (string requiredId in skippedModIds.Intersect(mod.GetRequiredModIds()))
@@ -1379,8 +1379,8 @@ namespace StardewModdingAPI.Framework
             foreach (string locale in translations.Keys.ToArray())
             {
                 // handle duplicates
-                HashSet<string> keys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-                HashSet<string> duplicateKeys = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                HashSet<string> keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                HashSet<string> duplicateKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (string key in translations[locale].Keys.ToArray())
                 {
                     if (!keys.Add(key))
@@ -1486,7 +1486,7 @@ namespace StardewModdingAPI.Framework
             foreach (FileInfo logFile in logsDir.EnumerateFiles())
             {
                 // skip non-SMAPI file
-                if (!logFile.Name.StartsWith(Constants.LogNamePrefix, StringComparison.InvariantCultureIgnoreCase))
+                if (!logFile.Name.StartsWith(Constants.LogNamePrefix, StringComparison.OrdinalIgnoreCase))
                     continue;
 
                 // skip crash log

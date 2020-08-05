@@ -118,9 +118,9 @@ namespace StardewModdingAPI.Web.Controllers
         {
             // cross-reference data
             ModDataRecord record = this.ModDatabase.Get(search.ID);
-            WikiModEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(search.ID.Trim(), StringComparer.InvariantCultureIgnoreCase));
+            WikiModEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(search.ID.Trim(), StringComparer.OrdinalIgnoreCase));
             UpdateKey[] updateKeys = this.GetUpdateKeys(search.UpdateKeys, record, wikiEntry).ToArray();
-            ModOverrideConfig overrides = this.Config.Value.ModOverrides.FirstOrDefault(p => p.ID.Equals(search.ID?.Trim(), StringComparison.InvariantCultureIgnoreCase));
+            ModOverrideConfig overrides = this.Config.Value.ModOverrides.FirstOrDefault(p => p.ID.Equals(search.ID?.Trim(), StringComparison.OrdinalIgnoreCase));
             bool allowNonStandardVersions = overrides?.AllowNonStandardVersions ?? false;
 
             // get latest versions

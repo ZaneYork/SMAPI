@@ -378,7 +378,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                         break;
                     }
                 }
-                if (contentKey.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase))
+                if (contentKey.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                     contentKey = contentKey.Substring(0, contentKey.Length - 4);
 
                 try

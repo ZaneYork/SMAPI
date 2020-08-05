@@ -67,7 +67,7 @@ namespace StardewModdingApi.Installer
                 AssemblyName name = new AssemblyName(e.Name);
                 foreach (FileInfo dll in new DirectoryInfo(Program.InternalFilesPath).EnumerateFiles("*.dll"))
                 {
-                    if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.InvariantCultureIgnoreCase))
+                    if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.OrdinalIgnoreCase))
                         return Assembly.LoadFrom(dll.FullName);
                 }
                 return null;

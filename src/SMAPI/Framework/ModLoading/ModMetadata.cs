@@ -173,7 +173,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             return
                 this.HasID()
-                && string.Equals(this.Manifest.UniqueID.Trim(), id?.Trim(), StringComparison.InvariantCultureIgnoreCase);
+                && string.Equals(this.Manifest.UniqueID.Trim(), id?.Trim(), StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>Get the defined update keys.</summary>
@@ -192,7 +192,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="includeOptional">Whether to include optional dependencies.</param>
         public IEnumerable<string> GetRequiredModIds(bool includeOptional = false)
         {
-            HashSet<string> required = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            HashSet<string> required = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             // yield dependencies
             if (this.Manifest?.Dependencies != null)

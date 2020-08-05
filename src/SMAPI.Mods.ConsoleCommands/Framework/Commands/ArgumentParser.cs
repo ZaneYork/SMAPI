@@ -64,7 +64,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands
                     this.LogError($"Argument {index} ({name}) is required.");
                 return false;
             }
-            if (oneOf?.Any() == true && !oneOf.Contains(this.Args[index], StringComparer.InvariantCultureIgnoreCase))
+            if (oneOf?.Any() == true && !oneOf.Contains(this.Args[index], StringComparer.OrdinalIgnoreCase))
             {
                 this.LogError($"Argument {index} ({name}) must be one of {string.Join(", ", oneOf)}.");
                 return false;

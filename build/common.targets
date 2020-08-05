@@ -4,7 +4,7 @@
 
   <!--set properties -->
   <PropertyGroup>
-    <Version>3.6.1</Version>
+    <Version>3.6.2</Version>
     <Product>SMAPI</Product>
 
     <LangVersion>latest</LangVersion>

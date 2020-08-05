@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         public ISet<InstructionHandleResult> Flags { get; } = new HashSet<InstructionHandleResult>();
 
         /// <summary>The brief noun phrases indicating what the handler matched for the current module.</summary>
-        public ISet<string> Phrases { get; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+        public ISet<string> Phrases { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 
         /*********

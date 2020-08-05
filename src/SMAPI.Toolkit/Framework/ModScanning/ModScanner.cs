@@ -18,22 +18,48 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         private readonly JsonHelper JsonHelper;
 
         /// <summary>A list of filesystem entry names to ignore when checking whether a folder should be treated as a mod.</summary>
-        private readonly HashSet<Regex> IgnoreFilesystemEntries = new HashSet<Regex>
+        private readonly HashSet<Regex> IgnoreFilesystemNames = new HashSet<Regex>
         {
-            // OS metadata files
             new Regex(@"^__folder_managed_by_vortex$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Vortex mod manager
             new Regex(@"(?:^\._|^\.DS_Store$|^__MACOSX$|^mcs$)", RegexOptions.Compiled | RegexOptions.IgnoreCase), // MacOS
-            new Regex(@"^(?:desktop\.ini|Thumbs\.db)$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Windows
-            new Regex(@"\.(?:url|lnk)$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Windows shortcut files
+            new Regex(@"^(?:desktop\.ini|Thumbs\.db)$", RegexOptions.Compiled | RegexOptions.IgnoreCase) // Windows
+        };
 
-            // other
-            new Regex(@"\.(?:bmp|gif|jpeg|jpg|png|psd|tif)$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // image files
-            new Regex(@"\.(?:md|rtf|txt)$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // text files
-            new Regex(@"\.(?:backup|bak|old)$", RegexOptions.Compiled | RegexOptions.IgnoreCase) // backup file
+        /// <summary>A list of file extensions to ignore when searching for mod files.</summary>
+        private readonly HashSet<string> IgnoreFileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            // text
+            ".doc",
+            ".docx",
+            ".md",
+            ".rtf",
+            ".txt",
+
+            // images
+            ".bmp",
+            ".gif",
+            ".jpeg",
+            ".jpg",
+            ".png",
+            ".psd",
+            ".tif",
+
+            // archives
+            ".rar",
+            ".zip",
+
+            // backup files
+            ".backup",
+            ".bak",
+            ".old",
+
+            // Windows shortcut files
+            ".url",
+            ".lnk"
         };
 
         /// <summary>The extensions for files which an XNB mod may contain. If a mod doesn't have a <c>manifest.json</c> and contains *only* these file extensions, it should be considered an XNB mod.</summary>
-        private readonly HashSet<string> PotentialXnbModExtensions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        private readonly HashSet<string> PotentialXnbModExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             // XNB files
             ".xgs",
@@ -258,7 +284,12 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /// <param name="entry">The file or folder.</param>
         private bool IsRelevant(FileSystemInfo entry)
         {
-            return !this.IgnoreFilesystemEntries.Any(p => p.IsMatch(entry.Name));
+            // ignored file extension
+            if (entry is FileInfo file && this.IgnoreFileExtensions.Contains(file.Extension))
+                return false;
+
+            // ignored entry name
+            return !this.IgnoreFilesystemNames.Any(p => p.IsMatch(entry.Name));
         }
 
         /// <summary>Get whether a file is potentially part of an XNB mod.</summary>

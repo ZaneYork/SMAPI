@@ -261,8 +261,14 @@ namespace StardewModdingAPI.Framework
         /// <summary>Load content when the game is launched.</summary>
         protected override void LoadContent()
         {
+            // load content
             base.LoadContent();
             Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, this.GraphicsDevice);
+
+            // log GPU info
+#if SMAPI_FOR_WINDOWS
+            this.Monitor.Log($"Running on GPU: {this.GraphicsDevice?.Adapter?.Description ?? "<unknown>"}");
+#endif
         }
 
         /// <summary>Initialize just before the game's first update tick.</summary>
@@ -299,7 +305,7 @@ namespace StardewModdingAPI.Framework
         private void OnModMessageReceived(ModMessageModel message)
         {
             // get mod IDs to notify
-            HashSet<string> modIDs = new HashSet<string>(message.ToModIDs ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.InvariantCultureIgnoreCase);
+            HashSet<string> modIDs = new HashSet<string>(message.ToModIDs ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
             if (message.FromPlayerID == Game1.player?.UniqueMultiplayerID)
                 modIDs.Remove(message.FromModID); // don't send a broadcast back to the sender
 

@@ -233,7 +233,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 
             // parse
             // Specified on the wiki in the form "remote version → mapped version; another remote version → mapped version"
-            IDictionary<string, string> map = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            IDictionary<string, string> map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (string pair in raw.Split(';'))
             {
                 string[] versions = pair.Split('→');

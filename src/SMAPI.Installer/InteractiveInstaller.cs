@@ -468,7 +468,7 @@ namespace StardewModdingApi.Installer
                             }
 
                             // find target folder
-                            ModFolder targetMod = targetMods.FirstOrDefault(p => p.Manifest?.UniqueID?.Equals(sourceMod.Manifest.UniqueID, StringComparison.InvariantCultureIgnoreCase) == true);
+                            ModFolder targetMod = targetMods.FirstOrDefault(p => p.Manifest?.UniqueID?.Equals(sourceMod.Manifest.UniqueID, StringComparison.OrdinalIgnoreCase) == true);
                             DirectoryInfo defaultTargetFolder = new DirectoryInfo(Path.Combine(paths.ModsPath, sourceMod.Directory.Name));
                             DirectoryInfo targetFolder = targetMod?.Directory ?? defaultTargetFolder;
                             this.PrintDebug(targetFolder.FullName == defaultTargetFolder.FullName
@@ -808,7 +808,7 @@ namespace StardewModdingApi.Installer
                     continue; // should never happen
 
                 // delete packaged mods (newer version bundled into SMAPI)
-                if (isDir && packagedModNames.Contains(entry.Name, StringComparer.InvariantCultureIgnoreCase))
+                if (isDir && packagedModNames.Contains(entry.Name, StringComparer.OrdinalIgnoreCase))
                 {
                     this.PrintDebug($"   Deleting {entry.Name} because it's bundled into SMAPI...");
                     this.InteractivelyDelete(entry.FullName);

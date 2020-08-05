@@ -373,7 +373,7 @@ namespace StardewModdingAPI.Framework
             // filter by mod ID
             if (toModIDs != null)
             {
-                HashSet<string> sendToMods = new HashSet<string>(toModIDs, StringComparer.InvariantCultureIgnoreCase);
+                HashSet<string> sendToMods = new HashSet<string>(toModIDs, StringComparer.OrdinalIgnoreCase);
                 if (sendToSelf && toModIDs.All(id => this.ModRegistry.Get(id) == null))
                     sendToSelf = false;
 

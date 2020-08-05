@@ -229,7 +229,7 @@ namespace StardewModdingAPI.Framework
         public IEnumerable<string> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
             // invalidate cache & track removed assets
-            IDictionary<string, Type> removedAssets = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
+            IDictionary<string, Type> removedAssets = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
             this.ContentManagerLock.InReadLock(() =>
             {
                 // cached assets
@@ -263,7 +263,7 @@ namespace StardewModdingAPI.Framework
             if (removedAssets.Any())
             {
                 IDictionary<string, bool> propagated = this.CoreAssets.Propagate(this.MainContentManager, removedAssets.ToDictionary(p => p.Key, p => p.Value)); // use an intercepted content manager
-                this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.InvariantCultureIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
+                this.Monitor.Log($"Invalidated {removedAssets.Count} asset names ({string.Join(", ", removedAssets.Keys.OrderBy(p => p, StringComparer.OrdinalIgnoreCase))}); propagated {propagated.Count(p => p.Value)} core assets.", LogLevel.Trace);
             }
             else
                 this.Monitor.Log("Invalidated 0 cache entries.", LogLevel.Trace);

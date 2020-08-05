@@ -87,7 +87,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.IsNamespaced = isNamespaced;
 
             // get asset data
-            this.LanguageCodes = this.GetKeyLocales().ToDictionary(p => p.Value, p => p.Key, StringComparer.InvariantCultureIgnoreCase);
+            this.LanguageCodes = this.GetKeyLocales().ToDictionary(p => p.Value, p => p.Key, StringComparer.OrdinalIgnoreCase);
             this.BaseDisposableReferences = reflection.GetField<List<IDisposable>>(this, "disposableAssets").GetValue();
         }
 
@@ -192,7 +192,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <returns>Returns the invalidated asset names and instances.</returns>
         public IDictionary<string, object> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
         {
-            IDictionary<string, object> removeAssets = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+            IDictionary<string, object> removeAssets = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             this.Cache.Remove((key, asset) =>
             {
                 this.ParseCacheKey(key, out string assetName, out _);
@@ -295,7 +295,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // handle localized key
             if (!string.IsNullOrWhiteSpace(cacheKey))
             {
-                int lastSepIndex = cacheKey.LastIndexOf(".", StringComparison.InvariantCulture);
+                int lastSepIndex = cacheKey.LastIndexOf(".", StringComparison.Ordinal);
                 if (lastSepIndex >= 0)
                 {
                     string suffix = cacheKey.Substring(lastSepIndex + 1, cacheKey.Length - lastSepIndex - 1);

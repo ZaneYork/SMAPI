@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Framework.Content
         public bool AssetNameEquals(string path)
         {
             path = this.GetNormalizedPath(path);
-            return this.AssetName.Equals(path, StringComparison.InvariantCultureIgnoreCase);
+            return this.AssetName.Equals(path, StringComparison.OrdinalIgnoreCase);
         }
 
 

@@ -106,19 +106,20 @@ namespace StardewModdingAPI.Framework.Events
             // update cached data
             // (This is debounced here to avoid repeatedly sorting when handlers are added/removed,
             // and keeping a separate cached list allows changes during enumeration.)
-            if (this.CachedHandlers == null)
+            var handlers = this.CachedHandlers; // iterate local copy in case a mod adds/removes a handler while handling the event
+            if (handlers == null)
             {
                 if (this.HasNewHandlers && this.Handlers.Any(p => p.Priority != EventPriority.Normal))
                     this.Handlers.Sort();
 
-                this.CachedHandlers = this.Handlers.ToArray();
+                this.CachedHandlers = handlers = this.Handlers.ToArray();
                 this.HasNewHandlers = false;
             }
 
             // raise event
             this.PerformanceMonitor.Track(this.EventName, () =>
             {
-                foreach (ManagedEventHandler<TEventArgs> handler in this.CachedHandlers)
+                foreach (ManagedEventHandler<TEventArgs> handler in handlers)
                 {
                     if (match != null && !match(handler.SourceMod))
                         continue;

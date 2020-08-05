@@ -56,7 +56,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
                 return;
 
             // get target location
-            GameLocation location = Game1.locations.FirstOrDefault(p => p.Name != null && p.Name.Equals(locationName, StringComparison.InvariantCultureIgnoreCase));
+            GameLocation location = Game1.locations.FirstOrDefault(p => p.Name != null && p.Name.Equals(locationName, StringComparison.OrdinalIgnoreCase));
             if (location == null && locationName == "current")
                 location = Game1.currentLocation;
             if (location == null)

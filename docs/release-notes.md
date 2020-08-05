@@ -7,6 +7,24 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## 3.6.2
+Released 02 August 2020 for Stardew Valley 1.4.1 or later.
+
+* For players:
+  * Improved compatibility with some Linux terminals (thanks to jlaw and Spatterjaaay!).
+  * Fixed rare crash when a mod adds/removes an event handler from an event handler.
+  * Fixed string sorting/comparison for some special characters.
+
+* For the Console Commands mod:
+  * Fixed error opening menu when some item data is invalid.
+  * Fixed spawned Floor TV not functional as a TV (thanks to Platonymous!).
+  * Fixed spawned sturgeon roe having incorrect color.
+
+* For modders:
+  * Updated internal dependencies.
+  * SMAPI now ignores more file types when scanning for mod folders (`.doc`, `.docx`, `.rar`, and `.zip`).
+  * Added current GPU to trace logs to simplify troubleshooting.
+
 ## 3.6.1
 Released 21 June 2020 for Stardew Valley 1.4.1 or later.
 

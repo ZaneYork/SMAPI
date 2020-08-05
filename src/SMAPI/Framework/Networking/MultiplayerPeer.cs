@@ -71,7 +71,7 @@ namespace StardewModdingAPI.Framework.Networking
                 return null;
 
             id = id.Trim();
-            return this.Mods.FirstOrDefault(mod => mod.ID != null && mod.ID.Equals(id, StringComparison.InvariantCultureIgnoreCase));
+            return this.Mods.FirstOrDefault(mod => mod.ID != null && mod.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>Send a message to the given peer, bypassing the game's normal validation to allow messages before the connection is approved.</summary>
