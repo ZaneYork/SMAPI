@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Newtonsoft.Json;
 using StardewModdingAPI.Framework;
 using StardewValley;
 
@@ -35,15 +36,18 @@ namespace StardewModdingAPI.Utilities
 
         /// <summary>The index of the season (where 0 is spring, 1 is summer, 2 is fall, and 3 is winter).</summary>
         /// <remarks>This is used in some game calculations (e.g. seasonal game sprites) and methods (e.g. <see cref="Utility.getSeasonNameFromNumber"/>).</remarks>
+        [JsonIgnore]
         public int SeasonIndex { get; }
 
         /// <summary>The year.</summary>
         public int Year { get; }
 
         /// <summary>The day of week.</summary>
+        [JsonIgnore]
         public DayOfWeek DayOfWeek { get; }
 
         /// <summary>The number of days since the game began (starting at 1 for the first day of spring in Y1).</summary>
+        [JsonIgnore]
         public int DaysSinceStart { get; }
 
 
@@ -62,6 +66,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="season">The season name.</param>
         /// <param name="year">The year.</param>
         /// <exception cref="ArgumentException">One of the arguments has an invalid value (like day 35).</exception>
+        [JsonConstructor]
         public SDate(int day, string season, int year)
             : this(day, season, year, allowDayZero: false) { }
 
@@ -264,7 +269,6 @@ namespace StardewModdingAPI.Utilities
             this.Year = year;
             this.DayOfWeek = this.GetDayOfWeek(day);
             this.DaysSinceStart = this.GetDaysSinceStart(day, season, year);
-
         }
 
         /// <summary>Get whether a date represents 0 spring Y1, which is the date during the in-game intro.</summary>

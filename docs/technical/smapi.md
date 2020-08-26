@@ -87,25 +87,24 @@ on the wiki for the first-time setup.
    build type | format                   | example
    :--------- | :----------------------- | :------
    dev build  | `<version>-alpha.<date>` | `3.0.0-alpha.20171230`
-   prerelease | `<version>-beta.<count>` | `3.0.0-beta.2`
+   prerelease | `<version>-beta.<date>`  | `3.0.0-beta.20171230`
    release    | `<version>`              | `3.0.0`
 
 2. In Windows:
-   1. Rebuild the solution in Release mode.
-   2. Copy `windows-install.*` from `bin/SMAPI installer` and `bin/SMAPI installer for developers` to
-      Linux/Mac.
+   1. Rebuild the solution with the _release_ solution configuration.
+   2. Copy `bin/SMAPI installer` and `bin/SMAPI installer for developers` to Linux/Mac.
 
 3. In Linux/Mac:
-   1. Rebuild the solution in Release mode.
-   2. Add the `windows-install.*` files to the `bin/SMAPI installer` and
-      `bin/SMAPI installer for developers` folders.
+   1. Rebuild the solution with the _release_ solution configuration.
+   2. Add the `windows-install.*` files from Windows to the `bin/SMAPI installer` and
+      `bin/SMAPI installer for developers` folders compiled on Linux.
    3. Rename the folders to `SMAPI <version> installer` and `SMAPI <version> installer for developers`.
    4. Zip the two folders.
 
 ### Custom Harmony build
 SMAPI uses [a custom build of Harmony](https://github.com/Pathoschild/Harmony#readme), which is
 included in the `build` folder. To use a different build, just replace `0Harmony.dll` in that
-folder.
+folder before compiling.
 
 ## Release notes
 See [release notes](../release-notes.md).

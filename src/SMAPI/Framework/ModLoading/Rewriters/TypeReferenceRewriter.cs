@@ -35,11 +35,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             this.ShouldIgnore = shouldIgnore;
         }
 
-        /// <summary>Rewrite a type reference if needed.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="type">The type definition to handle.</param>
-        /// <param name="replaceWith">Replaces the type reference with a new one.</param>
-        /// <returns>Returns whether the type was changed.</returns>
+        /// <inheritdoc />
         public override bool Handle(ModuleDefinition module, TypeReference type, Action<TypeReference> replaceWith)
         {
             // check type reference

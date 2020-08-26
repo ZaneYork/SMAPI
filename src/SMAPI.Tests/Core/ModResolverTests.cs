@@ -154,7 +154,7 @@ namespace SMAPI.Tests.Core
             new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
 
             // assert
-            mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
+            mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
         }
 
         [Test(Description = "Assert that validation fails when the minimum API version is higher than the current SMAPI version.")]
@@ -169,7 +169,7 @@ namespace SMAPI.Tests.Core
             new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
 
             // assert
-            mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
+            mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
         }
 
         [Test(Description = "Assert that validation fails when the manifest references a DLL that does not exist.")]
@@ -183,7 +183,7 @@ namespace SMAPI.Tests.Core
             new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
 
             // assert
-            mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
+            mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
         }
 
         [Test(Description = "Assert that validation fails when multiple mods have the same unique ID.")]
@@ -200,8 +200,8 @@ namespace SMAPI.Tests.Core
             new ModResolver().ValidateManifests(new[] { modA.Object, modB.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
 
             // assert
-            modA.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the first mod with a unique ID.");
-            modB.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "The validation did not fail the second mod with a unique ID.");
+            modA.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the first mod with a unique ID.");
+            modB.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the second mod with a unique ID.");
         }
 
         [Test(Description = "Assert that validation fails when the manifest references a DLL that does not exist.")]
@@ -367,9 +367,9 @@ namespace SMAPI.Tests.Core
             Assert.AreEqual(5, mods.Length, 0, "Expected to get the same number of mods input.");
             Assert.AreSame(modA.Object, mods[0], "The load order is incorrect: mod A should be first since it's needed by mod B.");
             Assert.AreSame(modB.Object, mods[1], "The load order is incorrect: mod B should be second since it needs mod A.");
-            modC.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "Mod C was expected to fail since it's part of a dependency loop.");
-            modD.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "Mod D was expected to fail since it's part of a dependency loop.");
-            modE.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "Mod E was expected to fail since it's part of a dependency loop.");
+            modC.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>(), It.IsAny<string>()), Times.Once, "Mod C was expected to fail since it's part of a dependency loop.");
+            modD.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>(), It.IsAny<string>()), Times.Once, "Mod D was expected to fail since it's part of a dependency loop.");
+            modE.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>(), It.IsAny<string>()), Times.Once, "Mod E was expected to fail since it's part of a dependency loop.");
         }
 
         [Test(Description = "Assert that dependencies are sorted correctly even if some of the mods failed during metadata loading.")]
@@ -408,7 +408,7 @@ namespace SMAPI.Tests.Core
 
             // assert
             Assert.AreEqual(2, mods.Length, 0, "Expected to get the same number of mods input.");
-            modB.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>()), Times.Once, "Mod B unexpectedly didn't fail even though it needs a newer version of Mod A.");
+            modB.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<string>(), It.IsAny<string>()), Times.Once, "Mod B unexpectedly didn't fail even though it needs a newer version of Mod A.");
         }
 
         [Test(Description = "Assert that dependencies are accepted if they meet the minimum version.")]
@@ -525,8 +525,8 @@ namespace SMAPI.Tests.Core
             if (allowStatusChange)
             {
                 mod
-                    .Setup(p => p.SetStatus(It.IsAny<ModMetadataStatus>(), It.IsAny<string>()))
-                    .Callback<ModMetadataStatus, string>((status, message) => Console.WriteLine($"<{manifest.UniqueID} changed status: [{status}] {message}"))
+                    .Setup(p => p.SetStatus(It.IsAny<ModMetadataStatus>(), It.IsAny<string>(), It.IsAny<string>()))
+                    .Callback<ModMetadataStatus, string, string>((status, message, errorDetails) => Console.WriteLine($"<{manifest.UniqueID} changed status: [{status}] {message}\n{errorDetails}"))
                     .Returns(mod.Object);
             }
             return mod;

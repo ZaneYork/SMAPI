@@ -164,9 +164,9 @@ namespace StardewModdingAPI.Framework
             // get field name
             const string fieldName =
 #if SMAPI_FOR_WINDOWS
-            "inBeginEndPair";
+                "inBeginEndPair";
 #else
-            "_beginCalled";
+                "_beginCalled";
 #endif
 
             // get result

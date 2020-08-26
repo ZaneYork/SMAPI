@@ -3,8 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
-using StardewModdingAPI.Internal;
-using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingApi.Installer
 {

@@ -96,7 +96,6 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raised after the in-game clock time changes.</summary>
         public event EventHandler<TimeChangedEventArgs> TimeChanged
         {
-
             add => this.EventManager.TimeChanged.Add(value, this.Mod);
             remove => this.EventManager.TimeChanged.Remove(value);
         }

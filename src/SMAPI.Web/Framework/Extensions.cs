@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Web.Framework
         /****
         ** View helpers
         ****/
-        /// <summary>Get a URL with the absolute path for an action method. Unlike <see cref="IUrlHelper.Action"/>, only the specified <paramref name="values"/> are added to the URL without merging values from the current HTTP request.</summary>
+        /// <summary>Get a URL for an action method. Unlike <see cref="IUrlHelper.Action"/>, only the specified <paramref name="values"/> are added to the URL without merging values from the current HTTP request.</summary>
         /// <param name="helper">The URL helper to extend.</param>
         /// <param name="action">The name of the action method.</param>
         /// <param name="controller">The name of the controller.</param>

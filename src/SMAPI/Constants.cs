@@ -5,6 +5,7 @@ using System.Reflection;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Toolkit.Framework;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 #if HARMONY_2
@@ -14,6 +15,48 @@ using Harmony;
 #endif
 namespace StardewModdingAPI
 {
+    /// <summary>Contains constants that are accessed before the game itself has been loaded.</summary>
+    /// <remarks>Most code should use <see cref="Constants"/> instead of this class directly.</remarks>
+    internal static class EarlyConstants
+    {
+        //
+        // Note: this class *must not* depend on any external DLL beyond .NET Framework itself.
+        // That includes the game or SMAPI toolkit, since it's accessed before those are loaded.
+        //
+        // Adding an external dependency may seem to work in some cases, but will prevent SMAPI
+        // from showing a human-readable error if the game isn't available. To test this, just
+        // rename "Stardew Valley.exe" in the game folder; you should see an error like "Oops!
+        // SMAPI can't find the game", not a technical exception.
+        //
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>The path to the game folder.</summary>
+#if SMAPI_FOR_MOBILE
+        public static string ExecutionPath { get; } = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "StardewValley/smapi-internal");
+#else
+        public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+#endif
+
+        /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
+#if SMAPI_FOR_MOBILE
+        public static readonly string InternalFilesPath = Program.DllSearchPath;
+#else
+        public static readonly string InternalFilesPath = Path.Combine(EarlyConstants.ExecutionPath, "smapi-internal");
+#endif
+
+        /// <summary>The target game platform.</summary>
+#if SMAPI_FOR_MOBILE
+        public static GamePlatform TargetPlatform => GamePlatform.Android;
+#else
+        internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
+#endif
+
+        /// <summary>The game's assembly name.</summary>
+        internal static string GameAssemblyName => EarlyConstants.Platform == GamePlatform.Windows ? "Stardew Valley" : "StardewValley";
+    }
+
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
     public static class Constants
     {
@@ -33,19 +76,25 @@ namespace StardewModdingAPI
         public static ISemanticVersion MaximumGameVersion { get; } = null;
 
         /// <summary>The target game platform.</summary>
-        public static GamePlatform TargetPlatform => GamePlatform.Android;
+        public static GamePlatform TargetPlatform { get; } = EarlyConstants.Platform;
 
         /// <summary>The path to the game folder.</summary>
-        public static string ExecutionPath { get; } = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "StardewValley/smapi-internal");
+        public static string ExecutionPath { get; } = EarlyConstants.ExecutionPath;
 
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
+#if SMAPI_FOR_MOBILE
         public static string DataPath { get; } = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "StardewValley");
-
+#else
+        public static string DataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
+#endif
         /// <summary>The directory path in which error logs should be stored.</summary>
         public static string LogDir { get; } = Path.Combine(Constants.DataPath, "ErrorLogs");
-
         /// <summary>The directory path where all saves are stored.</summary>
+#if SMAPI_FOR_MOBILE
         public static string SavesPath { get; } = Constants.DataPath;
+#else
+        public static string SavesPath { get; } = Path.Combine(Constants.DataPath, "Saves");
+#endif
 
         /// <summary>The name of the current save folder (if save info is available, regardless of whether the save file exists yet).</summary>
         public static string SaveFolderName => Constants.GetSaveFolderName();
@@ -71,10 +120,7 @@ namespace StardewModdingAPI
         internal const string GamePerformanceCounterName = "<StardewValley>";
 
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
-        internal static readonly string InternalFilesPath = Program.DllSearchPath;
-
-        /// <summary>The app secret from AppCenter.</summary>
-        internal static readonly string MicrosoftAppSecret = "79411636-0bc5-41cc-9889-43a4bca83b9d";
+        internal static readonly string InternalFilesPath = EarlyConstants.InternalFilesPath;
 
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.InternalFilesPath, "config.json");
@@ -112,16 +158,18 @@ namespace StardewModdingAPI
         /// <summary>The game's current semantic version.</summary>
         internal static ISemanticVersion GameVersion { get; } = new GameVersion(Game1.version);
 
-        /// <summary>The target game platform.</summary>
-        internal static Platform Platform { get; } = Platform.Android;
-
-        /// <summary>The game's assembly name.</summary>
-        internal static string GameAssemblyName => Constants.Platform == Platform.Windows ? "Stardew Valley" : "StardewValley";
+        /// <summary>The target game platform as a SMAPI toolkit constant.</summary>
+        internal static Platform Platform { get; } = (Platform)Constants.TargetPlatform;
 
         /// <summary>The language code for non-translated mod assets.</summary>
         internal static LocalizedContentManager.LanguageCode DefaultLanguage { get; } = LocalizedContentManager.LanguageCode.en;
 
+#if SMAPI_FOR_MOBILE
+        /// <summary>The app secret from AppCenter.</summary>
+        internal static readonly string MicrosoftAppSecret = "79411636-0bc5-41cc-9889-43a4bca83b9d";
+
         internal static bool HarmonyEnabled { get; set; } = true;
+#endif
 
 
         /*********
@@ -213,12 +261,14 @@ namespace StardewModdingAPI
                     {
                         typeof(StardewValley.Game1).Assembly, // note: includes Netcode types on Linux/Mac
                         typeof(Microsoft.Xna.Framework.Vector2).Assembly,
+#if __REMOVE_TEST__
 #if HARMONY_2
                         typeof(HarmonyLib.Harmony).Assembly,
 #else
                         typeof(Harmony.HarmonyInstance).Assembly,
 #endif
                         typeof(Mono.Cecil.MethodDefinition).Assembly,
+#endif
                         typeof(StardewModdingAPI.IManifest).Assembly,
                     };
                     break;

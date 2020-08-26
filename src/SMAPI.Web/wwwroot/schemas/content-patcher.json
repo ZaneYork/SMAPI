@@ -11,9 +11,9 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
             "type": "string",
-            "const": "1.15.0",
+            "const": "1.17.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.15.0'."
+                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.17.0'."
             }
         },
         "ConfigSchema": {
@@ -102,7 +102,7 @@
                         "title": "Action",
                         "description": "The kind of change to make.",
                         "type": "string",
-                        "enum": [ "Load", "EditImage", "EditData", "EditMap" ]
+                        "enum": [ "Load", "EditImage", "EditData", "EditMap", "Include" ]
                     },
                     "Target": {
                         "title": "Target asset",
@@ -125,20 +125,26 @@
                         "description": "Whether to apply this patch. Default true. This fields supports immutable tokens (e.g. config tokens) if they return true/false.",
                         "anyOf": [
                             {
+                                "type": "boolean"
+                            },
+                            {
                                 "type": "string",
                                 "enum": [ "true", "false" ]
                             },
                             {
                                 "type": "string",
                                 "pattern": "\\{\\{[^{}]+\\}\\}"
-                            },
-                            {
-                                "type": "boolean"
                             }
                         ],
                         "@errorMessages": {
                             "anyOf": "Invalid value; must be true, false, or a single token which evaluates to true or false."
                         }
+                    },
+                    "Update": {
+                        "title": "Update",
+                        "description": "When the patch should update if it changed. The possible values are 'OnDayStart' and 'OnLocationChange' (defaults to OnDayStart).",
+                        "type": "string",
+                        "enum": [ "OnDayStart", "OnLocationChange" ]
                     },
                     "FromFile": {
                         "title": "Source file",
@@ -327,9 +333,17 @@
                             }
                         },
                         "then": {
-                            "required": [ "FromFile" ],
+                            "required": [ "FromFile", "Target" ],
                             "propertyNames": {
-                                "enum": [ "Action", "Target", "LogName", "Enabled", "When", "FromFile" ]
+                                "enum": [
+                                    "Action",
+                                    "Enabled",
+                                    "FromFile",
+                                    "LogName",
+                                    "Target",
+                                    "Update",
+                                    "When"
+                                ]
                             }
                         }
                     },
@@ -340,9 +354,21 @@
                             }
                         },
                         "then": {
-                            "required": [ "FromFile" ],
+                            "required": [ "FromFile", "Target" ],
                             "propertyNames": {
-                                "enum": [ "Action", "Target", "LogName", "Enabled", "When", "FromFile", "FromArea", "ToArea", "PatchMode" ]
+                                "enum": [
+                                    "Action",
+                                    "Enabled",
+                                    "FromFile",
+                                    "LogName",
+                                    "Target",
+                                    "Update",
+                                    "When",
+
+                                    "FromArea",
+                                    "PatchMode",
+                                    "ToArea"
+                                ]
                             }
                         }
                     },
@@ -354,7 +380,19 @@
                         },
                         "then": {
                             "propertyNames": {
-                                "enum": [ "Action", "Target", "LogName", "Enabled", "When", "FromFile", "Fields", "Entries", "MoveEntries" ]
+                                "enum": [
+                                    "Action",
+                                    "Enabled",
+                                    "FromFile",
+                                    "LogName",
+                                    "Target",
+                                    "Update",
+                                    "When",
+
+                                    "Entries",
+                                    "Fields",
+                                    "MoveEntries"
+                                ]
                             }
                         }
                     },
@@ -377,16 +415,44 @@
                                 }
                             },
                             "propertyNames": {
-                                "enum": [ "Action", "Target", "LogName", "Enabled", "When", "FromFile", "FromArea", "ToArea", "MapProperties", "MapTiles" ]
+                                "enum": [
+                                    "Action",
+                                    "Enabled",
+                                    "FromFile",
+                                    "LogName",
+                                    "Target",
+                                    "Update",
+                                    "When",
+
+                                    "FromArea",
+                                    "MapProperties",
+                                    "MapTiles",
+                                    "ToArea"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "Action": { "const": "Include" }
+                            }
+                        },
+                        "then": {
+                            "required": [ "FromFile" ],
+                            "propertyNames": {
+                                "enum": [
+                                    "Action",
+                                    "Enabled",
+                                    "FromFile",
+                                    "LogName",
+                                    "Update",
+                                    "When"
+                                ]
                             }
                         }
                     }
-                ],
-
-                "required": [ "Action", "Target" ],
-                "@errorMessages": {
-                    "allOf": "$transparent"
-                }
+                ]
             }
         },
         "$schema": {

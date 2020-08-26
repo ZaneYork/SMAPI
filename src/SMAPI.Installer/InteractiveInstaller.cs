@@ -35,8 +35,6 @@ namespace StardewModdingApi.Installer
             "SMAPI.ConsoleCommands"
         };
 
-
-
         /// <summary>Get the absolute file or folder paths to remove when uninstalling SMAPI.</summary>
         /// <param name="installDir">The folder for Stardew Valley and SMAPI.</param>
         /// <param name="modsDir">The folder for SMAPI mods.</param>
@@ -84,6 +82,7 @@ namespace StardewModdingApi.Installer
                 foreach (DirectoryInfo modDir in modsDir.EnumerateDirectories())
                     yield return Path.Combine(modDir.FullName, ".cache"); // 1.4–1.7
             }
+
             yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs"); // remove old log files
         }
 

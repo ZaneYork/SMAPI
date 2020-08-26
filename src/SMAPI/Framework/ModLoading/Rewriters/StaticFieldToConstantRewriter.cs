@@ -37,12 +37,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             this.Value = value;
         }
 
-        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The CIL instruction to handle.</param>
-        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
-        /// <returns>Returns whether the instruction was changed.</returns>
+        /// <inheritdoc />
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
             // get field reference

@@ -70,27 +70,33 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="mod">The mod which added the event handler.</param>
         public void Add(EventHandler<TEventArgs> handler, IModMetadata mod)
         {
-            EventPriority priority = handler.Method.GetCustomAttribute<EventPriorityAttribute>()?.Priority ?? EventPriority.Normal;
-            var managedHandler = new ManagedEventHandler<TEventArgs>(handler, this.RegistrationIndex++, priority, mod);
+            lock (this.Handlers)
+            {
+                EventPriority priority = handler.Method.GetCustomAttribute<EventPriorityAttribute>()?.Priority ?? EventPriority.Normal;
+                var managedHandler = new ManagedEventHandler<TEventArgs>(handler, this.RegistrationIndex++, priority, mod);
 
-            this.Handlers.Add(managedHandler);
-            this.CachedHandlers = null;
-            this.HasNewHandlers = true;
+                this.Handlers.Add(managedHandler);
+                this.CachedHandlers = null;
+                this.HasNewHandlers = true;
+            }
         }
 
         /// <summary>Remove an event handler.</summary>
         /// <param name="handler">The event handler.</param>
         public void Remove(EventHandler<TEventArgs> handler)
         {
-            // match C# events: if a handler is listed multiple times, remove the last one added
-            for (int i = this.Handlers.Count - 1; i >= 0; i--)
+            lock (this.Handlers)
             {
-                if (this.Handlers[i].Handler != handler)
-                    continue;
+                // match C# events: if a handler is listed multiple times, remove the last one added
+                for (int i = this.Handlers.Count - 1; i >= 0; i--)
+                {
+                    if (this.Handlers[i].Handler != handler)
+                        continue;
 
-                this.Handlers.RemoveAt(i);
-                this.CachedHandlers = null;
-                break;
+                    this.Handlers.RemoveAt(i);
+                    this.CachedHandlers = null;
+                    break;
+                }
             }
         }
 
@@ -106,14 +112,17 @@ namespace StardewModdingAPI.Framework.Events
             // update cached data
             // (This is debounced here to avoid repeatedly sorting when handlers are added/removed,
             // and keeping a separate cached list allows changes during enumeration.)
-            var handlers = this.CachedHandlers; // iterate local copy in case a mod adds/removes a handler while handling the event
+            var handlers = this.CachedHandlers; // iterate local copy in case a mod adds/removes a handler while handling the event, which will set this field to null
             if (handlers == null)
             {
-                if (this.HasNewHandlers && this.Handlers.Any(p => p.Priority != EventPriority.Normal))
-                    this.Handlers.Sort();
+                lock (this.Handlers)
+                {
+                    if (this.HasNewHandlers && this.Handlers.Any(p => p.Priority != EventPriority.Normal))
+                        this.Handlers.Sort();
 
-                this.CachedHandlers = handlers = this.Handlers.ToArray();
-                this.HasNewHandlers = false;
+                    this.CachedHandlers = handlers = this.Handlers.ToArray();
+                    this.HasNewHandlers = false;
+                }
             }
 
             // raise event

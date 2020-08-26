@@ -16,7 +16,6 @@ namespace StardewModdingAPI.Framework.Models
         {
             [nameof(CheckForUpdates)] = true,
             [nameof(ParanoidWarnings)] = Constants.IsDebugBuild,
-            [nameof(RewriteInParallel)] = Constants.IsDebugBuild,
             [nameof(UseBetaChannel)] = Constants.ApiVersion.IsPrerelease(),
             [nameof(GitHubProjectName)] = "MartyrPher/SMAPI-Android-Installer",
             [nameof(WebApiBaseUrl)] = "https://smapi.io/api/",
@@ -43,9 +42,6 @@ namespace StardewModdingAPI.Framework.Models
 
         /// <summary>Whether to check for newer versions of SMAPI and mods on startup.</summary>
         public bool CheckForUpdates { get; set; }
-
-        /// <summary>Whether to enable experimental parallel rewriting.</summary>
-        public bool RewriteInParallel { get; set; } = (bool)SConfig.DefaultValues[nameof(SConfig.RewriteInParallel)];
 
         /// <summary>Whether to add a section to the 'mod issues' list for mods which which directly use potentially sensitive .NET APIs like file or shell access.</summary>
         public bool ParanoidWarnings { get; set; } = (bool)SConfig.DefaultValues[nameof(SConfig.ParanoidWarnings)];

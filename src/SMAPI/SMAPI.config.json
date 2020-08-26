@@ -34,15 +34,6 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "DeveloperMode": true,
 
     /**
-     * Whether to enable experimental parallel rewriting when SMAPI is loading mods. This can
-     * reduce startup time when you have many mods installed, but is experimental and may cause
-     * intermittent startup errors.
-     *
-     * When this is commented out, it'll be true for local debug builds and false otherwise.
-     */
-    //"RewriteInParallel": false,
-
-    /**
      * Whether to add a section to the 'mod issues' list for mods which directly use potentially
      * sensitive .NET APIs like file or shell access. Note that many mods do this legitimately as
      * part of their normal functionality, so these warnings are meaningless without further

@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,26 +9,36 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+#if SMAPI_FOR_MOBILE
+using System.Threading.Tasks;
 using Android.Widget;
+#endif
 #if SMAPI_FOR_WINDOWS
 using System.Windows.Forms;
 #endif
 using Newtonsoft.Json;
+using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Framework.Commands;
+using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Exceptions;
+using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.PerformanceMonitoring;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.Rendering;
 using StardewModdingAPI.Framework.Serialization;
+using StardewModdingAPI.Framework.StateTracking.Comparers;
+using StardewModdingAPI.Framework.StateTracking.Snapshots;
+using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Patches;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
@@ -37,8 +47,7 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Utilities;
 using StardewValley;
-using Object = StardewValley.Object;
-using ThreadState = System.Threading.ThreadState;
+using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
 {
@@ -48,20 +57,17 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Fields
         *********/
-        /// <summary>The log file to which to write messages.</summary>
-        private readonly LogFileManager LogFile;
-
-        /// <summary>Manages console output interception.</summary>
-        private readonly ConsoleInterceptionManager ConsoleManager = new ConsoleInterceptionManager();
-
-        /// <summary>The core logger and monitor for SMAPI.</summary>
-        private readonly Monitor Monitor;
-
-        /// <summary>The core logger and monitor on behalf of the game.</summary>
-        private readonly Monitor MonitorForGame;
-
+        /****
+        ** Low-level components
+        ****/
         /// <summary>Tracks whether the game should exit immediately and any pending initialization should be cancelled.</summary>
         private readonly CancellationTokenSource CancellationToken = new CancellationTokenSource();
+
+        /// <summary>Manages the SMAPI console window and log file.</summary>
+        private readonly LogManager LogManager;
+
+        /// <summary>The core logger and monitor for SMAPI.</summary>
+        private Monitor Monitor => this.LogManager.Monitor;
 
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection = new Reflector();
@@ -72,11 +78,29 @@ namespace StardewModdingAPI.Framework
         /// <summary>The SMAPI configuration settings.</summary>
         private readonly SConfig Settings;
 
-        /// <summary>The underlying game instance.</summary>
-        public SGame GameInstance;
+        /// <summary>The mod toolkit used for generic mod interactions.</summary>
+        private readonly ModToolkit Toolkit = new ModToolkit();
 
-        /// <summary>The underlying content manager.</summary>
-        private ContentCoordinator ContentCore => this.GameInstance.ContentCore;
+        /****
+        ** Higher-level components
+        ****/
+        /// <summary>Manages console commands.</summary>
+        private readonly CommandManager CommandManager = new CommandManager();
+
+        /// <summary>The underlying game instance.</summary>
+        private SGame Game;
+
+        /// <summary>Manages input visible to the game.</summary>
+        private SInputState Input => SGame.Input;
+
+#if SMAPI_FOR_MOBILE
+        public SGame GameInstance;
+#endif
+        /// <summary>The game's core multiplayer utility.</summary>
+        private SMultiplayer Multiplayer => SGame.Multiplayer;
+
+        /// <summary>SMAPI's content manager.</summary>
+        private ContentCoordinator ContentCore;
 
         /// <summary>Tracks the installed mods.</summary>
         /// <remarks>This is initialized after the game starts.</remarks>
@@ -85,50 +109,52 @@ namespace StardewModdingAPI.Framework
         /// <summary>Manages SMAPI events for mods.</summary>
         public readonly EventManager EventManager;
 
+        /// <summary>Monitors the entire game state for changes.</summary>
+        private WatcherCore Watchers;
+
+        /// <summary>A snapshot of the current <see cref="Watchers"/> state.</summary>
+        private readonly WatcherSnapshot WatcherSnapshot = new WatcherSnapshot();
+
+        /****
+        ** State
+        ****/
+        /// <summary>The path to search for mods.</summary>
+        private string ModsPath => Constants.ModsPath;
+
         /// <summary>Whether the game is currently running.</summary>
         private bool IsGameRunning;
 
         /// <summary>Whether the program has been disposed.</summary>
         private bool IsDisposed;
 
-        /// <summary>Regex patterns which match console non-error messages to suppress from the console and log.</summary>
-        private readonly Regex[] SuppressConsolePatterns =
-        {
-            new Regex(@"^TextBox\.Selected is now '(?:True|False)'\.$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^(?:FRUIT )?TREE: IsClient:(?:True|False) randomOutput: \d+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^loadPreferences\(\); begin", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^savePreferences\(\); async=", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^DebugOutput:\s+(?:added CLOUD|added cricket|dismount tile|Ping|playerPos)", RegexOptions.Compiled | RegexOptions.CultureInvariant)
-        };
+        /// <summary>Whether the next content manager requested by the game will be for <see cref="Game1.content"/>.</summary>
+        private bool NextContentManagerIsMain;
 
-        /// <summary>Regex patterns which match console messages to show a more friendly error for.</summary>
-        private readonly ReplaceLogPattern[] ReplaceConsolePatterns =
-        {
-            // Steam not loaded
-            new ReplaceLogPattern(
-                search: new Regex(@"^System\.InvalidOperationException: Steamworks is not initialized\.[\s\S]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-                replacement:
-#if SMAPI_FOR_WINDOWS
-                    "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that (see 'Part 2: Configure Steam' in the install guide for more info: https://smapi.io/install).",
-#else
-                    "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that.",
-#endif
-                logLevel: LogLevel.Error
-            ),
+        /// <summary>Whether post-game-startup initialization has been performed.</summary>
+        private bool IsInitialized;
 
-            // save file not found error
-            new ReplaceLogPattern(
-                search: new Regex(@"^System\.IO\.FileNotFoundException: [^\n]+\n[^:]+: '[^\n]+[/\\]Saves[/\\]([^'\r\n]+)[/\\]([^'\r\n]+)'[\s\S]+LoadGameMenu\.FindSaveGames[\s\S]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-                replacement: "The game can't find the '$2' file for your '$1' save. See https://stardewvalleywiki.com/Saves#Troubleshooting for help.",
-                logLevel: LogLevel.Error
-            )
-        };
+        /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from an update error.</summary>
+        private readonly Countdown UpdateCrashTimer = new Countdown(60); // 60 ticks = roughly one second
 
-        /// <summary>The mod toolkit used for generic mod interactions.</summary>
-        private readonly ModToolkit Toolkit = new ModToolkit();
+        /// <summary>The number of ticks until SMAPI should notify mods that the game has loaded.</summary>
+        /// <remarks>Skipping a few frames ensures the game finishes initializing the world before mods try to change it.</remarks>
+        private readonly Countdown AfterLoadTimer = new Countdown(5);
 
-        /// <summary>The path to search for mods.</summary>
-        private string ModsPath => Constants.ModsPath;
+        /// <summary>Whether custom content was removed from the save data to avoid a crash.</summary>
+        private bool IsSaveContentRemoved;
+
+        /// <summary>Whether the game is saving and SMAPI has already raised <see cref="IGameLoopEvents.Saving"/>.</summary>
+        private bool IsBetweenSaveEvents;
+
+        /// <summary>Whether the game is creating the save file and SMAPI has already raised <see cref="IGameLoopEvents.SaveCreating"/>.</summary>
+        private bool IsBetweenCreateEvents;
+
+        /// <summary>Asset interceptors added or removed since the last tick.</summary>
+        private readonly List<AssetInterceptorChange> ReloadAssetInterceptorsQueue = new List<AssetInterceptorChange>();
+
+        /// <summary>A list of queued commands to execute.</summary>
+        /// <remarks>This property must be thread-safe, since it's accessed from a separate console input thread.</remarks>
+        public ConcurrentQueue<string> CommandQueue { get; } = new ConcurrentQueue<string>();
 
 
         /*********
@@ -141,6 +167,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Manages performance counters.</summary>
         /// <remarks>This is initialized after the game starts. This is non-private for use by Console Commands.</remarks>
         internal static PerformanceMonitor PerformanceMonitor { get; private set; }
+
+        /// <summary>The number of update ticks which have already executed. This is similar to <see cref="Game1.ticks"/>, but incremented more consistently for every tick.</summary>
+        internal static uint TicksElapsed { get; private set; }
 
 
         /*********
@@ -165,14 +194,7 @@ namespace StardewModdingAPI.Framework
             if (File.Exists(Constants.ApiUserConfigPath))
                 JsonConvert.PopulateObject(File.ReadAllText(Constants.ApiUserConfigPath), this.Settings);
 
-            this.LogFile = new LogFileManager(logPath, this.Settings.MaxLogSize);
-            this.Monitor = new Monitor("SMAPI", this.ConsoleManager, this.LogFile, this.Settings.ConsoleColors, this.Settings.VerboseLogging)
-            {
-                WriteToConsole = writeToConsole,
-                ShowTraceInConsole = this.Settings.DeveloperMode,
-                ShowFullStampInConsole = this.Settings.DeveloperMode
-            };
-            this.MonitorForGame = this.GetSecondaryMonitor("game");
+            this.LogManager = new LogManager(logPath: logPath, colorConfig: this.Settings.ConsoleColors, writeToConsole: writeToConsole, isVerbose: this.Settings.VerboseLogging, isDeveloperMode: this.Settings.DeveloperMode);
 
             SCore.PerformanceMonitor = new PerformanceMonitor(this.Monitor);
             this.EventManager = new EventManager(this.ModRegistry, SCore.PerformanceMonitor);
@@ -182,38 +204,21 @@ namespace StardewModdingAPI.Framework
 
             SDate.Translations = this.Translator;
 
-            // redirect direct console output
-            if (this.MonitorForGame.WriteToConsole)
-                this.ConsoleManager.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
-
-            // init logging
-            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {Constants.Platform}", LogLevel.Info); //({EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)})", LogLevel.Info);
-            this.Monitor.Log($"Mods go here: {modsPath}");
-            if (modsPath != Constants.DefaultModsPath)
-                this.Monitor.Log("(Using custom --mods-path argument.)", LogLevel.Trace);
-            this.Monitor.Log($"Log started at {DateTime.UtcNow:s} UTC", LogLevel.Trace);
-
-            // log custom settings
-            {
-                IDictionary<string, object> customSettings = this.Settings.GetCustomSettings();
-                if (customSettings.Any())
-                    this.Monitor.Log($"Loaded with custom settings: {string.Join(", ", customSettings.OrderBy(p => p.Key).Select(p => $"{p.Key}: {p.Value}"))}", LogLevel.Trace);
-            }
+            // log SMAPI/OS info
+            this.LogManager.LogIntro(modsPath, this.Settings.GetCustomSettings());
 
             // validate platform
 #if SMAPI_FOR_WINDOWS
             if (Constants.Platform != Platform.Windows)
             {
                 this.Monitor.Log("Oops! You're running Windows, but this version of SMAPI is for Linux or Mac. Please reinstall SMAPI to fix this.", LogLevel.Error);
-                this.PressAnyKeyToExit();
-                return;
+                this.LogManager.PressAnyKeyToExit();
             }
 #else
             if (Constants.Platform == Platform.Windows)
             {
                 this.Monitor.Log($"Oops! You're running {Constants.Platform}, but this version of SMAPI is for Windows. Please reinstall SMAPI to fix this.", LogLevel.Error);
                 this.PressAnyKeyToExit();
-                return;
             }
 #endif
         }
@@ -248,40 +253,41 @@ namespace StardewModdingAPI.Framework
                 LocalizedContentManager.OnLanguageChange += locale => this.OnLocaleChanged();
 
                 // override game
-                SGame.ConstructorHack = new SGameConstructorHack(this.Monitor, this.Reflection, this.Toolkit.JsonHelper, this.InitializeBeforeFirstAssetLoaded);
-                this.GameInstance = new SGame(
+                var multiplayer = new SMultiplayer(this.Monitor, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.Reflection, this.OnModMessageReceived, this.Settings.LogNetworkTraffic);
+                var modHooks = new SModHooks(this.OnNewDayAfterFade);
+                SGame.CreateContentManagerImpl = this.CreateContentManager; // must be static since the game accesses it before the SGame constructor is called
+                this.Game = new SGame(
                     monitor: this.Monitor,
-                    monitorForGame: this.MonitorForGame,
                     reflection: this.Reflection,
-                    translator: this.Translator,
                     eventManager: this.EventManager,
-                    jsonHelper: this.Toolkit.JsonHelper,
-                    modRegistry: this.ModRegistry,
-                    deprecationManager: SCore.DeprecationManager,
-                    performanceMonitor: SCore.PerformanceMonitor,
-                    onGameInitialized: this.InitializeAfterGameStart,
-                    onGameExiting: this.Dispose,
-                    cancellationToken: this.CancellationToken,
-                    logNetworkTraffic: this.Settings.LogNetworkTraffic
+                    modHooks: modHooks,
+                    multiplayer: multiplayer,
+                    exitGameImmediately: this.ExitGameImmediately
                 );
-                this.Translator.SetLocale(this.GameInstance.ContentCore.GetLocale(), this.GameInstance.ContentCore.Language);
-                StardewValley.Program.gamePtr = this.GameInstance;
+                StardewValley.Program.gamePtr = this.Game;
+
+                // hook game events
+                this.Game.OnGameContentLoaded += this.OnLoadContent;
+                this.Game.OnGameUpdating += this.OnGameUpdating;
+                this.Game.OnGameExiting += this.OnGameExiting;
 
                 // apply game patches
                 new GamePatcher(this.Monitor).Apply(
-                    new EventErrorPatch(this.MonitorForGame),
-                    new DialogueErrorPatch(this.MonitorForGame, this.Reflection),
+                    new EventErrorPatch(this.LogManager.MonitorForGame),
+                    new DialogueErrorPatch(this.LogManager.MonitorForGame, this.Reflection),
                     new ObjectErrorPatch(),
-                    new LoadContextPatch(this.Reflection, this.GameInstance.OnLoadStageChanged),
-                    new LoadErrorPatch(this.Monitor, this.GameInstance.OnSaveContentRemoved),
-                    new ScheduleErrorPatch(this.MonitorForGame),
+#if SMAPI_FOR_MOBILE
                     new SaveBackupPatch(this.EventManager, this.Monitor),
                     new JunimoHarvesterPatch(this.Monitor),
                     new LocationSwitchPatch(this.Monitor),
                     new SpriteFontPatch(this.Monitor),
                     new ThreadSilenceExitPatch(this.Monitor),
                     new SaveGamePatch(this.Translator, this.Monitor),
-                    new OnAppPausePatch(this.Monitor)
+                    new OnAppPausePatch(this.Monitor),
+#endif
+                    new LoadContextPatch(this.Reflection, this.OnLoadStageChanged),
+                    new LoadErrorPatch(this.Monitor, this.OnSaveContentRemoved),
+                    new ScheduleErrorPatch(this.LogManager.MonitorForGame)
                 );
 
                 // add exit handler
@@ -290,99 +296,49 @@ namespace StardewModdingAPI.Framework
                     this.CancellationToken.Token.WaitHandle.WaitOne();
                     if (this.IsGameRunning)
                     {
-                        try
-                        {
-                            File.WriteAllText(Constants.FatalCrashMarker, string.Empty);
-                            File.Copy(this.LogFile.Path, Constants.FatalCrashLog, overwrite: true);
-                        }
-                        catch (Exception ex)
-                        {
-                            this.Monitor.Log($"SMAPI failed trying to track the crash details: {ex.GetLogSummary()}", LogLevel.Error);
-                        }
-
-                        this.GameInstance.Exit();
+                        this.LogManager.WriteCrashLog();
+                        this.Game.Exit();
                     }
                 }).Start();
 
                 // set window titles
-                //this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
-                //Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}";
+#if !SMAPI_FOR_MOBILE
+                this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
+                this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}");
+#endif
             }
             catch (Exception ex)
             {
                 this.Monitor.Log($"SMAPI failed to initialize: {ex.GetLogSummary()}", LogLevel.Error);
-                //this.PressAnyKeyToExit();
+#if !SMAPI_FOR_MOBILE
+                this.LogManager.PressAnyKeyToExit();
+#endif
                 return;
             }
 
-            // check update marker
-            if (File.Exists(Constants.UpdateMarker))
-            {
-                string rawUpdateFound = File.ReadAllText(Constants.UpdateMarker);
-                if (SemanticVersion.TryParse(rawUpdateFound, out ISemanticVersion updateFound))
-                {
-                    if (Constants.ApiVersion.IsPrerelease() && updateFound.IsNewerThan(Constants.ApiVersion))
-                    {
-                        this.Monitor.Log("A new version of SMAPI was detected last time you played.", LogLevel.Error);
-                        this.Monitor.Log($"You can update to {updateFound}: https://smapi.io.", LogLevel.Error);
-                        this.Monitor.Log("Press any key to continue playing anyway. (This only appears when using a SMAPI beta.)", LogLevel.Info);
-                        //Console.ReadKey();
-                    }
-                    Toast.MakeText(SMainActivity.instance, $"You can update to {updateFound}: {Constants.HomePageUrl}.", ToastLength.Long).Show();
-                }
-                File.Delete(Constants.UpdateMarker);
-            }
+            // log basic info
+            this.LogManager.HandleMarkerFiles();
+            this.LogManager.LogSettingsHeader(this.Settings.DeveloperMode, this.Settings.CheckForUpdates);
 
-            // show details if game crashed during last session
-            if (File.Exists(Constants.FatalCrashMarker))
-            {
-                this.Monitor.Log("The game crashed last time you played. If it happens repeatedly, see 'get help' on https://smapi.io.", LogLevel.Error);
-                this.Monitor.Log("If you ask for help, make sure to share your SMAPI log: https://smapi.io/log.", LogLevel.Error);
-                this.Monitor.Log("Press any key to delete the crash data and continue playing.", LogLevel.Info);
-                //Console.ReadKey();
-                File.Delete(Constants.FatalCrashLog);
-                File.Delete(Constants.FatalCrashMarker);
-            }
-
-            // add headers
-            if (this.Settings.DeveloperMode)
-                this.Monitor.Log($"You have SMAPI for developers, so the console will be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
-            if (this.Settings.RewriteInParallel)
-                this.Monitor.Log($"You enabled experimental parallel rewriting. This may result in faster startup times, but intermittent startup errors. You can disable it by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Info);
-            if (!this.Settings.CheckForUpdates)
-                this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
-            //if (!this.Monitor.WriteToConsole)
-                //this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
-            this.Monitor.VerboseLog("Verbose logging enabled.");
-
-            // update window titles
-            //this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
-            //Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}";
-
+#if !SMAPI_FOR_MOBILE
+            // set window titles
+            this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
+            this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}");
+#endif
             // start game
             this.Monitor.Log("Starting game...", LogLevel.Debug);
             try
             {
                 this.IsGameRunning = true;
                 StardewValley.Program.releaseBuild = true; // game's debug logic interferes with SMAPI opening the game window
-                this.GameInstance.Run();
-            }
-            catch (InvalidOperationException ex) when (ex.Source == "Microsoft.Xna.Framework.Xact" && ex.StackTrace.Contains("Microsoft.Xna.Framework.Audio.AudioEngine..ctor"))
-            {
-                this.Monitor.Log("The game couldn't load audio. Do you have speakers or headphones plugged in?", LogLevel.Error);
-                this.Monitor.Log($"Technical details: {ex.GetLogSummary()}", LogLevel.Trace);
-                //this.PressAnyKeyToExit();
-            }
-            catch (FileNotFoundException ex) when (ex.Message == "Could not find file 'C:\\Program Files (x86)\\Steam\\SteamApps\\common\\Stardew Valley\\Content\\XACT\\FarmerSounds.xgs'.") // path in error is hardcoded regardless of install path
-            {
-                this.Monitor.Log("The game can't find its Content\\XACT\\FarmerSounds.xgs file. You can usually fix this by resetting your content files (see https://smapi.io/troubleshoot#reset-content ), or by uninstalling and reinstalling the game.", LogLevel.Error);
-                this.Monitor.Log($"Technical details: {ex.GetLogSummary()}", LogLevel.Trace);
-                //this.PressAnyKeyToExit();
+                this.Game.Run();
             }
             catch (Exception ex)
             {
-                this.MonitorForGame.Log($"The game failed to launch: {ex.GetLogSummary()}", LogLevel.Error);
-                //this.PressAnyKeyToExit();
+                this.LogManager.LogFatalLaunchError(ex);
+#if !SMAPI_FOR_MOBILE
+                this.LogManager.PressAnyKeyToExit();
+#endif
             }
             finally
             {
@@ -397,7 +353,7 @@ namespace StardewModdingAPI.Framework
             if (this.IsDisposed)
                 return;
             this.IsDisposed = true;
-            this.Monitor.Log("Disposing...", LogLevel.Trace);
+            this.Monitor.Log("Disposing...");
 
             // dispose mod data
             foreach (IModMetadata mod in this.ModRegistry.GetAll())
@@ -414,11 +370,10 @@ namespace StardewModdingAPI.Framework
 
             // dispose core components
             this.IsGameRunning = false;
-            this.ConsoleManager?.Dispose();
             this.ContentCore?.Dispose();
             this.CancellationToken?.Dispose();
-            this.GameInstance?.Dispose();
-            this.LogFile?.Dispose();
+            this.Game?.Dispose();
+            this.LogManager?.Dispose(); // dispose last to allow for any last-second log messages
 
             // end game (moved from Game1.OnExiting to let us clean up first)
             Process.GetCurrentProcess().Kill();
@@ -438,45 +393,38 @@ namespace StardewModdingAPI.Framework
             }
 
             // init TMX support
-            try
-            {
-                xTile.Format.FormatManager.Instance.RegisterMapFormat(new TMXTile.TMXFormat(Game1.tileSize / Game1.pixelZoom, Game1.tileSize / Game1.pixelZoom, Game1.pixelZoom, Game1.pixelZoom));
-            }
-            catch (Exception ex)
-            {
-                this.Monitor.Log("SMAPI couldn't load TMX support. Some mods may not work correctly.", LogLevel.Warn);
-                this.Monitor.Log($"Technical details: {ex.GetLogSummary()}", LogLevel.Trace);
-            }
+            xTile.Format.FormatManager.Instance.RegisterMapFormat(new TMXTile.TMXFormat(Game1.tileSize / Game1.pixelZoom, Game1.tileSize / Game1.pixelZoom, Game1.pixelZoom, Game1.pixelZoom));
 
+#if SMAPI_FOR_MOBILE
             this.GameInstance.IsGameSuspended = true;
             new Thread(() =>
             {
                 while (!this.GameInstance.IsAfterInitialize)
                     Thread.Sleep(10);
+#endif
+            // load mod data
+            ModToolkit toolkit = new ModToolkit();
+            ModDatabase modDatabase = toolkit.GetModDatabase(Constants.ApiMetadataPath);
 
-                // load mod data
-                ModToolkit toolkit = new ModToolkit();
-                ModDatabase modDatabase = toolkit.GetModDatabase(Constants.ApiMetadataPath);
+            // load mods
+            {
+                this.Monitor.Log("Loading mod metadata...");
+                ModResolver resolver = new ModResolver();
 
-                // load mods
+                // log loose files
                 {
-                    this.Monitor.Log("Loading mod metadata...", LogLevel.Trace);
-                    ModResolver resolver = new ModResolver();
-
-                    // log loose files
-                    {
-                        string[] looseFiles = new DirectoryInfo(this.ModsPath).GetFiles().Select(p => p.Name).ToArray();
-                        if (looseFiles.Any())
-                            this.Monitor.Log($"  Ignored loose files: {string.Join(", ", looseFiles.OrderBy(p => p, StringComparer.OrdinalIgnoreCase))}", LogLevel.Trace);
-                    }
+                    string[] looseFiles = new DirectoryInfo(this.ModsPath).GetFiles().Select(p => p.Name).ToArray();
+                    if (looseFiles.Any())
+                        this.Monitor.Log($"  Ignored loose files: {string.Join(", ", looseFiles.OrderBy(p => p, StringComparer.OrdinalIgnoreCase))}");
+                }
 
                     // load manifests
                     IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modDatabase).ToArray();
 
-                    // filter out ignored mods
-                    foreach (IModMetadata mod in mods.Where(p => p.IsIgnored))
-                        this.Monitor.Log($"  Skipped {mod.GetRelativePathWithRoot()} (folder name starts with a dot).", LogLevel.Trace);
-                    mods = mods.Where(p => !p.IsIgnored).ToArray();
+                // filter out ignored mods
+                foreach (IModMetadata mod in mods.Where(p => p.IsIgnored))
+                    this.Monitor.Log($"  Skipped {mod.GetRelativePathWithRoot()} (folder name starts with a dot).");
+                mods = mods.Where(p => !p.IsIgnored).ToArray();
 
                     // load mods
                     resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
@@ -487,32 +435,640 @@ namespace StardewModdingAPI.Framework
                     this.CheckForUpdatesAsync(mods);
                 }
 
-                // prepare console
-                this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
-                this.GameInstance.CommandManager
-                    .Add(new HelpCommand(this.GameInstance.CommandManager), this.Monitor)
-                    .Add(new HarmonySummaryCommand(), this.Monitor)
-                    .Add(new ReloadI18nCommand(this.ReloadTranslations), this.Monitor);
-
-                // update window titles
-                int modsLoaded = this.ModRegistry.GetAll().Count();
-                //this.GameInstance.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
-                //Console.Title = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods";
-
+#if !SMAPI_FOR_MOBILE
+            // update window titles
+            int modsLoaded = this.ModRegistry.GetAll().Count();
+            this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
+            this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods");
+#else
                 SGameConsole.Instance.isVisible = false;
                 this.GameInstance.IsGameSuspended = false;
             }).Start();
-        }
+#endif
+}
 
-        /// <summary>Initialize SMAPI and mods after the game starts.</summary>
-        private void InitializeAfterGameStart()
+        /// <summary>Raised after the game finishes initializing.</summary>
+        private void OnGameInitialized()
         {
+            // set initial state
+            this.Input.TrueUpdate();
+
+            // init watchers
+            this.Watchers = new WatcherCore(this.Input, this.Game.GetObservableLocations());
+
             // validate XNB integrity
             if (!this.ValidateContentIntegrity())
                 this.Monitor.Log("SMAPI found problems in your game's content files which are likely to cause errors or crashes. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Error);
 
+#if !SMAPI_FOR_MOBILE
             // start SMAPI console
-            //new Thread(this.RunConsoleLoop).Start();
+            new Thread(
+                () => this.LogManager.RunConsoleInputLoop(
+                    commandManager: this.CommandManager,
+                    reloadTranslations: this.ReloadTranslations,
+                    handleInput: input => this.CommandQueue.Enqueue(input),
+                    continueWhile: () => this.IsGameRunning && !this.CancellationToken.IsCancellationRequested
+                )
+            ).Start();
+#endif
+        }
+
+        /// <summary>Raised after the game finishes loading its initial content.</summary>
+        private void OnLoadContent()
+        {
+            // override map display device
+            Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
+
+            // log GPU info
+#if SMAPI_FOR_WINDOWS
+            this.Monitor.Log($"Running on GPU: {Game1.game1.GraphicsDevice?.Adapter?.Description ?? "<unknown>"}");
+#endif
+        }
+
+        /// <summary>Raised when the game is updating its state (roughly 60 times per second).</summary>
+        /// <param name="gameTime">A snapshot of the game timing state.</param>
+        /// <param name="runGameUpdate">Invoke the game's update logic.</param>
+        private void OnGameUpdating(GameTime gameTime, Action runGameUpdate)
+        {
+#if SMAPI_FOR_MOBILE
+            if (this.IsGameSuspended)
+            {
+                if (!this.IsAfterInitialize)
+                    this.IsAfterInitialize = true;
+
+                return;
+            }
+#endif
+            var events = this.EventManager;
+
+            try
+            {
+                SCore.DeprecationManager.PrintQueued();
+                SCore.PerformanceMonitor.PrintQueuedAlerts();
+
+                /*********
+                ** First-tick initialization
+                *********/
+                if (!this.IsInitialized)
+                {
+                    this.IsInitialized = true;
+                    this.OnGameInitialized();
+                }
+
+                /*********
+                ** Update input
+                *********/
+                // This should *always* run, even when suppressing mod events, since the game uses
+                // this too. For example, doing this after mod event suppression would prevent the
+                // user from doing anything on the overnight shipping screen.
+                SInputState inputState = this.Input;
+                if (this.Game.IsActive)
+                    inputState.TrueUpdate();
+
+                /*********
+                ** Special cases
+                *********/
+                // Abort if SMAPI is exiting.
+                if (this.CancellationToken.IsCancellationRequested)
+                {
+                    this.Monitor.Log("SMAPI shutting down: aborting update.");
+                    return;
+                }
+
+                // Run async tasks synchronously to avoid issues due to mod events triggering
+                // concurrently with game code.
+                bool saveParsed = false;
+                if (Game1.currentLoader != null)
+                {
+                    this.Monitor.Log("Game loader synchronizing...");
+                    while (Game1.currentLoader?.MoveNext() == true)
+                    {
+                        // raise load stage changed
+                        switch (Game1.currentLoader.Current)
+                        {
+                            case 20 when (!saveParsed && SaveGame.loaded != null):
+                                saveParsed = true;
+                                this.OnLoadStageChanged(LoadStage.SaveParsed);
+                                break;
+
+                            case 36:
+                                this.OnLoadStageChanged(LoadStage.SaveLoadedBasicInfo);
+                                break;
+
+                            case 50:
+                                this.OnLoadStageChanged(LoadStage.SaveLoadedLocations);
+                                break;
+
+                            default:
+                                if (Game1.gameMode == Game1.playingGameMode)
+                                    this.OnLoadStageChanged(LoadStage.Preloaded);
+                                break;
+                        }
+                    }
+
+                    Game1.currentLoader = null;
+                    this.Monitor.Log("Game loader done.");
+                }
+
+                if (SGame.NewDayTask?.Status == TaskStatus.Created)
+                {
+                    this.Monitor.Log("New day task synchronizing...");
+                    SGame.NewDayTask.RunSynchronously();
+                    this.Monitor.Log("New day task done.");
+                }
+
+                // While a background task is in progress, the game may make changes to the game
+                // state while mods are running their code. This is risky, because data changes can
+                // conflict (e.g. collection changed during enumeration errors) and data may change
+                // unexpectedly from one mod instruction to the next.
+                //
+                // Therefore we can just run Game1.Update here without raising any SMAPI events. There's
+                // a small chance that the task will finish after we defer but before the game checks,
+                // which means technically events should be raised, but the effects of missing one
+                // update tick are negligible and not worth the complications of bypassing Game1.Update.
+                if (SGame.NewDayTask != null || Game1.gameMode == Game1.loadingMode)
+                {
+                    events.UnvalidatedUpdateTicking.RaiseEmpty();
+                    SCore.TicksElapsed++;
+                    runGameUpdate();
+                    events.UnvalidatedUpdateTicked.RaiseEmpty();
+                    return;
+                }
+
+                // Raise minimal events while saving.
+                // While the game is writing to the save file in the background, mods can unexpectedly
+                // fail since they don't have exclusive access to resources (e.g. collection changed
+                // during enumeration errors). To avoid problems, events are not invoked while a save
+                // is in progress. It's safe to raise SaveEvents.BeforeSave as soon as the menu is
+                // opened (since the save hasn't started yet), but all other events should be suppressed.
+                if (Context.IsSaving)
+                {
+                    // raise before-create
+                    if (!Context.IsWorldReady && !this.IsBetweenCreateEvents)
+                    {
+                        this.IsBetweenCreateEvents = true;
+                        this.Monitor.Log("Context: before save creation.");
+                        events.SaveCreating.RaiseEmpty();
+                    }
+
+                    // raise before-save
+                    if (Context.IsWorldReady && !this.IsBetweenSaveEvents)
+                    {
+                        this.IsBetweenSaveEvents = true;
+                        this.Monitor.Log("Context: before save.");
+                        events.Saving.RaiseEmpty();
+                    }
+
+                    // suppress non-save events
+                    events.UnvalidatedUpdateTicking.RaiseEmpty();
+                    SCore.TicksElapsed++;
+                    runGameUpdate();
+                    events.UnvalidatedUpdateTicked.RaiseEmpty();
+                    return;
+                }
+
+                /*********
+                ** Reload assets when interceptors are added/removed
+                *********/
+                if (this.ReloadAssetInterceptorsQueue.Any())
+                {
+                    // get unique interceptors
+                    AssetInterceptorChange[] interceptors = this.ReloadAssetInterceptorsQueue
+                        .GroupBy(p => p.Instance, new ObjectReferenceComparer<object>())
+                        .Select(p => p.First())
+                        .ToArray();
+                    this.ReloadAssetInterceptorsQueue.Clear();
+
+                    // log summary
+                    this.Monitor.Log("Invalidating cached assets for new editors & loaders...");
+                    this.Monitor.Log(
+                        "   changed: "
+                        + string.Join(", ",
+                            interceptors
+                                .GroupBy(p => p.Mod)
+                                .OrderBy(p => p.Key.DisplayName)
+                                .Select(modGroup =>
+                                    $"{modGroup.Key.DisplayName} ("
+                                    + string.Join(", ", modGroup.GroupBy(p => p.WasAdded).ToDictionary(p => p.Key, p => p.Count()).Select(p => $"{(p.Key ? "added" : "removed")} {p.Value}"))
+                                    + ")"
+                                )
+                        )
+                    );
+
+                    // reload affected assets
+                    this.ContentCore.InvalidateCache(asset => interceptors.Any(p => p.CanIntercept(asset)));
+                }
+
+                /*********
+                ** Execute commands
+                *********/
+                while (this.CommandQueue.TryDequeue(out string rawInput))
+                {
+                    // parse command
+                    string name;
+                    string[] args;
+                    Command command;
+                    try
+                    {
+                        if (!this.CommandManager.TryParse(rawInput, out name, out args, out command))
+                        {
+                            this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+                            continue;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"Failed parsing that command:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        continue;
+                    }
+
+                    // execute command
+                    try
+                    {
+                        command.Callback.Invoke(name, args);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (command.Mod != null)
+                            command.Mod.LogAsMod($"Mod failed handling that command:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        else
+                            this.Monitor.Log($"Failed handling that command:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    }
+                }
+
+                /*********
+                ** Update context
+                *********/
+                bool wasWorldReady = Context.IsWorldReady;
+                if ((Context.IsWorldReady && !Context.IsSaveLoaded) || Game1.exitToTitle)
+                {
+                    Context.IsWorldReady = false;
+                    this.AfterLoadTimer.Reset();
+                }
+                else if (Context.IsSaveLoaded && this.AfterLoadTimer.Current > 0 && Game1.currentLocation != null)
+                {
+                    if (Game1.dayOfMonth != 0) // wait until new-game intro finishes (world not fully initialized yet)
+                        this.AfterLoadTimer.Decrement();
+                    Context.IsWorldReady = this.AfterLoadTimer.Current == 0;
+                }
+
+                /*********
+                ** Update watchers
+                **   (Watchers need to be updated, checked, and reset in one go so we can detect any changes mods make in event handlers.)
+                *********/
+                this.Watchers.Update();
+                this.WatcherSnapshot.Update(this.Watchers);
+                this.Watchers.Reset();
+                WatcherSnapshot state = this.WatcherSnapshot;
+
+                /*********
+                ** Display in-game warnings
+                *********/
+                // save content removed
+                if (this.IsSaveContentRemoved && Context.IsWorldReady)
+                {
+                    this.IsSaveContentRemoved = false;
+                    Game1.addHUDMessage(new HUDMessage(this.Translator.Get("warn.invalid-content-removed"), HUDMessage.error_type));
+                }
+
+                /*********
+                ** Pre-update events
+                *********/
+                {
+                    /*********
+                    ** Save created/loaded events
+                    *********/
+                    if (this.IsBetweenCreateEvents)
+                    {
+                        // raise after-create
+                        this.IsBetweenCreateEvents = false;
+                        this.Monitor.Log($"Context: after save creation, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.");
+                        this.OnLoadStageChanged(LoadStage.CreatedSaveFile);
+                        events.SaveCreated.RaiseEmpty();
+                    }
+
+                    if (this.IsBetweenSaveEvents)
+                    {
+                        // raise after-save
+                        this.IsBetweenSaveEvents = false;
+                        this.Monitor.Log($"Context: after save, starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}.");
+                        events.Saved.RaiseEmpty();
+                        events.DayStarted.RaiseEmpty();
+                    }
+
+                    /*********
+                    ** Locale changed events
+                    *********/
+                    if (state.Locale.IsChanged)
+                        this.Monitor.Log($"Context: locale set to {state.Locale.New}.");
+
+                    /*********
+                    ** Load / return-to-title events
+                    *********/
+                    if (wasWorldReady && !Context.IsWorldReady)
+                        this.OnLoadStageChanged(LoadStage.None);
+                    else if (Context.IsWorldReady && Context.LoadStage != LoadStage.Ready)
+                    {
+                        // print context
+                        string context = $"Context: loaded save '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}, locale set to {this.ContentCore.Language}.";
+                        if (Context.IsMultiplayer)
+                        {
+                            int onlineCount = Game1.getOnlineFarmers().Count();
+                            context += $" {(Context.IsMainPlayer ? "Main player" : "Farmhand")} with {onlineCount} {(onlineCount == 1 ? "player" : "players")} online.";
+                        }
+                        else
+                            context += " Single-player.";
+
+                        this.Monitor.Log(context);
+
+                        // raise events
+                        this.OnLoadStageChanged(LoadStage.Ready);
+                        events.SaveLoaded.RaiseEmpty();
+                        events.DayStarted.RaiseEmpty();
+                    }
+
+                    /*********
+                    ** Window events
+                    *********/
+                    // Here we depend on the game's viewport instead of listening to the Window.Resize
+                    // event because we need to notify mods after the game handles the resize, so the
+                    // game's metadata (like Game1.viewport) are updated. That's a bit complicated
+                    // since the game adds & removes its own handler on the fly.
+                    if (state.WindowSize.IsChanged)
+                    {
+                        if (this.Monitor.IsVerbose)
+                            this.Monitor.Log($"Events: window size changed to {state.WindowSize.New}.");
+
+                        events.WindowResized.Raise(new WindowResizedEventArgs(state.WindowSize.Old, state.WindowSize.New));
+                    }
+
+                    /*********
+                    ** Input events (if window has focus)
+                    *********/
+                    if (this.Game.IsActive)
+                    {
+                        // raise events
+                        bool isChatInput = Game1.IsChatting || (Context.IsMultiplayer && Context.IsWorldReady && Game1.activeClickableMenu == null && Game1.currentMinigame == null && inputState.IsAnyDown(Game1.options.chatButton));
+                        if (!isChatInput)
+                        {
+                            ICursorPosition cursor = this.Input.CursorPosition;
+
+                            // raise cursor moved event
+                            if (state.Cursor.IsChanged)
+                                events.CursorMoved.Raise(new CursorMovedEventArgs(state.Cursor.Old, state.Cursor.New));
+
+                            // raise mouse wheel scrolled
+                            if (state.MouseWheelScroll.IsChanged)
+                            {
+                                if (this.Monitor.IsVerbose)
+                                    this.Monitor.Log($"Events: mouse wheel scrolled to {state.MouseWheelScroll.New}.");
+                                events.MouseWheelScrolled.Raise(new MouseWheelScrolledEventArgs(cursor, state.MouseWheelScroll.Old, state.MouseWheelScroll.New));
+                            }
+
+                            // raise input button events
+                            foreach (var pair in inputState.LastButtonStates)
+                            {
+                                SButton button = pair.Key;
+                                SButtonState status = pair.Value;
+
+                                if (status == SButtonState.Pressed)
+                                {
+                                    if (this.Monitor.IsVerbose)
+                                        this.Monitor.Log($"Events: button {button} pressed.");
+
+                                    events.ButtonPressed.Raise(new ButtonPressedEventArgs(button, cursor, inputState));
+                                }
+                                else if (status == SButtonState.Released)
+                                {
+                                    if (this.Monitor.IsVerbose)
+                                        this.Monitor.Log($"Events: button {button} released.");
+
+                                    events.ButtonReleased.Raise(new ButtonReleasedEventArgs(button, cursor, inputState));
+                                }
+                            }
+                        }
+                    }
+
+                    /*********
+                    ** Menu events
+                    *********/
+                    if (state.ActiveMenu.IsChanged)
+                    {
+                        if (this.Monitor.IsVerbose)
+                            this.Monitor.Log($"Context: menu changed from {state.ActiveMenu.Old?.GetType().FullName ?? "none"} to {state.ActiveMenu.New?.GetType().FullName ?? "none"}.");
+                        IClickableMenu was = state.ActiveMenu.Old;
+                        IClickableMenu now = state.ActiveMenu.New;
+#if SMAPI_FOR_MOBILE
+                        if (this.Monitor.IsVerbose)
+                            this.Monitor.Log($"Context: menu changed from {state.ActiveMenu.Old?.GetType().FullName ?? "none"} to {state.ActiveMenu.New?.GetType().FullName ?? "none"}.", LogLevel.Trace);
+
+                        // raise menu events
+                        events.MenuChanged.Raise(new MenuChangedEventArgs(was, now));
+
+                        if (now is GameMenu gameMenu)
+                        {
+                            foreach (IClickableMenu menu in gameMenu.pages)
+                            {
+                                OptionsPage optionsPage = menu as OptionsPage;
+                                if (optionsPage != null)
+                                {
+                                    List<OptionsElement> options = this.Reflection.GetField<List<OptionsElement>>(optionsPage, "options").GetValue();
+                                    options.Insert(0, new OptionsButton("Console", () => SGameConsole.Instance.Show()));
+                                    this.Reflection.GetMethod(optionsPage, "updateContentPositions").Invoke();
+                                }
+                            }
+                        }
+                        else if (now is ShopMenu shopMenu)
+                        {
+                            Dictionary<ISalable, int[]> itemPriceAndStock = this.Reflection.GetField<Dictionary<ISalable, int[]>>(shopMenu, "itemPriceAndStock").GetValue();
+                            if (shopMenu.forSaleButtons.Count < itemPriceAndStock.Keys.Select(item => item.Name).Distinct().Count())
+                            {
+                                this.Monitor.Log("Shop Menu Pop");
+                                Game1.activeClickableMenu = new ShopMenu(itemPriceAndStock,
+                                    this.Reflection.GetField<int>(shopMenu, "currency").GetValue(),
+                                    this.Reflection.GetField<string>(shopMenu, "personName").GetValue(),
+                                    shopMenu.onPurchase, shopMenu.onSell, shopMenu.storeContext);
+                            }
+                        }
+#else
+                        // raise menu events
+                        events.MenuChanged.Raise(new MenuChangedEventArgs(was, now));
+#endif
+                    }
+
+                    /*********
+                    ** World & player events
+                    *********/
+                    if (Context.IsWorldReady)
+                    {
+                        bool raiseWorldEvents = !state.SaveID.IsChanged; // don't report changes from unloaded => loaded
+
+                        // location list changes
+                        if (state.Locations.LocationList.IsChanged && (events.LocationListChanged.HasListeners() || this.Monitor.IsVerbose))
+                        {
+                            var added = state.Locations.LocationList.Added.ToArray();
+                            var removed = state.Locations.LocationList.Removed.ToArray();
+
+                            if (this.Monitor.IsVerbose)
+                            {
+                                string addedText = added.Any() ? string.Join(", ", added.Select(p => p.Name)) : "none";
+                                string removedText = removed.Any() ? string.Join(", ", removed.Select(p => p.Name)) : "none";
+                                this.Monitor.Log($"Context: location list changed (added {addedText}; removed {removedText}).");
+                            }
+
+                            events.LocationListChanged.Raise(new LocationListChangedEventArgs(added, removed));
+                        }
+
+                        // raise location contents changed
+                        if (raiseWorldEvents)
+                        {
+                            foreach (LocationSnapshot locState in state.Locations.Locations)
+                            {
+                                var location = locState.Location;
+
+                                // buildings changed
+                                if (locState.Buildings.IsChanged)
+                                    events.BuildingListChanged.Raise(new BuildingListChangedEventArgs(location, locState.Buildings.Added, locState.Buildings.Removed));
+
+                                // debris changed
+                                if (locState.Debris.IsChanged)
+                                    events.DebrisListChanged.Raise(new DebrisListChangedEventArgs(location, locState.Debris.Added, locState.Debris.Removed));
+
+                                // large terrain features changed
+                                if (locState.LargeTerrainFeatures.IsChanged)
+                                    events.LargeTerrainFeatureListChanged.Raise(new LargeTerrainFeatureListChangedEventArgs(location, locState.LargeTerrainFeatures.Added, locState.LargeTerrainFeatures.Removed));
+
+                                // NPCs changed
+                                if (locState.Npcs.IsChanged)
+                                    events.NpcListChanged.Raise(new NpcListChangedEventArgs(location, locState.Npcs.Added, locState.Npcs.Removed));
+
+                                // objects changed
+                                if (locState.Objects.IsChanged)
+                                    events.ObjectListChanged.Raise(new ObjectListChangedEventArgs(location, locState.Objects.Added, locState.Objects.Removed));
+
+                                // chest items changed
+                                if (events.ChestInventoryChanged.HasListeners())
+                                {
+                                    foreach (var pair in locState.ChestItems)
+                                    {
+                                        SnapshotItemListDiff diff = pair.Value;
+                                        events.ChestInventoryChanged.Raise(new ChestInventoryChangedEventArgs(pair.Key, location, added: diff.Added, removed: diff.Removed, quantityChanged: diff.QuantityChanged));
+                                    }
+                                }
+
+                                // terrain features changed
+                                if (locState.TerrainFeatures.IsChanged)
+                                    events.TerrainFeatureListChanged.Raise(new TerrainFeatureListChangedEventArgs(location, locState.TerrainFeatures.Added, locState.TerrainFeatures.Removed));
+                            }
+                        }
+
+                        // raise time changed
+                        if (raiseWorldEvents && state.Time.IsChanged)
+                            events.TimeChanged.Raise(new TimeChangedEventArgs(state.Time.Old, state.Time.New));
+
+                        // raise player events
+                        if (raiseWorldEvents)
+                        {
+                            PlayerSnapshot playerState = state.CurrentPlayer;
+                            Farmer player = playerState.Player;
+
+                            // raise current location changed
+                            if (playerState.Location.IsChanged)
+                            {
+                                if (this.Monitor.IsVerbose)
+                                    this.Monitor.Log($"Context: set location to {playerState.Location.New}.");
+
+#if SMAPI_FOR_MOBILE
+                                // Fix tapToMove null pointer error
+                                if (playerState.Location.New.tapToMove == null && playerState.Location.New.map != null)
+                                {
+                                    playerState.Location.New.tapToMove = new TapToMove(playerState.Location.New);
+                                }
+#endif
+                                events.Warped.Raise(new WarpedEventArgs(player, playerState.Location.Old, playerState.Location.New));
+                            }
+
+                            // raise player leveled up a skill
+                            foreach (var pair in playerState.Skills)
+                            {
+                                if (!pair.Value.IsChanged)
+                                    continue;
+
+                                if (this.Monitor.IsVerbose)
+                                    this.Monitor.Log($"Events: player skill '{pair.Key}' changed from {pair.Value.Old} to {pair.Value.New}.");
+
+                                events.LevelChanged.Raise(new LevelChangedEventArgs(player, pair.Key, pair.Value.Old, pair.Value.New));
+                            }
+
+                            // raise player inventory changed
+                            if (playerState.Inventory.IsChanged)
+                            {
+                                var inventory = playerState.Inventory;
+
+                                if (this.Monitor.IsVerbose)
+                                    this.Monitor.Log("Events: player inventory changed.");
+                                events.InventoryChanged.Raise(new InventoryChangedEventArgs(player, added: inventory.Added, removed: inventory.Removed, quantityChanged: inventory.QuantityChanged));
+                            }
+                        }
+                    }
+
+                    /*********
+                    ** Game update
+                    *********/
+                    // game launched
+                    bool isFirstTick = SCore.TicksElapsed == 0;
+                    if (isFirstTick)
+                    {
+                        Context.IsGameLaunched = true;
+                        events.GameLaunched.Raise(new GameLaunchedEventArgs());
+                    }
+
+                    // preloaded
+                    if (Context.IsSaveLoaded && Context.LoadStage != LoadStage.Loaded && Context.LoadStage != LoadStage.Ready && Game1.dayOfMonth != 0)
+                        this.OnLoadStageChanged(LoadStage.Loaded);
+                }
+
+                /*********
+                ** Game update tick
+                *********/
+                {
+                    bool isOneSecond = SCore.TicksElapsed % 60 == 0;
+                    events.UnvalidatedUpdateTicking.RaiseEmpty();
+                    events.UpdateTicking.RaiseEmpty();
+                    if (isOneSecond)
+                        events.OneSecondUpdateTicking.RaiseEmpty();
+                    try
+                    {
+                        this.Input.ApplyOverrides(); // if mods added any new overrides since the update, process them now
+                        SCore.TicksElapsed++;
+                        runGameUpdate();
+                    }
+                    catch (Exception ex)
+                    {
+                        this.LogManager.MonitorForGame.Log($"An error occured in the base update loop: {ex.GetLogSummary()}", LogLevel.Error);
+                    }
+
+                    events.UnvalidatedUpdateTicked.RaiseEmpty();
+                    events.UpdateTicked.RaiseEmpty();
+                    if (isOneSecond)
+                        events.OneSecondUpdateTicked.RaiseEmpty();
+                }
+
+                /*********
+                ** Update events
+                *********/
+                this.UpdateCrashTimer.Reset();
+            }
+            catch (Exception ex)
+            {
+                // log error
+                this.Monitor.Log($"An error occured in the overridden update loop: {ex.GetLogSummary()}", LogLevel.Error);
+
+                // exit if irrecoverable
+                if (!this.UpdateCrashTimer.Decrement())
+                    this.ExitGameImmediately("The game crashed when updating, and SMAPI was unable to recover the game.");
+            }
+#endif
         }
 
         /// <summary>Handle the game changing locale.</summary>
@@ -532,53 +1088,113 @@ namespace StardewModdingAPI.Framework
                 mod.Translations.SetLocale(locale, languageCode);
         }
 
-        /// <summary>Run a loop handling console input.</summary>
-        [SuppressMessage("ReSharper", "FunctionNeverReturns", Justification = "The thread is aborted when the game exits.")]
-        private void RunConsoleLoop()
+        /// <summary>Raised when the low-level stage while loading a save changes.</summary>
+        /// <param name="newStage">The new load stage.</param>
+        internal void OnLoadStageChanged(LoadStage newStage)
         {
-            // prepare console
-            this.Monitor.Log("Type 'help' for help, or 'help <cmd>' for a command's usage", LogLevel.Info);
-            this.GameInstance.CommandManager
-                .Add(new HelpCommand(this.GameInstance.CommandManager), this.Monitor)
-                .Add(new HarmonySummaryCommand(), this.Monitor)
-                .Add(new ReloadI18nCommand(this.ReloadTranslations), this.Monitor);
+            // nothing to do
+            if (newStage == Context.LoadStage)
+                return;
 
-            // start handling command line input
-            Thread inputThread = new Thread(() =>
+            // update data
+            LoadStage oldStage = Context.LoadStage;
+            Context.LoadStage = newStage;
+            this.Monitor.VerboseLog($"Context: load stage changed to {newStage}");
+            if (newStage == LoadStage.None)
             {
-                while (true)
-                {
-                    // get input
-                    string input = Console.ReadLine();
-                    if (string.IsNullOrWhiteSpace(input))
-                        continue;
+                this.Monitor.Log("Context: returned to title");
+                this.OnReturnedToTitle();
+            }
 
-                    // handle command
-                    this.Monitor.LogUserInput(input);
-                    this.GameInstance.CommandQueue.Enqueue(input);
-                }
-            });
-            inputThread.Start();
+            // raise events
+            this.EventManager.LoadStageChanged.Raise(new LoadStageChangedEventArgs(oldStage, newStage));
+            if (newStage == LoadStage.None)
+                this.EventManager.ReturnedToTitle.RaiseEmpty();
+        }
 
-            // keep console thread alive while the game is running
-            while (this.IsGameRunning && !this.CancellationToken.IsCancellationRequested)
-                Thread.Sleep(1000 / 10);
-            if (inputThread.ThreadState == ThreadState.Running)
-                inputThread.Abort();
+        /// <summary>Raised after custom content is removed from the save data to avoid a crash.</summary>
+        internal void OnSaveContentRemoved()
+        {
+            this.IsSaveContentRemoved = true;
+        }
+
+        /// <summary>A callback invoked before <see cref="Game1.newDayAfterFade"/> runs.</summary>
+        protected void OnNewDayAfterFade()
+        {
+            this.EventManager.DayEnding.RaiseEmpty();
+        }
+
+        /// <summary>Raised after the player returns to the title screen.</summary>
+        private void OnReturnedToTitle()
+        {
+            // perform cleanup
+            this.Multiplayer.CleanupOnMultiplayerExit();
+            if (!(Game1.mapDisplayDevice is SDisplayDevice))
+                Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
+        }
+
+        /// <summary>Raised before the game exits.</summary>
+        private void OnGameExiting()
+        {
+            this.Multiplayer.Disconnect(StardewValley.Multiplayer.DisconnectType.ClosedGame);
+            this.Dispose();
+        }
+
+        /// <summary>Raised when a mod network message is received.</summary>
+        /// <param name="message">The message to deliver to applicable mods.</param>
+        private void OnModMessageReceived(ModMessageModel message)
+        {
+            // get mod IDs to notify
+            HashSet<string> modIDs = new HashSet<string>(message.ToModIDs ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
+            if (message.FromPlayerID == Game1.player?.UniqueMultiplayerID)
+                modIDs.Remove(message.FromModID); // don't send a broadcast back to the sender
+
+            // raise events
+            this.EventManager.ModMessageReceived.Raise(new ModMessageReceivedEventArgs(message), mod => mod != null && modIDs.Contains(mod.Manifest.UniqueID));
+        }
+
+        /// <summary>Constructor a content manager to read game content files.</summary>
+        /// <param name="serviceProvider">The service provider to use to locate services.</param>
+        /// <param name="rootDirectory">The root directory to search for content.</param>
+        private LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
+        {
+            // Game1._temporaryContent initializing from SGame constructor
+            if (this.ContentCore == null)
+            {
+                this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, this.Reflection, this.Toolkit.JsonHelper, this.InitializeBeforeFirstAssetLoaded);
+                if (this.ContentCore.Language != this.Translator.LocaleEnum)
+                    this.Translator.SetLocale(this.ContentCore.GetLocale(), this.ContentCore.Language);
+
+                this.NextContentManagerIsMain = true;
+                return this.ContentCore.CreateGameContentManager("Game1._temporaryContent");
+            }
+
+            // Game1.content initializing from LoadContent
+            if (this.NextContentManagerIsMain)
+            {
+                this.NextContentManagerIsMain = false;
+#if SMAPI_FOR_MOBILE
+                SGameConsole.Instance.InitializeContent(this.ContentCore.MainContentManager);
+#endif
+                return this.ContentCore.MainContentManager;
+            }
+
+            // any other content manager
+            return this.ContentCore.CreateGameContentManager("(generated)");
         }
 
         /// <summary>Look for common issues with the game's XNB content, and log warnings if anything looks broken or outdated.</summary>
         /// <returns>Returns whether all integrity checks passed.</returns>
         private bool ValidateContentIntegrity()
         {
-            this.Monitor.Log("Detecting common issues...", LogLevel.Trace);
+            this.Monitor.Log("Detecting common issues...");
             bool issuesFound = false;
 
             // object format (commonly broken by outdated files)
             {
                 // detect issues
                 bool hasObjectIssues = false;
-                void LogIssue(int id, string issue) => this.Monitor.Log($@"Detected issue: item #{id} in Content\Data\ObjectInformation.xnb is invalid ({issue}).", LogLevel.Trace);
+                void LogIssue(int id, string issue) => this.Monitor.Log($@"Detected issue: item #{id} in Content\Data\ObjectInformation.xnb is invalid ({issue}).");
                 foreach (KeyValuePair<int, string> entry in Game1.objectInformation)
                 {
                     // must not be empty
@@ -591,7 +1207,7 @@ namespace StardewModdingAPI.Framework
 
                     // require core fields
                     string[] fields = entry.Value.Split('/');
-                    if (fields.Length < Object.objectInfoDescriptionIndex + 1)
+                    if (fields.Length < SObject.objectInfoDescriptionIndex + 1)
                     {
                         LogIssue(entry.Key, "too few fields for an object");
                         hasObjectIssues = true;
@@ -599,10 +1215,10 @@ namespace StardewModdingAPI.Framework
                     }
 
                     // check min length for specific types
-                    switch (fields[Object.objectInfoTypeIndex].Split(new[] { ' ' }, 2)[0])
+                    switch (fields[SObject.objectInfoTypeIndex].Split(new[] { ' ' }, 2)[0])
                     {
                         case "Cooking":
-                            if (fields.Length < Object.objectInfoBuffDurationIndex + 1)
+                            if (fields.Length < SObject.objectInfoBuffDurationIndex + 1)
                             {
                                 LogIssue(entry.Key, "too few fields for a cooking item");
                                 hasObjectIssues = true;
@@ -637,7 +1253,7 @@ namespace StardewModdingAPI.Framework
                 url = url.Replace("https://", "http://"); // workaround for OpenSSL issues with the game's bundled Mono on Linux/Mac
 #endif
                 WebApiClient client = new WebApiClient(url, Constants.ApiVersion);
-                this.Monitor.Log("Checking for updates...", LogLevel.Trace);
+                this.Monitor.Log("Checking for updates...");
 
                 // check SMAPI version
 #if DO_ANDROID_SMAPI_UPDATE_CHECK
@@ -649,7 +1265,7 @@ namespace StardewModdingAPI.Framework
                     if (response.SuggestedUpdate != null)
                         this.Monitor.Log($"You can update SMAPI to {response.SuggestedUpdate.Version}: {Constants.HomePageUrl}", LogLevel.Alert);
                     else
-                        this.Monitor.Log("   SMAPI okay.", LogLevel.Trace);
+                        this.Monitor.Log("   SMAPI okay.");
 
                     updateFound = response.SuggestedUpdate?.Version;
 
@@ -657,7 +1273,7 @@ namespace StardewModdingAPI.Framework
                     if (response.Errors.Any())
                     {
                         this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
-                        this.Monitor.Log($"Error: {string.Join("\n", response.Errors)}", LogLevel.Trace);
+                        this.Monitor.Log($"Error: {string.Join("\n", response.Errors)}");
                     }
                 }
                 catch (Exception ex)
@@ -665,14 +1281,14 @@ namespace StardewModdingAPI.Framework
                     this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you won't be notified of new versions if this keeps happening.", LogLevel.Warn);
                     this.Monitor.Log(ex is WebException && ex.InnerException == null
                         ? $"Error: {ex.Message}"
-                        : $"Error: {ex.GetLogSummary()}", LogLevel.Trace
+                        : $"Error: {ex.GetLogSummary()}"
                     );
                 }
 
                 // show update message on next launch
                 if (updateFound != null)
-                    File.WriteAllText(Constants.UpdateMarker, updateFound.ToString());
-#endif
+                    this.LogManager.WriteUpdateMarker(updateFound.ToString());
+
                 // check mod versions
                 if (mods.Any())
                 {
@@ -695,7 +1311,7 @@ namespace StardewModdingAPI.Framework
                         }
 
                         // fetch results
-                        this.Monitor.Log($"   Checking for updates to {searchMods.Count} mods...", LogLevel.Trace);
+                        this.Monitor.Log($"   Checking for updates to {searchMods.Count} mods...");
                         IDictionary<string, ModEntryModel> results = client.GetModInfo(searchMods.ToArray(), apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform);
 
                         // extract update alerts & errors
@@ -724,7 +1340,7 @@ namespace StardewModdingAPI.Framework
 
                         // show update errors
                         if (errors.Length != 0)
-                            this.Monitor.Log("Got update-check errors for some mods:\n" + errors.ToString().TrimEnd(), LogLevel.Trace);
+                            this.Monitor.Log("Got update-check errors for some mods:\n" + errors.ToString().TrimEnd());
 
                         // show update alerts
                         if (updates.Any())
@@ -740,14 +1356,14 @@ namespace StardewModdingAPI.Framework
                             }
                         }
                         else
-                            this.Monitor.Log("   All mods up to date.", LogLevel.Trace);
+                            this.Monitor.Log("   All mods up to date.");
                     }
                     catch (Exception ex)
                     {
                         this.Monitor.Log("Couldn't check for new mod versions. This won't affect your game, but you won't be notified of mod updates if this keeps happening.", LogLevel.Warn);
                         this.Monitor.Log(ex is WebException && ex.InnerException == null
                             ? ex.Message
-                            : ex.ToString(), LogLevel.Trace
+                            : ex.ToString()
                         );
                     }
                 }
@@ -777,29 +1393,27 @@ namespace StardewModdingAPI.Framework
         /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
         private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, ContentCoordinator contentCore, ModDatabase modDatabase)
         {
-            this.Monitor.Log("Loading mods...", LogLevel.Trace);
+            this.Monitor.Log("Loading mods...");
 
             // load mods
-            IDictionary<IModMetadata, Tuple<string, string>> skippedMods = new Dictionary<IModMetadata, Tuple<string, string>>();
+            IList<IModMetadata> skippedMods = new List<IModMetadata>();
             using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor, this.Settings.ParanoidWarnings))
             {
                 // init
                 HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.OrdinalIgnoreCase);
                 InterfaceProxyFactory proxyFactory = new InterfaceProxyFactory();
-                void LogSkip(IModMetadata mod, string errorPhrase, string errorDetails)
-                {
-                    skippedMods[mod] = Tuple.Create(errorPhrase, errorDetails);
-                    if (mod.Status != ModMetadataStatus.Failed)
-                        mod.SetStatus(ModMetadataStatus.Failed, errorPhrase);
-                }
 
                 // load mods
-                foreach (IModMetadata contentPack in mods)
+                foreach (IModMetadata mod in mods)
                 {
-                    if (!this.TryLoadMod(contentPack, mods, modAssemblyLoader, proxyFactory, jsonHelper, contentCore, modDatabase, suppressUpdateChecks, out string errorPhrase, out string errorDetails))
-                        LogSkip(contentPack, errorPhrase, errorDetails);
+                    if (!this.TryLoadMod(mod, mods, modAssemblyLoader, proxyFactory, jsonHelper, contentCore, modDatabase, suppressUpdateChecks, out string errorPhrase, out string errorDetails))
+                    {
+                        mod.SetStatus(ModMetadataStatus.Failed, errorPhrase, errorDetails);
+                        skippedMods.Add(mod);
+                    }
                 }
             }
+
             IModMetadata[] loaded = this.ModRegistry.GetAll().ToArray();
             IModMetadata[] loadedContentPacks = loaded.Where(p => p.IsContentPack).ToArray();
             IModMetadata[] loadedMods = loaded.Where(p => !p.IsContentPack).ToArray();
@@ -807,42 +1421,8 @@ namespace StardewModdingAPI.Framework
             // unlock content packs
             this.ModRegistry.AreAllModsLoaded = true;
 
-            // log loaded mods
-            this.Monitor.Log($"Loaded {loadedMods.Length} mods" + (loadedMods.Length > 0 ? ":" : "."), LogLevel.Info);
-            foreach (IModMetadata metadata in loadedMods.OrderBy(p => p.DisplayName))
-            {
-                IManifest manifest = metadata.Manifest;
-                this.Monitor.Log(
-                    $"   {metadata.DisplayName} {manifest.Version}"
-                    + (!string.IsNullOrWhiteSpace(manifest.Author) ? $" by {manifest.Author}" : "")
-                    + (!string.IsNullOrWhiteSpace(manifest.Description) ? $" | {manifest.Description}" : ""),
-                    LogLevel.Info
-                );
-            }
-            this.Monitor.Newline();
-
-            // log loaded content packs
-            if (loadedContentPacks.Any())
-            {
-                string GetModDisplayName(string id) => loadedMods.FirstOrDefault(p => p.HasID(id))?.DisplayName;
-
-                this.Monitor.Log($"Loaded {loadedContentPacks.Length} content packs:", LogLevel.Info);
-                foreach (IModMetadata metadata in loadedContentPacks.OrderBy(p => p.DisplayName))
-                {
-                    IManifest manifest = metadata.Manifest;
-                    this.Monitor.Log(
-                        $"   {metadata.DisplayName} {manifest.Version}"
-                        + (!string.IsNullOrWhiteSpace(manifest.Author) ? $" by {manifest.Author}" : "")
-                        + $" | for {GetModDisplayName(metadata.Manifest.ContentPackFor.UniqueID)}"
-                        + (!string.IsNullOrWhiteSpace(manifest.Description) ? $" | {manifest.Description}" : ""),
-                        LogLevel.Info
-                    );
-                }
-                this.Monitor.Newline();
-            }
-
-            // log mod warnings
-            this.LogModWarnings(loaded, skippedMods);
+            // log mod info
+            this.LogManager.LogModInfo(loaded, loadedContentPacks, loadedMods, skippedMods.ToArray(), this.Settings.ParanoidWarnings);
 
             // initialize translations
             this.ReloadTranslations(loaded);
@@ -860,8 +1440,8 @@ namespace StardewModdingAPI.Framework
                         this.ContentCore.Loaders.Add(new ModLinked<IAssetLoader>(metadata, loader));
                     // ReSharper restore SuspiciousTypeConversion.Global
 
-                    helper.ObservableAssetEditors.CollectionChanged += (sender, e) => this.OnInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetEditor>(), e.OldItems?.Cast<IAssetEditor>(), this.ContentCore.Editors);
-                    helper.ObservableAssetLoaders.CollectionChanged += (sender, e) => this.OnInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetLoader>(), e.OldItems?.Cast<IAssetLoader>(), this.ContentCore.Loaders);
+                    helper.ObservableAssetEditors.CollectionChanged += (sender, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetEditor>(), e.OldItems?.Cast<IAssetEditor>(), this.ContentCore.Editors);
+                    helper.ObservableAssetLoaders.CollectionChanged += (sender, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetLoader>(), e.OldItems?.Cast<IAssetLoader>(), this.ContentCore.Loaders);
                 }
 
                 // call entry method
@@ -886,7 +1466,7 @@ namespace StardewModdingAPI.Framework
                     }
 
                     if (api != null)
-                        this.Monitor.Log($"   Found mod-provided API ({api.GetType().FullName}).", LogLevel.Trace);
+                        this.Monitor.Log($"   Found mod-provided API ({api.GetType().FullName}).");
                     metadata.SetApi(api);
                 }
                 catch (Exception ex)
@@ -895,34 +1475,27 @@ namespace StardewModdingAPI.Framework
                 }
             }
 
-            // invalidate cache entries when needed
-            // (These listeners are registered after Entry to avoid repeatedly reloading assets as mods initialize.)
-            foreach (IModMetadata metadata in loadedMods)
-            {
-                if (metadata.Mod.Helper.Content is ContentHelper helper)
-                {
-                    helper.ObservableAssetEditors.CollectionChanged += (sender, e) => this.GameInstance.OnAssetInterceptorsChanged(metadata, e.NewItems, e.OldItems);
-                    helper.ObservableAssetLoaders.CollectionChanged += (sender, e) => this.GameInstance.OnAssetInterceptorsChanged(metadata, e.NewItems, e.OldItems);
-                }
-            }
-
             // unlock mod integrations
             this.ModRegistry.AreAllModsInitialized = true;
         }
 
-        /// <summary>Handle a mod adding or removing asset interceptors.</summary>
+        /// <summary>Raised after a mod adds or removes asset interceptors.</summary>
         /// <typeparam name="T">The asset interceptor type (one of <see cref="IAssetEditor"/> or <see cref="IAssetLoader"/>).</typeparam>
         /// <param name="mod">The mod metadata.</param>
         /// <param name="added">The interceptors that were added.</param>
         /// <param name="removed">The interceptors that were removed.</param>
-        /// <param name="list">The list to update.</param>
-        private void OnInterceptorsChanged<T>(IModMetadata mod, IEnumerable<T> added, IEnumerable<T> removed, IList<ModLinked<T>> list)
+        /// <param name="list">A list of interceptors to update for the change.</param>
+        private void OnAssetInterceptorsChanged<T>(IModMetadata mod, IEnumerable<T> added, IEnumerable<T> removed, IList<ModLinked<T>> list)
         {
             foreach (T interceptor in added ?? new T[0])
+            {
+                this.ReloadAssetInterceptorsQueue.Add(new AssetInterceptorChange(mod, interceptor, wasAdded: true));
                 list.Add(new ModLinked<T>(mod, interceptor));
+            }
 
             foreach (T interceptor in removed ?? new T[0])
             {
+                this.ReloadAssetInterceptorsQueue.Add(new AssetInterceptorChange(mod, interceptor, wasAdded: false));
                 foreach (ModLinked<T> entry in list.Where(p => p.Mod == mod && object.ReferenceEquals(p.Data, interceptor)).ToArray())
                     list.Remove(entry);
             }
@@ -948,11 +1521,11 @@ namespace StardewModdingAPI.Framework
             {
                 string relativePath = mod.GetRelativePathWithRoot();
                 if (mod.IsContentPack)
-                    this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}) [content pack]...", LogLevel.Trace);
+                    this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}) [content pack]...");
                 else if (mod.Manifest?.EntryDll != null)
-                    this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}{Path.DirectorySeparatorChar}{mod.Manifest.EntryDll})...", LogLevel.Trace); // don't use Path.Combine here, since EntryDLL might not be valid
+                    this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}{Path.DirectorySeparatorChar}{mod.Manifest.EntryDll})..."); // don't use Path.Combine here, since EntryDLL might not be valid
                 else
-                    this.Monitor.Log($"   {mod.DisplayName} (from {relativePath})...", LogLevel.Trace);
+                    this.Monitor.Log($"   {mod.DisplayName} (from {relativePath})...");
             }
 
             // add warning for missing update key
@@ -962,7 +1535,7 @@ namespace StardewModdingAPI.Framework
             // validate status
             if (mod.Status == ModMetadataStatus.Failed)
             {
-                this.Monitor.Log($"      Failed: {mod.Error}", LogLevel.Trace);
+                this.Monitor.Log($"      Failed: {mod.Error}");
                 errorReasonPhrase = mod.Error;
                 return false;
             }
@@ -988,7 +1561,7 @@ namespace StardewModdingAPI.Framework
             if (mod.IsContentPack)
             {
                 IManifest manifest = mod.Manifest;
-                IMonitor monitor = this.GetSecondaryMonitor(mod.DisplayName);
+                IMonitor monitor = this.LogManager.GetMonitor(mod.DisplayName);
                 IContentHelper contentHelper = new ContentHelper(this.ContentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor);
                 TranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
                 IContentPack contentPack = new ContentPack(mod.DirectoryPath, manifest, contentHelper, translationHelper, jsonHelper);
@@ -1011,7 +1584,7 @@ namespace StardewModdingAPI.Framework
                 Assembly modAssembly;
                 try
                 {
-                    modAssembly = assemblyLoader.Load(mod, assemblyPath, assumeCompatible: true/*mod.DataRecord?.Status == ModStatus.AssumeCompatible*/, rewriteInParallel: this.Settings.RewriteInParallel);
+                    modAssembly = assemblyLoader.Load(mod, assemblyPath, assumeCompatible: mod.DataRecord?.Status == ModStatus.AssumeCompatible);
                     this.ModRegistry.TrackAssemblies(mod, modAssembly);
                 }
                 catch (IncompatibleInstructionException) // details already in trace logs
@@ -1053,28 +1626,28 @@ namespace StardewModdingAPI.Framework
                     }
 
                     // init mod helpers
-                    IMonitor monitor = this.GetSecondaryMonitor(mod.DisplayName);
+                    IMonitor monitor = this.LogManager.GetMonitor(mod.DisplayName);
                     TranslationHelper translationHelper = new TranslationHelper(manifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
                     IModHelper modHelper;
                     {
                         IContentPack CreateFakeContentPack(string packDirPath, IManifest packManifest)
                         {
-                            IMonitor packMonitor = this.GetSecondaryMonitor(packManifest.Name);
+                            IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.Name);
                             IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
                             ITranslationHelper packTranslationHelper = new TranslationHelper(packManifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
                             return new ContentPack(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper);
                         }
 
                         IModEvents events = new ModEvents(mod, this.EventManager);
-                        ICommandHelper commandHelper = new CommandHelper(mod, this.GameInstance.CommandManager);
+                        ICommandHelper commandHelper = new CommandHelper(mod, this.CommandManager);
                         IContentHelper contentHelper = new ContentHelper(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor);
                         IContentPackHelper contentPackHelper = new ContentPackHelper(manifest.UniqueID, new Lazy<IContentPack[]>(GetContentPacks), CreateFakeContentPack);
                         IDataHelper dataHelper = new DataHelper(manifest.UniqueID, mod.DirectoryPath, jsonHelper);
                         IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, mod.DisplayName, this.Reflection);
                         IModRegistry modRegistryHelper = new ModRegistryHelper(manifest.UniqueID, this.ModRegistry, proxyFactory, monitor);
-                        IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(manifest.UniqueID, this.GameInstance.Multiplayer);
+                        IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(manifest.UniqueID, this.Multiplayer);
 
-                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.GameInstance.Input, events, contentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
+                        modHelper = new ModHelper(manifest.UniqueID, mod.DirectoryPath, this.Input, events, contentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
                     }
 
                     // init mod
@@ -1093,182 +1666,6 @@ namespace StardewModdingAPI.Framework
                     return false;
                 }
             }
-        }
-
-        /// <summary>Write a summary of mod warnings to the console and log.</summary>
-        /// <param name="mods">The loaded mods.</param>
-        /// <param name="skippedMods">The mods which were skipped, along with the friendly and developer reasons.</param>
-        private void LogModWarnings(IEnumerable<IModMetadata> mods, IDictionary<IModMetadata, Tuple<string, string>> skippedMods)
-        {
-            // get mods with warnings
-            IModMetadata[] modsWithWarnings = mods.Where(p => p.Warnings != ModWarning.None).ToArray();
-            if (!modsWithWarnings.Any() && !skippedMods.Any())
-                return;
-
-            // log intro
-            {
-                int count = modsWithWarnings.Union(skippedMods.Keys).Count();
-                this.Monitor.Log($"Found {count} mod{(count == 1 ? "" : "s")} with warnings:", LogLevel.Info);
-            }
-
-            // log skipped mods
-            if (skippedMods.Any())
-            {
-                // get logging logic
-                HashSet<string> logged = new HashSet<string>();
-                void LogSkippedMod(IModMetadata mod, string errorReason, string errorDetails)
-                {
-                    string message = $"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {errorReason}";
-
-                    if (logged.Add($"{message}|{errorDetails}"))
-                    {
-                        this.Monitor.Log(message, LogLevel.Error);
-                        if (errorDetails != null)
-                            this.Monitor.Log($"        ({errorDetails})", LogLevel.Trace);
-                    }
-                }
-
-                // find skipped dependencies
-                KeyValuePair<IModMetadata, Tuple<string, string>>[] skippedDependencies;
-                {
-                    HashSet<string> skippedDependencyIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    HashSet<string> skippedModIds = new HashSet<string>(from mod in skippedMods where mod.Key.HasID() select mod.Key.Manifest.UniqueID, StringComparer.OrdinalIgnoreCase);
-                    foreach (IModMetadata mod in skippedMods.Keys)
-                    {
-                        foreach (string requiredId in skippedModIds.Intersect(mod.GetRequiredModIds()))
-                            skippedDependencyIds.Add(requiredId);
-                    }
-                    skippedDependencies = skippedMods.Where(p => p.Key.HasID() && skippedDependencyIds.Contains(p.Key.Manifest.UniqueID)).ToArray();
-                }
-
-                // log skipped mods
-                this.Monitor.Log("   Skipped mods", LogLevel.Error);
-                this.Monitor.Log("   " + "".PadRight(50, '-'), LogLevel.Error);
-                this.Monitor.Log("      These mods could not be added to your game.", LogLevel.Error);
-                this.Monitor.Newline();
-
-                if (skippedDependencies.Any())
-                {
-                    foreach (var pair in skippedDependencies.OrderBy(p => p.Key.DisplayName))
-                        LogSkippedMod(pair.Key, pair.Value.Item1, pair.Value.Item2);
-                    this.Monitor.Newline();
-                }
-
-                foreach (var pair in skippedMods.OrderBy(p => p.Key.DisplayName))
-                    LogSkippedMod(pair.Key, pair.Value.Item1, pair.Value.Item2);
-                this.Monitor.Newline();
-            }
-
-            // log warnings
-            if (modsWithWarnings.Any())
-            {
-                // broken code
-                this.LogModWarningGroup(modsWithWarnings, ModWarning.BrokenCodeLoaded, LogLevel.Error, "Broken mods",
-                    "These mods have broken code, but you configured SMAPI to load them anyway. This may cause bugs,",
-                    "errors, or crashes in-game."
-                );
-
-                // changes serializer
-                this.LogModWarningGroup(modsWithWarnings, ModWarning.ChangesSaveSerializer, LogLevel.Warn, "Changed save serializer",
-                    "These mods change the save serializer. They may corrupt your save files, or make them unusable if",
-                    "you uninstall these mods."
-                );
-
-                // patched game code
-                this.LogModWarningGroup(modsWithWarnings, ModWarning.PatchesGame, LogLevel.Info, "Patched game code",
-                    "These mods directly change the game code. They're more likely to cause errors or bugs in-game; if",
-                    "your game has issues, try removing these first. Otherwise you can ignore this warning."
-                );
-
-                // unvalidated update tick
-                this.LogModWarningGroup(modsWithWarnings, ModWarning.UsesUnvalidatedUpdateTick, LogLevel.Info, "Bypassed safety checks",
-                    "These mods bypass SMAPI's normal safety checks, so they're more likely to cause errors or save",
-                    "corruption. If your game has issues, try removing these first."
-                );
-
-                // paranoid warnings
-                if (this.Settings.ParanoidWarnings)
-                {
-                    this.LogModWarningGroup(
-                        modsWithWarnings,
-                        match: mod => mod.HasUnsuppressedWarnings(ModWarning.AccessesConsole, ModWarning.AccessesFilesystem, ModWarning.AccessesShell),
-                        level: LogLevel.Debug,
-                        heading: "Direct system access",
-                        blurb: new[]
-                        {
-                            "You enabled paranoid warnings and these mods directly access the filesystem, shells/processes, or",
-                            "SMAPI console. (This is usually legitimate and innocent usage; this warning is only useful for",
-                            "further investigation.)"
-                        },
-                        modLabel: mod =>
-                        {
-                            List<string> labels = new List<string>();
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesConsole))
-                                labels.Add("console");
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesFilesystem))
-                                labels.Add("files");
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesShell))
-                                labels.Add("shells/processes");
-
-                            return $"{mod.DisplayName} ({string.Join(", ", labels)})";
-                        }
-                    );
-                }
-
-                // no update keys
-                this.LogModWarningGroup(modsWithWarnings, ModWarning.NoUpdateKeys, LogLevel.Debug, "No update keys",
-                    "These mods have no update keys in their manifest. SMAPI may not notify you about updates for these",
-                    "mods. Consider notifying the mod authors about this problem."
-                );
-
-                // not crossplatform
-                this.LogModWarningGroup(modsWithWarnings, ModWarning.UsesDynamic, LogLevel.Debug, "Not crossplatform",
-                    "These mods use the 'dynamic' keyword, and won't work on Linux/Mac."
-                );
-            }
-        }
-
-        /// <summary>Write a mod warning group to the console and log.</summary>
-        /// <param name="mods">The mods to search.</param>
-        /// <param name="match">Matches mods to include in the warning group.</param>
-        /// <param name="level">The log level for the logged messages.</param>
-        /// <param name="heading">A brief heading label for the group.</param>
-        /// <param name="blurb">A detailed explanation of the warning, split into lines.</param>
-        /// <param name="modLabel">Formats the mod label, or <c>null</c> to use the <see cref="IModMetadata.DisplayName"/>.</param>
-        private void LogModWarningGroup(IModMetadata[] mods, Func<IModMetadata, bool> match, LogLevel level, string heading, string[] blurb, Func<IModMetadata, string> modLabel = null)
-        {
-            // get matching mods
-            string[] modLabels = mods
-                .Where(match)
-                .Select(mod => modLabel?.Invoke(mod) ?? mod.DisplayName)
-                .OrderBy(p => p)
-                .ToArray();
-            if (!modLabels.Any())
-                return;
-
-            // log header/blurb
-            this.Monitor.Log("   " + heading, level);
-            this.Monitor.Log("   " + "".PadRight(50, '-'), level);
-            foreach (string line in blurb)
-                this.Monitor.Log("      " + line, level);
-            this.Monitor.Newline();
-
-            // log mod list
-            foreach (string label in modLabels)
-                this.Monitor.Log($"      - {label}", level);
-
-            this.Monitor.Newline();
-        }
-
-        /// <summary>Write a mod warning group to the console and log.</summary>
-        /// <param name="mods">The mods to search.</param>
-        /// <param name="warning">The mod warning to match.</param>
-        /// <param name="level">The log level for the logged messages.</param>
-        /// <param name="heading">A brief heading label for the group.</param>
-        /// <param name="blurb">A detailed explanation of the warning, split into lines.</param>
-        void LogModWarningGroup(IModMetadata[] mods, ModWarning warning, LogLevel level, string heading, params string[] blurb)
-        {
-            this.LogModWarningGroup(mods, mod => mod.HasUnsuppressedWarnings(warning), level, heading, blurb);
         }
 
         /// <summary>Load a mod's entry class.</summary>
@@ -1370,7 +1767,6 @@ namespace StardewModdingAPI.Framework
                     catch (Exception ex)
                     {
                         errors.Add($"{file.Name} file couldn't be parsed: {ex.GetLogSummary()}");
-                        continue;
                     }
                 }
             }
@@ -1394,64 +1790,6 @@ namespace StardewModdingAPI.Framework
             }
 
             return translations;
-        }
-
-        /// <summary>Redirect messages logged directly to the console to the given monitor.</summary>
-        /// <param name="gameMonitor">The monitor with which to log messages as the game.</param>
-        /// <param name="message">The message to log.</param>
-        private void HandleConsoleMessage(IMonitor gameMonitor, string message)
-        {
-            // detect exception
-            LogLevel level = message.Contains("Exception") ? LogLevel.Error : LogLevel.Trace;
-
-            // ignore suppressed message
-            if (level != LogLevel.Error && this.SuppressConsolePatterns.Any(p => p.IsMatch(message)))
-                return;
-
-            // show friendly error if applicable
-            foreach (ReplaceLogPattern entry in this.ReplaceConsolePatterns)
-            {
-                string newMessage = entry.Search.Replace(message, entry.Replacement);
-                if (message != newMessage)
-                {
-                    gameMonitor.Log(newMessage, entry.LogLevel);
-                    gameMonitor.Log(message, LogLevel.Trace);
-                    return;
-                }
-            }
-
-            // forward to monitor
-            gameMonitor.Log(message, level);
-        }
-
-        /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>
-        private void PressAnyKeyToExit()
-        {
-            this.Monitor.Log("Game has ended. Press any key to exit.", LogLevel.Info);
-            this.PressAnyKeyToExit(showMessage: false);
-        }
-
-        /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>
-        /// <param name="showMessage">Whether to print a 'press any key to exit' message to the console.</param>
-        private void PressAnyKeyToExit(bool showMessage)
-        {
-            if (showMessage)
-                Console.WriteLine("Game has ended. Press any key to exit.");
-            Thread.Sleep(100);
-            Console.ReadKey();
-            Environment.Exit(0);
-        }
-
-        /// <summary>Get a monitor instance derived from SMAPI's current settings.</summary>
-        /// <param name="name">The name of the module which will log messages with this instance.</param>
-        private Monitor GetSecondaryMonitor(string name)
-        {
-            return new Monitor(name, this.ConsoleManager, this.LogFile, this.Settings.ConsoleColors, this.Settings.VerboseLogging)
-            {
-                WriteToConsole = this.Monitor.WriteToConsole,
-                ShowTraceInConsole = this.Settings.DeveloperMode,
-                ShowFullStampInConsole = this.Settings.DeveloperMode
-            };
         }
 
         /// <summary>Get the absolute path to the next available log file.</summary>
@@ -1505,35 +1843,12 @@ namespace StardewModdingAPI.Framework
             }
         }
 
-        /// <summary>A console log pattern to replace with a different message.</summary>
-        private class ReplaceLogPattern
+        /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
+        /// <param name="message">The fatal log message.</param>
+        private void ExitGameImmediately(string message)
         {
-            /*********
-            ** Accessors
-            *********/
-            /// <summary>The regex pattern matching the portion of the message to replace.</summary>
-            public Regex Search { get; }
-
-            /// <summary>The replacement string.</summary>
-            public string Replacement { get; }
-
-            /// <summary>The log level for the new message.</summary>
-            public LogLevel LogLevel { get; }
-
-
-            /*********
-            ** Public methods
-            *********/
-            /// <summary>Construct an instance.</summary>
-            /// <param name="search">The regex pattern matching the portion of the message to replace.</param>
-            /// <param name="replacement">The replacement string.</param>
-            /// <param name="logLevel">The log level for the new message.</param>
-            public ReplaceLogPattern(Regex search, string replacement, LogLevel logLevel)
-            {
-                this.Search = search;
-                this.Replacement = replacement;
-                this.LogLevel = logLevel;
-            }
+            this.Monitor.LogFatal(message);
+            this.CancellationToken.Cancel();
         }
     }
 }

@@ -119,6 +119,7 @@ namespace StardewModdingAPI.Framework
                 command.Callback.Invoke(name, arguments);
                 return true;
             }
+
             return false;
         }
 

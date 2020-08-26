@@ -76,7 +76,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
         /// <param name="isNamespaced">Whether this content manager handles managed asset keys (e.g. to load assets from a mod folder).</param>
         protected BaseContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, bool isNamespaced)
-                : base(serviceProvider, rootDirectory, currentCulture)
+            : base(serviceProvider, rootDirectory, currentCulture)
         {
             // init
             this.Name = name;

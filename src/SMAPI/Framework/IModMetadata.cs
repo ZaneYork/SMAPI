@@ -37,6 +37,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The reason the metadata is invalid, if any.</summary>
         string Error { get; }
 
+        /// <summary>A detailed technical message for <see cref="Error"/>, if any.</summary>
+        public string ErrorDetails { get; }
+
         /// <summary>Whether the mod folder should be ignored. This is <c>true</c> if it was found within a folder whose name starts with a dot.</summary>
         bool IsIgnored { get; }
 
@@ -65,8 +68,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Set the mod status.</summary>
         /// <param name="status">The metadata resolution status.</param>
         /// <param name="error">The reason the metadata is invalid, if any.</param>
+        /// <param name="errorDetails">A detailed technical message, if any.</param>
         /// <returns>Return the instance for chaining.</returns>
-        IModMetadata SetStatus(ModMetadataStatus status, string error = null);
+        IModMetadata SetStatus(ModMetadataStatus status, string error = null, string errorDetails = null);
 
         /// <summary>Set a warning flag for the mod.</summary>
         /// <param name="warning">The warning to set.</param>

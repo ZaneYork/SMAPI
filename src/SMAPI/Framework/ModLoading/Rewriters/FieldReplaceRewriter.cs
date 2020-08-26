@@ -26,25 +26,30 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="fromType">The type whose field to rewrite.</param>
+        /// <param name="fromFieldName">The field name to rewrite.</param>
+        /// <param name="toType">The new type which will have the field.</param>
+        /// <param name="toFieldName">The new field name to reference.</param>
+        public FieldReplaceRewriter(Type fromType, string fromFieldName, Type toType, string toFieldName)
+            : base(defaultPhrase: $"{fromType.FullName}.{fromFieldName} field")
+        {
+            this.Type = fromType;
+            this.FromFieldName = fromFieldName;
+            this.ToField = toType.GetField(toFieldName);
+            if (this.ToField == null)
+                throw new InvalidOperationException($"The {toType.FullName} class doesn't have a {toFieldName} field.");
+        }
+
+        /// <summary>Construct an instance.</summary>
         /// <param name="type">The type whose field to rewrite.</param>
         /// <param name="fromFieldName">The field name to rewrite.</param>
         /// <param name="toFieldName">The new field name to reference.</param>
         public FieldReplaceRewriter(Type type, string fromFieldName, string toFieldName)
-            : base(defaultPhrase: $"{type.FullName}.{fromFieldName} field")
+            : this(type, fromFieldName, type, toFieldName)
         {
-            this.Type = type;
-            this.FromFieldName = fromFieldName;
-            this.ToField = type.GetField(toFieldName);
-            if (this.ToField == null)
-                throw new InvalidOperationException($"The {type.FullName} class doesn't have a {toFieldName} field.");
         }
 
-        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The CIL instruction to handle.</param>
-        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
-        /// <returns>Returns whether the instruction was changed.</returns>
+        /// <inheritdoc />
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
             // get field reference

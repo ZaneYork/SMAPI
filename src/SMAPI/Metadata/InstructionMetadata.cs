@@ -123,6 +123,10 @@ namespace StardewModdingAPI.Metadata
             yield return new FieldToPropertyRewriter(typeof(Game1), "activeClickableMenu");
             yield return new FieldToPropertyRewriter(typeof(Game1), "stats");
 
+            // generic rewrites
+            yield return new FieldToPropertyRewriter(this.ValidateReferencesToAssemblies);
+            yield return new MethodWithMissingOptionalParameterRewriter(this.ValidateReferencesToAssemblies);
+
 #if HARMONY_2
             // rewrite for SMAPI 3.6 (Harmony 1.x => 2.0 update)
             yield return new Harmony1AssemblyRewriter();

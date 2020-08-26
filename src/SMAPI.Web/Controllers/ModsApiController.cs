@@ -156,7 +156,7 @@ namespace StardewModdingAPI.Web.Controllers
 
             // get unofficial version
             if (wikiEntry?.Compatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, main?.Version) && this.IsNewer(wikiEntry.Compatibility.UnofficialVersion, optional?.Version))
-                unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.Url.PlainAction("Index", "Mods")}#{wikiEntry.Anchor}");
+                unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.Url.PlainAction("Index", "Mods", absoluteUrl: true)}#{wikiEntry.Anchor}");
 
             // get unofficial version for beta
             if (wikiEntry?.HasBetaInfo == true)
@@ -166,7 +166,7 @@ namespace StardewModdingAPI.Web.Controllers
                     if (wikiEntry.BetaCompatibility.UnofficialVersion != null)
                     {
                         unofficialForBeta = (wikiEntry.BetaCompatibility.UnofficialVersion != null && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, main?.Version) && this.IsNewer(wikiEntry.BetaCompatibility.UnofficialVersion, optional?.Version))
-                            ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, $"{this.Url.PlainAction("Index", "Mods")}#{wikiEntry.Anchor}")
+                            ? new ModEntryVersionModel(wikiEntry.BetaCompatibility.UnofficialVersion, $"{this.Url.PlainAction("Index", "Mods", absoluteUrl: true)}#{wikiEntry.Anchor}")
                             : null;
                     }
                     else
@@ -198,9 +198,9 @@ namespace StardewModdingAPI.Web.Controllers
                 List<ModEntryVersionModel> updates = new List<ModEntryVersionModel>();
                 if (this.IsRecommendedUpdate(installedVersion, main?.Version, useBetaChannel: true))
                     updates.Add(main);
-                if (this.IsRecommendedUpdate(installedVersion, optional?.Version, useBetaChannel: installedVersion.IsPrerelease()))
+                if (this.IsRecommendedUpdate(installedVersion, optional?.Version, useBetaChannel: installedVersion.IsPrerelease() || search.IsBroken))
                     updates.Add(optional);
-                if (this.IsRecommendedUpdate(installedVersion, unofficial?.Version, useBetaChannel: search.IsBroken))
+                if (this.IsRecommendedUpdate(installedVersion, unofficial?.Version, useBetaChannel: true))
                     updates.Add(unofficial);
                 if (this.IsRecommendedUpdate(installedVersion, unofficialForBeta?.Version, useBetaChannel: apiVersion.IsPrerelease()))
                     updates.Add(unofficialForBeta);

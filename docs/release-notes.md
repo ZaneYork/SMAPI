@@ -7,12 +7,37 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For players:
+  * Added heuristic compatibility rewrites, which fix some mods previously incompatible with Android or newer game versions.
+  * Tweaked the rules for showing update alerts (see _for SMAPI developers_ below for details).
+  * Fixed crossplatform compatibility for mods which use the `[HarmonyPatch(type)]` attribute (thanks to spacechase0!).
+  * Fixed broken URL in update alerts for unofficial versions.
+  * Fixed rare error when a mod adds/removes event handlers asynchronously.
+  * Fixed rare issue where the console showed incorrect colors when mods wrote to it asynchronously.
+  * Removed the experimental `RewriteInParallel` option added in SMAPI 3.6 (it was already disabled by default). Unfortunately this caused intermittent and unpredictable errors when enabled.
+
+* For modders:
+  * You can now read/write `SDate` values to JSON (e.g. for `config.json`, network mod messages, etc).
+
+* For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.16 and 1.17.
+
+* For SMAPI developers:
+  * The web API now returns an update alert in two new cases: any newer unofficial update (previously only shown if the mod was incompatible), and a newer prerelease version if the installed non-prerelease version is broken (previously only shown if the installed version was prerelease).
+  * Internal refactoring to simplify game updates:
+    * Reorganised SMAPI core to reduce coupling to `Game1` and make it easier to navigate.
+    * Added rewriter for any method broken due to new optional parameters.
+    * Added rewriter for any field which was replaced by a property.
+    * `FieldReplaceRewriter` now supports mapping to a different target type.
+  * Internal refactoring to simplify future game updates.
+
 ## 3.6.2
 Released 02 August 2020 for Stardew Valley 1.4.1 or later.
 
 * For players:
   * Improved compatibility with some Linux terminals (thanks to jlaw and Spatterjaaay!).
-  * Fixed rare crash when a mod adds/removes an event handler from an event handler.
+  * Fixed rare error when a mod adds/removes an event handler from an event handler.
   * Fixed string sorting/comparison for some special characters.
 
 * For the Console Commands mod:

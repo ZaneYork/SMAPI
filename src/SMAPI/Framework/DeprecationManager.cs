@@ -107,6 +107,7 @@ namespace StardewModdingAPI.Framework
                     }
                 }
             }
+
             this.QueuedWarnings.Clear();
         }
 

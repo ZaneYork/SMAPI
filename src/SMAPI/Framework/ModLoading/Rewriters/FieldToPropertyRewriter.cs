@@ -1,65 +1,69 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
-    /// <summary>Rewrites field references into property references.</summary>
+    /// <summary>Rewrites references to fields which no longer exist, but which have an equivalent property with the exact same name.</summary>
     internal class FieldToPropertyRewriter : BaseInstructionHandler
     {
         /*********
         ** Fields
         *********/
-        /// <summary>The type containing the field to which references should be rewritten.</summary>
-        private readonly Type Type;
-
-        /// <summary>The field name to which references should be rewritten.</summary>
-        private readonly string FromFieldName;
-
-        /// <summary>The new property name.</summary>
-        private readonly string ToPropertyName;
+        /// <summary>The assembly names to which to rewrite broken references.</summary>
+        private readonly HashSet<string> RewriteReferencesToAssemblies;
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="type">The type whose field to which references should be rewritten.</param>
-        /// <param name="fieldName">The field name to rewrite.</param>
-        /// <param name="propertyName">The property name (if different).</param>
-        public FieldToPropertyRewriter(Type type, string fieldName, string propertyName)
-            : base(defaultPhrase: $"{type.FullName}.{fieldName} field")
+        /// <param name="rewriteReferencesToAssemblies">The assembly names to which to rewrite broken references.</param>
+        public FieldToPropertyRewriter(string[] rewriteReferencesToAssemblies)
+            : base(defaultPhrase: "field changed to property") // ignored since we specify phrases
         {
-            this.Type = type;
-            this.FromFieldName = fieldName;
-            this.ToPropertyName = propertyName;
+            this.RewriteReferencesToAssemblies = new HashSet<string>(rewriteReferencesToAssemblies);
         }
 
-        /// <summary>Construct an instance.</summary>
-        /// <param name="type">The type whose field to which references should be rewritten.</param>
-        /// <param name="fieldName">The field name to rewrite.</param>
-        public FieldToPropertyRewriter(Type type, string fieldName)
-            : this(type, fieldName, fieldName) { }
-
-        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The CIL instruction to handle.</param>
-        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
-        /// <returns>Returns whether the instruction was changed.</returns>
+        /// <inheritdoc />
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
             // get field ref
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
-            if (!RewriteHelper.IsFieldReferenceTo(fieldRef, this.Type.FullName, this.FromFieldName))
+            if (fieldRef == null || !this.ShouldValidate(fieldRef.DeclaringType))
                 return false;
 
-            // replace with property
-            string methodPrefix = instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld ? "get" : "set";
-            MethodReference propertyRef = module.ImportReference(this.Type.GetMethod($"{methodPrefix}_{this.ToPropertyName}"));
+            // skip if not broken
+            if (fieldRef.Resolve() != null)
+                return false;
+
+            // get equivalent property
+            PropertyDefinition property = fieldRef.DeclaringType.Resolve().Properties.FirstOrDefault(p => p.Name == fieldRef.Name);
+            MethodDefinition method = instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld
+                ? property?.GetMethod
+                : property?.SetMethod;
+            if (method == null)
+                return false;
+
+            // rewrite field to property
+            MethodReference propertyRef = module.ImportReference(method);
             replaceWith(cil.Create(OpCodes.Call, propertyRef));
+            this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} (field => property)");
             return this.MarkRewritten();
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Whether references to the given type should be validated.</summary>
+        /// <param name="type">The type reference.</param>
+        private bool ShouldValidate(TypeReference type)
+        {
+            return type != null && this.RewriteReferencesToAssemblies.Contains(type.Scope.Name);
         }
     }
 }

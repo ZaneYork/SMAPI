@@ -76,10 +76,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="mod">The mod for which the assembly is being loaded.</param>
         /// <param name="assemblyPath">The assembly file path.</param>
         /// <param name="assumeCompatible">Assume the mod is compatible, even if incompatible code is detected.</param>
-        /// <param name="rewriteInParallel">Whether to enable experimental parallel rewriting.</param>
         /// <returns>Returns the rewrite metadata for the preprocessed assembly.</returns>
         /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
-        public Assembly Load(IModMetadata mod, string assemblyPath, bool assumeCompatible, bool rewriteInParallel)
+        public Assembly Load(IModMetadata mod, string assemblyPath, bool assumeCompatible)
         {
             // get referenced local assemblies
             AssemblyParseResult[] assemblies;
@@ -109,7 +108,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     continue;
 
                 // rewrite assembly
-                bool changed = this.RewriteAssembly(mod, assembly.Definition, loggedMessages, logPrefix: "      ", rewriteInParallel);
+                bool changed = this.RewriteAssembly(mod, assembly.Definition, loggedMessages, logPrefix: "      ");
 
                 // detect broken assembly reference
                 foreach (AssemblyNameReference reference in assembly.Definition.MainModule.AssemblyReferences)
@@ -280,10 +279,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="assembly">The assembly to rewrite.</param>
         /// <param name="loggedMessages">The messages that have already been logged for this mod.</param>
         /// <param name="logPrefix">A string to prefix to log messages.</param>
-        /// <param name="rewriteInParallel">Whether to enable experimental parallel rewriting.</param>
         /// <returns>Returns whether the assembly was modified.</returns>
         /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
-        private bool RewriteAssembly(IModMetadata mod, AssemblyDefinition assembly, HashSet<string> loggedMessages, string logPrefix, bool rewriteInParallel)
+        private bool RewriteAssembly(IModMetadata mod, AssemblyDefinition assembly, HashSet<string> loggedMessages, string logPrefix)
         {
             ModuleDefinition module = assembly.MainModule;
             string filename = $"{assembly.Name.Name}.dll";
@@ -311,6 +309,19 @@ namespace StardewModdingAPI.Framework.ModLoading
                 IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
                 foreach (TypeReference type in typeReferences)
                     this.ChangeTypeScope(type);
+
+                // rewrite types using custom attributes
+                foreach (TypeDefinition type in module.GetTypes())
+                {
+                    foreach (var attr in type.CustomAttributes)
+                    {
+                        foreach (var conField in attr.ConstructorArguments)
+                        {
+                            if (conField.Value is TypeReference typeRef)
+                                this.ChangeTypeScope(typeRef);
+                        }
+                    }
+                }
             }
 
             // find or rewrite code
@@ -332,7 +343,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     return rewritten;
                 }
             );
-            bool anyRewritten = rewriter.RewriteModule(rewriteInParallel);
+            bool anyRewritten = rewriter.RewriteModule();
 
             // handle rewrite flags
             foreach (IInstructionHandler handler in handlers)

@@ -11,35 +11,26 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>A brief noun phrase indicating what the handler matches, used if <see cref="Phrases"/> is empty.</summary>
+        /// <inheritdoc />
         public string DefaultPhrase { get; }
 
-        /// <summary>The rewrite flags raised for the current module.</summary>
+        /// <inheritdoc />
         public ISet<InstructionHandleResult> Flags { get; } = new HashSet<InstructionHandleResult>();
 
-        /// <summary>The brief noun phrases indicating what the handler matched for the current module.</summary>
+        /// <inheritdoc />
         public ISet<string> Phrases { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>Rewrite a type reference if needed.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="type">The type definition to handle.</param>
-        /// <param name="replaceWith">Replaces the type reference with a new one.</param>
-        /// <returns>Returns whether the type was changed.</returns>
+        /// <inheritdoc />
         public virtual bool Handle(ModuleDefinition module, TypeReference type, Action<TypeReference> replaceWith)
         {
             return false;
         }
 
-        /// <summary>Rewrite a CIL instruction reference if needed.</summary>
-        /// <param name="module">The assembly module containing the instruction.</param>
-        /// <param name="cil">The CIL processor.</param>
-        /// <param name="instruction">The CIL instruction to handle.</param>
-        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
-        /// <returns>Returns whether the instruction was changed.</returns>
+        /// <inheritdoc />
         public virtual bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
         {
             return false;
@@ -50,7 +41,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         ** Protected methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="defaultPhrase">A brief noun phrase indicating what the handler matches.</param>
+        /// <param name="defaultPhrase">A brief noun phrase indicating what the handler matches, used if <see cref="Phrases"/> is empty.</param>
         protected BaseInstructionHandler(string defaultPhrase)
         {
             this.DefaultPhrase = defaultPhrase;

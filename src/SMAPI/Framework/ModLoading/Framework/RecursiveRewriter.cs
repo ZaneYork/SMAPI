@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
@@ -57,59 +55,24 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         }
 
         /// <summary>Rewrite the loaded module code.</summary>
-        /// <param name="rewriteInParallel">Whether to enable experimental parallel rewriting.</param>
         /// <returns>Returns whether the module was modified.</returns>
-        public bool RewriteModule(bool rewriteInParallel)
+        public bool RewriteModule()
         {
             IEnumerable<TypeDefinition> types = this.Module.GetTypes().Where(type => type.BaseType != null); // skip special types like <Module>
 
-            // experimental parallel rewriting
-            // This may cause intermittent startup errors and is disabled by default: https://github.com/Pathoschild/SMAPI/issues/721
-            if (rewriteInParallel)
+            bool changed = false;
+
+            try
             {
-                int typesChanged = 0;
-                Exception exception = null;
-
-                Parallel.ForEach(types, type =>
-                {
-                    if (exception != null)
-                        return;
-
-                    bool changed = false;
-                    try
-                    {
-                        changed = this.RewriteTypeDefinition(type);
-                    }
-                    catch (Exception ex)
-                    {
-                        exception ??= ex;
-                    }
-
-                    if (changed)
-                        Interlocked.Increment(ref typesChanged);
-                });
-
-                return exception == null
-                    ? typesChanged > 0
-                    : throw new Exception($"Rewriting {this.Module.Name} failed.", exception);
+                foreach (var type in types)
+                    changed |= this.RewriteTypeDefinition(type);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Rewriting {this.Module.Name} failed.", ex);
             }
 
-            // non-parallel rewriting
-            {
-                bool changed = false;
-
-                try
-                {
-                    foreach (var type in types)
-                        changed |= this.RewriteTypeDefinition(type);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Rewriting {this.Module.Name} failed.", ex);
-                }
-
-                return changed;
-            }
+            return changed;
         }
 
 
