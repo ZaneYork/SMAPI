@@ -386,6 +386,15 @@ namespace StardewModdingAPI.Metadata
                     Game1.shadowTexture = content.Load<Texture2D>(key);
                     return true;
 
+#if SMAPI_FOR_MOBILE
+                case "loosesprites\\mobileatlas_manually_made": // Game1.LoadContent
+                    Game1.mobileSpriteSheet = content.Load<Texture2D>(key);
+                    Game1.dayTimeMoneyBox.questButton.texture = Game1.mobileSpriteSheet;
+                    Game1.dayTimeMoneyBox.buttonF8.texture = Game1.mobileSpriteSheet;
+                    Game1.dayTimeMoneyBox.buttonGameMenu.texture = Game1.mobileSpriteSheet;
+                    return true;
+#endif
+
                 /****
                 ** Content\TileSheets
                 ****/

@@ -24,7 +24,9 @@
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_GOOGLE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_AMAZON;HARMONY_1;SMAPI_FOR_MOBILE</DefineConstants>
+    <!--    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_SAMSUNG;HARMONY_1;SMAPI_FOR_MOBILE</DefineConstants>-->
+    <!--    <DefineConstants>TRACE;DEBUG;ANDROID_TARGET_GOOGLE;HARMONY_1;SMAPI_FOR_MOBILE</DefineConstants>-->
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>8.0</LangVersion>
@@ -34,9 +36,9 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>ANDROID_TARGET_AMAZON;HARMONY_1</DefineConstants>
-<!--    <DefineConstants>ANDROID_TARGET_SAMSUNG;HARMONY_1</DefineConstants>-->
-<!--    <DefineConstants>ANDROID_TARGET_GOOGLE;HARMONY_1</DefineConstants>-->
+<!--    <DefineConstants>ANDROID_TARGET_AMAZON;HARMONY_1;SMAPI_FOR_MOBILE</DefineConstants>-->
+    <DefineConstants>ANDROID_TARGET_SAMSUNG;HARMONY_1;SMAPI_FOR_MOBILE</DefineConstants>
+<!--    <DefineConstants>ANDROID_TARGET_GOOGLE;HARMONY_1;SMAPI_FOR_MOBILE</DefineConstants>-->
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>8.0</LangVersion>
