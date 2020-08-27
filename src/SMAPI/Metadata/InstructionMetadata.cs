@@ -94,18 +94,13 @@ namespace StardewModdingAPI.Metadata
             yield return new MethodParentRewriter(typeof(SaveGame), typeof(SaveGameMethods));
 
             //Constructor Rewrites
-            yield return new MethodParentRewriter(typeof(HUDMessage), typeof(HUDMessageMethods));
-            yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));
-            yield return new MethodParentRewriter(typeof(TextBox), typeof(TextBoxMethods));
             yield return new MethodParentRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods));
             yield return new MethodParentRewriter(typeof(WeatherDebris), typeof(WeatherDebrisMethods));
             yield return new MethodParentRewriter(typeof(Debris), typeof(DebrisMethods));
-            yield return new MethodParentRewriter(typeof(DiscreteColorPicker), typeof(DiscreteColorPickerMethods));
             yield return new MethodParentRewriter(typeof(InventoryMenu), typeof(InventoryMenuMethods));
             yield return new MethodParentRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods));
             yield return new MethodParentRewriter(typeof(GameMenu), typeof(GameMenuMethods));
             yield return new MethodParentRewriter(typeof(CraftingPageMobile), typeof(CraftingPageMobileMethods));
-            yield return new MethodParentRewriter(typeof(DialogueBox), typeof(DialogueBoxMethods));
 
             //Field Rewriters
             yield return new FieldReplaceRewriter(typeof(ItemGrabMenu), "context", "specialObject");
