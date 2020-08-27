@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
@@ -7,8 +6,8 @@ using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
-    /// <summary>Rewrites references to fields which no longer exist, but which have an equivalent property with the exact same name.</summary>
-    internal class FieldToPropertyRewriter : BaseInstructionHandler
+    /// <summary>Automatically fix references to fields that have been replaced by a property.</summary>
+    internal class HeuristicFieldRewriter : BaseInstructionHandler
     {
         /*********
         ** Fields
@@ -22,14 +21,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="rewriteReferencesToAssemblies">The assembly names to which to rewrite broken references.</param>
-        public FieldToPropertyRewriter(string[] rewriteReferencesToAssemblies)
+        public HeuristicFieldRewriter(string[] rewriteReferencesToAssemblies)
             : base(defaultPhrase: "field changed to property") // ignored since we specify phrases
         {
             this.RewriteReferencesToAssemblies = new HashSet<string>(rewriteReferencesToAssemblies);
         }
 
         /// <inheritdoc />
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // get field ref
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
@@ -49,8 +48,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return false;
 
             // rewrite field to property
-            MethodReference propertyRef = module.ImportReference(method);
-            replaceWith(cil.Create(OpCodes.Call, propertyRef));
+            instruction.OpCode = OpCodes.Call;
+            instruction.Operand = module.ImportReference(method);
+
             this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} (field => property)");
             return this.MarkRewritten();
         }

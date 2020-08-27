@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         }
 
         /// <inheritdoc />
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // get field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
@@ -46,24 +46,20 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return false;
 
             // rewrite to constant
-            replaceWith(this.CreateConstantInstruction(cil, this.Value));
-            return this.MarkRewritten();
-        }
-
-
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>Create a CIL constant value instruction.</summary>
-        /// <param name="cil">The CIL processor.</param>
-        /// <param name="value">The constant value to set.</param>
-        private Instruction CreateConstantInstruction(ILProcessor cil, object value)
-        {
             if (typeof(TValue) == typeof(int))
-                return cil.Create(OpCodes.Ldc_I4, (int)value);
-            if (typeof(TValue) == typeof(string))
-                return cil.Create(OpCodes.Ldstr, (string)value);
-            throw new NotSupportedException($"Rewriting to constant values of type {typeof(TValue)} isn't currently supported.");
+            {
+                instruction.OpCode = OpCodes.Ldc_I4;
+                instruction.Operand = this.Value;
+            }
+            else if (typeof(TValue) == typeof(string))
+            {
+                instruction.OpCode = OpCodes.Ldstr;
+                instruction.Operand = this.Value;
+            }
+            else
+                throw new NotSupportedException($"Rewriting to constant values of type {typeof(TValue)} isn't currently supported.");
+
+            return this.MarkRewritten();
         }
     }
 }

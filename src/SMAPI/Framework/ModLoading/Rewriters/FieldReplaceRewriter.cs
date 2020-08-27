@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         }
 
         /// <inheritdoc />
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // get field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
@@ -58,8 +58,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return false;
 
             // replace with new field
-            FieldReference newRef = module.ImportReference(this.ToField);
-            replaceWith(cil.Create(instruction.OpCode, newRef));
+            instruction.Operand = module.ImportReference(this.ToField);
+
             return this.MarkRewritten();
         }
     }

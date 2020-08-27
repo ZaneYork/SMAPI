@@ -335,11 +335,11 @@ namespace StardewModdingAPI.Framework.ModLoading
                         rewritten |= handler.Handle(module, type, replaceWith);
                     return rewritten;
                 },
-                rewriteInstruction: (ref Instruction instruction, ILProcessor cil, Action<Instruction> replaceWith) =>
+                rewriteInstruction: (ref Instruction instruction, ILProcessor cil) =>
                 {
                     bool rewritten = false;
                     foreach (IInstructionHandler handler in handlers)
-                        rewritten |= handler.Handle(module, cil, instruction, replaceWith);
+                        rewritten |= handler.Handle(module, cil, instruction);
                     return rewritten;
                 }
             );

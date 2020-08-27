@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
@@ -30,7 +29,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         }
 
         /// <inheritdoc />
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // field reference
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);

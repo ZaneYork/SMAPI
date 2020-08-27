@@ -1,4 +1,3 @@
-using System;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
@@ -37,7 +36,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         }
 
         /// <inheritdoc />
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             if (!this.Flags.Contains(this.Result) && this.IsMatch(instruction))
                 this.MarkFlag(this.Result);

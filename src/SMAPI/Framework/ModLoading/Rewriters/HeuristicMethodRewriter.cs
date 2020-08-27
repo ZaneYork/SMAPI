@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
@@ -7,8 +6,8 @@ using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
-    /// <summary>Rewrites references to methods which only broke because the definition has new optional parameters.</summary>
-    internal class MethodWithMissingOptionalParameterRewriter : BaseInstructionHandler
+    /// <summary>Automatically fix references to methods that had extra optional parameters added.</summary>
+    internal class HeuristicMethodRewriter : BaseInstructionHandler
     {
         /*********
         ** Fields
@@ -22,14 +21,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="rewriteReferencesToAssemblies">The assembly names to which to rewrite broken references.</param>
-        public MethodWithMissingOptionalParameterRewriter(string[] rewriteReferencesToAssemblies)
+        public HeuristicMethodRewriter(string[] rewriteReferencesToAssemblies)
             : base(defaultPhrase: "methods with missing parameters") // ignored since we specify phrases
         {
             this.RewriteReferencesToAssemblies = new HashSet<string>(rewriteReferencesToAssemblies);
         }
 
         /// <inheritdoc />
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // get method ref
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);

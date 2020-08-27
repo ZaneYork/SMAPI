@@ -22,9 +22,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <summary>Rewrite a CIL instruction in the assembly code.</summary>
         /// <param name="instruction">The current CIL instruction.</param>
         /// <param name="cil">The CIL instruction processor.</param>
-        /// <param name="replaceWith">Replaces the CIL instruction with the given instruction.</param>
         /// <returns>Returns whether the instruction was changed.</returns>
-        public delegate bool RewriteInstructionDelegate(ref Instruction instruction, ILProcessor cil, Action<Instruction> replaceWith);
+        public delegate bool RewriteInstructionDelegate(ref Instruction instruction, ILProcessor cil);
 
 
         /*********
@@ -161,12 +160,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
 
             // instruction itself
             // (should be done after the above type rewrites to ensure valid types)
-            rewritten |= this.RewriteInstructionImpl(ref instruction, cil, newInstruction =>
-            {
-                rewritten = true;
-                cil.Replace(instruction, newInstruction);
-                instruction = newInstruction;
-            });
+            rewritten |= this.RewriteInstructionImpl(ref instruction, cil);
 
             return rewritten;
         }

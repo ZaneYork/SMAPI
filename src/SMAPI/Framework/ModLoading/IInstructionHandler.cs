@@ -35,8 +35,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
         /// <param name="instruction">The CIL instruction to handle.</param>
-        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
         /// <returns>Returns whether the instruction was changed.</returns>
-        bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith);
+        bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction);
     }
 }

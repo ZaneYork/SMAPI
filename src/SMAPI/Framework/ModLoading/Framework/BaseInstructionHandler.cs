@@ -31,7 +31,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         }
 
         /// <inheritdoc />
-        public virtual bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public virtual bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             return false;
         }

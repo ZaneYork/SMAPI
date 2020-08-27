@@ -41,7 +41,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             : this(fromType.FullName, toType, nounPhrase) { }
 
         /// <inheritdoc />
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // get method ref
             MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
