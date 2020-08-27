@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">-->
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\define-constant.targets" />
   <PropertyGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
@@ -195,10 +194,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Android" />
     <Reference Include="SMAPI.Toolkit">
-      <HintPath>..\SMAPI.Toolkit\bin\Release\net45\SMAPI.Toolkit.dll</HintPath>
+      <HintPath>..\SMAPI.Toolkit\bin\Release\net4.5\SMAPI.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="SMAPI.Toolkit.CoreInterfaces">
-      <HintPath>..\SMAPI.Toolkit.CoreInterfaces\bin\Release\net45\SMAPI.Toolkit.CoreInterfaces.dll</HintPath>
+      <HintPath>..\SMAPI.Toolkit.CoreInterfaces\bin\Release\net4.5\SMAPI.Toolkit.CoreInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
