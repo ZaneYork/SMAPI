@@ -137,10 +137,12 @@ namespace StardewModdingAPI.Framework
             // write to console
             if (this.WriteToConsole && (this.ShowTraceInConsole || level != ConsoleLogLevel.Trace))
                 this.ConsoleWriter.WriteLine(this.IgnoreChar + consoleMessage, level);
+#if SMAPI_FOR_MOBILE
             else if (this.ShowTraceInConsole || level != ConsoleLogLevel.Trace)
             {
                 SGameConsole.Instance.WriteLine(consoleMessage, level);
             }
+#endif
 
             // write to log file
             this.LogFile.WriteLine(fullMessage);

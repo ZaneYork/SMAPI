@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\define-constant.targets" />
   <PropertyGroup>
     <RootNamespace>StardewModdingAPI.Toolkit</RootNamespace>
     <Description>A library which encapsulates mod-handling logic for mod managers and tools. Not intended for use by mods.</Description>
@@ -12,12 +13,15 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SMAPI.Toolkit.CoreInterfaces\SMAPI.Toolkit.CoreInterfaces.csproj" />
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.24" />
+    <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.0.0" />
+    <PackageReference Include="System.Management" Version="4.5.0" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.5.0" Condition="'$(OS)' == 'Windows_NT' AND '$(TargetFramework)' == 'netstandard2.0'" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Framework\Clients\Wiki\WikiClient.cs" />
+    <ProjectReference Include="..\SMAPI.Toolkit.CoreInterfaces\SMAPI.Toolkit.CoreInterfaces.csproj" />
   </ItemGroup>
 
   <Import Project="..\..\build\common.targets" />

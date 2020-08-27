@@ -1,3 +1,4 @@
+#if !SMAPI_FOR_MOBILE
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -72,3 +73,4 @@ namespace StardewModdingAPI.Framework.Networking
         }
     }
 }
+#endif

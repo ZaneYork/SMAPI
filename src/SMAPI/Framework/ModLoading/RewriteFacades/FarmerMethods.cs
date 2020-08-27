@@ -1,3 +1,4 @@
+#if SMAPI_FOR_MOBILE
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -25,3 +26,4 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
         }
     }
 }
+#endif

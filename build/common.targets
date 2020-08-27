@@ -9,6 +9,7 @@
 
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
+    <DefineConstants Condition="$(OS) == 'Windows_NT' AND '$(BUILD_FOR_MOBILE)' == ''">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,13 +18,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
   <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->
   <Target Name="ValidateInstallPath" AfterTargets="BeforeBuild">
     <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path automatically. You can specify where to find it; see https://smapi.io/package/custom-game-path." />
   </Target>
 
   <!-- copy files into game directory and enable debugging -->
-  <Target Name="CopySmapiFiles" AfterTargets="AfterBuild">
+  <Target Name="CopySmapiFiles" AfterTargets="AfterBuild" Condition="!$(DefineConstants.Contains('SMAPI_FOR_MOBILE'))">
     <CallTarget Targets="CopySMAPI;CopyDefaultMods" />
   </Target>
   <Target Name="CopySMAPI" Condition="'$(MSBuildProjectName)' == 'SMAPI'">
@@ -48,9 +50,9 @@
     <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" />
   </Target>
   <Target Name="CopyToolkit" Condition="'$(MSBuildProjectName)' == 'SMAPI.Toolkit' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
-      <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
-      <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\smapi-internal" />
-      <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\smapi-internal" />
+    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
   </Target>
   <Target Name="CopyToolkitCoreInterfaces" Condition="'$(MSBuildProjectName)' == 'SMAPI.Toolkit.CoreInterfaces' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />

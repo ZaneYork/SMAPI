@@ -1,0 +1,10 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--set properties -->
+  <PropertyGroup>
+    <BUILD_FOR_MOBILE>Google</BUILD_FOR_MOBILE>
+    <DefineConstants Condition="'$(BUILD_FOR_MOBILE)' == ''">$(DefineConstants);HARMONY_1</DefineConstants>
+    <DefineConstants Condition="'$(BUILD_FOR_MOBILE)' == 'Google'">$(DefineConstants);SMAPI_FOR_MOBILE;ANDROID_TARGET_GOOGLE;HARMONY_1</DefineConstants>
+    <DefineConstants Condition="'$(BUILD_FOR_MOBILE)' == 'Amazon'">$(DefineConstants);SMAPI_FOR_MOBILE;ANDROID_TARGET_AMAZON;HARMONY_1</DefineConstants>
+    <DefineConstants Condition="'$(BUILD_FOR_MOBILE)' == 'Samsung'">$(DefineConstants);SMAPI_FOR_MOBILE;ANDROID_TARGET_SAMSUNG;HARMONY_1</DefineConstants>
+  </PropertyGroup>
+</Project>

@@ -1,3 +1,4 @@
+#if SMAPI_FOR_MOBILE
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -102,3 +103,4 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
         }
     }
 }
+#endif

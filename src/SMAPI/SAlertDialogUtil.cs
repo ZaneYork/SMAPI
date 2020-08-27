@@ -1,3 +1,4 @@
+#if SMAPI_FOR_MOBILE
 using System;
 using Android.App;
 using Android.OS;
@@ -72,3 +73,4 @@ namespace StardewModdingAPI
         }
     }
 }
+#endif

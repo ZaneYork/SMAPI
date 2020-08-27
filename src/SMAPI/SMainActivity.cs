@@ -1,3 +1,4 @@
+#if SMAPI_FOR_MOBILE
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
@@ -34,7 +35,7 @@ namespace StardewModdingAPI
     public class SMainActivity : MainActivity, ILicenseCheckerCallback, IJavaObject, IDisposable, IJavaPeerable
 #endif
     {
-        private SCore core;
+        internal SCore core;
         private LicenseChecker _licenseChecker;
 #if ANDROID_TARGET_GOOGLE
         private ServerManagedPolicyExtended _serverManagedPolicyExtended;
@@ -161,9 +162,9 @@ namespace StardewModdingAPI
 
                 this.core = new SCore(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, modPath), false);
                 this.core.RunInteractively();
-                typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.GameInstance);
+                typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.Game);
 
-                this.SetContentView((View) this.core.GameInstance.Services.GetService(typeof(View)));
+                this.SetContentView((View) this.core.Game.Services.GetService(typeof(View)));
 
                 this.CheckUsingServerManagedPolicy();
             }
@@ -263,3 +264,4 @@ namespace StardewModdingAPI
 #endif
     }
 }
+#endif

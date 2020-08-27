@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 #if SMAPI_FOR_MOBILE
 using Android.App;
@@ -13,7 +14,6 @@ using StardewModdingAPI.Framework;
 [assembly: InternalsVisibleTo("SMAPI.Tests")]
 [assembly: InternalsVisibleTo("ConsoleCommands")] // for performance monitoring commands
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // Moq for unit testing
-
 namespace StardewModdingAPI
 {
     /// <summary>The main entry point for SMAPI, responsible for hooking into and launching the game.</summary>
@@ -36,10 +36,13 @@ namespace StardewModdingAPI
             try
             {
                 AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
-                //Program.AssertGamePresent();
-                //Program.AssertGameVersion();
+#if SMAPI_FOR_MOBILE
                 Program.AssertAndroidGameVersion();
-                //Program.Start(args);
+#else
+                Program.AssertGamePresent();
+                Program.AssertGameVersion();
+                Program.Start(args);
+#endif
             }
             catch (BadImageFormatException ex) when (ex.FileName == "StardewValley" || ex.FileName == "Stardew Valley") // don't use EarlyConstants.GameAssemblyName, since we want to check both possible names
             {
@@ -175,8 +178,10 @@ namespace StardewModdingAPI
             if (showMessage)
                 Console.WriteLine("Game has ended. Press any key to exit.");
             Thread.Sleep(100);
+#if !SMAPI_FOR_MOBILE
             Console.ReadKey();
             Environment.Exit(0);
+#endif
         }
     }
 }

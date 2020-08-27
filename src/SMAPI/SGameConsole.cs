@@ -1,3 +1,4 @@
+#if SMAPI_FOR_MOBILE
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -107,10 +108,10 @@ namespace StardewModdingAPI
                     this.isVisible = false;
                     Game1.activeClickableMenu = null;
                     Game1.playSound("bigDeSelect");
-                    SGame.instance.CommandQueue.Enqueue(command);
+                    SMainActivity.Instance.core.CommandQueue.Enqueue(command);
                     return;
                 }
-                SGame.instance.CommandQueue.Enqueue(command);
+                SMainActivity.Instance.core.CommandQueue.Enqueue(command);
             }
         }
 
@@ -272,3 +273,4 @@ namespace StardewModdingAPI
         }
     }
 }
+#endif

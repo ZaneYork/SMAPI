@@ -1,3 +1,4 @@
+#if SMAPI_FOR_MOBILE
 using System;
 using System.Diagnostics.CodeAnalysis;
 #if HARMONY_2
@@ -91,3 +92,4 @@ namespace StardewModdingAPI.Patches
         }
     }
 }
+#endif

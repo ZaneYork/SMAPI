@@ -47,6 +47,10 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using StardewValley.Menus;
+#if SMAPI_FOR_MOBILE
+using StardewValley.Mobile;
+#endif
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
@@ -88,14 +92,14 @@ namespace StardewModdingAPI.Framework
         private readonly CommandManager CommandManager = new CommandManager();
 
         /// <summary>The underlying game instance.</summary>
+#if SMAPI_FOR_MOBILE
+        internal SGame Game;
+#else
         private SGame Game;
-
+#endif
         /// <summary>Manages input visible to the game.</summary>
         private SInputState Input => SGame.Input;
 
-#if SMAPI_FOR_MOBILE
-        public SGame GameInstance;
-#endif
         /// <summary>The game's core multiplayer utility.</summary>
         private SMultiplayer Multiplayer => SGame.Multiplayer;
 
@@ -208,19 +212,11 @@ namespace StardewModdingAPI.Framework
             this.LogManager.LogIntro(modsPath, this.Settings.GetCustomSettings());
 
             // validate platform
-#if SMAPI_FOR_WINDOWS
             if (Constants.Platform != Platform.Windows)
             {
                 this.Monitor.Log("Oops! You're running Windows, but this version of SMAPI is for Linux or Mac. Please reinstall SMAPI to fix this.", LogLevel.Error);
                 this.LogManager.PressAnyKeyToExit();
             }
-#else
-            if (Constants.Platform == Platform.Windows)
-            {
-                this.Monitor.Log($"Oops! You're running {Constants.Platform}, but this version of SMAPI is for Windows. Please reinstall SMAPI to fix this.", LogLevel.Error);
-                this.PressAnyKeyToExit();
-            }
-#endif
         }
 
         /// <summary>Launch SMAPI.</summary>
@@ -310,9 +306,7 @@ namespace StardewModdingAPI.Framework
             catch (Exception ex)
             {
                 this.Monitor.Log($"SMAPI failed to initialize: {ex.GetLogSummary()}", LogLevel.Error);
-#if !SMAPI_FOR_MOBILE
                 this.LogManager.PressAnyKeyToExit();
-#endif
                 return;
             }
 
@@ -336,9 +330,7 @@ namespace StardewModdingAPI.Framework
             catch (Exception ex)
             {
                 this.LogManager.LogFatalLaunchError(ex);
-#if !SMAPI_FOR_MOBILE
                 this.LogManager.PressAnyKeyToExit();
-#endif
             }
             finally
             {
@@ -396,10 +388,10 @@ namespace StardewModdingAPI.Framework
             xTile.Format.FormatManager.Instance.RegisterMapFormat(new TMXTile.TMXFormat(Game1.tileSize / Game1.pixelZoom, Game1.tileSize / Game1.pixelZoom, Game1.pixelZoom, Game1.pixelZoom));
 
 #if SMAPI_FOR_MOBILE
-            this.GameInstance.IsGameSuspended = true;
+            this.Game.IsGameSuspended = true;
             new Thread(() =>
             {
-                while (!this.GameInstance.IsAfterInitialize)
+                while (!this.Game.IsAfterInitialize)
                     Thread.Sleep(10);
 #endif
             // load mod data
@@ -442,7 +434,7 @@ namespace StardewModdingAPI.Framework
             this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods");
 #else
                 SGameConsole.Instance.isVisible = false;
-                this.GameInstance.IsGameSuspended = false;
+                this.Game.IsGameSuspended = false;
             }).Start();
 #endif
 }
@@ -491,10 +483,10 @@ namespace StardewModdingAPI.Framework
         private void OnGameUpdating(GameTime gameTime, Action runGameUpdate)
         {
 #if SMAPI_FOR_MOBILE
-            if (this.IsGameSuspended)
+            if (this.Game.IsGameSuspended)
             {
-                if (!this.IsAfterInitialize)
-                    this.IsAfterInitialize = true;
+                if (!this.Game.IsAfterInitialize)
+                    this.Game.IsAfterInitialize = true;
 
                 return;
             }
@@ -1068,7 +1060,6 @@ namespace StardewModdingAPI.Framework
                 if (!this.UpdateCrashTimer.Decrement())
                     this.ExitGameImmediately("The game crashed when updating, and SMAPI was unable to recover the game.");
             }
-#endif
         }
 
         /// <summary>Handle the game changing locale.</summary>
@@ -1288,7 +1279,7 @@ namespace StardewModdingAPI.Framework
                 // show update message on next launch
                 if (updateFound != null)
                     this.LogManager.WriteUpdateMarker(updateFound.ToString());
-
+#endif
                 // check mod versions
                 if (mods.Any())
                 {

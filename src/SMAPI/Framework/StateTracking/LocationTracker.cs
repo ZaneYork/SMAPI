@@ -63,7 +63,11 @@ namespace StardewModdingAPI.Framework.StateTracking
 
             // init watchers
             this.BuildingsWatcher = location is BuildableGameLocation buildableLocation ? WatcherFactory.ForNetCollection(buildableLocation.buildings) : WatcherFactory.ForImmutableCollection<Building>();
+#if SMAPI_FOR_MOBILE
             this.DebrisWatcher = WatcherFactory.ForNetCollection(location.debris.debrisNetCollection);
+#else
+            this.DebrisWatcher = WatcherFactory.ForNetCollection(location.debris);
+#endif
             this.LargeTerrainFeaturesWatcher = WatcherFactory.ForNetCollection(location.largeTerrainFeatures);
             this.NpcsWatcher = WatcherFactory.ForNetCollection(location.characters);
             this.ObjectsWatcher = WatcherFactory.ForNetDictionary(location.netObjects);

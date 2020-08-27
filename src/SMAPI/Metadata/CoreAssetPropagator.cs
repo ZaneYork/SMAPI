@@ -427,7 +427,11 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "tilesheets\\tools": // Game1.ResetToolSpriteSheet
+#if SMAPI_FOR_MOBILE
                     Game1.toolSpriteSheet = content.Load<Texture2D>(key);
+#else
+                    Game1.ResetToolSpriteSheet();
+#endif
                     return true;
 
                 case "tilesheets\\weapons": // Game1.LoadContent

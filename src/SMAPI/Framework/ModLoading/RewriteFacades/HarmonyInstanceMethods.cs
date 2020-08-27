@@ -1,3 +1,4 @@
+#if SMAPI_FOR_MOBILE
 using System.Reflection;
 using System.Reflection.Emit;
 #if HARMONY_2
@@ -55,3 +56,4 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
         }
     }
 }
+#endif

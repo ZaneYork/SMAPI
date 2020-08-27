@@ -50,6 +50,7 @@ namespace StardewModdingAPI.Metadata
             if (platformChanged)
                 yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchFacade));
 
+#if SMAPI_FOR_MOBILE
             // Redirect reference
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isRaining", "IsRainingProp");
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isSnowing", "IsSnowingProp");
@@ -112,16 +113,9 @@ namespace StardewModdingAPI.Metadata
             //Field Rewriters
             yield return new FieldReplaceRewriter(typeof(ItemGrabMenu), "context", "specialObject");
 
+#endif
             // rewrite for Stardew Valley 1.3
             yield return new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize);
-            yield return new FieldToPropertyRewriter(typeof(Game1), "player");
-            yield return new FieldToPropertyRewriter(typeof(Game1), "currentLocation");
-            yield return new FieldToPropertyRewriter(typeof(Character), "currentLocation");
-            yield return new FieldToPropertyRewriter(typeof(Farmer), "currentLocation");
-            yield return new FieldToPropertyRewriter(typeof(Game1), "gameMode");
-            yield return new FieldToPropertyRewriter(typeof(Game1), "currentMinigame");
-            yield return new FieldToPropertyRewriter(typeof(Game1), "activeClickableMenu");
-            yield return new FieldToPropertyRewriter(typeof(Game1), "stats");
 
             // generic rewrites
             yield return new FieldToPropertyRewriter(this.ValidateReferencesToAssemblies);
@@ -132,6 +126,7 @@ namespace StardewModdingAPI.Metadata
             yield return new Harmony1AssemblyRewriter();
 #endif
 
+#if SMAPI_FOR_MOBILE
             // MonoMod fix
             if (!Constants.HarmonyEnabled)
             {
@@ -145,6 +140,7 @@ namespace StardewModdingAPI.Metadata
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "PatchAll" && method.Parameters.Count == 1, typeof(HarmonyInstanceMethods), "PatchAllToAssembly");
 #endif
             }
+#endif
 
             /****
             ** detect mod issues

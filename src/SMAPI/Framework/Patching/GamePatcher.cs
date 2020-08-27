@@ -2,7 +2,9 @@ using System;
 #if HARMONY_2
 using HarmonyLib;
 #else
+#if SMAPI_FOR_MOBILE
 using MonoMod.RuntimeDetour;
+#endif
 using Harmony;
 #endif
 
@@ -35,6 +37,7 @@ namespace StardewModdingAPI.Framework.Patching
 #if HARMONY_2
             Harmony harmony = new Harmony("SMAPI");
 #else
+#if SMAPI_FOR_MOBILE
             if (!HarmonyDetourBridge.Initialized && Constants.HarmonyEnabled)
             {
                 try {
@@ -42,10 +45,12 @@ namespace StardewModdingAPI.Framework.Patching
                 }
                 catch { Constants.HarmonyEnabled = false; }
             }
+#endif
             HarmonyInstance harmony = HarmonyInstance.Create("SMAPI");
 #endif
             foreach (IHarmonyPatch patch in patches)
             {
+#if SMAPI_FOR_MOBILE
                 try
                 {
                     if(Constants.HarmonyEnabled)
@@ -57,6 +62,17 @@ namespace StardewModdingAPI.Framework.Patching
                     this.Monitor.Log($"Couldn't apply runtime patch '{patch.Name}' to the game. Some SMAPI features may not work correctly. See log file for details.", LogLevel.Error);
                     this.Monitor.Log(ex.GetLogSummary(), LogLevel.Trace);
                 }
+#else
+                try
+                {
+                    patch.Apply(harmony);
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"Couldn't apply runtime patch '{patch.Name}' to the game. Some SMAPI features may not work correctly. See log file for details.", LogLevel.Error);
+                    this.Monitor.Log(ex.GetLogSummary(), LogLevel.Trace);
+                }
+#endif
             }
         }
     }

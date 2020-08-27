@@ -1,3 +1,4 @@
+#if !SMAPI_FOR_MOBILE
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -271,3 +272,4 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         }
     }
 }
+#endif

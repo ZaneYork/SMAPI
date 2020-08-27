@@ -1,3 +1,4 @@
+#if !SMAPI_FOR_MOBILE
 using System;
 using Galaxy.Api;
 using StardewValley.Network;
@@ -49,3 +50,4 @@ namespace StardewModdingAPI.Framework.Networking
         }
     }
 }
+#endif

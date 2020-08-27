@@ -1,14 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AppCenter.Crashes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI.Enums;
-using StardewModdingAPI.Events;
-using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
@@ -18,7 +15,6 @@ using StardewValley.BellsAndWhistles;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Minigames;
-using StardewValley.Mobile;
 using StardewValley.Tools;
 using xTile.Dimensions;
 using xTile.Layers;
@@ -219,6 +215,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         /// <param name="target_screen">The render target, if any.</param>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "copied from game code as-is")]
+#if SMAPI_FOR_MOBILE
         protected override void _draw(GameTime gameTime, RenderTarget2D target_screen, RenderTarget2D toBuffer = null)
         {
             Context.IsInDrawLoop = true;
@@ -292,6 +289,44 @@ namespace StardewModdingAPI.Framework
 
             Context.IsInDrawLoop = false;
         }
+#else
+        protected override void _draw(GameTime gameTime, RenderTarget2D target_screen)
+        {
+            Context.IsInDrawLoop = true;
+            try
+            {
+                this.DrawImpl(gameTime, target_screen);
+                this.DrawCrashTimer.Reset();
+            }
+            catch (Exception ex)
+            {
+                // log error
+                this.Monitor.Log($"An error occured in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
+
+                // exit if irrecoverable
+                if (!this.DrawCrashTimer.Decrement())
+                {
+                    this.ExitGameImmediately("The game crashed when drawing, and SMAPI was unable to recover the game.");
+                    return;
+                }
+
+                // recover sprite batch
+                try
+                {
+                    if (Game1.spriteBatch.IsOpen(this.Reflection))
+                    {
+                        this.Monitor.Log("Recovering sprite batch from error...");
+                        Game1.spriteBatch.End();
+                    }
+                }
+                catch (Exception innerEx)
+                {
+                    this.Monitor.Log($"Could not recover sprite batch state: {innerEx.GetLogSummary()}", LogLevel.Error);
+                }
+            }
+            Context.IsInDrawLoop = false;
+        }
+#endif
 
         /// <summary>Replicate the game's draw logic with some changes for SMAPI.</summary>
         /// <param name="gameTime">A snapshot of the game timing state.</param>
@@ -763,8 +798,8 @@ namespace StardewModdingAPI.Framework
                                                     }
 
                                                     Dictionary<string, string> dictionary5 = dictionary1;
-                                                    ErrorAttachmentLog[] errorAttachmentLogArray = Array.Empty<ErrorAttachmentLog>();
-                                                    Crashes.TrackError(ex, dictionary5, errorAttachmentLogArray);
+                                                    Microsoft.AppCenter.Crashes.ErrorAttachmentLog[] errorAttachmentLogArray = Array.Empty<Microsoft.AppCenter.Crashes.ErrorAttachmentLog>();
+                                                    Microsoft.AppCenter.Crashes.Crashes.TrackError(ex, dictionary5, errorAttachmentLogArray);
                                                 }
                                             }
 

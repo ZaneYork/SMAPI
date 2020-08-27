@@ -41,14 +41,14 @@ namespace StardewModdingAPI
 
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
 #if SMAPI_FOR_MOBILE
-        public static readonly string InternalFilesPath = Program.DllSearchPath;
+        public static readonly string InternalFilesPath = EarlyConstants.ExecutionPath;
 #else
         public static readonly string InternalFilesPath = Path.Combine(EarlyConstants.ExecutionPath, "smapi-internal");
 #endif
 
         /// <summary>The target game platform.</summary>
 #if SMAPI_FOR_MOBILE
-        public static GamePlatform TargetPlatform => GamePlatform.Android;
+        internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
 #else
         internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
 #endif
@@ -67,7 +67,11 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
+#if SMAPI_FOR_MOBILE
         public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.6.2.1", true);
+#else
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.6.2");
+#endif
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.5");
