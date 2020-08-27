@@ -28,7 +28,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 : null;
         }
 
-
         /// <summary>Get whether the field is a reference to the expected type and field.</summary>
         /// <param name="instruction">The IL instruction.</param>
         /// <param name="fullTypeName">The full type name containing the expected field.</param>

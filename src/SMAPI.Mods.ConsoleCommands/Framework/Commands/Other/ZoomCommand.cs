@@ -1,3 +1,4 @@
+#if SMAPI_FOR_MOBILE
 using System.Linq;
 using System.Reflection;
 using StardewValley;
@@ -49,3 +50,4 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         }
     }
 }
+#endif

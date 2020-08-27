@@ -354,12 +354,16 @@ namespace StardewModdingAPI.Metadata
 
                 case "loosesprites\\cursors": // Game1.LoadContent
                     Game1.mouseCursors = content.Load<Texture2D>(key);
-                    //Game1.onScreenMenus is a List<T> instead of an IList<T>
-                    //foreach (DayTimeMoneyBox menu in Game1.onScreenMenus)
-                    //{
-                    //    foreach (ClickableTextureComponent button in new[] { menu.questButton, menu.zoomInButton, menu.zoomOutButton })
-                    //        button.texture = Game1.mouseCursors;
-                    //}
+#if !SMAPI_FOR_MOBILE
+                    // Game1.onScreenMenus is a List<T> instead of an IList<T>
+                    foreach (DayTimeMoneyBox menu in Game1.onScreenMenus)
+                    {
+                        foreach (ClickableTextureComponent button in new[] { menu.questButton, menu.zoomInButton, menu.zoomOutButton })
+                            button.texture = Game1.mouseCursors;
+                    }
+#else
+// TODO Add logic for Android platform
+#endif
                     return true;
 
                 case "loosesprites\\cursors2": // Game1.LoadContent
@@ -464,7 +468,11 @@ namespace StardewModdingAPI.Metadata
                     {
                         if (Game1.activeClickableMenu is TitleMenu titleMenu)
                         {
+#if SMAPI_FOR_MOBILE
                             this.Reflection.GetField<Texture2D>(titleMenu, "cloudsTexture").SetValue(content.Load<Texture2D>(key));
+#else
+                            titleMenu.cloudsTexture = content.Load<Texture2D>(key);
+#endif
                             return true;
                         }
                     }
@@ -475,8 +483,13 @@ namespace StardewModdingAPI.Metadata
                         if (Game1.activeClickableMenu is TitleMenu titleMenu)
                         {
                             Texture2D texture = content.Load<Texture2D>(key);
+#if SMAPI_FOR_MOBILE
                             this.Reflection.GetField<Texture2D>(titleMenu, "titleButtonsTexture").SetValue(texture);
                             foreach (TemporaryAnimatedSprite bird in this.Reflection.GetField<List<TemporaryAnimatedSprite>>(titleMenu, "birds").GetValue())
+#else
+                            titleMenu.titleButtonsTexture = texture;
+                            foreach (TemporaryAnimatedSprite bird in titleMenu.birds)
+#endif
                                 bird.texture = texture;
                             return true;
                         }
@@ -953,8 +966,12 @@ namespace StardewModdingAPI.Metadata
                     int lastScheduleTime = villager.Schedule.Keys.Where(p => p <= Game1.timeOfDay).OrderByDescending(p => p).FirstOrDefault();
                     if (lastScheduleTime != 0)
                     {
+#if SMAPI_FOR_MOBILE
                         //villager.scheduleTimeToTry = NPC.NO_TRY; // use time that's passed in to checkSchedule
                         this.Reflection.GetField<int>(villager, "scheduleTimeToTry").SetValue(9999999);
+#else
+                        villager.scheduleTimeToTry = NPC.NO_TRY; // use time that's passed in to checkSchedule
+#endif
                         villager.checkSchedule(lastScheduleTime);
                     }
                 }

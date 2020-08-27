@@ -3,7 +3,7 @@ using System;
 namespace StardewModdingAPI.Toolkit.Serialization
 {
     /// <summary>A format exception which provides a user-facing error message.</summary>
-    public class SParseException : FormatException
+    internal class SParseException : FormatException
     {
         /*********
         ** Public methods

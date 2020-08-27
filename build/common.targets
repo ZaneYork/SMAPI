@@ -12,7 +12,7 @@
     <DefineConstants Condition="$(OS) == 'Windows_NT' AND '$(BUILD_FOR_MOBILE)' == ''">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="$(COMPILE_WITH_PLUGIN) == 'True'">
     <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

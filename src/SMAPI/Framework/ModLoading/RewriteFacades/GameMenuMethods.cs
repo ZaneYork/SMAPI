@@ -1,3 +1,4 @@
+#if SMAPI_FOR_MOBILE
 using System.Reflection;
 using StardewValley.Menus;
 
@@ -30,3 +31,4 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
         }
     }
 }
+#endif

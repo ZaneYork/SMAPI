@@ -2,16 +2,15 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 #if SMAPI_FOR_MOBILE
+using System.Runtime.CompilerServices;
 using Android.App;
 #endif
 #if SMAPI_FOR_WINDOWS
 #endif
 using StardewModdingAPI.Framework;
 
-/// <summary>The main entry point for SMAPI, responsible for hooking into and launching the game.</summary>
 namespace StardewModdingAPI
 {
     /// <summary>The main entry point for SMAPI, responsible for hooking into and launching the game.</summary>
@@ -89,14 +88,15 @@ namespace StardewModdingAPI
                 {
                     if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.OrdinalIgnoreCase))
                         return Assembly.LoadFrom(dll.FullName);
-
                 }
 
                 return null;
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"Error resolving assembly: {ex}");
+#if !SMAPI_FOR_MOBILE
+                Console.WriteLine($"Error resolving assembly: {ex}");
+#endif
                 return null;
             }
         }

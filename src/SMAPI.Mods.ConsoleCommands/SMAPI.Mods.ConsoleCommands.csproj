@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="..\..\build\define-constant.targets" />
   <PropertyGroup>
     <AssemblyName>ConsoleCommands</AssemblyName>
     <RootNamespace>StardewModdingAPI.Mods.ConsoleCommands</RootNamespace>
@@ -8,33 +8,44 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
+    <ProjectReference Include="..\SMAPI\SMAPI.csproj" Private="False" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
+    <Reference Include="$(GameExecutableName)" HintPath="$(GamePath)\$(GameExecutableName).exe" Private="False" />
+    <Reference Include="StardewValley.GameData" HintPath="$(GamePath)\StardewValley.GameData.dll" Private="False" />
+  </ItemGroup>
+
   <Choose>
     <!-- Windows -->
     <When Condition="$(OS) == 'Windows_NT'">
-      <ItemGroup>
-        <Reference Include="Netcode">
-          <HintPath>$(GamePath)\Netcode.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
+      <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
+        <Reference Include="Netcode" HintPath="$(GamePath)\Netcode.dll" Private="False" />
+        <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="False" />
+        <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="False" />
+        <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="False" />
+        <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="False" />
       </ItemGroup>
     </When>
 
     <!-- Linux/Mac -->
     <Otherwise>
-      <ItemGroup>
-        <Reference Include="MonoGame.Framework">
-          <HintPath>$(GamePath)\MonoGame.Framework.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
+      <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
+        <Reference Include="MonoGame.Framework" HintPath="$(GamePath)\MonoGame.Framework.dll" Private="False" />
       </ItemGroup>
     </Otherwise>
   </Choose>
 
   <ItemGroup>
+    <None Update="manifest.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
     <ProjectReference Include="..\SMAPI.Toolkit\SMAPI.Toolkit.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
     <Reference Include="MonoGame.Framework">
       <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\MonoGame.Framework.dll</HintPath>
     </Reference>
@@ -49,13 +60,6 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
   <Import Project="..\..\build\common.targets" />
-
 </Project>

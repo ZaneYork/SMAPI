@@ -17,13 +17,15 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(CheckForUpdates)] = true,
             [nameof(ParanoidWarnings)] = Constants.IsDebugBuild,
             [nameof(UseBetaChannel)] = Constants.ApiVersion.IsPrerelease(),
-            [nameof(GitHubProjectName)] = "MartyrPher/SMAPI-Android-Installer",
+            [nameof(GitHubProjectName)] = "Pathoschild/SMAPI",
             [nameof(WebApiBaseUrl)] = "https://smapi.io/api/",
-            [nameof(VerboseLogging)] = false,
-            [nameof(LogNetworkTraffic)] = false,
+#if SMAPI_FOR_MOBILE
             [nameof(ModsPath)] = "StardewValley/Mods",
             [nameof(DisableMonoMod)] = false,
-            [nameof(MaxLogSize)] = int.MaxValue
+            [nameof(MaxLogSize)] = int.MaxValue,
+#endif
+            [nameof(VerboseLogging)] = false,
+            [nameof(LogNetworkTraffic)] = false
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>
@@ -67,12 +69,13 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The mod IDs SMAPI should ignore when performing update checks or validating update keys.</summary>
         public string[] SuppressUpdateChecks { get; set; }
 
+#if SMAPI_FOR_MOBILE
         public string ModsPath { get; set; }
 
         public bool DisableMonoMod { get; set; }
 
         public int MaxLogSize { get; set; } = int.MaxValue;
-
+#endif
         /********
         ** Public methods
         ********/

@@ -34,7 +34,9 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <summary>The values removed since the last reset.</summary>
         public IEnumerable<TValue> Removed => this.RemovedImpl;
 
+#if SMAPI_FOR_MOBILE
         private readonly NetRef<NetArray<TValue, NetRef<TValue>>> innerArray;
+#endif
 
         /*********
         ** Public methods
@@ -44,6 +46,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         public NetListWatcher(NetList<TValue, NetRef<TValue>> field)
         {
             this.Field = field;
+#if SMAPI_FOR_MOBILE
             this.innerArray = (NetRef<NetArray<TValue, NetRef<TValue>>>)this.Field.GetType().GetField("array", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(this.Field);
             this.hookArray(this.innerArray.Value);
             this.innerArray.fieldChangeVisibleEvent += (arrayRef, oldArray, newArray) =>
@@ -52,8 +55,10 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
                     this.hookArray(newArray);
                 this.OnArrayReplaced(this.Field, oldArray, newArray);
             };
-            //field.OnElementChanged += this.OnElementChanged;
-            //field.OnArrayReplaced += this.OnArrayReplaced;
+#else
+            field.OnElementChanged += this.OnElementChanged;
+            field.OnArrayReplaced += this.OnArrayReplaced;
+#endif
         }
         private void hookField(int index, NetRef<TValue> field)
         {
@@ -88,12 +93,13 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <summary>Stop watching the field and release all references.</summary>
         public override void Dispose()
         {
+#if !SMAPI_FOR_MOBILE
             if (!this.IsDisposed)
             {
-                //this.Field.OnElementChanged -= this.OnElementChanged;
-                //this.Field.OnArrayReplaced -= this.OnArrayReplaced;
+                this.Field.OnElementChanged -= this.OnElementChanged;
+                this.Field.OnArrayReplaced -= this.OnArrayReplaced;
             }
-
+#endif
             base.Dispose();
         }
 

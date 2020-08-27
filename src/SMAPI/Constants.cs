@@ -69,12 +69,13 @@ namespace StardewModdingAPI
         /// <summary>SMAPI's current semantic version.</summary>
 #if SMAPI_FOR_MOBILE
         public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.6.2.1", true);
-#else
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.6.2");
-#endif
 
         /// <summary>Android SMAPI's current semantic version.</summary>
         public static ISemanticVersion AndroidApiVersion { get; } = new Toolkit.SemanticVersion("0.8.8");
+
+#else
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.6.2");
+#endif
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.5");
@@ -121,16 +122,13 @@ namespace StardewModdingAPI
 #endif
 
         /// <summary>The URL of the SMAPI home page.</summary>
-        internal const string HomePageUrl = "https://github.com/MartyrPher/SMAPI-Android-Installer/releases/latest";
+        internal const string HomePageUrl = "https://smapi.io";
 
         /// <summary>The default performance counter name for unknown event handlers.</summary>
         internal const string GamePerformanceCounterName = "<StardewValley>";
 
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
         internal static readonly string InternalFilesPath = EarlyConstants.InternalFilesPath;
-
-        /// <summary>The app secret from AppCenter.</summary>
-        internal static readonly string MicrosoftAppSecret = "79411636-0bc5-41cc-9889-43a4bca83b9d";
 
         /// <summary>The file path for the SMAPI configuration file.</summary>
         internal static string ApiConfigPath => Path.Combine(Constants.InternalFilesPath, "config.json");
@@ -166,7 +164,7 @@ namespace StardewModdingAPI
         internal static string ModsPath { get; set; }
 
         /// <summary>The game's current semantic version.</summary>
-        internal static ISemanticVersion GameVersion { get; } = new GameVersion("1.3.36");
+        internal static ISemanticVersion GameVersion { get; } = new GameVersion(Game1.version);
 
         /// <summary>The target game platform as a SMAPI toolkit constant.</summary>
         internal static Platform Platform { get; } = (Platform)Constants.TargetPlatform;

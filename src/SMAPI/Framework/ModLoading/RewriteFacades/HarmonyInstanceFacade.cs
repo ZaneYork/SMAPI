@@ -35,8 +35,10 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             if (original != null)
                 original = original.GetDeclaredMember();
 
+#if SMAPI_FOR_MOBILE
             if (!Constants.HarmonyEnabled)
                 return null;
+#endif
             // call Harmony 2.0 and show a detailed exception if it fails
             try
             {

@@ -52,9 +52,9 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     //"UseBetaChannel": true,
 
     /**
-     * SMAPI's Android Installer GitHub project name, used to perform update checks.
+     * SMAPI's GitHub project name, used to perform update checks.
      */
-    "GitHubProjectName": "MartyrPher/SMAPI-Android-Installer",
+    "GitHubProjectName": "Pathoschild/SMAPI",
 
     /**
      * The base URL for SMAPI's web API, used to perform update checks.

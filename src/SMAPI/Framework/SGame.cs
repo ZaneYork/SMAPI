@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
@@ -14,13 +13,16 @@ using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Locations;
 using StardewValley.Menus;
-using StardewValley.Minigames;
 using StardewValley.Tools;
 using xTile.Dimensions;
 using xTile.Layers;
 using xTile.Tiles;
+#if SMAPI_FOR_MOBILE
+using System.Collections.Generic;
+using StardewValley.Minigames;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using SObject = StardewValley.Object;
+#endif
 
 namespace StardewModdingAPI.Framework
 {
@@ -45,6 +47,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
         private readonly Action<string> ExitGameImmediately;
 
+#if SMAPI_FOR_MOBILE
         private readonly IReflectedField<bool> DrawActiveClickableMenuField;
         private readonly IReflectedField<string> SpriteBatchBeginNextIDField;
         private readonly IReflectedField<bool> DrawHudField;
@@ -75,6 +78,7 @@ namespace StardewModdingAPI.Framework
         // ReSharper disable once InconsistentNaming
         private readonly IReflectedMethod DrawTutorialUIMethod;
         private readonly IReflectedMethod DrawGreenPlacementBoundsMethod;
+#endif
 
         /*********
         ** Accessors
@@ -332,8 +336,14 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         /// <param name="target_screen">The render target, if any.</param>
         /// <remarks>This implementation is identical to <see cref="Game1.Draw"/>, except for try..catch around menu draw code, private field references replaced by wrappers, and added events.</remarks>
-//        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "copied from game code as-is")]
-//        [SuppressMessage("ReSharper", "PossibleLossOfFraction", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "LocalVariableHidesMember", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "PossibleLossOfFraction", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "RedundantCast", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "RedundantExplicitNullableCreation", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "RedundantTypeArgumentsOfMethod", Justification = "copied from game code as-is")]
         [SuppressMessage("SMAPI.CommonErrors", "AvoidNetField", Justification = "copied from game code as-is")]
         [SuppressMessage("SMAPI.CommonErrors", "AvoidImplicitNetFieldCast", Justification = "copied from game code as-is")]
 #if SMAPI_FOR_MOBILE

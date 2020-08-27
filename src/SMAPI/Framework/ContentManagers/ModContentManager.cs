@@ -37,8 +37,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>The language code for language-agnostic mod assets.</summary>
         private readonly LanguageCode DefaultLanguage = Constants.DefaultLanguage;
 
+#if SMAPI_FOR_MOBILE
         /// <summary>Reflector used to access xnbs on Android.
         private readonly Reflector Reflector;
+#endif
 
 
         /*********
@@ -62,7 +64,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.GameContentManager = gameContentManager;
             this.JsonHelper = jsonHelper;
             this.ModName = modName;
+#if SMAPI_FOR_MOBILE
             this.Reflector = reflection;
+#endif
         }
 
         /// <summary>Load an asset that has been processed by the content pipeline.</summary>
@@ -137,8 +141,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
                                 this.FixCustomTilesheetPaths(map, relativeMapPath: assetName);
                             }
                         }
+#if SMAPI_FOR_MOBILE
                         return this.ModedLoad<T>(assetName, language);
-
+#else
+                        break;
+#endif
                     // unpacked data
                     case ".json":
                         {

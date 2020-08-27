@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-//using Galaxy.Api;
+#if !SMAPI_FOR_MOBILE
+using Galaxy.Api;
+#endif
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StardewModdingAPI.Events;
@@ -100,17 +102,19 @@ namespace StardewModdingAPI.Framework
         {
             switch (client)
             {
-                //case LidgrenClient _:
-                //    {
-                //        string address = this.Reflection.GetField<string>(client, "address").GetValue();
-                //        return new SLidgrenClient(address, this.OnClientProcessingMessage, this.OnClientSendingMessage);
-                //    }
+#if !SMAPI_FOR_MOBILE
+                case LidgrenClient _:
+                    {
+                        string address = this.Reflection.GetField<string>(client, "address").GetValue();
+                        return new SLidgrenClient(address, this.OnClientProcessingMessage, this.OnClientSendingMessage);
+                    }
 
-                //case GalaxyNetClient _:
-                //    {
-                //        GalaxyID address = this.Reflection.GetField<GalaxyID>(client, "lobbyId").GetValue();
-                //        return new SGalaxyNetClient(address, this.OnClientProcessingMessage, this.OnClientSendingMessage);
-                //    }
+                case GalaxyNetClient _:
+                    {
+                        GalaxyID address = this.Reflection.GetField<GalaxyID>(client, "lobbyId").GetValue();
+                        return new SGalaxyNetClient(address, this.OnClientProcessingMessage, this.OnClientSendingMessage);
+                    }
+#endif
 
                 default:
                     this.Monitor.Log($"Unknown multiplayer client type: {client.GetType().AssemblyQualifiedName}", LogLevel.Trace);
@@ -124,17 +128,19 @@ namespace StardewModdingAPI.Framework
         {
             switch (server)
             {
-                //case LidgrenServer _:
-                //    {
-                //        IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue();
-                //        return new SLidgrenServer(gameServer, this, this.OnServerProcessingMessage);
-                //    }
+#if !SMAPI_FOR_MOBILE
+                case LidgrenServer _:
+                    {
+                        IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue();
+                        return new SLidgrenServer(gameServer, this, this.OnServerProcessingMessage);
+                    }
 
-                //case GalaxyNetServer _:
-                //    {
-                //        IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue();
-                //        return new SGalaxyNetServer(gameServer, this, this.OnServerProcessingMessage);
-                //    }
+                case GalaxyNetServer _:
+                    {
+                        IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue();
+                        return new SGalaxyNetServer(gameServer, this, this.OnServerProcessingMessage);
+                    }
+#endif
 
                 default:
                     this.Monitor.Log($"Unknown multiplayer server type: {server.GetType().AssemblyQualifiedName}", LogLevel.Trace);
@@ -321,15 +327,17 @@ namespace StardewModdingAPI.Framework
         /// <summary>Remove players who are disconnecting.</summary>
         protected override void removeDisconnectedFarmers()
         {
-            //foreach (long playerID in this.disconnectingFarmers)
-            //{
-            //    if (this.Peers.TryGetValue(playerID, out MultiplayerPeer peer))
-            //    {
-            //        this.Monitor.Log($"Player quit: {playerID}", LogLevel.Trace);
-            //        this.Peers.Remove(playerID);
-            //        this.EventManager.PeerDisconnected.Raise(new PeerDisconnectedEventArgs(peer));
-            //    }
-            //}
+#if !SMAPI_FOR_MOBILE
+            foreach (long playerID in this.disconnectingFarmers)
+            {
+                if (this.Peers.TryGetValue(playerID, out MultiplayerPeer peer))
+                {
+                    this.Monitor.Log($"Player quit: {playerID}", LogLevel.Trace);
+                    this.Peers.Remove(playerID);
+                    this.EventManager.PeerDisconnected.Raise(new PeerDisconnectedEventArgs(peer));
+                }
+            }
+#endif
 
             base.removeDisconnectedFarmers();
         }

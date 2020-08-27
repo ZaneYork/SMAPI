@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\define-constant.targets" />
   <PropertyGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
@@ -48,7 +47,7 @@
     <AssemblyName>StardewModdingAPI</AssemblyName>
     <RootNamespace>StardewModdingAPI</RootNamespace>
     <Description>The modding API for Stardew Valley.</Description>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net4.5</TargetFramework>
     <PlatformTarget>x86</PlatformTarget>
     <OutputType>Exe</OutputType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -225,5 +224,4 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" Condition="'$(BUILD_FOR_MOBILE)' != ''" />
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
   <Import Project="..\..\build\common.targets" />
-
 </Project>

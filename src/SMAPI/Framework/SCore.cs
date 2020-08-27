@@ -47,8 +47,8 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Utilities;
 using StardewValley;
-using StardewValley.Menus;
 #if SMAPI_FOR_MOBILE
+using StardewValley.Menus;
 using StardewValley.Mobile;
 #endif
 using SObject = StardewValley.Object;
@@ -111,7 +111,7 @@ namespace StardewModdingAPI.Framework
         private readonly ModRegistry ModRegistry = new ModRegistry();
 
         /// <summary>Manages SMAPI events for mods.</summary>
-        public readonly EventManager EventManager;
+        private readonly EventManager EventManager;
 
         /// <summary>Monitors the entire game state for changes.</summary>
         private WatcherCore Watchers;
@@ -212,11 +212,19 @@ namespace StardewModdingAPI.Framework
             this.LogManager.LogIntro(modsPath, this.Settings.GetCustomSettings());
 
             // validate platform
+#if SMAPI_FOR_WINDOWS
             if (Constants.Platform != Platform.Windows)
             {
                 this.Monitor.Log("Oops! You're running Windows, but this version of SMAPI is for Linux or Mac. Please reinstall SMAPI to fix this.", LogLevel.Error);
                 this.LogManager.PressAnyKeyToExit();
             }
+#else
+            if (Constants.Platform == Platform.Windows)
+            {
+                this.Monitor.Log($"Oops! You're running {Constants.Platform}, but this version of SMAPI is for Windows. Please reinstall SMAPI to fix this.", LogLevel.Error);
+                this.LogManager.PressAnyKeyToExit();
+            }
+#endif
         }
 
         /// <summary>Launch SMAPI.</summary>
@@ -334,7 +342,9 @@ namespace StardewModdingAPI.Framework
             }
             finally
             {
-                //this.Dispose();
+#if !SMAPI_FOR_MOBILE
+                this.Dispose();
+#endif
             }
         }
 
@@ -410,22 +420,22 @@ namespace StardewModdingAPI.Framework
                         this.Monitor.Log($"  Ignored loose files: {string.Join(", ", looseFiles.OrderBy(p => p, StringComparer.OrdinalIgnoreCase))}");
                 }
 
-                    // load manifests
-                    IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modDatabase).ToArray();
+                // load manifests
+                IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modDatabase).ToArray();
 
                 // filter out ignored mods
                 foreach (IModMetadata mod in mods.Where(p => p.IsIgnored))
                     this.Monitor.Log($"  Skipped {mod.GetRelativePathWithRoot()} (folder name starts with a dot).");
                 mods = mods.Where(p => !p.IsIgnored).ToArray();
 
-                    // load mods
-                    resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
-                    mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
-                    this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
+                // load mods
+                resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
+                mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
+                this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 
-                    // check for updates
-                    this.CheckForUpdatesAsync(mods);
-                }
+                // check for updates
+                this.CheckForUpdatesAsync(mods);
+            }
 
 #if !SMAPI_FOR_MOBILE
             // update window titles
@@ -848,9 +858,11 @@ namespace StardewModdingAPI.Framework
                     {
                         if (this.Monitor.IsVerbose)
                             this.Monitor.Log($"Context: menu changed from {state.ActiveMenu.Old?.GetType().FullName ?? "none"} to {state.ActiveMenu.New?.GetType().FullName ?? "none"}.");
+
+                        // raise menu events
+#if SMAPI_FOR_MOBILE
                         IClickableMenu was = state.ActiveMenu.Old;
                         IClickableMenu now = state.ActiveMenu.New;
-#if SMAPI_FOR_MOBILE
                         if (this.Monitor.IsVerbose)
                             this.Monitor.Log($"Context: menu changed from {state.ActiveMenu.Old?.GetType().FullName ?? "none"} to {state.ActiveMenu.New?.GetType().FullName ?? "none"}.", LogLevel.Trace);
 
@@ -882,9 +894,9 @@ namespace StardewModdingAPI.Framework
                                     shopMenu.onPurchase, shopMenu.onSell, shopMenu.storeContext);
                             }
                         }
-#else
-                        // raise menu events
                         events.MenuChanged.Raise(new MenuChangedEventArgs(was, now));
+#else
+                        events.MenuChanged.Raise(new MenuChangedEventArgs(state.ActiveMenu.Old, state.ActiveMenu.New));
 #endif
                     }
 
@@ -1247,12 +1259,12 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log("Checking for updates...");
 
                 // check SMAPI version
-#if DO_ANDROID_SMAPI_UPDATE_CHECK
+#if !SMAPI_FOR_MOBILE
                 ISemanticVersion updateFound = null;
                 try
                 {
                     // fetch update check
-                    ModEntryModel response = client.GetModInfo(new[] { new ModSearchEntryModel("MartyrPher.SMAPI-Android-Installer", Constants.ApiVersion, new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) }, apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform).Single().Value;
+                    ModEntryModel response = client.GetModInfo(new[] { new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) }, apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform).Single().Value;
                     if (response.SuggestedUpdate != null)
                         this.Monitor.Log($"You can update SMAPI to {response.SuggestedUpdate.Version}: {Constants.HomePageUrl}", LogLevel.Alert);
                     else
@@ -1338,8 +1350,6 @@ namespace StardewModdingAPI.Framework
                         {
                             this.Monitor.Newline();
                             this.Monitor.Log($"You can update {updates.Count} mod{(updates.Count != 1 ? "s" : "")}:", LogLevel.Alert);
-                            this.Monitor.Newline();
-                            this.Monitor.Log("WARNING: many mod updates are for Stardew Valley 1.4, which is not available on Android yet. Make sure to back up the previous mod version before attempting to install updates.", LogLevel.Alert);
                             foreach (var entry in updates)
                             {
                                 IModMetadata mod = entry.Item1;

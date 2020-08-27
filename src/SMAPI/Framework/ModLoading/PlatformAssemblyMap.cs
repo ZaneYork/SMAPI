@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+#if SMAPI_FOR_MOBILE
 using System.IO;
+#endif
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
@@ -52,7 +54,11 @@ namespace StardewModdingAPI.Framework.ModLoading
             // cache assembly metadata
             this.Targets = targetAssemblies;
             this.TargetReferences = this.Targets.ToDictionary(assembly => assembly, assembly => AssemblyNameReference.Parse(assembly.FullName));
+#if SMAPI_FOR_MOBILE
             this.TargetModules = this.Targets.ToDictionary(assembly => assembly, assembly => ModuleDefinition.ReadModule(Path.Combine(Constants.ExecutionPath, assembly.Modules.Single().FullyQualifiedName), new ReaderParameters { InMemory = true }));
+#else
+            this.TargetModules = this.Targets.ToDictionary(assembly => assembly, assembly => ModuleDefinition.ReadModule(assembly.Modules.Single().FullyQualifiedName, new ReaderParameters { InMemory = true }));
+#endif
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>

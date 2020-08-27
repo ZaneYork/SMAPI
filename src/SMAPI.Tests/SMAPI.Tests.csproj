@@ -1,26 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="..\..\build\define-constant.targets" />
   <PropertyGroup>
     <AssemblyName>SMAPI.Tests</AssemblyName>
     <RootNamespace>SMAPI.Tests</RootNamespace>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net4.5</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
     <ProjectReference Include="..\SMAPI.Toolkit.CoreInterfaces\SMAPI.Toolkit.CoreInterfaces.csproj" />
     <ProjectReference Include="..\SMAPI.Toolkit\SMAPI.Toolkit.csproj" />
+    <ProjectReference Include="..\SMAPI\SMAPI.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
     <PackageReference Include="Moq" Version="4.14.5" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NUnit" Version="3.12.0" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
     <Reference Include="$(GameExecutableName)">
       <HintPath>$(GamePath)\$(GameExecutableName).exe</HintPath>
       <Private>True</Private>

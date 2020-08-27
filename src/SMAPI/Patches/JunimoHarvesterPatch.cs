@@ -1,3 +1,4 @@
+#if SMAPI_FOR_MOBILE
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -104,3 +105,4 @@ namespace StardewModdingAPI.Patches
         }
     }
 }
+#endif

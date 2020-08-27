@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\define-constant.targets" />
   <PropertyGroup>
     <AssemblyName>SaveBackup</AssemblyName>
     <RootNamespace>StardewModdingAPI.Mods.SaveBackup</RootNamespace>
@@ -7,16 +8,25 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
+    <ProjectReference Include="..\SMAPI\SMAPI.csproj" Private="False" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
+    <Reference Include="$(GameExecutableName)" HintPath="$(GamePath)\$(GameExecutableName).exe" Private="False" />
+  </ItemGroup>
+
   <ItemGroup>
+    <None Update="manifest.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
     <ProjectReference Include="..\SMAPI.Toolkit.CoreInterfaces\SMAPI.Toolkit.CoreInterfaces.csproj" />
     <ProjectReference Include="..\SMAPI.Toolkit\SMAPI.Toolkit.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="$(GameExecutableName)">
-      <HintPath>$(GamePath)\$(GameExecutableName).exe</HintPath>
-      <Private>False</Private>
-    </Reference>
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
     <Reference Include="StardewModdingAPI">
       <HintPath>..\SMAPI\bin\Release\StardewModdingAPI.dll</HintPath>
     </Reference>
@@ -25,10 +35,6 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="manifest.json" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
-
+  <Import Project="..\..\build\common.targets" />
 </Project>

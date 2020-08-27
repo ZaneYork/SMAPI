@@ -113,6 +113,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 // detect broken assembly reference
                 foreach (AssemblyNameReference reference in assembly.Definition.MainModule.AssemblyReferences)
                 {
+#if SMAPI_FOR_MOBILE
                     try {
                         if (!this.IsAssemblyLoaded(reference))
                         {
@@ -138,6 +139,16 @@ namespace StardewModdingAPI.Framework.ModLoading
                             this.Monitor.LogOnce(loggedMessages, $"      Probably broken code in {assembly.File.Name}: reference to missing assembly '{reference.FullName}'.");
                         }
                     }
+#else
+                    if (!reference.Name.StartsWith("System.") && !this.IsAssemblyLoaded(reference))
+                    {
+                        this.Monitor.LogOnce(loggedMessages, $"      Broken code in {assembly.File.Name}: reference to missing assembly '{reference.FullName}'.");
+                        if (!assumeCompatible)
+                            throw new IncompatibleInstructionException($"Found a reference to missing assembly '{reference.FullName}' while loading assembly {assembly.File.Name}.");
+                        mod.SetWarning(ModWarning.BrokenCodeLoaded);
+                        break;
+                    }
+#endif
                 }
 
                 // load assembly
