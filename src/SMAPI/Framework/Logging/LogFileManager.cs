@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Threading;
 
 namespace StardewModdingAPI.Framework.Logging
 {
@@ -11,11 +10,8 @@ namespace StardewModdingAPI.Framework.Logging
         ** Fields
         *********/
         /// <summary>The underlying stream writer.</summary>
-        private StreamWriter Stream;
+        private readonly StreamWriter Stream;
 
-        private readonly int MaxLogSize;
-
-        private int logSize;
 
         /*********
         ** Accessors
@@ -29,7 +25,7 @@ namespace StardewModdingAPI.Framework.Logging
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="path">The log file to write.</param>
-        public LogFileManager(string path, int maxLogSize = int.MaxValue)
+        public LogFileManager(string path)
         {
             this.Path = path;
 
@@ -41,7 +37,6 @@ namespace StardewModdingAPI.Framework.Logging
 
             // open log file stream
             this.Stream = new StreamWriter(path, append: false) { AutoFlush = true };
-            this.MaxLogSize = maxLogSize;
         }
 
         /// <summary>Write a message to the log.</summary>
@@ -51,22 +46,6 @@ namespace StardewModdingAPI.Framework.Logging
             // always use Windows-style line endings for convenience
             // (Linux/Mac editors are fine with them, Windows editors often require them)
             this.Stream.Write(message + "\r\n");
-            Interlocked.Add(ref this.logSize, message.Length + 2);
-            if(this.logSize > this.MaxLogSize / 2)
-            {
-                lock (this)
-                {
-                    this.Stream.Dispose();
-                    string oldPath = this.Path + ".old";
-                    if (File.Exists(oldPath))
-                    {
-                        File.Delete(oldPath);
-                    }
-                    File.Move(this.Path, this.Path + ".old");
-                    this.Stream = new StreamWriter(this.Path, append: false) { AutoFlush = true };
-                    this.logSize = 0;
-                }
-            }
         }
 
         /// <summary>Release all resources.</summary>
