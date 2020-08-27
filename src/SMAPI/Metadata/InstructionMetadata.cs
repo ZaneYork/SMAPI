@@ -86,15 +86,12 @@ namespace StardewModdingAPI.Metadata
 
             //Method Rewrites
             yield return new MethodParentRewriter(typeof(Game1), typeof(Game1Methods));
-            yield return new MethodParentRewriter(typeof(Farmer), typeof(FarmerMethods));
             yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods));
-            yield return new MethodParentRewriter(typeof(FarmerRenderer), typeof(FarmerRendererMethods));
             yield return new MethodParentRewriter(typeof(SpriteText), typeof(SpriteTextMethods));
             yield return new MethodParentRewriter(typeof(NPC), typeof(NPCMethods));
             yield return new MethodParentRewriter(typeof(Utility), typeof(UtilityMethods));
             yield return new MethodParentRewriter(typeof(DayTimeMoneyBox), typeof(DayTimeMoneyBoxMethods));
             yield return new MethodParentRewriter(typeof(SaveGame), typeof(SaveGameMethods));
-            yield return new MethodParentRewriter(typeof(GameLocation), typeof(GameLocationMethods));
 
             //Constructor Rewrites
             yield return new MethodParentRewriter(typeof(HUDMessage), typeof(HUDMessageMethods));

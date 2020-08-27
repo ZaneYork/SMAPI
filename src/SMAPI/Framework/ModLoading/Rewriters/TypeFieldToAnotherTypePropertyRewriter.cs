@@ -38,9 +38,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
         /// <param name="instruction">The instruction to handle.</param>
-        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
         /// <returns>Returns whether the instruction was changed.</returns>
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             if (!this.IsMatch(instruction))
                 return false;
@@ -50,14 +49,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 if (this.InstancePropertyName == null)
                 {
                     MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetGetMethod());
-                    replaceWith.Invoke(cil.Create(OpCodes.Call, methodRef));
+                    cil.Replace(instruction, cil.Create(OpCodes.Call, methodRef));
                 }
                 else
                 {
                     MethodReference instanceMethodRef = module.ImportReference(this.ToType.GetProperty(this.InstancePropertyName).GetGetMethod());
                     MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetGetMethod());
                     cil.InsertAfter(instruction, cil.Create(OpCodes.Call, methodRef));
-                    replaceWith.Invoke(cil.Create(OpCodes.Call, instanceMethodRef));
+                    cil.Replace(instruction, cil.Create(OpCodes.Call, instanceMethodRef));
                 }
             }
             else if (instruction.OpCode == OpCodes.Stfld || instruction.OpCode == OpCodes.Stsfld)
@@ -65,14 +64,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 if (this.InstancePropertyName == null)
                 {
                     MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetSetMethod());
-                    replaceWith.Invoke(cil.Create(OpCodes.Call, methodRef));
+                    cil.Replace(instruction, cil.Create(OpCodes.Call, methodRef));
                 }
                 else
                 {
                     MethodReference instanceMethodRef = module.ImportReference(this.ToType.GetProperty(this.InstancePropertyName).GetGetMethod());
                     MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetSetMethod());
                     cil.InsertAfter(instruction, cil.Create(OpCodes.Call, methodRef));
-                    replaceWith.Invoke(cil.Create(OpCodes.Call, instanceMethodRef));
+                    cil.Replace(instruction, cil.Create(OpCodes.Call, instanceMethodRef));
                 }
             }
             return this.MarkRewritten();

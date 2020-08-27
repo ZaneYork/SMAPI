@@ -39,33 +39,11 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             WeatherDebrisManager.Instance.UpdateDebrisWeatherForMovement();
         }
 
-        [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
-        public static new string parseText(string text, SpriteFont whichFont, int width)
-        {
-            return parseText(text, whichFont, width, 1);
-        }
-
-        [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
-        public static new void warpFarmer(LocationRequest locationRequest, int tileX, int tileY, int facingDirectionAfterWarp)
-        {
-            warpFarmer(locationRequest, tileX, tileY, facingDirectionAfterWarp, true, false);
-        }
 
         [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
         public static new void warpFarmer(string locationName, int tileX, int tileY, bool flip)
         {
             warpFarmer(locationName, tileX, tileY, flip ? ((player.FacingDirection + 2) % 4) : player.FacingDirection);
-        }
-
-        [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
-        public static new void warpFarmer(string locationName, int tileX, int tileY, int facingDirectionAfterWarp)
-        {
-            warpFarmer(locationName, tileX, tileY, facingDirectionAfterWarp, false, true, false);
-        }
-
-        public static void panScreen(int x, int y)
-        {
-            panScreen(x, y, 0);
         }
 
         public static void removeSquareDebrisFromTile(int tileX, int tileY)
@@ -78,6 +56,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
                 return true;
             });
         }
+
 
         public static void randomizeDebrisWeatherPositions(List<WeatherDebris> debris)
         {
@@ -92,14 +71,10 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
                 }
             }
         }
+
         public static new void createItemDebris(Item item, Vector2 origin, int direction, GameLocation location = null, int groundLevel = -1)
         {
             Game1.createItemDebris(item, origin, direction, location, groundLevel);
-        }
-
-        public static void changeMusicTrack(string newTrackName)
-        {
-            Game1.changeMusicTrack(newTrackName, false, MusicContext.Default);
         }
     }
 }

@@ -17,24 +17,6 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
         }
 
         [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
-        public static new void drawTextureBox(SpriteBatch b, Texture2D texture, Microsoft.Xna.Framework.Rectangle sourceRect, int x, int y, int width, int height, Color color)
-        {
-            drawTextureBox(b, texture, sourceRect, x, y, width, height, color, 1, true, false);
-        }
-
-        [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
-        public static new void drawTextureBox(SpriteBatch b, Texture2D texture, Microsoft.Xna.Framework.Rectangle sourceRect, int x, int y, int width, int height, Color color, float scale)
-        {
-            drawTextureBox(b, texture, sourceRect, x, y, width, height, color, scale, true, false);
-        }
-
-        [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
-        public static new void drawTextureBox(SpriteBatch b, Texture2D texture, Microsoft.Xna.Framework.Rectangle sourceRect, int x, int y, int width, int height, Color color, float scale, bool drawShadow)
-        {
-            drawTextureBox(b, texture, sourceRect, x, y, width, height, color, scale, drawShadow, false);
-        }
-
-        [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
         public new void drawHorizontalPartition(SpriteBatch b, int yPosition, bool small = false, int red = -1, int green = -1, int blue = -1)
         {
             base.drawMobileHorizontalPartition(b, 0, yPosition, 64, small);

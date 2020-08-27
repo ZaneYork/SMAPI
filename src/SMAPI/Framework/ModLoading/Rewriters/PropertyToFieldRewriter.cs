@@ -42,9 +42,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="module"></param>
         /// <param name="cil"></param>
         /// <param name="instruction"></param>
-        /// <param name="replaceWith">Replaces the CIL instruction with a new one.</param>
         /// <returns>Returns whether the instruction was changed.</returns>
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             if (!this.IsMatch(instruction))
                 return false;
@@ -52,11 +51,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             TypeReference typeRef = module.ImportReference(this.Type);
             FieldReference fieldRef = module.ImportReference(new FieldReference(this.FieldName, methodRef.ReturnType, typeRef));
             if (methodRef.Name.StartsWith("get_")) {
-                replaceWith.Invoke(cil.Create(methodRef.HasThis ? OpCodes.Ldfld : OpCodes.Ldsfld, fieldRef));
+                cil.Replace(instruction, cil.Create(methodRef.HasThis ? OpCodes.Ldfld : OpCodes.Ldsfld, fieldRef));
             }
             else
             {
-                replaceWith.Invoke(cil.Create(methodRef.HasThis ? OpCodes.Stfld : OpCodes.Stsfld, fieldRef));
+                cil.Replace(instruction, cil.Create(methodRef.HasThis ? OpCodes.Stfld : OpCodes.Stsfld, fieldRef));
             }
             return this.MarkRewritten();
         }

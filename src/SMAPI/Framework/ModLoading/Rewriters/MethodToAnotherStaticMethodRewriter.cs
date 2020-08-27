@@ -43,9 +43,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="module">The assembly module containing the instruction.</param>
         /// <param name="cil">The CIL processor.</param>
         /// <param name="instruction">The instruction to handle.</param>
-        /// <param name="replaceWith">Replaces the type reference with a new one.</param>
         /// <returns>Returns whether the type was changed.</returns>
-        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction, Action<Instruction> replaceWith)
+        public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             if (!this.IsMatch(instruction))
                 return false;
