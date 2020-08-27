@@ -51,11 +51,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             TypeReference typeRef = module.ImportReference(this.Type);
             FieldReference fieldRef = module.ImportReference(new FieldReference(this.FieldName, methodRef.ReturnType, typeRef));
             if (methodRef.Name.StartsWith("get_")) {
-                cil.Replace(instruction, cil.Create(methodRef.HasThis ? OpCodes.Ldfld : OpCodes.Ldsfld, fieldRef));
+                instruction.OpCode = methodRef.HasThis ? OpCodes.Ldfld : OpCodes.Ldsfld;
+                instruction.Operand = fieldRef;
             }
             else
             {
-                cil.Replace(instruction, cil.Create(methodRef.HasThis ? OpCodes.Stfld : OpCodes.Stsfld, fieldRef));
+                instruction.OpCode = methodRef.HasThis ? OpCodes.Stfld : OpCodes.Stsfld;
+                instruction.Operand = fieldRef;
             }
             return this.MarkRewritten();
         }

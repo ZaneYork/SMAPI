@@ -55,7 +55,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 MethodReference property = module.ImportReference(this.ToType.GetProperty(this.TargetPropertyName).GetGetMethod());
 
                 cil.InsertAfter(instruction, cil.Create(OpCodes.Callvirt, property));
-                cil.Replace(instruction, cil.Create(OpCodes.Call, method));
+                instruction.OpCode = OpCodes.Call;
+                instruction.Operand = method;
             }
             catch (Exception e)
             {

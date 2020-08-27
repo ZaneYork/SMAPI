@@ -49,14 +49,16 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 if (this.InstancePropertyName == null)
                 {
                     MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetGetMethod());
-                    cil.Replace(instruction, cil.Create(OpCodes.Call, methodRef));
+                    instruction.OpCode = OpCodes.Call;
+                    instruction.Operand = methodRef;
                 }
                 else
                 {
                     MethodReference instanceMethodRef = module.ImportReference(this.ToType.GetProperty(this.InstancePropertyName).GetGetMethod());
                     MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetGetMethod());
                     cil.InsertAfter(instruction, cil.Create(OpCodes.Call, methodRef));
-                    cil.Replace(instruction, cil.Create(OpCodes.Call, instanceMethodRef));
+                    instruction.OpCode = OpCodes.Call;
+                    instruction.Operand = instanceMethodRef;
                 }
             }
             else if (instruction.OpCode == OpCodes.Stfld || instruction.OpCode == OpCodes.Stsfld)
@@ -64,14 +66,16 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 if (this.InstancePropertyName == null)
                 {
                     MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetSetMethod());
-                    cil.Replace(instruction, cil.Create(OpCodes.Call, methodRef));
+                    instruction.OpCode = OpCodes.Call;
+                    instruction.Operand = methodRef;
                 }
                 else
                 {
                     MethodReference instanceMethodRef = module.ImportReference(this.ToType.GetProperty(this.InstancePropertyName).GetGetMethod());
                     MethodReference methodRef = module.ImportReference(this.ToType.GetProperty(this.PropertyName).GetSetMethod());
                     cil.InsertAfter(instruction, cil.Create(OpCodes.Call, methodRef));
-                    cil.Replace(instruction, cil.Create(OpCodes.Call, instanceMethodRef));
+                    instruction.OpCode = OpCodes.Call;
+                    instruction.Operand = instanceMethodRef;
                 }
             }
             return this.MarkRewritten();

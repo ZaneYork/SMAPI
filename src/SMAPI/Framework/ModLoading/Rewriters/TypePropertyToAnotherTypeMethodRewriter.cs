@@ -52,13 +52,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             if (this.GetterName != null && methodRef.Name == "get_" + this.PropertyName)
             {
                 methodRef = module.ImportReference(this.ToType.GetMethod(this.GetterName));
-                cil.Replace(instruction, cil.Create(OpCodes.Callvirt, methodRef));
+                instruction.OpCode = OpCodes.Callvirt;
+                instruction.Operand = methodRef;
                 return true;
             }
             if(this.SetterName != null && methodRef.Name == "set_" + this.PropertyName)
             {
                 methodRef = module.ImportReference(this.ToType.GetMethod(this.SetterName));
-                cil.Replace(instruction, cil.Create(OpCodes.Callvirt, methodRef));
+                instruction.OpCode = OpCodes.Callvirt;
+                instruction.Operand = methodRef;
                 return true;
             }
             return this.MarkRewritten();
