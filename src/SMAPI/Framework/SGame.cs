@@ -134,9 +134,15 @@ namespace StardewModdingAPI.Framework
             Game1.hooks = modHooks;
             Game1.locations = new ObservableCollection<GameLocation>();
 
+            // init SMAPI
+            this.Monitor = monitor;
+            this.Events = eventManager;
+            this.Reflection = reflection;
+            this.ExitGameImmediately = exitGameImmediately;
+
 #if SMAPI_FOR_MOBILE
-            // init observables
             SGame.instance = this;
+            // init reflection fields
             this.DrawActiveClickableMenuField = this.Reflection.GetField<bool>(this, "_drawActiveClickableMenu");
             this.SpriteBatchBeginNextIDField = this.Reflection.GetField<string>(typeof(Game1), "_spriteBatchBeginNextID");
             this.DrawHudField = this.Reflection.GetField<bool>(this, "_drawHUD");
@@ -163,11 +169,6 @@ namespace StardewModdingAPI.Framework
             this.DrawTutorialUIMethod = this.Reflection.GetMethod(this, "DrawTutorialUI", new Type[] { });
             this.DrawGreenPlacementBoundsMethod = this.Reflection.GetMethod(this, "DrawGreenPlacementBounds", new Type[] { });
 #endif
-            // init SMAPI
-            this.Monitor = monitor;
-            this.Events = eventManager;
-            this.Reflection = reflection;
-            this.ExitGameImmediately = exitGameImmediately;
         }
 
         /// <summary>Get the observable location list.</summary>

@@ -542,9 +542,47 @@ namespace StardewModdingAPI.Framework
                 bool saveParsed = false;
                 if (Game1.currentLoader != null)
                 {
+#if !SMAPI_FOR_MOBILE
                     this.Monitor.Log("Game loader synchronizing...");
+#endif
                     while (Game1.currentLoader?.MoveNext() == true)
                     {
+#if SMAPI_FOR_MOBILE
+                        // raise load stage changed
+                        switch (Game1.currentLoader.Current)
+                        {
+                            case 1:
+                            case 24:
+                                return;
+
+                            case 20:
+                                if (!saveParsed && SaveGame.loaded != null)
+                                {
+                                    this.Monitor.Log("SaveParsed", LogLevel.Debug);
+                                    saveParsed = true;
+                                    this.OnLoadStageChanged(LoadStage.SaveParsed);
+                                }
+                                return;
+
+                            case 36:
+                                this.Monitor.Log("SaveLoadedBasicInfo", LogLevel.Debug);
+                                this.OnLoadStageChanged(LoadStage.SaveLoadedBasicInfo);
+                                break;
+
+                            case 50:
+                                this.Monitor.Log("SaveLoadedLocations", LogLevel.Debug);
+                                this.OnLoadStageChanged(LoadStage.SaveLoadedLocations);
+                                break;
+
+                            default:
+                                if (Game1.gameMode == Game1.playingGameMode)
+                                {
+                                    this.Monitor.Log("Preloaded", LogLevel.Debug);
+                                    this.OnLoadStageChanged(LoadStage.Preloaded);
+                                }
+                                break;
+                        }
+#else
                         // raise load stage changed
                         switch (Game1.currentLoader.Current)
                         {
@@ -566,6 +604,7 @@ namespace StardewModdingAPI.Framework
                                     this.OnLoadStageChanged(LoadStage.Preloaded);
                                 break;
                         }
+#endif
                     }
 
                     Game1.currentLoader = null;

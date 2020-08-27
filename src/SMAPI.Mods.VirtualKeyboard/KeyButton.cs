@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
             helper.Events.Input.ButtonPressed += this.EventInputButtonPressed;
 
             object score = this.GetSCore(this.helper);
-            object eventManager = score.GetType().GetField("EventManager", BindingFlags.Public | BindingFlags.Instance).GetValue(score);
+            object eventManager = score.GetType().GetField("EventManager", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).GetValue(score);
         }
 
         private object GetSCore(IModHelper helper)
@@ -138,8 +138,15 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
         private void SendCommand(string command)
         {
             object score = this.GetSCore(this.helper);
-            object sgame = score.GetType().GetField("GameInstance", BindingFlags.Public | BindingFlags.Instance)?.GetValue(score);
-            ConcurrentQueue<string> commandQueue = sgame.GetType().GetProperty("CommandQueue", BindingFlags.Public | BindingFlags.Instance)?.GetValue(sgame) as ConcurrentQueue<string>;
+            ConcurrentQueue<string> commandQueue = score.GetType().GetProperty("CommandQueue", BindingFlags.Public | BindingFlags.Instance)?.GetValue(score) as ConcurrentQueue<string>;
+            if (commandQueue != null)
+            {
+                commandQueue.Enqueue(command);
+                return;
+            }
+
+            object sgame = score.GetType().GetField("Game", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(score);
+            commandQueue = sgame.GetType().GetProperty("CommandQueue", BindingFlags.Public | BindingFlags.Instance)?.GetValue(sgame) as ConcurrentQueue<string>;
             commandQueue?.Enqueue(command);
         }
 

@@ -161,7 +161,9 @@ namespace StardewModdingAPI.Framework.Logging
         public void PressAnyKeyToExit()
         {
             this.Monitor.Log("Game has ended. Press any key to exit.", LogLevel.Info);
+#if !SMAPI_FOR_MOBILE
             this.PressAnyKeyToExit(showMessage: false);
+#endif
         }
 
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>
@@ -171,8 +173,10 @@ namespace StardewModdingAPI.Framework.Logging
             if (showMessage)
                 this.Monitor.Log("Game has ended. Press any key to exit.");
             Thread.Sleep(100);
+#if !SMAPI_FOR_MOBILE
             Console.ReadKey();
             Environment.Exit(0);
+#endif
         }
 
         /****
