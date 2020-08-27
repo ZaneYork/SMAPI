@@ -6,7 +6,7 @@ using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
-    /// <summary>Automatically fix references to fields that have been replaced by a property.</summary>
+    /// <summary>Automatically fix references to fields that have been replaced by a property or const field.</summary>
     internal class HeuristicFieldRewriter : BaseInstructionHandler
     {
         /*********
@@ -36,23 +36,16 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return false;
 
             // skip if not broken
-            if (fieldRef.Resolve() != null)
+            FieldDefinition fieldDefinition = fieldRef.Resolve();
+            if (fieldDefinition != null && !fieldDefinition.HasConstant)
                 return false;
 
-            // get equivalent property
-            PropertyDefinition property = fieldRef.DeclaringType.Resolve().Properties.FirstOrDefault(p => p.Name == fieldRef.Name);
-            MethodDefinition method = instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld
-                ? property?.GetMethod
-                : property?.SetMethod;
-            if (method == null)
-                return false;
-
-            // rewrite field to property
-            instruction.OpCode = OpCodes.Call;
-            instruction.Operand = module.ImportReference(method);
-
-            this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} (field => property)");
-            return this.MarkRewritten();
+            // rewrite if possible
+            TypeDefinition declaringType = fieldRef.DeclaringType.Resolve();
+            bool isRead = instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld;
+            return
+                this.TryRewriteToProperty(module, instruction, fieldRef, declaringType, isRead)
+                || this.TryRewriteToConstField(instruction, fieldDefinition);
         }
 
 
@@ -64,6 +57,50 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         private bool ShouldValidate(TypeReference type)
         {
             return type != null && this.RewriteReferencesToAssemblies.Contains(type.Scope.Name);
+        }
+
+        /// <summary>Try rewriting the field into a matching property.</summary>
+        /// <param name="module">The assembly module containing the instruction.</param>
+        /// <param name="instruction">The CIL instruction to rewrite.</param>
+        /// <param name="fieldRef">The field reference.</param>
+        /// <param name="declaringType">The type on which the field was defined.</param>
+        /// <param name="isRead">Whether the field is being read; else it's being written to.</param>
+        private bool TryRewriteToProperty(ModuleDefinition module, Instruction instruction, FieldReference fieldRef, TypeDefinition declaringType, bool isRead)
+        {
+            // get equivalent property
+            PropertyDefinition property = declaringType.Properties.FirstOrDefault(p => p.Name == fieldRef.Name);
+            MethodDefinition method = isRead ? property?.GetMethod : property?.SetMethod;
+            if (method == null)
+                return false;
+
+            // rewrite field to property
+            instruction.OpCode = OpCodes.Call;
+            instruction.Operand = module.ImportReference(method);
+
+            this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} (field => property)");
+            return this.MarkRewritten();
+        }
+
+        /// <summary>Try rewriting the field into a matching const field.</summary>
+        /// <param name="instruction">The CIL instruction to rewrite.</param>
+        /// <param name="field">The field definition.</param>
+        private bool TryRewriteToConstField(Instruction instruction, FieldDefinition field)
+        {
+            // must have been a static field read, and the new field must be const
+            if (instruction.OpCode != OpCodes.Ldsfld || field?.HasConstant != true)
+                return false;
+
+            // get opcode for value type
+            Instruction loadInstruction = RewriteHelper.GetLoadValueInstruction(field.Constant);
+            if (loadInstruction == null)
+                return false;
+
+            // rewrite to constant
+            instruction.OpCode = loadInstruction.OpCode;
+            instruction.Operand = loadInstruction.Operand;
+
+            this.Phrases.Add($"{field.DeclaringType.Name}.{field.Name} (field => const)");
+            return this.MarkRewritten();
         }
     }
 }

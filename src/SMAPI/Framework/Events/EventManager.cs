@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Framework.Events
     internal class EventManager
     {
         /*********
-        ** Events (new)
+        ** Events
         *********/
         /****
         ** Display

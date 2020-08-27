@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
@@ -35,8 +34,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null && this.ShouldValidate(fieldRef.DeclaringType))
             {
-                FieldDefinition target = fieldRef.DeclaringType.Resolve()?.Fields.FirstOrDefault(p => p.Name == fieldRef.Name);
-                if (target == null)
+                FieldDefinition target = fieldRef.Resolve();
+                if (target == null || target.HasConstant)
                 {
                     this.MarkFlag(InstructionHandleResult.NotCompatible, $"reference to {fieldRef.DeclaringType.FullName}.{fieldRef.Name} (no such field)");
                     return false;

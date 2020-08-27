@@ -64,7 +64,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
             // get instructions to inject parameter values
             var loadInstructions = method.Parameters.Skip(methodRef.Parameters.Count)
-                .Select(p => this.GetLoadValueInstruction(p.Constant))
+                .Select(p => RewriteHelper.GetLoadValueInstruction(p.Constant))
                 .ToArray();
             if (loadInstructions.Any(p => p == null))
                 return false; // SMAPI needs to load the value onto the stack before the method call, but the optional parameter type wasn't recognized
@@ -104,24 +104,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             }
 
             return true;
-        }
-
-        /// <summary>Get the CIL instruction to load a value onto the stack.</summary>
-        /// <param name="rawValue">The constant value to inject.</param>
-        /// <returns>Returns the instruction, or <c>null</c> if the value type isn't supported.</returns>
-        private Instruction GetLoadValueInstruction(object rawValue)
-        {
-            return rawValue switch
-            {
-                null => Instruction.Create(OpCodes.Ldnull),
-                bool value => Instruction.Create(value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0),
-                int value => Instruction.Create(OpCodes.Ldc_I4, value), // int32
-                long value => Instruction.Create(OpCodes.Ldc_I8, value), // int64
-                float value => Instruction.Create(OpCodes.Ldc_R4, value), // float32
-                double value => Instruction.Create(OpCodes.Ldc_R8, value), // float64
-                string value => Instruction.Create(OpCodes.Ldstr, value),
-                _ => null
-            };
         }
     }
 }

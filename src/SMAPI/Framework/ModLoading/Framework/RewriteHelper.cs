@@ -67,6 +67,24 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 : null;
         }
 
+        /// <summary>Get the CIL instruction to load a value onto the stack.</summary>
+        /// <param name="rawValue">The constant value to inject.</param>
+        /// <returns>Returns the instruction, or <c>null</c> if the value type isn't supported.</returns>
+        public static Instruction GetLoadValueInstruction(object rawValue)
+        {
+            return rawValue switch
+            {
+                null => Instruction.Create(OpCodes.Ldnull),
+                bool value => Instruction.Create(value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0),
+                int value => Instruction.Create(OpCodes.Ldc_I4, value), // int32
+                long value => Instruction.Create(OpCodes.Ldc_I8, value), // int64
+                float value => Instruction.Create(OpCodes.Ldc_R4, value), // float32
+                double value => Instruction.Create(OpCodes.Ldc_R8, value), // float64
+                string value => Instruction.Create(OpCodes.Ldstr, value),
+                _ => null
+            };
+        }
+
         /// <summary>Get whether a type matches a type reference.</summary>
         /// <param name="type">The defined type.</param>
         /// <param name="reference">The type reference.</param>

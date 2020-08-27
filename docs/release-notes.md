@@ -15,6 +15,7 @@
   * Fixed broken URL in update alerts for unofficial versions.
   * Fixed rare error when a mod adds/removes event handlers asynchronously.
   * Fixed rare issue where the console showed incorrect colors when mods wrote to it asynchronously.
+  * Fixed SMAPI not always detecting broken field references in mod code.
   * Removed the experimental `RewriteInParallel` option added in SMAPI 3.6 (it was already disabled by default). Unfortunately this caused intermittent and unpredictable errors when enabled.
 
 * For modders:
@@ -25,12 +26,12 @@
 
 * For SMAPI developers:
   * The web API now returns an update alert in two new cases: any newer unofficial update (previously only shown if the mod was incompatible), and a newer prerelease version if the installed non-prerelease version is broken (previously only shown if the installed version was prerelease).
-  * Internal refactoring to simplify game updates:
-    * Reorganised SMAPI core to reduce coupling to `Game1` and make it easier to navigate.
-    * Added rewriter for any method broken due to new optional parameters.
-    * Added rewriter for any field which was replaced by a property.
-    * `FieldReplaceRewriter` now supports mapping to a different target type.
-  * Internal refactoring to simplify future game updates.
+  * Reorganised SMAPI core to reduce coupling to `Game1`, make it easier to navigate, and simplify future game updates.
+  * SMAPI now automatically fixes code broken by these changes in game code, so manual rewriters are no longer needed:
+    * reference to a method with new optional parameters;
+    * reference to a field replaced by a property;
+    * reference to a field replaced by a `const` field.
+  * `FieldReplaceRewriter` now supports mapping to a different target type.
 
 ## 3.6.2
 Released 02 August 2020 for Stardew Valley 1.4.1 or later.

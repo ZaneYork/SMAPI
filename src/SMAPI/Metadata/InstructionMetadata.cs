@@ -106,8 +106,6 @@ namespace StardewModdingAPI.Metadata
             yield return new FieldReplaceRewriter(typeof(ItemGrabMenu), "context", "specialObject");
 
 #endif
-            // rewrite for Stardew Valley 1.3
-            yield return new StaticFieldToConstantRewriter<int>(typeof(Game1), "tileSize", Game1.tileSize);
 
             // heuristic rewrites
             yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
