@@ -47,11 +47,7 @@ namespace StardewModdingAPI
 #endif
 
         /// <summary>The target game platform.</summary>
-#if SMAPI_FOR_MOBILE
         internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
-#else
-        internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
-#endif
 
         /// <summary>The game's assembly name.</summary>
         internal static string GameAssemblyName => EarlyConstants.Platform == GamePlatform.Windows ? "Stardew Valley" : "StardewValley";
