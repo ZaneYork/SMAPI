@@ -505,6 +505,10 @@ namespace StardewModdingAPI.Framework
 
             try
             {
+                /*********
+                ** Safe queued work
+                *********/
+                // print warnings/alerts
                 SCore.DeprecationManager.PrintQueued();
                 SCore.PerformanceMonitor.PrintQueuedAlerts();
 
@@ -895,19 +899,16 @@ namespace StardewModdingAPI.Framework
                     *********/
                     if (state.ActiveMenu.IsChanged)
                     {
-                        if (this.Monitor.IsVerbose)
-                            this.Monitor.Log($"Context: menu changed from {state.ActiveMenu.Old?.GetType().FullName ?? "none"} to {state.ActiveMenu.New?.GetType().FullName ?? "none"}.");
+                        var was = state.ActiveMenu.Old;
+                        var now = state.ActiveMenu.New;
 
-                        // raise menu events
-#if SMAPI_FOR_MOBILE
-                        IClickableMenu was = state.ActiveMenu.Old;
-                        IClickableMenu now = state.ActiveMenu.New;
                         if (this.Monitor.IsVerbose)
-                            this.Monitor.Log($"Context: menu changed from {state.ActiveMenu.Old?.GetType().FullName ?? "none"} to {state.ActiveMenu.New?.GetType().FullName ?? "none"}.", LogLevel.Trace);
+                            this.Monitor.Log($"Context: menu changed from {was?.GetType().FullName ?? "none"} to {now?.GetType().FullName ?? "none"}.");
 
                         // raise menu events
                         events.MenuChanged.Raise(new MenuChangedEventArgs(was, now));
 
+#if SMAPI_FOR_MOBILE
                         if (now is GameMenu gameMenu)
                         {
                             foreach (IClickableMenu menu in gameMenu.pages)
@@ -934,8 +935,6 @@ namespace StardewModdingAPI.Framework
                             }
                         }
                         events.MenuChanged.Raise(new MenuChangedEventArgs(was, now));
-#else
-                        events.MenuChanged.Raise(new MenuChangedEventArgs(state.ActiveMenu.Old, state.ActiveMenu.New));
 #endif
                     }
 
