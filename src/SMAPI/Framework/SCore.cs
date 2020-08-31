@@ -325,7 +325,6 @@ namespace StardewModdingAPI.Framework
             this.LogManager.HandleMarkerFiles();
             this.LogManager.LogSettingsHeader(this.Settings.DeveloperMode, this.Settings.CheckForUpdates);
 
-#if !SMAPI_FOR_MOBILE
             // set window titles
             this.SetWindowTitles(
                 game: $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}",
@@ -944,7 +943,6 @@ namespace StardewModdingAPI.Framework
                                     shopMenu.onPurchase, shopMenu.onSell, shopMenu.storeContext);
                             }
                         }
-                        events.MenuChanged.Raise(new MenuChangedEventArgs(was, now));
 #endif
                     }
 
