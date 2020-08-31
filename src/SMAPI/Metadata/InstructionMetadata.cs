@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 #if HARMONY_2
 using HarmonyLib;
@@ -54,31 +55,21 @@ namespace StardewModdingAPI.Metadata
 
 #if SMAPI_FOR_MOBILE
             // Redirect reference
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isRaining", "IsRainingProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isSnowing", "IsSnowingProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isDebrisWeather", "IsDebrisWeatherProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "rainDrops", "RainDropsProp");
-            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(GameLocation), typeof(DebrisManager), "debris", this.Monitor, "debrisNetCollection");
-            // yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(GameLocation), typeof(DebrisManager), "debris", "debrisNetCollection", "Instance");
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isRaining", nameof(Game1Methods.IsRainingProp));
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isSnowing", nameof(Game1Methods.IsSnowingProp));
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isDebrisWeather", nameof(Game1Methods.IsDebrisWeatherProp));
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "rainDrops", nameof(Game1Methods.RainDropsProp));
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(WeatherDebrisManager), "debrisWeather","weatherDebrisList", "Instance");
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "onScreenMenus", "onScreenMenus");
-
             yield return new PropertyToFieldRewriter(typeof(Game1), "toolSpriteSheet", "toolSpriteSheet");
+            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(GameLocation), typeof(DebrisManager), "debris", this.Monitor, "debrisNetCollection");
 
-            // Accessibility fix
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(GameMenu), typeof(GameMenuMethods), "hoverText", "HoverTextProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ShopMenu), typeof(ShopMenuMethods), "heldItem", "HeldItemProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ShopMenu), typeof(ShopMenuMethods), "hoveredItem", "HoveredItemProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ShopMenu), typeof(ShopMenuMethods), "hoverPrice", "HoverPriceProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ShopMenu), typeof(ShopMenuMethods), "hoverText", "HoverTextProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ShopMenu), typeof(ShopMenuMethods), "categoriesToSellHere", "CategoriesToSellHereProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ShopMenu), typeof(ShopMenuMethods), "itemPriceAndStock", "ItemPriceAndStockProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ShopMenu), typeof(ShopMenuMethods), "forSale", "ForSaleProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods), "trashCan", "TrashCanProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods), "fillStacksButton", "FillStacksButtonProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "allowReproductionButton", "AllowReproductionButtonProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "sellButton", "SellButtonProp");
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "moveHomeButton", "MoveHomeButtonProp");
+            // Menu fix
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods), "trashCan", nameof(MenuWithInventoryMethods.TrashCanProp));
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods), "fillStacksButton", nameof(ItemGrabMenuMethods.FillStacksButtonProp));
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "allowReproductionButton", nameof(AnimalQueryMenuMethods.AllowReproductionButtonProp));
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "sellButton", nameof(AnimalQueryMenuMethods.SellButtonProp));
+            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "moveHomeButton", nameof(AnimalQueryMenuMethods.MoveHomeButtonProp));
             // TextBox fix
             yield return new TypePropertyToAnotherTypeMethodRewriter(typeof(TextBox), typeof(TextBoxMethods), "Selected", null, "SelectedSetter");
 
@@ -92,10 +83,9 @@ namespace StardewModdingAPI.Metadata
             yield return new MethodParentRewriter(typeof(SpriteText), typeof(SpriteTextMethods));
             yield return new MethodParentRewriter(typeof(NPC), typeof(NPCMethods));
             yield return new MethodParentRewriter(typeof(Utility), typeof(UtilityMethods));
-            yield return new MethodParentRewriter(typeof(DayTimeMoneyBox), typeof(DayTimeMoneyBoxMethods));
-            yield return new MethodParentRewriter(typeof(SaveGame), typeof(SaveGameMethods));
 
             //Constructor Rewrites
+            yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));
             yield return new MethodParentRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods));
             yield return new MethodParentRewriter(typeof(WeatherDebris), typeof(WeatherDebrisMethods));
             yield return new MethodParentRewriter(typeof(Debris), typeof(DebrisMethods));
@@ -112,6 +102,7 @@ namespace StardewModdingAPI.Metadata
             // heuristic rewrites
             yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
             yield return new HeuristicMethodRewriter(this.ValidateReferencesToAssemblies);
+            yield return new HeuristicFieldAccessibilityRewriter(this.ValidateReferencesToAssemblies);
 
 #if HARMONY_2
             // rewrite for SMAPI 3.6 (Harmony 1.x => 2.0 update)
