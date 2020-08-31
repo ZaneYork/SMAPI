@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
+#if HARMONY_2
+using HarmonyLib;
+#else
 using Harmony;
+#endif
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
-using StardewModdingAPI.Framework.ModLoading.RewriteFacades;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
