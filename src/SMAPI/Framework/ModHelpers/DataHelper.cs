@@ -39,11 +39,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /****
         ** JSON file
         ****/
-        /// <summary>Read data from a JSON file in the mod's folder.</summary>
-        /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
-        /// <param name="path">The file path relative to the mod folder.</param>
-        /// <returns>Returns the deserialized model, or <c>null</c> if the file doesn't exist or is empty.</returns>
-        /// <exception cref="InvalidOperationException">The <paramref name="path"/> is not relative or contains directory climbing (../).</exception>
+        /// <inheritdoc />
         public TModel ReadJsonFile<TModel>(string path) where TModel : class
         {
             if (!PathUtilities.IsSafeRelativePath(path))
@@ -55,11 +51,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 : null;
         }
 
-        /// <summary>Save data to a JSON file in the mod's folder.</summary>
-        /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
-        /// <param name="path">The file path relative to the mod folder.</param>
-        /// <param name="data">The arbitrary data to save.</param>
-        /// <exception cref="InvalidOperationException">The <paramref name="path"/> is not relative or contains directory climbing (../).</exception>
+        /// <inheritdoc />
         public void WriteJsonFile<TModel>(string path, TModel data) where TModel : class
         {
             if (!PathUtilities.IsSafeRelativePath(path))
@@ -72,11 +64,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /****
         ** Save file
         ****/
-        /// <summary>Read arbitrary data stored in the current save slot. This is only possible if a save has been loaded.</summary>
-        /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
-        /// <param name="key">The unique key identifying the data.</param>
-        /// <returns>Returns the parsed data, or <c>null</c> if the entry doesn't exist or is empty.</returns>
-        /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet or isn't the main player.</exception>
+        /// <inheritdoc />
         public TModel ReadSaveData<TModel>(string key) where TModel : class
         {
             if (Context.LoadStage == LoadStage.None)
@@ -94,11 +82,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             return null;
         }
 
-        /// <summary>Save arbitrary data to the current save slot. This is only possible if a save has been loaded, and the data will be lost if the player exits without saving the current day.</summary>
-        /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
-        /// <param name="key">The unique key identifying the data.</param>
-        /// <param name="model">The arbitrary data to save.</param>
-        /// <exception cref="InvalidOperationException">The player hasn't loaded a save file yet or isn't the main player.</exception>
+        /// <inheritdoc />
         public void WriteSaveData<TModel>(string key, TModel model) where TModel : class
         {
             if (Context.LoadStage == LoadStage.None)
@@ -123,10 +107,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /****
         ** Global app data
         ****/
-        /// <summary>Read arbitrary data stored on the local computer, synchronised by GOG/Steam if applicable.</summary>
-        /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
-        /// <param name="key">The unique key identifying the data.</param>
-        /// <returns>Returns the parsed data, or <c>null</c> if the entry doesn't exist or is empty.</returns>
+        /// <inheritdoc />
         public TModel ReadGlobalData<TModel>(string key) where TModel : class
         {
             string path = this.GetGlobalDataPath(key);
@@ -135,10 +116,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 : null;
         }
 
-        /// <summary>Save arbitrary data to the local computer, synchronised by GOG/Steam if applicable.</summary>
-        /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
-        /// <param name="key">The unique key identifying the data.</param>
-        /// <param name="data">The arbitrary data to save.</param>
+        /// <inheritdoc />
         public void WriteGlobalData<TModel>(string key, TModel data) where TModel : class
         {
             string path = this.GetGlobalDataPath(key);

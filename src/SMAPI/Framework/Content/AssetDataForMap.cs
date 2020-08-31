@@ -24,10 +24,7 @@ namespace StardewModdingAPI.Framework.Content
         public AssetDataForMap(string locale, string assetName, Map data, Func<string, string> getNormalizedPath, Action<Map> onDataReplaced)
             : base(locale, assetName, data, getNormalizedPath, onDataReplaced) { }
 
-        /// <summary>Copy layers, tiles, and tilesheets from another map onto the asset.</summary>
-        /// <param name="source">The map from which to copy.</param>
-        /// <param name="sourceArea">The tile area within the source map to copy, or <c>null</c> for the entire source map size. This must be within the bounds of the <paramref name="source"/> map.</param>
-        /// <param name="targetArea">The tile area within the target map to overwrite, or <c>null</c> to patch the whole map. The original content within this area will be erased. This must be within the bounds of the existing map.</param>
+        /// <inheritdoc />
         /// <remarks>Derived from <see cref="StardewValley.GameLocation.ApplyMapOverride"/> with a few changes:
         /// - can be applied directly to the maps when loading, before the location is created;
         /// - added support for source/target areas;

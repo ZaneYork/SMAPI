@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Framework
         public GameVersion(string version)
             : base(GameVersion.GetSemanticVersionString(version), allowNonStandard: true) { }
 
-        /// <summary>Get a string representation of the version.</summary>
+        /// <inheritdoc />
         public override string ToString()
         {
             return GameVersion.GetGameVersionString(base.ToString());

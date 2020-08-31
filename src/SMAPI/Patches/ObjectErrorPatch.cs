@@ -23,15 +23,14 @@ namespace StardewModdingAPI.Patches
         /*********
         ** Accessors
         *********/
-        /// <summary>A unique name for this patch.</summary>
+        /// <inheritdoc />
         public string Name => nameof(ObjectErrorPatch);
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>Apply the Harmony patch.</summary>
-        /// <param name="harmony">The Harmony instance.</param>
+        /// <inheritdoc />
 #if HARMONY_2
         public void Apply(Harmony harmony)
 #else

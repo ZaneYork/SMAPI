@@ -24,35 +24,31 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.InputState = inputState;
         }
 
-        /// <summary>Get the current cursor position.</summary>
+        /// <inheritdoc />
         public ICursorPosition GetCursorPosition()
         {
             return this.InputState.CursorPosition;
         }
 
-        /// <summary>Get whether a button is currently pressed.</summary>
-        /// <param name="button">The button.</param>
+        /// <inheritdoc />
         public bool IsDown(SButton button)
         {
             return this.InputState.IsDown(button);
         }
 
-        /// <summary>Get whether a button is currently suppressed, so the game won't see it.</summary>
-        /// <param name="button">The button.</param>
+        /// <inheritdoc />
         public bool IsSuppressed(SButton button)
         {
             return this.InputState.IsSuppressed(button);
         }
 
-        /// <summary>Prevent the game from handling a button press. This doesn't prevent other mods from receiving the event.</summary>
-        /// <param name="button">The button to suppress.</param>
+        /// <inheritdoc />
         public void Suppress(SButton button)
         {
             this.InputState.OverrideButton(button, setDown: false);
         }
 
-        /// <summary>Get the state of a button.</summary>
-        /// <param name="button">The button to check.</param>
+        /// <inheritdoc />
         public SButtonState GetState(SButton button)
         {
             return this.InputState.GetState(button);

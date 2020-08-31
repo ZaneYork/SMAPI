@@ -153,6 +153,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Whether the game is creating the save file and SMAPI has already raised <see cref="IGameLoopEvents.SaveCreating"/>.</summary>
         private bool IsBetweenCreateEvents;
 
+        /// <summary>Whether the player just returned to the title screen.</summary>
+        private bool JustReturnedToTitle;
+
         /// <summary>Asset interceptors added or removed since the last tick.</summary>
         private readonly List<AssetInterceptorChange> ReloadAssetInterceptorsQueue = new List<AssetInterceptorChange>();
 
@@ -306,10 +309,10 @@ namespace StardewModdingAPI.Framework
                 }).Start();
 
                 // set window titles
-#if !SMAPI_FOR_MOBILE
-                this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
-                this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}");
-#endif
+                this.SetWindowTitles(
+                    game: $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}",
+                    smapi: $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}"
+                );
             }
             catch (Exception ex)
             {
@@ -324,9 +327,11 @@ namespace StardewModdingAPI.Framework
 
 #if !SMAPI_FOR_MOBILE
             // set window titles
-            this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
-            this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}");
-#endif
+            this.SetWindowTitles(
+                game: $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}",
+                smapi: $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}"
+            );
+
             // start game
             this.Monitor.Log("Starting game...", LogLevel.Debug);
             try
@@ -437,12 +442,13 @@ namespace StardewModdingAPI.Framework
                 this.CheckForUpdatesAsync(mods);
             }
 
-#if !SMAPI_FOR_MOBILE
             // update window titles
             int modsLoaded = this.ModRegistry.GetAll().Count();
-            this.Game.Window.Title = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods";
-            this.LogManager.SetConsoleTitle($"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods");
-#else
+            this.SetWindowTitles(
+                game: $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion} with {modsLoaded} mods",
+                smapi: $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion} with {modsLoaded} mods"
+            );
+#if SMAPI_FOR_MOBILE
                 SGameConsole.Instance.isVisible = false;
                 this.Game.IsGameSuspended = false;
             }).Start();
@@ -511,6 +517,10 @@ namespace StardewModdingAPI.Framework
                 // print warnings/alerts
                 SCore.DeprecationManager.PrintQueued();
                 SCore.PerformanceMonitor.PrintQueuedAlerts();
+
+                // reapply overrides
+                if (this.JustReturnedToTitle && !(Game1.mapDisplayDevice is SDisplayDevice))
+                    Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
 
                 /*********
                 ** First-tick initialization
@@ -1170,8 +1180,7 @@ namespace StardewModdingAPI.Framework
         {
             // perform cleanup
             this.Multiplayer.CleanupOnMultiplayerExit();
-            if (!(Game1.mapDisplayDevice is SDisplayDevice))
-                Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
+            this.JustReturnedToTitle = true;
         }
 
         /// <summary>Raised before the game exits.</summary>
@@ -1277,6 +1286,17 @@ namespace StardewModdingAPI.Framework
             }
 
             return !issuesFound;
+        }
+
+        /// <summary>Set the window titles for the game and console windows.</summary>
+        /// <param name="game">The game window text.</param>
+        /// <param name="smapi">The SMAPI window text.</param>
+        private void SetWindowTitles(string game, string smapi)
+        {
+#if !SMAPI_FOR_MOBILE
+            this.Game.Window.Title = game;
+            this.LogManager.SetConsoleTitle(smapi);
+#endif
         }
 
         /// <summary>Asynchronously check for a new version of SMAPI and any installed mods, and print alerts to the console if an update is available.</summary>

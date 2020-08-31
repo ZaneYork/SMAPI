@@ -27,7 +27,7 @@ namespace StardewModdingAPI.Patches
         /*********
         ** Accessors
         *********/
-        /// <summary>A unique name for this patch.</summary>
+        /// <inheritdoc />
         public string Name => nameof(EventErrorPatch);
 
 
@@ -41,8 +41,7 @@ namespace StardewModdingAPI.Patches
             EventErrorPatch.MonitorForGame = monitorForGame;
         }
 
-        /// <summary>Apply the Harmony patch.</summary>
-        /// <param name="harmony">The Harmony instance.</param>
+        /// <inheritdoc />
 #if HARMONY_2
         public void Apply(Harmony harmony)
         {

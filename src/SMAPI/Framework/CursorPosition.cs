@@ -8,16 +8,16 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>The pixel position relative to the top-left corner of the in-game map, adjusted for pixel zoom.</summary>
+        /// <inheritdoc />
         public Vector2 AbsolutePixels { get; }
 
-        /// <summary>The pixel position relative to the top-left corner of the visible screen, adjusted for pixel zoom.</summary>
+        /// <inheritdoc />
         public Vector2 ScreenPixels { get; }
 
-        /// <summary>The tile position under the cursor relative to the top-left corner of the map.</summary>
+        /// <inheritdoc />
         public Vector2 Tile { get; }
 
-        /// <summary>The tile position that the game considers under the cursor for purposes of clicking actions. This may be different than <see cref="Tile"/> if that's too far from the player.</summary>
+        /// <inheritdoc />
         public Vector2 GrabTile { get; }
 
 
@@ -37,8 +37,7 @@ namespace StardewModdingAPI.Framework
             this.GrabTile = grabTile;
         }
 
-        /// <summary>Get whether the current object is equal to another object of the same type.</summary>
-        /// <param name="other">An object to compare with this object.</param>
+        /// <inheritdoc />
         public bool Equals(ICursorPosition other)
         {
             return other != null && this.AbsolutePixels == other.AbsolutePixels;

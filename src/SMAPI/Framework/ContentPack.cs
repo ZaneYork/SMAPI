@@ -24,13 +24,13 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>The full path to the content pack's folder.</summary>
+        /// <inheritdoc />
         public string DirectoryPath { get; }
 
-        /// <summary>The content pack's manifest.</summary>
+        /// <inheritdoc />
         public IManifest Manifest { get; }
 
-        /// <summary>Provides translations stored in the content pack's <c>i18n</c> folder. See <see cref="IModHelper.Translation"/> for more info.</summary>
+        /// <inheritdoc />
         public ITranslationHelper Translation { get; }
 
 
@@ -52,8 +52,7 @@ namespace StardewModdingAPI.Framework
             this.JsonHelper = jsonHelper;
         }
 
-        /// <summary>Get whether a given file exists in the content pack.</summary>
-        /// <param name="path">The file path to check.</param>
+        /// <inheritdoc />
         public bool HasFile(string path)
         {
             this.AssertRelativePath(path, nameof(this.HasFile));
@@ -61,11 +60,7 @@ namespace StardewModdingAPI.Framework
             return File.Exists(Path.Combine(this.DirectoryPath, path));
         }
 
-        /// <summary>Read a JSON file from the content pack folder.</summary>
-        /// <typeparam name="TModel">The model type.</typeparam>
-        /// <param name="path">The file path relative to the content directory.</param>
-        /// <returns>Returns the deserialized model, or <c>null</c> if the file doesn't exist or is empty.</returns>
-        /// <exception cref="InvalidOperationException">The <paramref name="path"/> is not relative or contains directory climbing (../).</exception>
+        /// <inheritdoc />
         public TModel ReadJsonFile<TModel>(string path) where TModel : class
         {
             this.AssertRelativePath(path, nameof(this.ReadJsonFile));
@@ -76,11 +71,7 @@ namespace StardewModdingAPI.Framework
                 : null;
         }
 
-        /// <summary>Save data to a JSON file in the content pack's folder.</summary>
-        /// <typeparam name="TModel">The model type. This should be a plain class that has public properties for the data you want. The properties can be complex types.</typeparam>
-        /// <param name="path">The file path relative to the mod folder.</param>
-        /// <param name="data">The arbitrary data to save.</param>
-        /// <exception cref="InvalidOperationException">The <paramref name="path"/> is not relative or contains directory climbing (../).</exception>
+        /// <inheritdoc />
         public void WriteJsonFile<TModel>(string path, TModel data) where TModel : class
         {
             this.AssertRelativePath(path, nameof(this.WriteJsonFile));
@@ -89,19 +80,13 @@ namespace StardewModdingAPI.Framework
             this.JsonHelper.WriteJsonFile(path, data);
         }
 
-        /// <summary>Load content from the content pack folder (if not already cached), and return it. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
-        /// <typeparam name="T">The expected data type. The main supported types are <see cref="Map"/>, <see cref="Texture2D"/>, and dictionaries; other types may be supported by the game's content pipeline.</typeparam>
-        /// <param name="key">The local path to a content file relative to the content pack folder.</param>
-        /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
-        /// <exception cref="ContentLoadException">The content asset couldn't be loaded (e.g. because it doesn't exist).</exception>
+        /// <inheritdoc />
         public T LoadAsset<T>(string key)
         {
             return this.Content.Load<T>(key, ContentSource.ModFolder);
         }
 
-        /// <summary>Get the underlying key in the game's content cache for an asset. This can be used to load custom map tilesheets, but should be avoided when you can use the content API instead. This does not validate whether the asset exists.</summary>
-        /// <param name="key">The the local path to a content file relative to the content pack folder.</param>
-        /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
+        /// <inheritdoc />
         public string GetActualAssetKey(string key)
         {
             return this.Content.GetActualAssetKey(key, ContentSource.ModFolder);

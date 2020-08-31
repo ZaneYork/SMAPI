@@ -12,6 +12,7 @@
   * Added heuristic compatibility rewrites, which fix some mods previously incompatible with Android or newer game versions.
   * Tweaked the rules for showing update alerts (see _for SMAPI developers_ below for details).
   * Fixed crossplatform compatibility for mods which use the `[HarmonyPatch(type)]` attribute (thanks to spacechase0!).
+  * Fixed map tile rotation broken when you return to the title screen and reload a save.
   * Fixed broken URL in update alerts for unofficial versions.
   * Fixed rare error when a mod adds/removes event handlers asynchronously.
   * Fixed rare issue where the console showed incorrect colors when mods wrote to it asynchronously.

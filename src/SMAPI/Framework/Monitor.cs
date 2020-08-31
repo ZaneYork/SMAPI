@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether verbose logging is enabled. This enables more detailed diagnostic messages than are normally needed.</summary>
+        /// <inheritdoc />
         public bool IsVerbose { get; }
 
         /// <summary>Whether to show the full log stamps (with time/level/logger) in the console. If false, shows a simplified stamp with only the logger.</summary>
@@ -70,25 +70,20 @@ namespace StardewModdingAPI.Framework
             this.IsVerbose = isVerbose;
         }
 
-        /// <summary>Log a message for the player or developer.</summary>
-        /// <param name="message">The message to log.</param>
-        /// <param name="level">The log severity level.</param>
+        /// <inheritdoc />
         public void Log(string message, LogLevel level = LogLevel.Trace)
         {
             this.LogImpl(this.Source, message, (ConsoleLogLevel)level);
         }
 
-        /// <summary>Log a message for the player or developer, but only if it hasn't already been logged since the last game launch.</summary>
-        /// <param name="message">The message to log.</param>
-        /// <param name="level">The log severity level.</param>
+        /// <inheritdoc />
         public void LogOnce(string message, LogLevel level = LogLevel.Trace)
         {
             if (this.LogOnceCache.Add($"{message}|{level}"))
                 this.LogImpl(this.Source, message, (ConsoleLogLevel)level);
         }
 
-        /// <summary>Log a message that only appears when <see cref="IMonitor.IsVerbose"/> is enabled.</summary>
-        /// <param name="message">The message to log.</param>
+        /// <inheritdoc />
         public void VerboseLog(string message)
         {
             if (this.IsVerbose)

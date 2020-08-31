@@ -11,37 +11,37 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Accessors
         *********/
-        /// <summary>The full path to the mod's folder.</summary>
+        /// <inheritdoc />
         public string DirectoryPath { get; }
 
-        /// <summary>Manages access to events raised by SMAPI, which let your mod react when something happens in the game.</summary>
+        /// <inheritdoc />
         public IModEvents Events { get; }
 
-        /// <summary>An API for loading content assets.</summary>
+        /// <inheritdoc />
         public IContentHelper Content { get; }
 
-        /// <summary>An API for managing content packs.</summary>
+        /// <inheritdoc />
         public IContentPackHelper ContentPacks { get; }
 
-        /// <summary>An API for reading and writing persistent mod data.</summary>
+        /// <inheritdoc />
         public IDataHelper Data { get; }
 
-        /// <summary>An API for checking and changing input state.</summary>
+        /// <inheritdoc />
         public IInputHelper Input { get; }
 
-        /// <summary>An API for accessing private game code.</summary>
+        /// <inheritdoc />
         public IReflectionHelper Reflection { get; }
 
-        /// <summary>an API for fetching metadata about loaded mods.</summary>
+        /// <inheritdoc />
         public IModRegistry ModRegistry { get; }
 
-        /// <summary>An API for managing console commands.</summary>
+        /// <inheritdoc />
         public ICommandHelper ConsoleCommands { get; }
 
-        /// <summary>Provides multiplayer utilities.</summary>
+        /// <inheritdoc />
         public IMultiplayerHelper Multiplayer { get; }
 
-        /// <summary>An API for reading translations stored in the mod's <c>i18n</c> folder, with one file per locale (like <c>en.json</c>) containing a flat key => value structure. Translations are fetched with locale fallback, so missing translations are filled in from broader locales (like <c>pt-BR.json</c> &lt; <c>pt.json</c> &lt; <c>default.json</c>).</summary>
+        /// <inheritdoc />
         public ITranslationHelper Translation { get; }
 
 
@@ -89,8 +89,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /****
         ** Mod config file
         ****/
-        /// <summary>Read the mod's configuration file (and create it if needed).</summary>
-        /// <typeparam name="TConfig">The config class type. This should be a plain class that has public properties for the settings you want. These can be complex types.</typeparam>
+        /// <inheritdoc />
         public TConfig ReadConfig<TConfig>()
             where TConfig : class, new()
         {
@@ -99,9 +98,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             return config;
         }
 
-        /// <summary>Save to the mod's configuration file.</summary>
-        /// <typeparam name="TConfig">The config class type.</typeparam>
-        /// <param name="config">The config settings to save.</param>
+        /// <inheritdoc />
         public void WriteConfig<TConfig>(TConfig config)
             where TConfig : class, new()
         {
@@ -111,7 +108,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /****
         ** Disposal
         ****/
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             // nothing to dispose yet
