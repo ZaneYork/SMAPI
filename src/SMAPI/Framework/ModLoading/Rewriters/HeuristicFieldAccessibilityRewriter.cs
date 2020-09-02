@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
             // skip if not broken
             FieldDefinition fieldDefinition = fieldRef.Resolve();
-            if (fieldDefinition == null || fieldDefinition.IsPublic)
+            if (fieldDefinition == null || fieldDefinition.IsPublic || fieldDefinition.IsFamily)
                 return false;
 
             // rewrite if possible
