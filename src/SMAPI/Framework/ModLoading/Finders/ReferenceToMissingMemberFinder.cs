@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
                 MethodDefinition target = methodRef.Resolve();
                 if (target == null)
                 {
-                    string phrase = null;
+                    string phrase;
                     if (this.IsProperty(methodRef))
                         phrase = $"reference to {methodRef.DeclaringType.FullName}.{methodRef.Name.Substring(4)} (no such property)";
                     else if (methodRef.Name == ".ctor")

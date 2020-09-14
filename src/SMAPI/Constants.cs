@@ -64,20 +64,20 @@ namespace StardewModdingAPI
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
 #if SMAPI_FOR_MOBILE
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.6.2.1", true);
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.7.2");
 
         /// <summary>Android SMAPI's current semantic version.</summary>
         public static ISemanticVersion AndroidApiVersion { get; } = new Toolkit.SemanticVersion("0.8.8");
 
 #else
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.6.2");
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.7.2");
 #endif
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.5");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MaximumGameVersion { get; } = null;
+        public static ISemanticVersion MaximumGameVersion { get; } = new GameVersion("1.4.5");
 
         /// <summary>The target game platform.</summary>
         public static GamePlatform TargetPlatform { get; } = EarlyConstants.Platform;

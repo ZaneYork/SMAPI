@@ -33,17 +33,17 @@ namespace StardewModdingAPI.Framework.Input
         /*********
         ** Accessors
         *********/
-        /// <summary>The controller state as of the last update.</summary>
-        public GamePadState LastController { get; private set; }
+        /// <summary>The controller state as of the last update, with overrides applied.</summary>
+        public GamePadState ControllerState { get; private set; }
 
-        /// <summary>The keyboard state as of the last update.</summary>
-        public KeyboardState LastKeyboard { get; private set; }
+        /// <summary>The keyboard state as of the last update, with overrides applied.</summary>
+        public KeyboardState KeyboardState { get; private set; }
 
-        /// <summary>The mouse state as of the last update.</summary>
-        public MouseState LastMouse { get; private set; }
+        /// <summary>The mouse state as of the last update, with overrides applied.</summary>
+        public MouseState MouseState { get; private set; }
 
         /// <summary>The buttons which were pressed, held, or released as of the last update.</summary>
-        public IDictionary<SButton, SButtonState> LastButtonStates { get; private set; } = new Dictionary<SButton, SButtonState>();
+        public IDictionary<SButton, SButtonState> ButtonStates { get; private set; } = new Dictionary<SButton, SButtonState>();
 
         /// <summary>The cursor position on the screen adjusted for the zoom level.</summary>
         public ICursorPosition CursorPosition => this.CursorPositionImpl;
@@ -52,39 +52,6 @@ namespace StardewModdingAPI.Framework.Input
         /*********
         ** Public methods
         *********/
-        /// <summary>Get a copy of the current state.</summary>
-        public SInputState Clone()
-        {
-            return new SInputState
-            {
-                LastButtonStates = this.LastButtonStates,
-                LastController = this.LastController,
-                LastKeyboard = this.LastKeyboard,
-                LastMouse = this.LastMouse,
-                CursorPositionImpl = this.CursorPositionImpl
-            };
-        }
-
-        /// <summary>Override the state for a button.</summary>
-        /// <param name="button">The button to override.</param>
-        /// <param name="setDown">Whether to mark it pressed; else mark it released.</param>
-        public void OverrideButton(SButton button, bool setDown)
-        {
-            bool changed = setDown
-                ? this.CustomPressedKeys.Add(button) | this.CustomReleasedKeys.Remove(button)
-                : this.CustomPressedKeys.Remove(button) | this.CustomReleasedKeys.Add(button);
-
-            if (changed)
-                this.HasNewOverrides = true;
-        }
-
-        /// <summary>Get whether a mod has indicated the key was already handled, so the game shouldn't handle it.</summary>
-        /// <param name="button">The button to check.</param>
-        public bool IsSuppressed(SButton button)
-        {
-            return this.CustomReleasedKeys.Contains(button);
-        }
-
         /// <summary>This method is called by the game, and does nothing since SMAPI will already have updated by that point.</summary>
         [Obsolete("This method should only be called by the game itself.")]
         public override void Update() { }
@@ -92,14 +59,18 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Update the current button states for the given tick.</summary>
         public void TrueUpdate()
         {
+            // update base state
+            base.Update();
+
+            // update SMAPI extended data
             try
             {
                 float zoomMultiplier = (1f / Game1.options.zoomLevel);
 
                 // get real values
-                var controller = new GamePadStateBuilder();
-                var keyboard = new KeyboardStateBuilder();
-                var mouse = new MouseStateBuilder();
+                var controller = new GamePadStateBuilder(base.GetGamePadState());
+                var keyboard = new KeyboardStateBuilder(base.GetKeyboardState());
+                var mouse = new MouseStateBuilder(base.GetMouseState());
                 Vector2 cursorAbsolutePos = new Vector2((mouse.X * zoomMultiplier) + Game1.viewport.X, (mouse.Y * zoomMultiplier) + Game1.viewport.Y);
                 Vector2? playerTilePos = Context.IsPlayerFree ? Game1.player.getTileLocation() : (Vector2?)null;
                 HashSet<SButton> reallyDown = new HashSet<SButton>(this.GetPressedButtons(keyboard, mouse, controller));
@@ -124,18 +95,18 @@ namespace StardewModdingAPI.Framework.Input
                 var pressedButtons = hasOverrides
                     ? new HashSet<SButton>(this.GetPressedButtons(keyboard, mouse, controller))
                     : reallyDown;
-                var activeButtons = this.DeriveStates(this.LastButtonStates, pressedButtons);
+                var activeButtons = this.DeriveStates(this.ButtonStates, pressedButtons);
 
                 // update
                 this.HasNewOverrides = false;
-                this.LastController = controller.GetState();
-                this.LastKeyboard = keyboard.GetState();
-                this.LastMouse = mouse.GetState();
-                this.LastButtonStates = activeButtons;
+                this.ControllerState = controller.GetState();
+                this.KeyboardState = keyboard.GetState();
+                this.MouseState = mouse.GetState();
+                this.ButtonStates = activeButtons;
                 if (cursorAbsolutePos != this.CursorPositionImpl?.AbsolutePixels || playerTilePos != this.LastPlayerTile)
                 {
                     this.LastPlayerTile = playerTilePos;
-                    this.CursorPositionImpl = this.GetCursorPosition(this.LastMouse, cursorAbsolutePos, zoomMultiplier);
+                    this.CursorPositionImpl = this.GetCursorPosition(this.MouseState, cursorAbsolutePos, zoomMultiplier);
                 }
             }
             catch (InvalidOperationException)
@@ -144,53 +115,67 @@ namespace StardewModdingAPI.Framework.Input
             }
         }
 
+        /// <summary>Get the gamepad state visible to the game.</summary>
+        public override GamePadState GetGamePadState()
+        {
+            return this.ControllerState;
+        }
+
+        /// <summary>Get the keyboard state visible to the game.</summary>
+        public override KeyboardState GetKeyboardState()
+        {
+            return this.KeyboardState;
+        }
+
+        /// <summary>Get the keyboard state visible to the game.</summary>
+        public override MouseState GetMouseState()
+        {
+            return this.MouseState;
+        }
+
+        /// <summary>Override the state for a button.</summary>
+        /// <param name="button">The button to override.</param>
+        /// <param name="setDown">Whether to mark it pressed; else mark it released.</param>
+        public void OverrideButton(SButton button, bool setDown)
+        {
+            bool changed = setDown
+                ? this.CustomPressedKeys.Add(button) | this.CustomReleasedKeys.Remove(button)
+                : this.CustomPressedKeys.Remove(button) | this.CustomReleasedKeys.Add(button);
+
+            if (changed)
+                this.HasNewOverrides = true;
+        }
+
+        /// <summary>Get whether a mod has indicated the key was already handled, so the game shouldn't handle it.</summary>
+        /// <param name="button">The button to check.</param>
+        public bool IsSuppressed(SButton button)
+        {
+            return this.CustomReleasedKeys.Contains(button);
+        }
+
         /// <summary>Apply input overrides to the current state.</summary>
         public void ApplyOverrides()
         {
             if (this.HasNewOverrides)
             {
-                var controller = new GamePadStateBuilder(this.LastController);
-                var keyboard = new KeyboardStateBuilder(this.LastKeyboard);
-                var mouse = new MouseStateBuilder(this.LastMouse);
+                var controller = new GamePadStateBuilder(this.ControllerState);
+                var keyboard = new KeyboardStateBuilder(this.KeyboardState);
+                var mouse = new MouseStateBuilder(this.MouseState);
 
                 if (this.ApplyOverrides(pressed: this.CustomPressedKeys, released: this.CustomReleasedKeys, controller, keyboard, mouse))
                 {
-                    this.LastController = controller.GetState();
-                    this.LastKeyboard = keyboard.GetState();
-                    this.LastMouse = mouse.GetState();
+                    this.ControllerState = controller.GetState();
+                    this.KeyboardState = keyboard.GetState();
+                    this.MouseState = mouse.GetState();
                 }
             }
-        }
-
-        /// <summary>Get the gamepad state visible to the game.</summary>
-        [Obsolete("This method should only be called by the game itself.")]
-        public override GamePadState GetGamePadState()
-        {
-            if (Game1.options.gamepadMode == Options.GamepadModes.ForceOff)
-                return new GamePadState();
-
-            return this.LastController;
-        }
-
-        /// <summary>Get the keyboard state visible to the game.</summary>
-        [Obsolete("This method should only be called by the game itself.")]
-        public override KeyboardState GetKeyboardState()
-        {
-            return this.LastKeyboard;
-        }
-
-        /// <summary>Get the keyboard state visible to the game.</summary>
-        [Obsolete("This method should only be called by the game itself.")]
-        public override MouseState GetMouseState()
-        {
-            return this.LastMouse;
         }
 
         /// <summary>Get whether a given button was pressed or held.</summary>
         /// <param name="button">The button to check.</param>
         public bool IsDown(SButton button)
         {
-            return this.GetState(this.LastButtonStates, button).IsDown();
+            return this.GetState(this.ButtonStates, button).IsDown();
         }
 
         /// <summary>Get whether any of the given buttons were pressed or held.</summary>
@@ -204,7 +189,7 @@ namespace StardewModdingAPI.Framework.Input
         /// <param name="button">The button to check.</param>
         public SButtonState GetState(SButton button)
         {
-            return this.GetState(this.LastButtonStates, button);
+            return this.GetState(this.ButtonStates, button);
         }
 
 
@@ -305,7 +290,9 @@ namespace StardewModdingAPI.Framework.Input
         /// <param name="button">The button to check.</param>
         private SButtonState GetState(IDictionary<SButton, SButtonState> activeButtons, SButton button)
         {
-            return activeButtons.TryGetValue(button, out SButtonState state) ? state : SButtonState.None;
+            return activeButtons.TryGetValue(button, out SButtonState state)
+                ? state
+                : SButtonState.None;
         }
 
         /// <summary>Get the buttons pressed in the given stats.</summary>

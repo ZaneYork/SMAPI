@@ -20,7 +20,7 @@ namespace StardewModdingAPI.Framework.Input
         private GamePadState? State;
 
         /// <summary>The current button states.</summary>
-        private IDictionary<SButton, ButtonState> ButtonStates;
+        private readonly IDictionary<SButton, ButtonState> ButtonStates;
 
         /// <summary>The left trigger value.</summary>
         private float LeftTrigger;
@@ -39,33 +39,26 @@ namespace StardewModdingAPI.Framework.Input
         ** Accessors
         *********/
         /// <summary>Whether the gamepad is currently connected.</summary>
-        public bool IsConnected { get; private set; }
+        public bool IsConnected { get; }
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="state">The initial state, or <c>null</c> to get the latest state.</param>
-        public GamePadStateBuilder(GamePadState? state = null)
+        /// <param name="state">The initial state.</param>
+        public GamePadStateBuilder(GamePadState state)
         {
-            this.Reset(state);
-        }
-
-        /// <summary>Reset the tracked state.</summary>
-        /// <param name="state">The state from which to reset, or <c>null</c> to get the latest state.</param>
-        public GamePadStateBuilder Reset(GamePadState? state = null)
-        {
-            this.State = state ??= GamePad.GetState(PlayerIndex.One);
-            this.IsConnected = state.Value.IsConnected;
+            this.State = state;
+            this.IsConnected = state.IsConnected;
 
             if (!this.IsConnected)
-                return this;
+                return;
 
-            GamePadDPad pad = state.Value.DPad;
-            GamePadButtons buttons = state.Value.Buttons;
-            GamePadTriggers triggers = state.Value.Triggers;
-            GamePadThumbSticks sticks = state.Value.ThumbSticks;
+            GamePadDPad pad = state.DPad;
+            GamePadButtons buttons = state.Buttons;
+            GamePadTriggers triggers = state.Triggers;
+            GamePadThumbSticks sticks = state.ThumbSticks;
             this.ButtonStates = new Dictionary<SButton, ButtonState>
             {
                 [SButton.DPadUp] = pad.Up,
@@ -89,8 +82,6 @@ namespace StardewModdingAPI.Framework.Input
             this.RightTrigger = triggers.Right;
             this.LeftStickPos = sticks.Left;
             this.RightStickPos = sticks.Right;
-
-            return this;
         }
 
         /// <summary>Override the states for a set of buttons.</summary>

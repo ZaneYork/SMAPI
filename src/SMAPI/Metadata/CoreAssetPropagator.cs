@@ -34,9 +34,6 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection;
 
-        /// <summary>Encapsulates monitoring and logging.</summary>
-        private readonly IMonitor Monitor;
-
         /// <summary>Optimized bucket categories for batch reloading assets.</summary>
         private enum AssetBucket
         {
@@ -57,12 +54,10 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Initialize the core asset data.</summary>
         /// <param name="assertAndNormalizeAssetName">Normalizes an asset key to match the cache key and assert that it's valid.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        public CoreAssetPropagator(Func<string, string> assertAndNormalizeAssetName, Reflector reflection, IMonitor monitor)
+        public CoreAssetPropagator(Func<string, string> assertAndNormalizeAssetName, Reflector reflection)
         {
             this.AssertAndNormalizeAssetName = assertAndNormalizeAssetName;
             this.Reflection = reflection;
-            this.Monitor = monitor;
         }
 
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
@@ -479,22 +474,7 @@ namespace StardewModdingAPI.Metadata
                     return false;
 
                 case "minigames\\titlebuttons": // TitleMenu
-                    {
-                        if (Game1.activeClickableMenu is TitleMenu titleMenu)
-                        {
-                            Texture2D texture = content.Load<Texture2D>(key);
-#if SMAPI_FOR_MOBILE
-                            this.Reflection.GetField<Texture2D>(titleMenu, "titleButtonsTexture").SetValue(texture);
-                            foreach (TemporaryAnimatedSprite bird in this.Reflection.GetField<List<TemporaryAnimatedSprite>>(titleMenu, "birds").GetValue())
-#else
-                            titleMenu.titleButtonsTexture = texture;
-                            foreach (TemporaryAnimatedSprite bird in titleMenu.birds)
-#endif
-                                bird.texture = texture;
-                            return true;
-                        }
-                    }
-                    return false;
+                    return this.ReloadTitleButtons(content, key);
 
                 /****
                 ** Content\TileSheets
@@ -601,6 +581,43 @@ namespace StardewModdingAPI.Metadata
         /****
         ** Reload texture methods
         ****/
+        /// <summary>Reload buttons on the title screen.</summary>
+        /// <param name="content">The content manager through which to reload the asset.</param>
+        /// <param name="key">The asset key to reload.</param>
+        /// <returns>Returns whether any textures were reloaded.</returns>
+        /// <remarks>Derived from the <see cref="TitleMenu"/> constructor and <see cref="TitleMenu.setUpIcons"/>.</remarks>
+        private bool ReloadTitleButtons(LocalizedContentManager content, string key)
+        {
+            if (Game1.activeClickableMenu is TitleMenu titleMenu)
+            {
+                Texture2D texture = content.Load<Texture2D>(key);
+
+#if SMAPI_FOR_MOBILE
+                this.Reflection.GetField<Texture2D>(titleMenu, "titleButtonsTexture").SetValue(texture);
+                titleMenu.backButton.texture = texture;
+                titleMenu.aboutButton.texture = texture;
+                this.Reflection.GetField<Texture2D>(titleMenu, "languageButton").SetValue(texture);
+                foreach (ClickableTextureComponent button in titleMenu.buttons)
+                    button.texture = texture;
+                foreach (TemporaryAnimatedSprite bird in this.Reflection.GetField<List<TemporaryAnimatedSprite>>(titleMenu, "birds").GetValue())
+                    bird.texture = texture;
+#else
+                titleMenu.titleButtonsTexture = texture;
+                titleMenu.backButton.texture = texture;
+                titleMenu.aboutButton.texture = texture;
+                titleMenu.languageButton.texture = texture;
+                foreach (ClickableTextureComponent button in titleMenu.buttons)
+                    button.texture = titleMenu.titleButtonsTexture;
+                foreach (TemporaryAnimatedSprite bird in titleMenu.birds)
+                    bird.texture = texture;
+#endif
+
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>Reload the sprites for matching pets or horses.</summary>
         /// <typeparam name="TAnimal">The animal type.</typeparam>
         /// <param name="content">The content manager through which to reload the asset.</param>

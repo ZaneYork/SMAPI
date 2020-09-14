@@ -153,7 +153,7 @@ namespace StardewModdingAPI.Framework.Content
             if (string.IsNullOrWhiteSpace(path))
                 return string.Empty;
 
-            path = PathUtilities.NormalizePathSeparators(path.Trim());
+            path = PathUtilities.NormalizePath(path);
             if (path.StartsWith($"Maps{PathUtilities.PreferredPathSeparator}", StringComparison.OrdinalIgnoreCase))
                 path = path.Substring($"Maps{PathUtilities.PreferredPathSeparator}".Length);
             if (path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))

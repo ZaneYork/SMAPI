@@ -80,7 +80,7 @@ namespace StardewModdingAPI.Framework.Content
         [Pure]
         public string NormalizePathSeparators(string path)
         {
-            return PathUtilities.NormalizePathSeparators(path);
+            return PathUtilities.NormalizePath(path);
         }
 
         /// <summary>Normalize a cache key so it's consistent with the underlying cache.</summary>

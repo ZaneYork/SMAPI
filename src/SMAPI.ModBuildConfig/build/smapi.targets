@@ -18,6 +18,7 @@
     <!-- set default package options -->
     <ModFolderName Condition="'$(ModFolderName)' == ''">$(MSBuildProjectName)</ModFolderName>
     <ModZipPath Condition="'$(ModZipPath)' == ''">$(TargetDir)</ModZipPath>
+    <GameModsPath Condition="'$(GameModsPath)' == ''">$([System.IO.Path]::Combine($(GamePath), 'Mods'))</GameModsPath>
     <EnableModDeploy Condition="'$(EnableModDeploy)' == ''">true</EnableModDeploy>
     <EnableModZip Condition="'$(EnableModZip)' == ''">true</EnableModZip>
     <EnableHarmony Condition="'$(EnableHarmony)' == ''">false</EnableHarmony>
@@ -86,7 +87,7 @@
 
       ProjectDir="$(ProjectDir)"
       TargetDir="$(TargetDir)"
-      GameDir="$(GamePath)"
+      GameModsDir="$(GameModsPath)"
       IgnoreModFilePatterns="$(IgnoreModFilePatterns)"
     />
   </Target>

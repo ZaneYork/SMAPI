@@ -47,6 +47,15 @@ namespace StardewModdingAPI.Framework
         /// <summary>Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</summary>
         private readonly Action<string> ExitGameImmediately;
 
+        /// <summary>Raised after the game finishes loading its initial content.</summary>
+        private readonly Action OnGameContentLoaded;
+
+        /// <summary>Raised when the game is updating its state (roughly 60 times per second).</summary>
+        private readonly Action<GameTime, Action> OnGameUpdating;
+
+        /// <summary>Raised before the game exits.</summary>
+        private readonly Action OnGameExiting;
+
 #if SMAPI_FOR_MOBILE
         private readonly IReflectedField<bool> DrawActiveClickableMenuField;
         private readonly IReflectedField<string> SpriteBatchBeginNextIDField;
@@ -96,15 +105,6 @@ namespace StardewModdingAPI.Framework
         /// <remarks>This must be static because the game accesses it before the <see cref="SGame"/> constructor is called.</remarks>
         public static Func<IServiceProvider, string, LocalizedContentManager> CreateContentManagerImpl;
 
-        /// <summary>Raised after the game finishes loading its initial content.</summary>
-        public event Action OnGameContentLoaded;
-
-        /// <summary>Raised before the game exits.</summary>
-        public event Action OnGameExiting;
-
-        /// <summary>Raised when the game is updating its state (roughly 60 times per second).</summary>
-        public event Action<GameTime, Action> OnGameUpdating;
-
 #if SMAPI_FOR_MOBILE
         public static SGame instance;
 
@@ -123,7 +123,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="modHooks">Handles mod hooks provided by the game.</param>
         /// <param name="multiplayer">The core multiplayer logic.</param>
         /// <param name="exitGameImmediately">Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</param>
-        public SGame(Monitor monitor, Reflector reflection, EventManager eventManager, SModHooks modHooks, SMultiplayer multiplayer, Action<string> exitGameImmediately)
+        /// <param name="onGameContentLoaded">Raised after the game finishes loading its initial content.</param>
+        /// <param name="onGameUpdating">Raised when the game is updating its state (roughly 60 times per second).</param>
+        /// <param name="onGameExiting">Raised before the game exits.</param>
+        public SGame(Monitor monitor, Reflector reflection, EventManager eventManager, SModHooks modHooks, SMultiplayer multiplayer, Action<string> exitGameImmediately, Action onGameContentLoaded, Action<GameTime, Action> onGameUpdating, Action onGameExiting)
         {
             // init XNA
             Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
@@ -139,6 +142,9 @@ namespace StardewModdingAPI.Framework
             this.Events = eventManager;
             this.Reflection = reflection;
             this.ExitGameImmediately = exitGameImmediately;
+            this.OnGameContentLoaded = onGameContentLoaded;
+            this.OnGameUpdating = onGameUpdating;
+            this.OnGameExiting = onGameExiting;
 
 #if SMAPI_FOR_MOBILE
             SGame.instance = this;
@@ -186,7 +192,7 @@ namespace StardewModdingAPI.Framework
         {
             base.LoadContent();
 
-            this.OnGameContentLoaded?.Invoke();
+            this.OnGameContentLoaded();
         }
 
         /// <summary>Perform cleanup logic when the game exits.</summary>
@@ -195,7 +201,7 @@ namespace StardewModdingAPI.Framework
         /// <remarks>This overrides the logic in <see cref="Game1.exitEvent"/> to let SMAPI clean up before exit.</remarks>
         protected override void OnExiting(object sender, EventArgs args)
         {
-            this.OnGameExiting?.Invoke();
+            this.OnGameExiting();
         }
 
         /// <summary>Construct a content manager to read game content files.</summary>
@@ -213,7 +219,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         protected override void Update(GameTime gameTime)
         {
-            this.OnGameUpdating?.Invoke(gameTime, () => base.Update(gameTime));
+            this.OnGameUpdating(gameTime, () => base.Update(gameTime));
         }
 
         /// <summary>The method called to draw everything to the screen.</summary>
@@ -1644,8 +1650,6 @@ namespace StardewModdingAPI.Framework
             }
             if (Game1.currentMinigame != null)
             {
-                bool batchEnded = false;
-
                 if (events.Rendering.HasListeners())
                 {
                     Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
@@ -1668,12 +1672,11 @@ namespace StardewModdingAPI.Framework
                     Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
                     Game1.spriteBatch.Draw(target_screen, Vector2.Zero, target_screen.Bounds, Color.White, 0f, Vector2.Zero, Game1.options.zoomLevel, SpriteEffects.None, 1f);
                     events.Rendered.RaiseEmpty();
-                    batchEnded = true;
                     Game1.spriteBatch.End();
                 }
                 else
                 {
-                    if (!batchEnded && events.Rendered.HasListeners())
+                    if (events.Rendered.HasListeners())
                     {
                         Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
                         events.Rendered.RaiseEmpty();

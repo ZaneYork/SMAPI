@@ -11,7 +11,7 @@ using StardewValley;
 
 namespace StardewModdingAPI.Patches
 {
-    /// <summary>A Harmony patch for the <see cref="Dialogue"/> constructor which intercepts invalid dialogue lines and logs an error instead of crashing.</summary>
+    /// <summary>A Harmony patch for <see cref="GameLocation.checkEventPrecondition"/> which intercepts invalid preconditions and logs an error instead of crashing.</summary>
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Patches
         ** Private methods
         *********/
 #if HARMONY_2
-        /// <summary>The method to call instead of the GameLocation.CheckEventPrecondition.</summary>
+        /// <summary>The method to call instead of GameLocation.checkEventPrecondition.</summary>
         /// <param name="__result">The return value of the original method.</param>
         /// <param name="precondition">The precondition to be parsed.</param>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
@@ -81,7 +81,7 @@ namespace StardewModdingAPI.Patches
             return null;
         }
 #else
-        /// <summary>The method to call instead of the GameLocation.CheckEventPrecondition.</summary>
+        /// <summary>The method to call instead of GameLocation.checkEventPrecondition.</summary>
         /// <param name="__instance">The instance being patched.</param>
         /// <param name="__result">The return value of the original method.</param>
         /// <param name="precondition">The precondition to be parsed.</param>

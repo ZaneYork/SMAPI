@@ -7,10 +7,28 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.7.2
+Released 08 September 2020 for Stardew Valley 1.4.1 or later.
+
 * For players:
-  * Added heuristic compatibility rewrites, which fix some mods previously incompatible with Android or newer game versions.
+  * Fixed mod recipe changes not always applied in 3.7.
+
+* For modders:
+  * Renamed `PathUtilities.NormalizePathSeparators` to `NormalizePath`, and added normalization for more cases.
+
+## 3.7.1
+Released 08 September 2020 for Stardew Valley 1.4.1 or later.
+
+* For players:
+  * Fixed input-handling bugs in 3.7.
+
+## 3.7
+Released 07 September 2020 for Stardew Valley 1.4.1 or later. See [release highlights](https://www.patreon.com/posts/41341767).
+
+* For players:
+  * Added heuristic compatibility rewrites. (This improves mod compatibility with Android and future game updates.)
   * Tweaked the rules for showing update alerts (see _for SMAPI developers_ below for details).
+  * Simplified the error shown for duplicate mods.
   * Fixed crossplatform compatibility for mods which use the `[HarmonyPatch(type)]` attribute (thanks to spacechase0!).
   * Fixed map tile rotation broken when you return to the title screen and reload a save.
   * Fixed broken URL in update alerts for unofficial versions.
@@ -18,16 +36,19 @@
   * Fixed rare issue where the console showed incorrect colors when mods wrote to it asynchronously.
   * Fixed SMAPI not always detecting broken field references in mod code.
   * Removed the experimental `RewriteInParallel` option added in SMAPI 3.6 (it was already disabled by default). Unfortunately this caused intermittent and unpredictable errors when enabled.
+  * Internal changes to prepare for upcoming game updates.
 
 * For modders:
+  * Added `PathUtilities` to simplify working with file/asset names.
   * You can now read/write `SDate` values to JSON (e.g. for `config.json`, network mod messages, etc).
+  * Fixed asset propagation not updating title menu buttons immediately on Linux/Mac.
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.16 and 1.17.
 
 * For SMAPI developers:
   * The web API now returns an update alert in two new cases: any newer unofficial update (previously only shown if the mod was incompatible), and a newer prerelease version if the installed non-prerelease version is broken (previously only shown if the installed version was prerelease).
-  * Reorganised SMAPI core to reduce coupling to `Game1`, make it easier to navigate, and simplify future game updates.
+  * Reorganised the SMAPI core to reduce coupling to game types like `Game1`, make it easier to navigate, and simplify future game updates.
   * SMAPI now automatically fixes code broken by these changes in game code, so manual rewriters are no longer needed:
     * reference to a method with new optional parameters;
     * reference to a field replaced by a property;
@@ -58,7 +79,7 @@ Released 21 June 2020 for Stardew Valley 1.4.1 or later.
 * Fixed event priority sorting.
 
 ## 3.6
-Released 20 June 2020 for Stardew Valley 1.4.1 or later.
+Released 20 June 2020 for Stardew Valley 1.4.1 or later. See [release highlights](https://www.patreon.com/posts/38441800).
 
 * For players:
   * Added crossplatform compatibility for mods which use the `[HarmonyPatch(type)]` attribute.
@@ -100,7 +121,7 @@ Released 20 June 2020 for Stardew Valley 1.4.1 or later.
   * Changed SMAPI's Harmony ID from `io.smapi` to `SMAPI` for readability in Harmony summaries.
 
 ## 3.5
-Released 27 April 2020 for Stardew Valley 1.4.1 or later.
+Released 27 April 2020 for Stardew Valley 1.4.1 or later. See [release highlights](https://www.patreon.com/posts/36471055).
 
 * For players:
   * SMAPI now prevents more game errors due to broken items, so you no longer need save editing to remove them.
@@ -134,7 +155,7 @@ Released 24 March 2020 for Stardew Valley 1.4.1 or later.
   * Fixed mouse input suppression not working in SMAPI 3.4.
 
 ## 3.4
-Released 22 March 2020 for Stardew Valley 1.4.1 or later.
+Released 22 March 2020 for Stardew Valley 1.4.1 or later. See [release highlights](https://www.patreon.com/posts/35161371).
 
 * For players:
   * Fixed semi-transparency issues on Linux/Mac in recent versions of Mono (e.g. pink shadows).
@@ -167,7 +188,7 @@ Released 22 February 2020 for Stardew Valley 1.4.1 or later.
 * Fixed errors with custom spouse room mods in SMAPI 3.3.
 
 ## 3.3
-Released 22 February 2020 for Stardew Valley 1.4.1 or later.
+Released 22 February 2020 for Stardew Valley 1.4.1 or later. See [release highlights](https://www.patreon.com/posts/34248719).
 
 * For players:
   * Improved performance for mods which load many images.
@@ -201,7 +222,7 @@ Released 22 February 2020 for Stardew Valley 1.4.1 or later.
   * The SMAPI log now prefixes the OS name with `Android` on Android.
 
 ## 3.2
-Released 01 February 2020 for Stardew Valley 1.4.1 or later.
+Released 01 February 2020 for Stardew Valley 1.4.1 or later. See [release highlights](https://www.patreon.com/posts/33659728).
 
 * For players:
   * SMAPI now prevents crashes due to invalid schedule data.
@@ -242,7 +263,7 @@ Released 01 February 2020 for Stardew Valley 1.4.1 or later.
   * Dropped API support for the pre-3.0 update-check format.
 
 ## 3.1
-Released 05 January 2019 for Stardew Valley 1.4.1 or later.
+Released 05 January 2019 for Stardew Valley 1.4.1 or later. See [release highlights](https://www.patreon.com/posts/32904041).
 
 * For players:
   * Added separate group in 'skipped mods' list for broken dependencies, so it's easier to see what to fix first.

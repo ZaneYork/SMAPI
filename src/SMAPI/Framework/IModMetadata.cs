@@ -31,6 +31,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The metadata resolution status.</summary>
         ModMetadataStatus Status { get; }
 
+        /// <summary>The reason the mod failed to load, if applicable.</summary>
+        ModFailReason? FailReason { get; }
+
         /// <summary>Indicates non-error issues with the mod.</summary>
         ModWarning Warnings { get; }
 
@@ -65,12 +68,17 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Public methods
         *********/
+        /// <summary>Set the mod status to <see cref="ModMetadataStatus.Found"/>.</summary>
+        /// <returns>Return the instance for chaining.</returns>
+        IModMetadata SetStatusFound();
+
         /// <summary>Set the mod status.</summary>
         /// <param name="status">The metadata resolution status.</param>
+        /// <param name="reason">The reason a mod could not be loaded.</param>
         /// <param name="error">The reason the metadata is invalid, if any.</param>
         /// <param name="errorDetails">A detailed technical message, if any.</param>
         /// <returns>Return the instance for chaining.</returns>
-        IModMetadata SetStatus(ModMetadataStatus status, string error = null, string errorDetails = null);
+        IModMetadata SetStatus(ModMetadataStatus status, ModFailReason reason, string error, string errorDetails = null);
 
         /// <summary>Set a warning flag for the mod.</summary>
         /// <param name="warning">The warning to set.</param>

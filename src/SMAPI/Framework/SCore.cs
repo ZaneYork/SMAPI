@@ -269,14 +269,13 @@ namespace StardewModdingAPI.Framework
                     eventManager: this.EventManager,
                     modHooks: modHooks,
                     multiplayer: multiplayer,
-                    exitGameImmediately: this.ExitGameImmediately
+                    exitGameImmediately: this.ExitGameImmediately,
+
+                    onGameContentLoaded: this.OnGameContentLoaded,
+                    onGameUpdating: this.OnGameUpdating,
+                    onGameExiting: this.OnGameExiting
                 );
                 StardewValley.Program.gamePtr = this.Game;
-
-                // hook game events
-                this.Game.OnGameContentLoaded += this.OnLoadContent;
-                this.Game.OnGameUpdating += this.OnGameUpdating;
-                this.Game.OnGameExiting += this.OnGameExiting;
 
                 // apply game patches
                 new GamePatcher(this.Monitor).Apply(
@@ -481,7 +480,7 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Raised after the game finishes loading its initial content.</summary>
-        private void OnLoadContent()
+        private void OnGameContentLoaded()
         {
             // override map display device
             Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
@@ -880,7 +879,7 @@ namespace StardewModdingAPI.Framework
                             }
 
                             // raise input button events
-                            foreach (var pair in inputState.LastButtonStates)
+                            foreach (var pair in inputState.ButtonStates)
                             {
                                 SButton button = pair.Key;
                                 SButtonState status = pair.Value;
@@ -1465,9 +1464,10 @@ namespace StardewModdingAPI.Framework
                 // load mods
                 foreach (IModMetadata mod in mods)
                 {
-                    if (!this.TryLoadMod(mod, mods, modAssemblyLoader, proxyFactory, jsonHelper, contentCore, modDatabase, suppressUpdateChecks, out string errorPhrase, out string errorDetails))
+                    if (!this.TryLoadMod(mod, mods, modAssemblyLoader, proxyFactory, jsonHelper, contentCore, modDatabase, suppressUpdateChecks, out ModFailReason? failReason, out string errorPhrase, out string errorDetails))
                     {
-                        mod.SetStatus(ModMetadataStatus.Failed, errorPhrase, errorDetails);
+                        failReason ??= ModFailReason.LoadFailed;
+                        mod.SetStatus(ModMetadataStatus.Failed, failReason.Value, errorPhrase, errorDetails);
                         skippedMods.Add(mod);
                     }
                 }
@@ -1563,16 +1563,17 @@ namespace StardewModdingAPI.Framework
         /// <summary>Load a given mod.</summary>
         /// <param name="mod">The mod to load.</param>
         /// <param name="mods">The mods being loaded.</param>
-        /// <param name="assemblyLoader">Preprocesses and loads mod assemblies</param>
+        /// <param name="assemblyLoader">Preprocesses and loads mod assemblies.</param>
         /// <param name="proxyFactory">Generates proxy classes to access mod APIs through an arbitrary interface.</param>
         /// <param name="jsonHelper">The JSON helper with which to read mods' JSON files.</param>
         /// <param name="contentCore">The content manager to use for mod content.</param>
         /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
         /// <param name="suppressUpdateChecks">The mod IDs to ignore when validating update keys.</param>
+        /// <param name="failReason">The reason the mod couldn't be loaded, if applicable.</param>
         /// <param name="errorReasonPhrase">The user-facing reason phrase explaining why the mod couldn't be loaded (if applicable).</param>
         /// <param name="errorDetails">More detailed details about the error intended for developers (if any).</param>
         /// <returns>Returns whether the mod was successfully loaded.</returns>
-        private bool TryLoadMod(IModMetadata mod, IModMetadata[] mods, AssemblyLoader assemblyLoader, InterfaceProxyFactory proxyFactory, JsonHelper jsonHelper, ContentCoordinator contentCore, ModDatabase modDatabase, HashSet<string> suppressUpdateChecks, out string errorReasonPhrase, out string errorDetails)
+        private bool TryLoadMod(IModMetadata mod, IModMetadata[] mods, AssemblyLoader assemblyLoader, InterfaceProxyFactory proxyFactory, JsonHelper jsonHelper, ContentCoordinator contentCore, ModDatabase modDatabase, HashSet<string> suppressUpdateChecks, out ModFailReason? failReason, out string errorReasonPhrase, out string errorDetails)
         {
             errorDetails = null;
 
@@ -1595,6 +1596,7 @@ namespace StardewModdingAPI.Framework
             if (mod.Status == ModMetadataStatus.Failed)
             {
                 this.Monitor.Log($"      Failed: {mod.Error}");
+                failReason = mod.FailReason;
                 errorReasonPhrase = mod.Error;
                 return false;
             }
@@ -1611,6 +1613,7 @@ namespace StardewModdingAPI.Framework
                             .FirstOrDefault(otherMod => otherMod.HasID(dependency.UniqueID))
                             ?.DisplayName ?? dependency.UniqueID;
                         errorReasonPhrase = $"it needs the '{dependencyName}' mod, which couldn't be loaded.";
+                        failReason = ModFailReason.MissingDependencies;
                         return false;
                     }
                 }
@@ -1628,6 +1631,7 @@ namespace StardewModdingAPI.Framework
                 this.ModRegistry.Add(mod);
 
                 errorReasonPhrase = null;
+                failReason = null;
                 return true;
             }
 
@@ -1650,17 +1654,20 @@ namespace StardewModdingAPI.Framework
                 {
                     string[] updateUrls = new[] { modDatabase.GetModPageUrlFor(manifest.UniqueID), "https://smapi.io/mods" }.Where(p => p != null).ToArray();
                     errorReasonPhrase = $"it's no longer compatible. Please check for a new version at {string.Join(" or ", updateUrls)}";
+                    failReason = ModFailReason.Incompatible;
                     return false;
                 }
                 catch (SAssemblyLoadFailedException ex)
                 {
                     errorReasonPhrase = $"its DLL couldn't be loaded: {ex.Message}";
+                    failReason = ModFailReason.LoadFailed;
                     return false;
                 }
                 catch (Exception ex)
                 {
                     errorReasonPhrase = "its DLL couldn't be loaded.";
                     errorDetails = $"Error: {ex.GetLogSummary()}";
+                    failReason = ModFailReason.LoadFailed;
                     return false;
                 }
 
@@ -1669,7 +1676,10 @@ namespace StardewModdingAPI.Framework
                 {
                     // get mod instance
                     if (!this.TryLoadModEntry(modAssembly, out Mod modEntry, out errorReasonPhrase))
+                    {
+                        failReason = ModFailReason.LoadFailed;
                         return false;
+                    }
 
                     // get content packs
                     IContentPack[] GetContentPacks()
@@ -1717,11 +1727,13 @@ namespace StardewModdingAPI.Framework
                     // track mod
                     mod.SetMod(modEntry, translationHelper);
                     this.ModRegistry.Add(mod);
+                    failReason = null;
                     return true;
                 }
                 catch (Exception ex)
                 {
                     errorReasonPhrase = $"initialization failed:\n{ex.GetLogSummary()}";
+                    failReason = ModFailReason.LoadFailed;
                     return false;
                 }
             }

@@ -21,23 +21,14 @@ namespace StardewModdingAPI.Framework.Input
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="state">The initial state, or <c>null</c> to get the latest state.</param>
-        public KeyboardStateBuilder(KeyboardState? state = null)
+        /// <param name="state">The initial state.</param>
+        public KeyboardStateBuilder(KeyboardState state)
         {
-            this.Reset(state);
-        }
-
-        /// <summary>Reset the tracked state.</summary>
-        /// <param name="state">The state from which to reset, or <c>null</c> to get the latest state.</param>
-        public KeyboardStateBuilder Reset(KeyboardState? state = null)
-        {
-            this.State = state ??= Keyboard.GetState();
+            this.State = state;
 
             this.PressedButtons.Clear();
-            foreach (var button in state.Value.GetPressedKeys())
+            foreach (var button in state.GetPressedKeys())
                 this.PressedButtons.Add(button);
-
-            return this;
         }
 
         /// <summary>Override the states for a set of buttons.</summary>

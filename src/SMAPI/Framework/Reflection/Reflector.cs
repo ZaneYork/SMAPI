@@ -274,7 +274,7 @@ namespace StardewModdingAPI.Framework.Reflection
                 CacheEntry entry = (CacheEntry)this.Cache[key];
                 return entry.IsValid
                     ? (TMemberInfo)entry.MemberInfo
-                    : default(TMemberInfo);
+                    : default;
             }
 
             // fetch & cache new value

@@ -13,51 +13,42 @@ namespace StardewModdingAPI.Framework.Input
         private MouseState? State;
 
         /// <summary>The current button states.</summary>
-        private IDictionary<SButton, ButtonState> ButtonStates;
+        private readonly IDictionary<SButton, ButtonState> ButtonStates;
 
         /// <summary>The mouse wheel scroll value.</summary>
-        private int ScrollWheelValue;
+        private readonly int ScrollWheelValue;
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>The X cursor position.</summary>
-        public int X { get; private set; }
+        public int X { get; }
 
         /// <summary>The Y cursor position.</summary>
-        public int Y { get; private set; }
+        public int Y { get; }
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="state">The initial state, or <c>null</c> to get the latest state.</param>
-        public MouseStateBuilder(MouseState? state = null)
+        /// <param name="state">The initial state.</param>
+        public MouseStateBuilder(MouseState state)
         {
-            this.Reset(state);
-        }
-
-        /// <summary>Reset the tracked state.</summary>
-        /// <param name="state">The state from which to reset, or <c>null</c> to get the latest state.</param>
-        public MouseStateBuilder Reset(MouseState? state = null)
-        {
-            this.State = state ??= Mouse.GetState();
+            this.State = state;
 
             this.ButtonStates = new Dictionary<SButton, ButtonState>
             {
-                [SButton.MouseLeft] = state.Value.LeftButton,
-                [SButton.MouseMiddle] = state.Value.MiddleButton,
-                [SButton.MouseRight] = state.Value.RightButton,
-                [SButton.MouseX1] = state.Value.XButton1,
-                [SButton.MouseX2] = state.Value.XButton2
+                [SButton.MouseLeft] = state.LeftButton,
+                [SButton.MouseMiddle] = state.MiddleButton,
+                [SButton.MouseRight] = state.RightButton,
+                [SButton.MouseX1] = state.XButton1,
+                [SButton.MouseX2] = state.XButton2
             };
-            this.X = state.Value.X;
-            this.Y = state.Value.Y;
-            this.ScrollWheelValue = state.Value.ScrollWheelValue;
-
-            return this;
+            this.X = state.X;
+            this.Y = state.Y;
+            this.ScrollWheelValue = state.ScrollWheelValue;
         }
 
         /// <summary>Override the states for a set of buttons.</summary>

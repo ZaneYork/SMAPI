@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using StardewModdingAPI.Framework.Commands;
+using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Internal.ConsoleWriting;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -401,10 +402,22 @@ namespace StardewModdingAPI.Framework.Logging
             if (skippedMods.Any())
             {
                 // get logging logic
+                HashSet<string> loggedDuplicateIds = new HashSet<string>();
                 void LogSkippedMod(IModMetadata mod)
                 {
                     string message = $"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {mod.Error}";
 
+                    // handle duplicate mods
+                    // (log first duplicate only, don't show redundant version)
+                    if (mod.FailReason == ModFailReason.Duplicate && mod.HasManifest())
+                    {
+                        if (!loggedDuplicateIds.Add(mod.Manifest.UniqueID))
+                            return; // already logged
+
+                        message = $"      - {mod.DisplayName} because {mod.Error}";
+                    }
+
+                    // log message
                     this.Monitor.Log(message, LogLevel.Error);
                     if (mod.ErrorDetails != null)
                         this.Monitor.Log($"        ({mod.ErrorDetails})");

@@ -437,10 +437,10 @@ namespace StardewModdingAPI.Framework.ModLoading
             if (handler.Phrases.Any())
             {
                 foreach (string message in handler.Phrases)
-                    this.Monitor.LogOnce(template.Replace("$phrase", message));
+                    this.Monitor.LogOnce(loggedMessages, template.Replace("$phrase", message));
             }
             else
-                this.Monitor.LogOnce(template.Replace("$phrase", handler.DefaultPhrase ?? handler.GetType().Name));
+                this.Monitor.LogOnce(loggedMessages, template.Replace("$phrase", handler.DefaultPhrase ?? handler.GetType().Name));
         }
 
         /// <summary>Get the correct reference to use for compatibility with the current platform.</summary>

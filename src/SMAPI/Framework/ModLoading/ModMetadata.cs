@@ -38,6 +38,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         public ModMetadataStatus Status { get; private set; }
 
         /// <inheritdoc />
+        public ModFailReason? FailReason { get; private set; }
+
+        /// <inheritdoc />
         public ModWarning Warnings { get; private set; }
 
         /// <inheritdoc />
@@ -93,9 +96,18 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
-        public IModMetadata SetStatus(ModMetadataStatus status, string error = null, string errorDetails = null)
+        public IModMetadata SetStatusFound()
+        {
+            this.SetStatus(ModMetadataStatus.Found, ModFailReason.Incompatible, null);
+            this.FailReason = null;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IModMetadata SetStatus(ModMetadataStatus status, ModFailReason reason, string error, string errorDetails = null)
         {
             this.Status = status;
+            this.FailReason = reason;
             this.Error = error;
             this.ErrorDetails = errorDetails;
             return this;

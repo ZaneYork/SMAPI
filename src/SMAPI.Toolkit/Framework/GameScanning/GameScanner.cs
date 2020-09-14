@@ -29,7 +29,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
             IEnumerable<string> paths = this
                 .GetCustomInstallPaths(platform)
                 .Concat(this.GetDefaultInstallPaths(platform))
-                .Select(PathUtilities.NormalizePathSeparators)
+                .Select(PathUtilities.NormalizePath)
                 .Distinct(StringComparer.OrdinalIgnoreCase);
 
             // yield valid folders

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Pathoschild.Stardew.ModBuildConfig</id>
-    <version>3.1.0</version>
+    <version>3.2.1</version>
     <title>Build package for SMAPI mods</title>
     <authors>Pathoschild</authors>
     <owners>Pathoschild</owners>
@@ -14,9 +14,9 @@
     <iconUrl>https://raw.githubusercontent.com/Pathoschild/SMAPI/develop/src/SMAPI.ModBuildConfig/assets/nuget-icon.png</iconUrl>
     <description>Automates the build configuration for crossplatform Stardew Valley SMAPI mods. For SMAPI 3.0 or later.</description>
     <releaseNotes>
-      3.1.0:
-      - Added support for semantic versioning 2.0.
-      - 0Harmony.dll is now ignored if the mod references it directly (it's bundled with SMAPI).
+      3.2.1:
+      - Added more detailed logging.
+      - Fixed "path's format is not supported" error when using default Mods path in 3.2.
     </releaseNotes>
   </metadata>
   <files>

@@ -12,10 +12,6 @@ namespace StardewModdingAPI.Framework.Input
         /*********
         ** Methods
         *********/
-        /// <summary>Reset the tracked state.</summary>
-        /// <param name="state">The state from which to reset, or <c>null</c> to get the latest state.</param>
-        THandler Reset(TState? state = null);
-
         /// <summary>Override the states for a set of buttons.</summary>
         /// <param name="overrides">The button state overrides.</param>
         THandler OverrideButtons(IDictionary<SButton, SButtonState> overrides);

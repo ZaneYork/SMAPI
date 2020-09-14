@@ -45,7 +45,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             if (!PathUtilities.IsSafeRelativePath(path))
                 throw new InvalidOperationException($"You must call {nameof(IModHelper.Data)}.{nameof(this.ReadJsonFile)} with a relative path.");
 
-            path = Path.Combine(this.ModFolderPath, PathUtilities.NormalizePathSeparators(path));
+            path = Path.Combine(this.ModFolderPath, PathUtilities.NormalizePath(path));
             return this.JsonHelper.ReadJsonFileIfExists(path, out TModel data)
                 ? data
                 : null;
@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             if (!PathUtilities.IsSafeRelativePath(path))
                 throw new InvalidOperationException($"You must call {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteJsonFile)} with a relative path (without directory climbing).");
 
-            path = Path.Combine(this.ModFolderPath, PathUtilities.NormalizePathSeparators(path));
+            path = Path.Combine(this.ModFolderPath, PathUtilities.NormalizePath(path));
             this.JsonHelper.WriteJsonFile(path, data);
         }
 

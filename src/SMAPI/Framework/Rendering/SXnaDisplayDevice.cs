@@ -93,17 +93,17 @@ namespace StardewModdingAPI.Framework.Rendering
         {
             if (tile == null)
                 return;
-            xTile.Dimensions.Rectangle tileImageBounds = tile.TileSheet.GetTileImageBounds(tile.TileIndex);
+            Rectangle tileImageBounds = tile.TileSheet.GetTileImageBounds(tile.TileIndex);
             Texture2D tileSheetTexture = this.m_tileSheetTextures[tile.TileSheet];
             if (tileSheetTexture.IsDisposed)
                 return;
-            this.m_tilePosition.X = (float)location.X;
-            this.m_tilePosition.Y = (float)location.Y;
+            this.m_tilePosition.X = location.X;
+            this.m_tilePosition.Y = location.Y;
             this.m_sourceRectangle.X = tileImageBounds.X;
             this.m_sourceRectangle.Y = tileImageBounds.Y;
             this.m_sourceRectangle.Width = tileImageBounds.Width;
             this.m_sourceRectangle.Height = tileImageBounds.Height;
-            this.m_spriteBatchAlpha.Draw(tileSheetTexture, this.m_tilePosition, new Microsoft.Xna.Framework.Rectangle?(this.m_sourceRectangle), this.m_modulationColour, 0.0f, Vector2.Zero, (float)Layer.zoom, SpriteEffects.None, layerDepth);
+            this.m_spriteBatchAlpha.Draw(tileSheetTexture, this.m_tilePosition, this.m_sourceRectangle, this.m_modulationColour, 0.0f, Vector2.Zero, Layer.zoom, SpriteEffects.None, layerDepth);
         }
 
         /// <summary>Finish drawing to the screen.</summary>
