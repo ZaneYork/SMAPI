@@ -336,7 +336,9 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
 
             // find or rewrite code
-            IInstructionHandler[] handlers = new InstructionMetadata(this.Monitor).GetHandlers(this.ParanoidMode, platformChanged).ToArray();
+            InstructionMetadata instructionMetadata = new InstructionMetadata(this.Monitor);
+            IInstructionHandler[] handlers = instructionMetadata.GetHandlers(this.ParanoidMode, platformChanged).ToArray();
+            IInstructionHandler[] finalHandlers = instructionMetadata.GetFinalHandlers().ToArray();
             RecursiveRewriter rewriter = new RecursiveRewriter(
                 module: module,
                 rewriteType: (type, replaceWith) =>
@@ -351,6 +353,11 @@ namespace StardewModdingAPI.Framework.ModLoading
                     bool rewritten = false;
                     foreach (IInstructionHandler handler in handlers)
                         rewritten |= handler.Handle(module, cil, instruction);
+                    if (rewritten)
+                    {
+                        foreach (IInstructionHandler handler in finalHandlers)
+                            handler.Handle(module, cil, instruction);
+                    }
                     return rewritten;
                 }
             );
@@ -358,6 +365,11 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // handle rewrite flags
             foreach (IInstructionHandler handler in handlers)
+            {
+                foreach (var flag in handler.Flags)
+                    this.ProcessInstructionHandleResult(mod, handler, flag, loggedMessages, logPrefix, filename);
+            }
+            foreach (IInstructionHandler handler in finalHandlers)
             {
                 foreach (var flag in handler.Flags)
                     this.ProcessInstructionHandleResult(mod, handler, flag, loggedMessages, logPrefix, filename);

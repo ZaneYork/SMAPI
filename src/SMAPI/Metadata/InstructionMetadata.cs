@@ -37,7 +37,6 @@ namespace StardewModdingAPI.Metadata
             this.Monitor = monitor;
         }
 
-
         /*********
         ** Public methods
         *********/
@@ -166,5 +165,11 @@ namespace StardewModdingAPI.Metadata
                 yield return new TypeFinder(typeof(System.Diagnostics.Process).FullName, InstructionHandleResult.DetectedShellAccess);
             }
         }
+        /// <summary>Get rewriters which do final action for CIL code which been rewritten.</summary>
+        public IEnumerable<IInstructionHandler> GetFinalHandlers()
+        {
+            yield return new BrokenShortJumpRewriter();
+        }
+
     }
 }

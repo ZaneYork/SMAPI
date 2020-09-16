@@ -75,7 +75,20 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
             {
                 null => Instruction.Create(OpCodes.Ldnull),
                 bool value => Instruction.Create(value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0),
-                int value => Instruction.Create(OpCodes.Ldc_I4, value), // int32
+                int value => value switch // int32
+                {
+                    -1 => Instruction.Create(OpCodes.Ldc_I4_M1),
+                    0 => Instruction.Create(OpCodes.Ldc_I4_0),
+                    1 => Instruction.Create(OpCodes.Ldc_I4_1),
+                    2 => Instruction.Create(OpCodes.Ldc_I4_2),
+                    3 => Instruction.Create(OpCodes.Ldc_I4_3),
+                    4 => Instruction.Create(OpCodes.Ldc_I4_4),
+                    5 => Instruction.Create(OpCodes.Ldc_I4_5),
+                    6 => Instruction.Create(OpCodes.Ldc_I4_6),
+                    7 => Instruction.Create(OpCodes.Ldc_I4_7),
+                    8 => Instruction.Create(OpCodes.Ldc_I4_8),
+                    _ => Instruction.Create(OpCodes.Ldc_I4, value)
+                },
                 long value => Instruction.Create(OpCodes.Ldc_I8, value), // int64
                 float value => Instruction.Create(OpCodes.Ldc_R4, value), // float32
                 double value => Instruction.Create(OpCodes.Ldc_R8, value), // float64
