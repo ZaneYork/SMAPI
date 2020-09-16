@@ -23,15 +23,51 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // get method ref
+            bool rewritten = false;
+            // dynamic inserted instruction
+            if (instruction.Offset == 0 && instruction.Previous != null)
+                return false;
+            // rewrite does not insert instruction
+            if (!(instruction.Previous != null && instruction.Previous.Offset == 0
+                || instruction.Next != null && instruction.Next.Offset == 0))
+                return false;
             foreach (var ins in cil.Body.Instructions)
             {
+                // dynamic inserted instruction
+                if(ins.Offset == 0)
+                    continue;
                 OpCode targetOp = this.RewriteTarget(ins);
+                // not a jump instruction
                 if (targetOp == OpCodes.Nop)
                     continue;
-                // rewrite
-                ins.OpCode = targetOp;
+
+                Instruction insJumpTo = (Instruction) ins.Operand;
+                // jump forward
+                if (insJumpTo.Offset > ins.Offset)
+                {
+                    // jump across the rewrite point
+                    if(instruction.Offset > ins.Offset && instruction.Offset < insJumpTo.Offset)
+                    {
+                        // rewrite
+                        ins.OpCode = targetOp;
+                        rewritten = true;
+                    }
+                }
+                // jump backward
+                else
+                {
+                    // jump across the rewrite point
+                    if(instruction.Offset > insJumpTo.Offset && instruction.Offset < ins.Offset)
+                    {
+                        // rewrite
+                        ins.OpCode = targetOp;
+                        rewritten = true;
+                    }
+                }
             }
-            return this.MarkRewritten();
+            if(rewritten)
+                return this.MarkRewritten();
+            return false;
         }
 
 
