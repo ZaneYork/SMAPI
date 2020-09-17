@@ -7,14 +7,16 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
-## Upcoming release
+## 3.7.3
+Released 16 September 2020 for Stardew Valley 1.4.1 or later.
+
 * For players:
-  * Fixed errors on Linux/Mac due to mods with incorrect filename case.
+  * Fixed errors on Linux/Mac due to content packs with incorrect filename case.
   * Fixed map rendering crash due to conflict between SMAPI and PyTK.
-  * Fixed error in heuristically-rewritten mods in rare cases (thanks to ZaneYork!).
+  * Fixed error in heuristically-rewritten mods in rare cases (thanks to collaboration with ZaneYork!).
 
 * For modders:
-  * All content pack file paths accessed through `IContentPack` are now case-insensitive.
+  * File paths accessed through `IContentPack` are now case-insensitive (even on Linux).
 
 * For the web UI:
   * You can now renew the expiry for an uploaded JSON/log file if you need it longer.
@@ -176,7 +178,7 @@ Released 22 March 2020 for Stardew Valley 1.4.1 or later. See [release highlight
   * Updated translations. Thanks to Annosz (added Hungarian)!
 
 * For modders:
-  * Added support for flipped and rotated map tiles (in collaboration with Platonymous).
+  * Added support for flipped and rotated map tiles (thanks to collaboration with Platonymous!).
   * Added support for `.tmx` maps using zlib compression (thanks to Platonymous!).
   * Added `this.Monitor.LogOnce` method.
   * Mods are no longer prevented from suppressing key presses in the chatbox.

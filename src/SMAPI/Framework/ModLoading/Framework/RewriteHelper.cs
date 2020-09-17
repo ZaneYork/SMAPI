@@ -99,7 +99,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
 
         /// <summary>Get the long equivalent for a short-jump op code.</summary>
         /// <param name="shortJumpCode">The short-jump op code.</param>
-        /// <returns>Returns the instruction, or <c>null</c> if it isn't a short jump.</returns>
+        /// <returns>Returns the new op code, or <c>null</c> if it isn't a short jump.</returns>
         public static OpCode? GetEquivalentLongJumpCode(OpCode shortJumpCode)
         {
             return shortJumpCode.Code switch
