@@ -55,9 +55,6 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
             helper.Events.Display.Rendered += this.OnRendered;
             helper.Events.Input.ButtonReleased += this.EventInputButtonReleased;
             helper.Events.Input.ButtonPressed += this.EventInputButtonPressed;
-
-            object score = this.GetSCore(this.helper);
-            object eventManager = score.GetType().GetField("EventManager", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).GetValue(score);
         }
 
         private object GetSCore(IModHelper helper)
@@ -86,7 +83,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
             }
 
             Vector2 screenPixels = e.Cursor.ScreenPixels;
-            if (this.shouldTrigger(screenPixels, e.Button))
+            if (this.buttonKey != SButton.None && this.shouldTrigger(screenPixels, e.Button))
             {
                 object input = this.helper.Reflection.GetField<object>(typeof(Game1), "input").GetValue();
                 this.raisingPressed = true;

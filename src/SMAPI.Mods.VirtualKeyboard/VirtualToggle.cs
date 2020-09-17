@@ -66,45 +66,56 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
         private void VirtualToggleButtonPressed(object sender, ButtonPressedEventArgs e)
         {
             Vector2 screenPixels = e.Cursor.ScreenPixels;
-            if (this.shouldTrigger(screenPixels))
+            if (this.modConfig.vToggle.key != SButton.None && e.Button == this.modConfig.vToggle.key)
+                this.toggleLogic();
+            else if (e.Button == SButton.MouseLeft && this.shouldTrigger(screenPixels))
+                this.toggleLogic();
+        }
+
+        private void toggleLogic()
+        {
+            switch (this.enabledStage)
             {
-                switch (this.enabledStage)
-                {
-                    case 0:
-                        foreach (var keys in this.keyboard)
-                        {
-                            keys.hidden = false;
-                        }
-                        foreach (var keys in this.keyboardExtend)
-                        {
-                            keys.hidden = true;
-                        }
-                        this.enabledStage = 1;
-                        break;
-                    case 1 when this.keyboardExtend.Count > 0:
-                        foreach (var keys in this.keyboardExtend)
-                        {
-                            keys.hidden = false;
-                        }
-                        this.enabledStage = 2;
-                        break;
-                    default:
-                        foreach (var keys in this.keyboard)
-                        {
-                            keys.hidden = true;
-                        }
-                        foreach (var keys in this.keyboardExtend)
-                        {
-                            keys.hidden = true;
-                        }
-                        this.enabledStage = 0;
-                        if (Game1.activeClickableMenu is IClickableMenu menu && !(Game1.activeClickableMenu is DialogueBox))
-                        {
-                            menu.exitThisMenu();
-                            Toolbar.toolbarPressed = true;
-                        }
-                        break;
-                }
+                case 0:
+                    foreach (var keys in this.keyboard)
+                    {
+                        keys.hidden = false;
+                    }
+
+                    foreach (var keys in this.keyboardExtend)
+                    {
+                        keys.hidden = true;
+                    }
+
+                    this.enabledStage = 1;
+                    break;
+                case 1 when this.keyboardExtend.Count > 0:
+                    foreach (var keys in this.keyboardExtend)
+                    {
+                        keys.hidden = false;
+                    }
+
+                    this.enabledStage = 2;
+                    break;
+                default:
+                    foreach (var keys in this.keyboard)
+                    {
+                        keys.hidden = true;
+                    }
+
+                    foreach (var keys in this.keyboardExtend)
+                    {
+                        keys.hidden = true;
+                    }
+
+                    this.enabledStage = 0;
+                    if (Game1.activeClickableMenu is IClickableMenu menu && !(Game1.activeClickableMenu is DialogueBox))
+                    {
+                        menu.exitThisMenu();
+                        Toolbar.toolbarPressed = true;
+                    }
+
+                    break;
             }
         }
 

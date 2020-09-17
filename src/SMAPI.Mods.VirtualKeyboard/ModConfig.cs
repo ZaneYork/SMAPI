@@ -2,7 +2,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
 {
     class ModConfig
     {
-        public Toggle vToggle { get; set; } = new Toggle(new Rect(36, 12, 64, 64), true);
+        public Toggle vToggle { get; set; } = new Toggle(new Rect(36, 12, 64, 64), true, SButton.None);
         public VirtualButton[] buttons { get; set;} = new VirtualButton[] {
             new VirtualButton(SButton.Q, new Rect(190, 80, 90, 90), 0.5f),
             new VirtualButton(SButton.I, new Rect(290, 80, 90, 90), 0.5f),
@@ -32,14 +32,16 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
         }
         internal class Toggle
         {
+            public SButton key { get;set; }
             public Rect rectangle { get; set; }
             public bool autoHidden { get; set; } = true;
             //public float scale;
 
-            public Toggle(Rect rectangle, bool autoHidden)
+            public Toggle(Rect rectangle, bool autoHidden, SButton key)
             {
                 this.rectangle = rectangle;
                 this.autoHidden = autoHidden;
+                this.key = key;
                 //this.scale = scale;
             }
         }

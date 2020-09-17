@@ -1,7 +1,7 @@
 {
   "Name": "VirtualKeyboard",
   "Author": "SMAPI",
-  "Version": "3.2.2",
+  "Version": "3.3.1",
   "MinimumApiVersion": "3.4.0",
   "Description": "A much needed Virtual Keyboard for SMAPI Android.",
   "UniqueID": "VirtualKeyboard",
