@@ -7,6 +7,18 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## Upcoming release
+* For players:
+  * Fixed errors on Linux/Mac due to mods with incorrect filename case.
+  * Fixed map rendering crash due to conflict between SMAPI and PyTK.
+  * Fixed error in heuristically-rewritten mods in rare cases (thanks to ZaneYork!).
+
+* For modders:
+  * All content pack file paths accessed through `IContentPack` are now case-insensitive.
+
+* For the web UI:
+  * You can now renew the expiry for an uploaded JSON/log file if you need it longer.
+
 ## 3.7.2
 Released 08 September 2020 for Stardew Valley 1.4.1 or later.
 

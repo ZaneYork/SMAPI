@@ -78,7 +78,7 @@ else if (Model.ParsedLog?.IsValid == true)
     <div class="save-metadata" v-pre>
         @if (Model.Expiry != null)
         {
-            <text>This log will expire in @((DateTime.UtcNow - Model.Expiry.Value).Humanize()).</text>
+            <text>This log will expire in @((DateTime.UtcNow - Model.Expiry.Value).Humanize()) (<a href="@(this.Url.PlainAction("Index", "LogParser", new { id = this.Model.PasteID, renew = true }))">renew</a>).</text>
         }
     </div>
 }

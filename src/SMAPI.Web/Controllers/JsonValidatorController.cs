@@ -58,7 +58,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Render the schema validator UI.</summary>
         /// <param name="schemaName">The schema name with which to validate the JSON, or 'edit' to return to the edit screen.</param>
         /// <param name="id">The stored file ID.</param>
-        /// <param name="operation">The operation to perform for the selected log ID. This can be 'edit', or any other value to view.</param>
+        /// <param name="operation">The operation to perform for the selected log ID. This can be 'edit', 'renew', or any other value to view.</param>
         [HttpGet]
         [Route("json")]
         [Route("json/{schemaName}")]
@@ -68,8 +68,10 @@ namespace StardewModdingAPI.Web.Controllers
         {
             // parse arguments
             schemaName = this.NormalizeSchemaName(schemaName);
+            operation = operation?.Trim().ToLower();
             bool hasId = !string.IsNullOrWhiteSpace(id);
-            bool isEditView = !hasId || operation?.Trim().ToLower() == "edit";
+            bool isEditView = !hasId || operation == "edit";
+            bool renew = operation == "renew";
 
             // build result model
             var result = this.GetModel(id, schemaName, isEditView);
@@ -77,7 +79,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", result);
 
             // fetch raw JSON
-            StoredFileInfo file = await this.Storage.GetAsync(id);
+            StoredFileInfo file = await this.Storage.GetAsync(id, renew);
             if (string.IsNullOrWhiteSpace(file.Content))
                 return this.View("Index", result.SetUploadError("The JSON file seems to be empty."));
             result.SetContent(file.Content, expiry: file.Expiry, uploadWarning: file.Warning);

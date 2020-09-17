@@ -111,21 +111,39 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                     foreach (VariableDefinition variable in method.Body.Variables)
                         changed |= this.RewriteTypeReference(variable.VariableType, newType => variable.VariableType = newType);
 
-                    // check CIL instructions
+                    // rewrite CIL instructions
                     ILProcessor cil = method.Body.GetILProcessor();
                     Collection<Instruction> instructions = cil.Body.Instructions;
+                    bool addedInstructions = false;
                     for (int i = 0; i < instructions.Count; i++)
                     {
                         var instruction = instructions[i];
                         if (instruction.OpCode.Code == Code.Nop)
                             continue;
 
+                        int oldCount = cil.Body.Instructions.Count;
                         changed |= this.RewriteInstruction(instruction, cil, newInstruction =>
                         {
                             changed = true;
                             cil.Replace(instruction, newInstruction);
                             instruction = newInstruction;
                         });
+
+                        if (cil.Body.Instructions.Count > oldCount)
+                            addedInstructions = true;
+                    }
+
+                    // special case: added instructions may cause an instruction to be out of range
+                    // of a short jump that references it
+                    if (addedInstructions)
+                    {
+                        foreach (var instruction in instructions)
+                        {
+                            var longJumpCode = RewriteHelper.GetEquivalentLongJumpCode(instruction.OpCode);
+                            if (longJumpCode != null)
+                                instruction.OpCode = longJumpCode.Value;
+                        }
+                        changed = true;
                     }
                 }
             }

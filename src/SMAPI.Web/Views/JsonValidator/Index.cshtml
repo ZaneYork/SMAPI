@@ -76,7 +76,7 @@ else if (!Model.IsEditView && Model.PasteID != null)
     <div class="save-metadata" v-pre>
         @if (Model.Expiry != null)
         {
-            <text>This JSON file will expire in @((DateTime.UtcNow - Model.Expiry.Value).Humanize()). </text>
+            <text>This JSON file will expire in @((DateTime.UtcNow - Model.Expiry.Value).Humanize()) (<a href="@(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = this.Model.SchemaName, id = this.Model.PasteID, operation = "renew" }))">renew</a>).</text>
         }
         <!--@Model.UploadWarning-->
     </div>

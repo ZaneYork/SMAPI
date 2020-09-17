@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -16,6 +17,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
+
+        /// <summary>A cache of case-insensitive => exact relative paths within the content pack, for case-insensitive file lookups on Linux/Mac.</summary>
+        private readonly IDictionary<string, string> RelativePaths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
 
         /*********
@@ -47,23 +51,29 @@ namespace StardewModdingAPI.Framework
             this.Content = content;
             this.Translation = translation;
             this.JsonHelper = jsonHelper;
+
+            foreach (string path in Directory.EnumerateFiles(this.DirectoryPath, "*", SearchOption.AllDirectories))
+            {
+                string relativePath = path.Substring(this.DirectoryPath.Length + 1);
+                this.RelativePaths[relativePath] = relativePath;
+            }
         }
 
         /// <inheritdoc />
         public bool HasFile(string path)
         {
-            this.AssertRelativePath(path, nameof(this.HasFile));
+            path = PathUtilities.NormalizePath(path);
 
-            return File.Exists(Path.Combine(this.DirectoryPath, path));
+            return this.GetFile(path).Exists;
         }
 
         /// <inheritdoc />
         public TModel ReadJsonFile<TModel>(string path) where TModel : class
         {
-            this.AssertRelativePath(path, nameof(this.ReadJsonFile));
+            path = PathUtilities.NormalizePath(path);
 
-            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalizePath(path));
-            return this.JsonHelper.ReadJsonFileIfExists(path, out TModel model)
+            FileInfo file = this.GetFile(path);
+            return file.Exists && this.JsonHelper.ReadJsonFileIfExists(file.FullName, out TModel model)
                 ? model
                 : null;
         }
@@ -71,21 +81,30 @@ namespace StardewModdingAPI.Framework
         /// <inheritdoc />
         public void WriteJsonFile<TModel>(string path, TModel data) where TModel : class
         {
-            this.AssertRelativePath(path, nameof(this.WriteJsonFile));
+            path = PathUtilities.NormalizePath(path);
 
-            path = Path.Combine(this.DirectoryPath, PathUtilities.NormalizePath(path));
-            this.JsonHelper.WriteJsonFile(path, data);
+            FileInfo file = this.GetFile(path, out path);
+            this.JsonHelper.WriteJsonFile(file.FullName, data);
+
+            if (!this.RelativePaths.ContainsKey(path))
+                this.RelativePaths[path] = path;
         }
 
         /// <inheritdoc />
         public T LoadAsset<T>(string key)
         {
+            key = PathUtilities.NormalizePath(key);
+
+            key = this.GetCaseInsensitiveRelativePath(key);
             return this.Content.Load<T>(key, ContentSource.ModFolder);
         }
 
         /// <inheritdoc />
         public string GetActualAssetKey(string key)
         {
+            key = PathUtilities.NormalizePath(key);
+
+            key = this.GetCaseInsensitiveRelativePath(key);
             return this.Content.GetActualAssetKey(key, ContentSource.ModFolder);
         }
 
@@ -93,13 +112,32 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Private methods
         *********/
-        /// <summary>Assert that a relative path was passed it to a content pack method.</summary>
-        /// <param name="path">The path to check.</param>
-        /// <param name="methodName">The name of the method which was invoked.</param>
-        private void AssertRelativePath(string path, string methodName)
+        /// <summary>Get the real relative path from a case-insensitive path.</summary>
+        /// <param name="relativePath">The normalized relative path.</param>
+        private string GetCaseInsensitiveRelativePath(string relativePath)
         {
-            if (!PathUtilities.IsSafeRelativePath(path))
-                throw new InvalidOperationException($"You must call {nameof(IContentPack)}.{methodName} with a relative path.");
+            if (!PathUtilities.IsSafeRelativePath(relativePath))
+                throw new InvalidOperationException($"You must call {nameof(IContentPack)} methods with a relative path.");
+
+            return this.RelativePaths.TryGetValue(relativePath, out string caseInsensitivePath)
+                ? caseInsensitivePath
+                : relativePath;
+        }
+
+        /// <summary>Get the underlying file info.</summary>
+        /// <param name="relativePath">The normalized file path relative to the content pack directory.</param>
+        private FileInfo GetFile(string relativePath)
+        {
+            return this.GetFile(relativePath, out _);
+        }
+
+        /// <summary>Get the underlying file info.</summary>
+        /// <param name="relativePath">The normalized file path relative to the content pack directory.</param>
+        /// <param name="actualRelativePath">The relative path after case-insensitive matching.</param>
+        private FileInfo GetFile(string relativePath, out string actualRelativePath)
+        {
+            actualRelativePath = this.GetCaseInsensitiveRelativePath(relativePath);
+            return new FileInfo(Path.Combine(this.DirectoryPath, actualRelativePath));
         }
     }
 }

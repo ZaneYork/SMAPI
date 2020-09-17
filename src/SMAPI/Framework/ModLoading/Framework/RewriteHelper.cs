@@ -97,6 +97,30 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
             };
         }
 
+        /// <summary>Get the long equivalent for a short-jump op code.</summary>
+        /// <param name="shortJumpCode">The short-jump op code.</param>
+        /// <returns>Returns the instruction, or <c>null</c> if it isn't a short jump.</returns>
+        public static OpCode? GetEquivalentLongJumpCode(OpCode shortJumpCode)
+        {
+            return shortJumpCode.Code switch
+            {
+                Code.Beq_S => OpCodes.Beq,
+                Code.Bge_S => OpCodes.Bge,
+                Code.Bge_Un_S => OpCodes.Bge_Un,
+                Code.Bgt_S => OpCodes.Bgt,
+                Code.Bgt_Un_S => OpCodes.Bgt_Un,
+                Code.Ble_S => OpCodes.Ble,
+                Code.Ble_Un_S => OpCodes.Ble_Un,
+                Code.Blt_S => OpCodes.Blt,
+                Code.Blt_Un_S => OpCodes.Blt_Un,
+                Code.Bne_Un_S => OpCodes.Bne_Un,
+                Code.Br_S => OpCodes.Br,
+                Code.Brfalse_S => OpCodes.Brfalse,
+                Code.Brtrue_S => OpCodes.Brtrue,
+                _ => (OpCode?)null
+            };
+        }
+
         /// <summary>Get whether a type matches a type reference.</summary>
         /// <param name="type">The defined type.</param>
         /// <param name="reference">The type reference.</param>

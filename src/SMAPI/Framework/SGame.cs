@@ -312,7 +312,7 @@ namespace StardewModdingAPI.Framework
             catch (Exception ex)
             {
                 // log error
-                this.Monitor.Log($"An error occured in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
+                this.Monitor.Log($"An error occurred in the overridden draw loop: {ex.GetLogSummary()}", LogLevel.Error);
 
                 // exit if irrecoverable
                 if (!this.DrawCrashTimer.Decrement())
