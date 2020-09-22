@@ -122,6 +122,9 @@ namespace StardewModdingAPI.Metadata
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "PatchAll" && method.Parameters.Count == 1, typeof(HarmonyInstanceMethods), "PatchAllToAssembly");
 #endif
             }
+
+            if(Constants.RewriteMissing)
+                yield return new ReferenceToMissingMemberRewriter(this.ValidateReferencesToAssemblies);
 #endif
 
             /****

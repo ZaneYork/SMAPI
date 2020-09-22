@@ -39,6 +39,10 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             WeatherDebrisManager.Instance.UpdateDebrisWeatherForMovement();
         }
 
+        public static void updateRaindropPosition()
+        {
+            RainManager.Instance.Update(Game1.currentGameTime);
+        }
 
         [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
         public static new void warpFarmer(string locationName, int tileX, int tileY, bool flip)

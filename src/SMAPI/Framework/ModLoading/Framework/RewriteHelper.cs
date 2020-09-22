@@ -274,5 +274,42 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                .GetConstructors(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly)
                .Any(method => RewriteHelper.HasMatchingSignature(method, reference));
         }
+
+        /// <summary>
+        /// get load instruction for specified type
+        /// </summary>
+        /// <param name="typename">target type's fullname</param>
+        /// <returns>load instruction</returns>
+        public static Instruction GetLoadValueInstruction(string typename)
+        {
+            return typename switch
+            {
+                "System.Void" => Instruction.Create(OpCodes.Nop),
+                "System.Boolean" => Instruction.Create(OpCodes.Ldc_I4_0),
+                "System.Byte" => Instruction.Create(OpCodes.Ldc_I4_0),
+                "System.SByte" => Instruction.Create(OpCodes.Ldc_I4_0),
+                "System.Char" => Instruction.Create(OpCodes.Ldc_I4_0),
+                "System.Single" => Instruction.Create(OpCodes.Ldc_R4, (float)0),
+                "System.Double" => Instruction.Create(OpCodes.Ldc_R8, (double)0),
+                "System.Int32" => Instruction.Create(OpCodes.Ldc_I4_0),
+                "System.UInt32" => Instruction.Create(OpCodes.Ldc_I4_0),
+                "System.Int64" => Instruction.Create(OpCodes.Ldc_I8, (long)0),
+                "System.UInt64" => Instruction.Create(OpCodes.Ldc_I8, (long)0),
+                "System.Int16" => Instruction.Create(OpCodes.Ldc_I4_0),
+                "System.UInt16" => Instruction.Create(OpCodes.Ldc_I4_0),
+                _ => Instruction.Create(OpCodes.Ldnull),
+            };
+        }
+
+        /// <summary>
+        /// Append array of instruction to the target instruction
+        /// </summary>
+        /// <param name="il">processor</param>
+        /// <param name="target">target instruction</param>
+        /// <param name="instructions">array of instruction</param>
+        public static void Append(this ILProcessor il, Instruction target, Instruction[] instructions)
+        {
+            for (int i = instructions.Length - 1; i >= 0; i--) il.InsertAfter(target, instructions[i]);
+        }
     }
 }

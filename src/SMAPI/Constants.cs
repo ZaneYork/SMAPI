@@ -64,7 +64,7 @@ namespace StardewModdingAPI
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
 #if SMAPI_FOR_MOBILE
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.7.3");
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.7.3.2", true);
 
         /// <summary>Android SMAPI's current semantic version.</summary>
         public static ISemanticVersion AndroidApiVersion { get; } = new Toolkit.SemanticVersion("0.8.8");
@@ -173,6 +173,8 @@ namespace StardewModdingAPI
         internal static readonly string MicrosoftAppSecret = "79411636-0bc5-41cc-9889-43a4bca83b9d";
 
         internal static bool HarmonyEnabled { get; set; } = true;
+
+        internal static bool RewriteMissing { get; set; } = false;
 #endif
 
 

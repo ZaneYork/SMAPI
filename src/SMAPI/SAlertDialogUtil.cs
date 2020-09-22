@@ -29,7 +29,7 @@ namespace StardewModdingAPI
             }
         }
 
-        private static void ShowDialog(string message, string title, string positive, string negative, Action<ActionType> callback)
+        internal static void ShowDialog(string message, string title, string positive, string negative, Action<ActionType> callback)
         {
             try
             {

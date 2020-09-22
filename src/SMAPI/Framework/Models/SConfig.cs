@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Framework.Models
 #if SMAPI_FOR_MOBILE
             [nameof(ModsPath)] = "StardewValley/Mods",
             [nameof(DisableMonoMod)] = false,
-            [nameof(MaxLogSize)] = int.MaxValue,
+            [nameof(RewriteMissing)] = false,
 #endif
             [nameof(VerboseLogging)] = false,
             [nameof(LogNetworkTraffic)] = false
@@ -74,7 +74,7 @@ namespace StardewModdingAPI.Framework.Models
 
         public bool DisableMonoMod { get; set; }
 
-        public int MaxLogSize { get; set; } = int.MaxValue;
+        public bool RewriteMissing { get; set; } = false;
 #endif
         /********
         ** Public methods

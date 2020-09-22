@@ -107,15 +107,27 @@ namespace StardewModdingAPI
                 File errorLog = this.FilesDir.ListFiles().FirstOrDefault(f => f.IsDirectory && f.Name == "error")?.ListFiles().FirstOrDefault(f => f.Name.EndsWith(".dat"));
                 if (errorLog != null)
                 {
-                    SMainActivity.ErrorDetected = true;
-                    SAlertDialogUtil.AlertMessage(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected", callback: (type =>
+                    try
                     {
-                        SMainActivity.ErrorDetected = false;
-                    }));
+                        Handler handler = new Handler((msg) => throw new RuntimeException());
+                        SAlertDialogUtil.ShowDialog(System.IO.File.ReadAllText(errorLog.AbsolutePath), "Crash Detected", null, null, callback: (type =>
+                        {
+                            errorLog.Delete();
+                            handler.SendEmptyMessage(0);
+                        }));
+                        try
+                        {
+                            Looper.Prepare();
+                        }
+                        catch (Exception) { }
+                        Looper.Loop();
+                    }
+                    catch (Exception) { }
                 }
                 Type[] services = {typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes)};
                 AppCenter.Start(Constants.MicrosoftAppSecret, services);
                 AppCenter.SetUserId(Constants.ApiVersion.ToString());
+
             }
             catch
             {
@@ -135,15 +147,6 @@ namespace StardewModdingAPI
                     game1.Exit();
                 }
 
-                if (SMainActivity.ErrorDetected)
-                {
-                    new Thread(() =>
-                    {
-                        Thread.Sleep(500);
-                        SMainActivity.Instance.RunOnUiThread(() => this.OnCreatePartTwo());
-                    }).Start();
-                    return;
-                }
                 new SGameConsole();
 
                 Program.Main(null);
@@ -153,6 +156,7 @@ namespace StardewModdingAPI
                     var settings = JsonConvert.DeserializeObject<Framework.Models.SConfig>(System.IO.File.ReadAllText(Constants.ApiUserConfigPath));
                     modPath = settings.ModsPath;
                     Constants.HarmonyEnabled = !settings.DisableMonoMod;
+                    Constants.RewriteMissing = settings.RewriteMissing;
                 }
 
                 if (string.IsNullOrWhiteSpace(modPath))
