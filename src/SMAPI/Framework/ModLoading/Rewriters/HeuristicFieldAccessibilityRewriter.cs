@@ -123,10 +123,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 VariableDefinition varValue = null;
                 if (!isStatic)
                 {
-                    varInstance = new VariableDefinition(fieldRef.DeclaringType);
+                    varInstance = new VariableDefinition(fieldRef.FieldType);
                     cil.Body.Variables.Add(varInstance);
                 }
-                varValue = new VariableDefinition(fieldRef.DeclaringType);
+                varValue = new VariableDefinition(fieldRef.FieldType);
                 cil.Body.Variables.Add(varValue);
                 // inverse order insert
                 // load instance (origin logic, if not static)

@@ -217,8 +217,10 @@ namespace StardewModdingAPI.Framework.Logging
                     {
                         this.Monitor.Log("A new version of SMAPI was detected last time you played.", LogLevel.Error);
                         this.Monitor.Log($"You can update to {updateFound}: https://smapi.io.", LogLevel.Error);
+#if !SMAPI_FOR_MOBILE
                         this.Monitor.Log("Press any key to continue playing anyway. (This only appears when using a SMAPI beta.)", LogLevel.Info);
                         Console.ReadKey();
+#endif
                     }
                 }
                 File.Delete(Constants.UpdateMarker);
@@ -229,9 +231,11 @@ namespace StardewModdingAPI.Framework.Logging
             {
                 this.Monitor.Log("The game crashed last time you played. If it happens repeatedly, see 'get help' on https://smapi.io.", LogLevel.Error);
                 this.Monitor.Log("If you ask for help, make sure to share your SMAPI log: https://smapi.io/log.", LogLevel.Error);
+#if !SMAPI_FOR_MOBILE
                 this.Monitor.Log("Press any key to delete the crash data and continue playing.", LogLevel.Info);
                 Console.ReadKey();
                 File.Delete(Constants.FatalCrashLog);
+#endif
                 File.Delete(Constants.FatalCrashMarker);
             }
         }
