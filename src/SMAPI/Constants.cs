@@ -73,8 +73,13 @@ namespace StardewModdingAPI
         public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.7.3");
 #endif
 
+#if ANDROID_TARGET_MOBILE_LEGACY
+        /// <summary>The minimum supported version of Stardew Valley.</summary>
+        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.4");
+#else
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.4.5");
+#endif
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MaximumGameVersion { get; } = new GameVersion("1.4.5");

@@ -55,7 +55,9 @@ namespace StardewModdingAPI.Metadata
 #if SMAPI_FOR_MOBILE
             // Redirect reference
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isRaining", nameof(Game1Methods.IsRainingProp));
+#if !ANDROID_TARGET_MOBILE_LEGACY
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isSnowing", nameof(Game1Methods.IsSnowingProp));
+#endif
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isDebrisWeather", nameof(Game1Methods.IsDebrisWeatherProp));
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "rainDrops", nameof(Game1Methods.RainDropsProp));
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(WeatherDebrisManager), "debrisWeather","weatherDebrisList", "Instance");

@@ -153,6 +153,15 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_GOOGLE_LEGACY'))">
+    <!--    <Reference Include="MonoGame.Framework">-->
+    <!--      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\MonoGame.Framework.dll</HintPath>-->
+    <!--    </Reference>-->
+    <Reference Include="StardewValley">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.4.128\assemblies\StardewValley.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
   <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_SAMSUNG'))">
     <!--    <Reference Include="MonoGame.Framework">-->
     <!--      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\samsung_base_1.4.5.144\assemblies\MonoGame.Framework.dll</HintPath>-->

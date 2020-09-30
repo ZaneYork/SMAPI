@@ -19,11 +19,13 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             set => RainManager.Instance.isRaining = value;
         }
 
+#if !ANDROID_TARGET_MOBILE_LEGACY
         public static bool IsSnowingProp
         {
             get => WeatherDebrisManager.Instance.isSnowing;
             set => WeatherDebrisManager.Instance.isSnowing = value;
         }
+#endif
 
         public static bool IsDebrisWeatherProp
         {
