@@ -123,7 +123,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 VariableDefinition varValue = null;
                 if (!isStatic)
                 {
-                    varInstance = new VariableDefinition(fieldRef.FieldType);
+                    varInstance = new VariableDefinition(fieldRef.DeclaringType);
                     cil.Body.Variables.Add(varInstance);
                 }
                 varValue = new VariableDefinition(fieldRef.FieldType);
@@ -154,11 +154,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
                 // prohibit replace remove entry point (may cause jump logic broken)
                 instruction.OpCode = OpCodes.Stloc_S;
-                instruction.Operand = varInstance;
+                instruction.Operand = varValue;
                 cil.InsertAfter(instruction, cil.Create(OpCodes.Nop));
                 if (!isStatic)
                 {
-                    cil.InsertAfter(instruction, cil.Create(OpCodes.Stloc_S, varValue));
+                    cil.InsertAfter(instruction, cil.Create(OpCodes.Stloc_S, varInstance));
                     instruction = instruction.Next;
                 }
                 instruction = instruction.Next;
