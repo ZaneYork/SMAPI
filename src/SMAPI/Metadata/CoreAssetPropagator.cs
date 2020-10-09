@@ -263,7 +263,7 @@ namespace StardewModdingAPI.Metadata
                 case "data\\farmanimals": // FarmAnimal constructor
                     return this.ReloadFarmAnimalData();
 
-                case "data\\moviereactions": // MovieTheater.GetMovieReactions
+                case "data\\moviesreactions": // MovieTheater.GetMovieReactions
                     this.Reflection
                         .GetField<List<MovieCharacterReaction>>(typeof(MovieTheater), "_genericReactions")
                         .SetValue(content.Load<List<MovieCharacterReaction>>(key));

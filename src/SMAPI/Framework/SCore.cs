@@ -298,15 +298,14 @@ namespace StardewModdingAPI.Framework
                 );
 
                 // add exit handler
-                new Thread(() =>
+                this.CancellationToken.Token.Register(() =>
                 {
-                    this.CancellationToken.Token.WaitHandle.WaitOne();
                     if (this.IsGameRunning)
                     {
                         this.LogManager.WriteCrashLog();
                         this.Game.Exit();
                     }
-                }).Start();
+                });
 
                 // set window titles
                 this.SetWindowTitles(

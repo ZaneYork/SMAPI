@@ -164,6 +164,11 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
                 || this.EqualsInvariant(file.Name, "Newtonsoft.Json.pdb")
                 || this.EqualsInvariant(file.Name, "Newtonsoft.Json.xml")
 
+                // mod translation class builder (not used at runtime)
+                || this.EqualsInvariant(file.Name, "Pathoschild.Stardew.ModTranslationClassBuilder.dll")
+                || this.EqualsInvariant(file.Name, "Pathoschild.Stardew.ModTranslationClassBuilder.pdb")
+                || this.EqualsInvariant(file.Name, "Pathoschild.Stardew.ModTranslationClassBuilder.xml")
+
                 // code analysis files
                 || file.Name.EndsWith(".CodeAnalysisLog.xml", StringComparison.OrdinalIgnoreCase)
                 || file.Name.EndsWith(".lastcodeanalysissucceeded", StringComparison.OrdinalIgnoreCase)

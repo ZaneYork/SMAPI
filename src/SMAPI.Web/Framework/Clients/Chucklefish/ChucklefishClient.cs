@@ -67,10 +67,10 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
 
             // extract mod info
             string url = this.GetModUrl(parsedId);
-            string name = doc.DocumentNode.SelectSingleNode("//meta[@name='twitter:title']").Attributes["content"].Value;
-            if (name.StartsWith("[SMAPI] "))
-                name = name.Substring("[SMAPI] ".Length);
             string version = doc.DocumentNode.SelectSingleNode("//h1/span")?.InnerText;
+            string name = doc.DocumentNode.SelectSingleNode("//h1").ChildNodes[0].InnerText.Trim();
+            if (name.StartsWith("[SMAPI]"))
+                name = name.Substring("[SMAPI]".Length).TrimStart();
 
             // return info
             return page.SetInfo(name: name, version: version, url: url, downloads: Array.Empty<IModDownload>());

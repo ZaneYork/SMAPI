@@ -11,9 +11,9 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
             "type": "string",
-            "const": "1.17.0",
+            "const": "1.18.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.17.0'."
+                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.18.0'."
             }
         },
         "ConfigSchema": {
@@ -41,6 +41,11 @@
                     "Default": {
                         "title": "Default value",
                         "description": "The default values when the field is missing. Can contain multiple comma-delimited values if AllowMultiple is true. If omitted, blank fields are left blank.",
+                        "type": "string"
+                    },
+                    "Description": {
+                        "title": "Description",
+                        "description": "An optional explanation of the config field for players, shown in UIs like Generic Mod Config Menu.",
                         "type": "string"
                     },
 
@@ -383,7 +388,6 @@
                                 "enum": [
                                     "Action",
                                     "Enabled",
-                                    "FromFile",
                                     "LogName",
                                     "Target",
                                     "Update",
@@ -391,7 +395,8 @@
 
                                     "Entries",
                                     "Fields",
-                                    "MoveEntries"
+                                    "MoveEntries",
+                                    "TextOperations"
                                 ]
                             }
                         }
@@ -427,6 +432,7 @@
                                     "FromArea",
                                     "MapProperties",
                                     "MapTiles",
+                                    "TextOperations",
                                     "ToArea"
                                 ]
                             }

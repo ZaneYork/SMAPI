@@ -7,6 +7,24 @@
   * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
 -->
 
+## 3.7.4
+Released 03 October 2020 for Stardew Valley 1.4.1 or later.
+
+* For players:
+  * Improved performance on some older computers (thanks to millerscout!).
+  * Fixed update alerts for Chucklefish forum mods broken by a recent site change.
+
+* For modders:
+  * Updated dependencies (including Mono.Cecil 0.11.2 → 0.11.3 and Platonymous.TMXTile 1.3.8 → 1.5.6).
+  * Fixed asset propagation for `Data\MoviesReactions`.
+  * Fixed error in content pack path handling when you pass a null path.
+
+* For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.18.
+
+* For SMAPI developers:
+  * Simplified preparing a mod build config package release.
+
 ## 3.7.3
 Released 16 September 2020 for Stardew Valley 1.4.1 or later.
 

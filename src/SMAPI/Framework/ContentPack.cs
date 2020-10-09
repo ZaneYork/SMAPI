@@ -119,7 +119,7 @@ namespace StardewModdingAPI.Framework
             if (!PathUtilities.IsSafeRelativePath(relativePath))
                 throw new InvalidOperationException($"You must call {nameof(IContentPack)} methods with a relative path.");
 
-            return this.RelativePaths.TryGetValue(relativePath, out string caseInsensitivePath)
+            return !string.IsNullOrWhiteSpace(relativePath) && this.RelativePaths.TryGetValue(relativePath, out string caseInsensitivePath)
                 ? caseInsensitivePath
                 : relativePath;
         }

@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Framework.Serialization
             if (string.IsNullOrWhiteSpace(str))
                 return Rectangle.Empty;
 
-            var match = Regex.Match(str, @"^\{X:(?<x>\d+) Y:(?<y>\d+) Width:(?<width>\d+) Height:(?<height>\d+)\}$", RegexOptions.IgnoreCase);
+            var match = Regex.Match(str, @"^\{X:(?<x>-?\d+) Y:(?<y>-?\d+) Width:(?<width>-?\d+) Height:(?<height>-?\d+)\}$", RegexOptions.IgnoreCase);
             if (!match.Success)
                 throw new SParseException($"Can't parse {nameof(Rectangle)} from invalid value '{str}' (path: {path}).");
 
