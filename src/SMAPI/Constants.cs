@@ -66,14 +66,13 @@ namespace StardewModdingAPI
         ** Public
         ****/
         /// <summary>SMAPI's current semantic version.</summary>
-#if SMAPI_FOR_MOBILE
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.7.4");
+#if !SMAPI_FOR_MOBILE
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.7.5");
+#else
+        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.7.5");
 
         /// <summary>Android SMAPI's current semantic version.</summary>
         public static ISemanticVersion AndroidApiVersion { get; } = new Toolkit.SemanticVersion("0.8.8");
-
-#else
-        public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion("3.7.4");
 #endif
 
 #if ANDROID_TARGET_MOBILE_LEGACY

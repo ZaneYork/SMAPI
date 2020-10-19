@@ -138,6 +138,14 @@ namespace StardewModdingAPI.Metadata
                 {
                     if (!string.IsNullOrWhiteSpace(location.mapPath.Value) && this.NormalizeAssetNameIgnoringEmpty(location.mapPath.Value) == key)
                     {
+                        // reset town caches
+                        if (location is Town town)
+                        {
+                            this.Reflection.GetField<bool>(town, "ccRefurbished").SetValue(false);
+                            this.Reflection.GetField<bool>(town, "isShowingDestroyedJoja").SetValue(false);
+                            this.Reflection.GetField<bool>(town, "isShowingUpgradedPamHouse").SetValue(false);
+                        }
+
                         // general updates
                         location.reloadMap();
                         location.updateSeasonalTileSheets();
