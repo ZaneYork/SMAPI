@@ -162,7 +162,7 @@ namespace StardewModdingAPI
                     modPath = "StardewValley/Mods";
                 }
 
-                this.core = new SCore(System.IO.Path.Combine(Constants.DataPath, modPath), false);
+                this.core = new SCore(System.IO.Path.Combine(EarlyConstants.StorageBasePath, modPath), false);
                 this.core.RunInteractively();
                 typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.Game);
 

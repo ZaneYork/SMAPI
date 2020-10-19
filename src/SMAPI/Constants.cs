@@ -33,10 +33,12 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
 #if SMAPI_FOR_MOBILE
+        /// <summary>The path to the storage base folder.</summary>
+        public static string StorageBasePath { get; } = Android.OS.Environment.ExternalStorageDirectory.Path;
         /// <summary>The path to the game's save folder.</summary>
-        public static string StardewValleyBasePath { get; } = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "StardewValley");
+        public static string StardewValleyBasePath { get; } = Path.Combine(EarlyConstants.StorageBasePath, "StardewValley");
         /// <summary>The path to the internal folder.</summary>
-        public static string ExecutionPath { get; } = Path.Combine(StardewValleyBasePath, "smapi-internal");
+        public static string ExecutionPath { get; } = Path.Combine(EarlyConstants.StardewValleyBasePath, "smapi-internal");
 #else
         /// <summary>The path to the game folder.</summary>
         public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
