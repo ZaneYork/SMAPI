@@ -13,10 +13,8 @@ using System.Collections.Generic;
 using StardewModdingAPI.Framework;
 using StardewValley;
 using System.Reflection;
-using Android.Content.Res;
 using Java.Interop;
 using System.Linq;
-using System.IO;
 using File = Java.IO.File;
 using Microsoft.AppCenter;
 using Newtonsoft.Json;
@@ -164,7 +162,7 @@ namespace StardewModdingAPI
                     modPath = "StardewValley/Mods";
                 }
 
-                this.core = new SCore(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, modPath), false);
+                this.core = new SCore(System.IO.Path.Combine(Constants.DataPath, modPath), false);
                 this.core.RunInteractively();
                 typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.Game);
 

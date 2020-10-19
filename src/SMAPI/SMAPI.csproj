@@ -151,6 +151,12 @@
     <Reference Include="StardewValley.GameData">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\StardewValley.GameData.dll</HintPath>
     </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="xTile">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\xTile.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_GOOGLE_LEGACY'))">
@@ -159,6 +165,12 @@
     <!--    </Reference>-->
     <Reference Include="StardewValley">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.4.128\assemblies\StardewValley.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.4.128\assemblies\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="xTile">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.4.128\assemblies\xTile.dll</HintPath>
     </Reference>
   </ItemGroup>
 
@@ -172,6 +184,12 @@
     <Reference Include="StardewValley.GameData">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\samsung_base_1.4.5.144\assemblies\StardewValley.GameData.dll</HintPath>
     </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\samsung_base_1.4.5.144\assemblies\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="xTile">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\samsung_base_1.4.5.144\assemblies\xTile.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_AMAZON'))">
@@ -184,6 +202,12 @@
     <Reference Include="StardewValley.GameData">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\amazon_base_1.4.5.144\assemblies\StardewValley.GameData.dll</HintPath>
     </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\amazon_base_1.4.5.144\assemblies\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="xTile">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\amazon_base_1.4.5.144\assemblies\xTile.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
@@ -195,9 +219,6 @@
     </Reference>
     <Reference Include="MonoMod.Utils">
       <HintPath>..\Loader\libs\MonoMod.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\Loader\libs\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Android" />
@@ -213,9 +234,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="TMXTile">
       <HintPath>..\Loader\libs\TMXTile.dll</HintPath>
-    </Reference>
-    <Reference Include="xTile">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\xTile.dll</HintPath>
     </Reference>
   </ItemGroup>
 
