@@ -47,12 +47,15 @@ namespace StardewModdingAPI
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
 #if SMAPI_FOR_MOBILE
         public static readonly string InternalFilesPath = EarlyConstants.ExecutionPath;
+
+        /// <summary>The target game platform.</summary>
+        internal static GamePlatform Platform { get; } = GamePlatform.Android;
 #else
         public static readonly string InternalFilesPath = Path.Combine(EarlyConstants.ExecutionPath, "smapi-internal");
-#endif
 
         /// <summary>The target game platform.</summary>
         internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
+#endif
 
         /// <summary>The game's assembly name.</summary>
         internal static string GameAssemblyName => EarlyConstants.Platform == GamePlatform.Windows ? "Stardew Valley" : "StardewValley";

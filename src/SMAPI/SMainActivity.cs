@@ -20,14 +20,16 @@ using Microsoft.AppCenter;
 using Newtonsoft.Json;
 using Microsoft.AppCenter.Crashes;
 using Android.Content;
+using Android.Util;
 using Java.Lang;
+using Java.Util;
 using Exception = System.Exception;
 using Thread = System.Threading.Thread;
 
 namespace StardewModdingAPI
 {
     [Activity(Label = "SMAPI Stardew Valley", Icon = "@mipmap/ic_launcher", Theme = "@style/Theme.Splash", MainLauncher = true, AlwaysRetainTaskState = true, LaunchMode = LaunchMode.SingleInstance, ScreenOrientation = ScreenOrientation.SensorLandscape, ConfigurationChanges = (ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.Orientation | ConfigChanges.ScreenLayout | ConfigChanges.ScreenSize | ConfigChanges.UiMode))]
-#if !ANDROID_TARGET_GOOGLE
+#if ANDROID_TARGET_GOOGLE
     public class SMainActivity: MainActivity
 #else
     public class SMainActivity : MainActivity, ILicenseCheckerCallback, IJavaObject, IDisposable, IJavaPeerable
@@ -142,7 +144,7 @@ namespace StardewModdingAPI
                 Game1 game1 = (Game1) typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(this);
                 if (game1 != null)
                 {
-                    game1.Exit();
+                    // game1.Exit();
                 }
 
                 new SGameConsole();

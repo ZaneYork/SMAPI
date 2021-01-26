@@ -3,13 +3,15 @@
   <PropertyGroup>
 <!--    <BUILD_FOR_MOBILE></BUILD_FOR_MOBILE>-->
     <BUILD_FOR_MOBILE>GOOGLE</BUILD_FOR_MOBILE>
+<!--    <BUILD_FOR_MOBILE>GOOGLE_145</BUILD_FOR_MOBILE>-->
 <!--    <BUILD_FOR_MOBILE>AMAZON</BUILD_FOR_MOBILE>-->
 <!--    <BUILD_FOR_MOBILE>SAMSUNG</BUILD_FOR_MOBILE>-->
 <!--    <BUILD_FOR_MOBILE>GOOGLE_LEGACY</BUILD_FOR_MOBILE>-->
-    <COMPILE_WITH_PLUGIN>True</COMPILE_WITH_PLUGIN>
+    <COMPILE_WITH_PLUGIN>False</COMPILE_WITH_PLUGIN>
     <DefineConstants Condition="'$(BUILD_FOR_MOBILE)' == ''">$(DefineConstants);HARMONY_1</DefineConstants>
     <DefineConstants Condition="'$(BUILD_FOR_MOBILE)' == 'GOOGLE_LEGACY'">$(DefineConstants);SMAPI_FOR_MOBILE;ANDROID_TARGET_GOOGLE;ANDROID_TARGET_MOBILE_LEGACY;HARMONY_1</DefineConstants>
-    <DefineConstants Condition="'$(BUILD_FOR_MOBILE)' == 'GOOGLE'">$(DefineConstants);SMAPI_FOR_MOBILE;ANDROID_TARGET_GOOGLE;HARMONY_1</DefineConstants>
+    <DefineConstants Condition="'$(BUILD_FOR_MOBILE)' == 'GOOGLE_145'">$(DefineConstants);SMAPI_FOR_MOBILE;ANDROID_TARGET_GOOGLE;ANDROID_TARGET_GOOGLE_145;HARMONY_1</DefineConstants>
+    <DefineConstants Condition="'$(BUILD_FOR_MOBILE)' == 'GOOGLE'">$(DefineConstants);SMAPI_FOR_MOBILE;ANDROID_TARGET_GOOGLE;ANDROID_TARGET_GOOGLE_MONOANDROID10;MonoAndroid10;HARMONY_1</DefineConstants>
     <DefineConstants Condition="'$(BUILD_FOR_MOBILE)' == 'AMAZON'">$(DefineConstants);SMAPI_FOR_MOBILE;ANDROID_TARGET_AMAZON;HARMONY_1</DefineConstants>
     <DefineConstants Condition="'$(BUILD_FOR_MOBILE)' == 'SAMSUNG'">$(DefineConstants);SMAPI_FOR_MOBILE;ANDROID_TARGET_SAMSUNG;HARMONY_1</DefineConstants>
   </PropertyGroup>

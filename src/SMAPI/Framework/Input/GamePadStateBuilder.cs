@@ -201,7 +201,11 @@ namespace StardewModdingAPI.Framework.Input
                 rightThumbStick: this.RightStickPos,
                 leftTrigger: this.LeftTrigger,
                 rightTrigger: this.RightTrigger,
+#if MonoAndroid10_
+                buttons: new[] {this.GetButtonBitmask()}
+#else
                 buttons: this.GetButtonBitmask() // MonoGame requires one bitmask here; don't specify multiple values
+#endif
             );
 
             return this.State.Value;

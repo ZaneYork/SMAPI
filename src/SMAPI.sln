@@ -27,9 +27,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{09CF91E5-5BAB-4650-A200-E5EA9A633046}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\common.targets = ..\build\common.targets
+		..\build\define-constant.targets = ..\build\define-constant.targets
 		..\build\find-game-folder.targets = ..\build\find-game-folder.targets
 		..\build\prepare-install-package.targets = ..\build\prepare-install-package.targets
-		..\build\define-constant.targets = ..\build\define-constant.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB}"
@@ -54,13 +54,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.ModBuildConfig.Analyz
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Tests", "SMAPI.Tests\SMAPI.Tests.csproj", "{AA95884B-7097-476E-92C8-D0500DE9D6D1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI", "SMAPI\SMAPI.csproj", "{E6DA2198-7686-4F1D-B312-4A4DC70884C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI", "SMAPI\SMAPI.csproj", "{EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Installer", "SMAPI.Installer\SMAPI.Installer.csproj", "{0A9BB24F-15FF-4C26-B1A2-81F7AE316518}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F} = {0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F}
 		{CD53AD6F-97F4-4872-A212-50C2A0FD3601} = {CD53AD6F-97F4-4872-A212-50C2A0FD3601}
-		{E6DA2198-7686-4F1D-B312-4A4DC70884C0} = {E6DA2198-7686-4F1D-B312-4A4DC70884C0}
+		{EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32} = {EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.ModBuildConfig", "SMAPI.ModBuildConfig\SMAPI.ModBuildConfig.csproj", "{1B3821E6-D030-402C-B3A1-7CA45C2800EA}"
@@ -90,7 +90,7 @@ Global
 		SMAPI.Internal\SMAPI.Internal.projitems*{80efd92f-728f-41e0-8a5b-9f6f49a91899}*SharedItemsImports = 5
 		SMAPI.Internal\SMAPI.Internal.projitems*{85208f8d-6fd1-4531-be05-7142490f59fe}*SharedItemsImports = 13
 		SMAPI.Internal\SMAPI.Internal.projitems*{cd53ad6f-97f4-4872-a212-50c2a0fd3601}*SharedItemsImports = 5
-		SMAPI.Internal\SMAPI.Internal.projitems*{e6da2198-7686-4f1d-b312-4a4dc70884c0}*SharedItemsImports = 5
+		SMAPI.Internal\SMAPI.Internal.projitems*{ebd13eab-e70b-4d9f-92c2-c34a21e1fa32}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,10 +105,10 @@ Global
 		{AA95884B-7097-476E-92C8-D0500DE9D6D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA95884B-7097-476E-92C8-D0500DE9D6D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA95884B-7097-476E-92C8-D0500DE9D6D1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E6DA2198-7686-4F1D-B312-4A4DC70884C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6DA2198-7686-4F1D-B312-4A4DC70884C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E6DA2198-7686-4F1D-B312-4A4DC70884C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E6DA2198-7686-4F1D-B312-4A4DC70884C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0A9BB24F-15FF-4C26-B1A2-81F7AE316518}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0A9BB24F-15FF-4C26-B1A2-81F7AE316518}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A9BB24F-15FF-4C26-B1A2-81F7AE316518}.Release|Any CPU.ActiveCfg = Release|Any CPU
