@@ -47,16 +47,16 @@
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="StardewModdingAPI">
       <HintPath>..\SMAPI\bin\Release\StardewModdingAPI.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley">
-      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\StardewValley.dll</HintPath>
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.151\assemblies_decrypt\StardewValley.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley.GameData">
-      <HintPath>..\..\..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\StardewValley.GameData.dll</HintPath>
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.151\assemblies_decrypt\StardewValley.GameData.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -1318,40 +1318,46 @@ namespace StardewModdingAPI.Framework
                 WebApiClient client = new WebApiClient(url, Constants.ApiVersion);
                 this.Monitor.Log("Checking for updates...");
 
-                // check SMAPI version
 #if !SMAPI_FOR_MOBILE
-                ISemanticVersion updateFound = null;
-                try
+                // check SMAPI version
                 {
-                    // fetch update check
-                    ModEntryModel response = client.GetModInfo(new[] { new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) }, apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform).Single().Value;
-                    if (response.SuggestedUpdate != null)
-                        this.Monitor.Log($"You can update SMAPI to {response.SuggestedUpdate.Version}: {Constants.HomePageUrl}", LogLevel.Alert);
-                    else
-                        this.Monitor.Log("   SMAPI okay.");
-
-                    updateFound = response.SuggestedUpdate?.Version;
-
-                    // show errors
-                    if (response.Errors.Any())
+                    ISemanticVersion updateFound = null;
+                    string updateUrl = null;
+                    try
                     {
-                        this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
-                        this.Monitor.Log($"Error: {string.Join("\n", response.Errors)}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you won't be notified of new versions if this keeps happening.", LogLevel.Warn);
-                    this.Monitor.Log(ex is WebException && ex.InnerException == null
-                        ? $"Error: {ex.Message}"
-                        : $"Error: {ex.GetLogSummary()}"
-                    );
-                }
+                        // fetch update check
+                        ModEntryModel response = client.GetModInfo(new[] { new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) }, apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform).Single().Value;
+                        updateFound = response.SuggestedUpdate?.Version;
+                        updateUrl = response.SuggestedUpdate?.Url ?? Constants.HomePageUrl;
 
-                // show update message on next launch
-                if (updateFound != null)
-                    this.LogManager.WriteUpdateMarker(updateFound.ToString());
+                        // log message
+                        if (updateFound != null)
+                            this.Monitor.Log($"You can update SMAPI to {updateFound}: {updateUrl}", LogLevel.Alert);
+                        else
+                            this.Monitor.Log("   SMAPI okay.");
+
+                        // show errors
+                        if (response.Errors.Any())
+                        {
+                            this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
+                            this.Monitor.Log($"Error: {string.Join("\n", response.Errors)}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you won't be notified of new versions if this keeps happening.", LogLevel.Warn);
+                        this.Monitor.Log(ex is WebException && ex.InnerException == null
+                            ? $"Error: {ex.Message}"
+                            : $"Error: {ex.GetLogSummary()}"
+                        );
+                    }
+
+                    // show update message on next launch
+                    if (updateFound != null)
+                        this.LogManager.WriteUpdateMarker(updateFound.ToString(), updateUrl);
+                }
 #endif
+
                 // check mod versions
                 if (mods.Any())
                 {

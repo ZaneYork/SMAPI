@@ -68,7 +68,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         private bool TryRewriteToProperty(ModuleDefinition module, Instruction instruction, FieldReference fieldRef, TypeDefinition declaringType, bool isRead)
         {
             // get equivalent property
-            PropertyDefinition property = declaringType.Properties.FirstOrDefault(p => p.Name == fieldRef.Name);
+            PropertyDefinition property = declaringType?.Properties.FirstOrDefault(p => p.Name == fieldRef.Name);
             MethodDefinition method = isRead ? property?.GetMethod : property?.SetMethod;
             if (method == null)
                 return false;

@@ -199,9 +199,10 @@ namespace StardewModdingAPI.Framework.Logging
 
         /// <summary>Write an update alert marker file.</summary>
         /// <param name="version">The new version found.</param>
-        public void WriteUpdateMarker(string version)
+        /// <param name="url">The download URL for the update.</param>
+        public void WriteUpdateMarker(string version, string url)
         {
-            File.WriteAllText(Constants.UpdateMarker, version);
+            File.WriteAllText(Constants.UpdateMarker, $"{version}|{url}");
         }
 
         /// <summary>Check whether SMAPI crashed or detected an update during the last session, and display them in the SMAPI console.</summary>
@@ -210,13 +211,17 @@ namespace StardewModdingAPI.Framework.Logging
             // show update alert
             if (File.Exists(Constants.UpdateMarker))
             {
-                string rawUpdateFound = File.ReadAllText(Constants.UpdateMarker);
-                if (SemanticVersion.TryParse(rawUpdateFound, out ISemanticVersion updateFound))
+                string[] rawUpdateFound = File.ReadAllText(Constants.UpdateMarker).Split(new [] { '|' }, 2);
+                if (SemanticVersion.TryParse(rawUpdateFound[0], out ISemanticVersion updateFound))
                 {
                     if (Constants.ApiVersion.IsPrerelease() && updateFound.IsNewerThan(Constants.ApiVersion))
                     {
+                        string url = rawUpdateFound.Length > 1
+                            ? rawUpdateFound[1]
+                            : Constants.HomePageUrl;
+
                         this.Monitor.Log("A new version of SMAPI was detected last time you played.", LogLevel.Error);
-                        this.Monitor.Log($"You can update to {updateFound}: https://smapi.io.", LogLevel.Error);
+                        this.Monitor.Log($"You can update to {updateFound}: {url}.", LogLevel.Error);
 #if !SMAPI_FOR_MOBILE
                         this.Monitor.Log("Press any key to continue playing anyway. (This only appears when using a SMAPI beta.)", LogLevel.Info);
                         Console.ReadKey();

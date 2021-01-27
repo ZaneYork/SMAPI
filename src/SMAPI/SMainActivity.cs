@@ -29,7 +29,7 @@ using Thread = System.Threading.Thread;
 namespace StardewModdingAPI
 {
     [Activity(Label = "SMAPI Stardew Valley", Icon = "@mipmap/ic_launcher", Theme = "@style/Theme.Splash", MainLauncher = true, AlwaysRetainTaskState = true, LaunchMode = LaunchMode.SingleInstance, ScreenOrientation = ScreenOrientation.SensorLandscape, ConfigurationChanges = (ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.Orientation | ConfigChanges.ScreenLayout | ConfigChanges.ScreenSize | ConfigChanges.UiMode))]
-#if ANDROID_TARGET_GOOGLE
+#if !ANDROID_TARGET_GOOGLE
     public class SMainActivity: MainActivity
 #else
     public class SMainActivity : MainActivity, ILicenseCheckerCallback, IJavaObject, IDisposable, IJavaPeerable

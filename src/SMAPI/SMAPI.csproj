@@ -67,7 +67,7 @@
     <PackageReference Include="LargeAddressAware" Version="1.0.5" />
     <PackageReference Include="Mono.Cecil" Version="0.11.3" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Platonymous.TMXTile" Version="1.5.6" />
+    <PackageReference Include="Platonymous.TMXTile" Version="1.5.8" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
@@ -135,27 +135,18 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_GOOGLE_MONOANDROID10'))">
-    <!--    <Reference Include="MonoGame.Framework">-->
-    <!--      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.151\assemblies\MonoGame.Framework.dll</HintPath>-->
-    <!--    </Reference>-->
     <Reference Include="StardewValley">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.151\assemblies_decrypt\StardewValley.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley.GameData">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.151\assemblies_decrypt\StardewValley.GameData.dll</HintPath>
     </Reference>
-<!--    <Reference Include="MonoGame.Framework">-->
-<!--      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.151\assemblies_decrypt\MonoGame.Framework.dll</HintPath>-->
-<!--    </Reference>-->
     <Reference Include="xTile">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.151\assemblies_decrypt\xTile.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_GOOGLE_145'))">
-    <!--    <Reference Include="MonoGame.Framework">-->
-    <!--      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\MonoGame.Framework.dll</HintPath>-->
-    <!--    </Reference>-->
     <Reference Include="StardewValley">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\StardewValley.dll</HintPath>
     </Reference>
@@ -171,9 +162,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_GOOGLE_LEGACY'))">
-    <!--    <Reference Include="MonoGame.Framework">-->
-    <!--      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\MonoGame.Framework.dll</HintPath>-->
-    <!--    </Reference>-->
     <Reference Include="StardewValley">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.4.128\assemblies\StardewValley.dll</HintPath>
     </Reference>
@@ -186,9 +174,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_SAMSUNG'))">
-    <!--    <Reference Include="MonoGame.Framework">-->
-    <!--      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\samsung_base_1.4.5.144\assemblies\MonoGame.Framework.dll</HintPath>-->
-    <!--    </Reference>-->
     <Reference Include="StardewValley">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\samsung_base_1.4.5.144\assemblies\StardewValley.dll</HintPath>
     </Reference>
@@ -204,9 +189,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_AMAZON'))">
-    <!--    <Reference Include="MonoGame.Framework">-->
-    <!--      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\amazon_base_1.4.5.144\assemblies\MonoGame.Framework.dll</HintPath>-->
-    <!--    </Reference>-->
     <Reference Include="StardewValley">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\amazon_base_1.4.5.144\assemblies\StardewValley.dll</HintPath>
     </Reference>
@@ -249,10 +231,10 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="SMAPI.Toolkit">
-      <HintPath>..\SMAPI.Toolkit\bin\Release\net4.5\SMAPI.Toolkit.dll</HintPath>
+      <HintPath>..\SMAPI.Toolkit\bin\Debug\net4.5\SMAPI.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="SMAPI.Toolkit.CoreInterfaces">
-      <HintPath>..\SMAPI.Toolkit.CoreInterfaces\bin\Release\net4.5\SMAPI.Toolkit.CoreInterfaces.dll</HintPath>
+      <HintPath>..\SMAPI.Toolkit.CoreInterfaces\bin\Debug\net4.5\SMAPI.Toolkit.CoreInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="TMXTile">
       <HintPath>..\Loader\libs\TMXTile.dll</HintPath>

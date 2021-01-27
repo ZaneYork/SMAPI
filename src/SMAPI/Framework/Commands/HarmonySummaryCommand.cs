@@ -112,9 +112,9 @@ namespace StardewModdingAPI.Framework.Commands
         private IEnumerable<SearchResult> GetAllPatches()
         {
 #if HARMONY_2
-            foreach (MethodBase method in Harmony.GetAllPatchedMethods())
+            foreach (MethodBase method in Harmony.GetAllPatchedMethods().ToArray())
 #else
-            foreach (MethodBase method in this.HarmonyInstance.GetPatchedMethods())
+            foreach (MethodBase method in this.HarmonyInstance.GetPatchedMethods().ToArray())
 #endif
             {
                 // get metadata for method
