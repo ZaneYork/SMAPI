@@ -291,12 +291,12 @@ namespace StardewModdingAPI.Framework
                     new ThreadSilenceExitPatch(this.Monitor),
                     new SaveGamePatch(this.Translator, this.Monitor),
                     new OnAppPausePatch(this.Monitor),
+                    new MusicBankPatch(this.Monitor),
 #endif
                     new LoadContextPatch(this.Reflection, this.OnLoadStageChanged),
                     new LoadErrorPatch(this.Monitor, this.OnSaveContentRemoved),
                     new ScheduleErrorPatch(this.LogManager.MonitorForGame)
                 );
-
                 // add exit handler
                 this.CancellationToken.Token.Register(() =>
                 {
