@@ -11,18 +11,15 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         *********/
         /// <summary>The version number.</summary>
         [JsonConverter(typeof(NonStandardSemanticVersionConverter))]
-        public ISemanticVersion Version { get; set; }
+        public ISemanticVersion Version { get; }
 
         /// <summary>The mod page URL.</summary>
-        public string Url { get; set; }
+        public string Url { get; }
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>Construct an instance.</summary>
-        public ModEntryVersionModel() { }
-
         /// <summary>Construct an instance.</summary>
         /// <param name="version">The version number.</param>
         /// <param name="url">The mod page URL.</param>

@@ -22,6 +22,9 @@ insert_final_newline = false
 [README.txt]
 end_of_line=crlf
 
+[*.{command,sh}]
+end_of_line=lf
+
 ##########
 ## C# formatting
 ## documentation: https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference

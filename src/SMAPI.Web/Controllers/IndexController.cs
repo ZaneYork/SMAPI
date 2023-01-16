@@ -57,21 +57,16 @@ namespace StardewModdingAPI.Web.Controllers
         {
             // choose versions
             ReleaseVersion[] versions = await this.GetReleaseVersionsAsync();
-            ReleaseVersion stableVersion = versions.LastOrDefault(version => !version.IsBeta && !version.IsForDevs);
-            ReleaseVersion stableVersionForDevs = versions.LastOrDefault(version => !version.IsBeta && version.IsForDevs);
-            ReleaseVersion betaVersion = versions.LastOrDefault(version => version.IsBeta && !version.IsForDevs);
-            ReleaseVersion betaVersionForDevs = versions.LastOrDefault(version => version.IsBeta && version.IsForDevs);
+            ReleaseVersion? stableVersion = versions.LastOrDefault(version => !version.IsForDevs);
+            ReleaseVersion? stableVersionForDevs = versions.LastOrDefault(version => version.IsForDevs);
 
             // render view
             IndexVersionModel stableVersionModel = stableVersion != null
                 ? new IndexVersionModel(stableVersion.Version.ToString(), stableVersion.Release.Body, stableVersion.Asset.DownloadUrl, stableVersionForDevs?.Asset.DownloadUrl)
-                : new IndexVersionModel("unknown", "", "https://github.com/Pathoschild/SMAPI/releases", null); // just in case something goes wrong)
-            IndexVersionModel betaVersionModel = betaVersion != null && this.SiteConfig.BetaEnabled
-                ? new IndexVersionModel(betaVersion.Version.ToString(), betaVersion.Release.Body, betaVersion.Asset.DownloadUrl, betaVersionForDevs?.Asset.DownloadUrl)
-                : null;
+                : new IndexVersionModel("unknown", "", "https://github.com/Pathoschild/SMAPI/releases", null); // just in case something goes wrong
 
             // render view
-            var model = new IndexModel(stableVersionModel, betaVersionModel, this.SiteConfig.BetaBlurb, this.SiteConfig.SupporterList);
+            var model = new IndexModel(stableVersionModel, this.SiteConfig.OtherBlurb, this.SiteConfig.SupporterList);
             return this.View(model);
         }
 
@@ -93,39 +88,22 @@ namespace StardewModdingAPI.Web.Controllers
             {
                 entry.AbsoluteExpiration = DateTimeOffset.UtcNow.Add(this.CacheTime);
 
-                // get latest release (whether preview or stable)
-                GitRelease stableRelease = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: true);
+                // get latest stable release
+                GitRelease? release = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: false);
 
-                // split stable/prerelease if applicable
-                GitRelease betaRelease = null;
-                if (stableRelease.IsPrerelease)
+                // strip 'noinclude' blocks from release description
+                if (release != null)
                 {
-                    GitRelease result = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: false);
-                    if (result != null)
-                    {
-                        betaRelease = stableRelease;
-                        stableRelease = result;
-                    }
-                }
-
-                // strip 'noinclude' blocks from release descriptions
-                foreach (GitRelease release in new[] { stableRelease, betaRelease })
-                {
-                    if (release == null)
-                        continue;
-
-                    HtmlDocument doc = new HtmlDocument();
+                    HtmlDocument doc = new();
                     doc.LoadHtml(release.Body);
-                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//*[@class='noinclude']")?.ToArray() ?? new HtmlNode[0])
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//*[@class='noinclude']")?.ToArray() ?? Array.Empty<HtmlNode>())
                         node.Remove();
                     release.Body = doc.DocumentNode.InnerHtml.Trim();
                 }
 
                 // get versions
-                ReleaseVersion[] stableVersions = this.ParseReleaseVersions(stableRelease).ToArray();
-                ReleaseVersion[] betaVersions = this.ParseReleaseVersions(betaRelease).ToArray();
-                return stableVersions
-                    .Concat(betaVersions)
+                return this
+                    .ParseReleaseVersions(release)
                     .OrderBy(p => p.Version)
                     .ToArray();
             });
@@ -133,7 +111,7 @@ namespace StardewModdingAPI.Web.Controllers
 
         /// <summary>Get a parsed list of SMAPI downloads for a release.</summary>
         /// <param name="release">The GitHub release.</param>
-        private IEnumerable<ReleaseVersion> ParseReleaseVersions(GitRelease release)
+        private IEnumerable<ReleaseVersion> ParseReleaseVersions(GitRelease? release)
         {
             if (release?.Assets == null)
                 yield break;
@@ -144,12 +122,11 @@ namespace StardewModdingAPI.Web.Controllers
                     continue;
 
                 Match match = Regex.Match(asset.FileName, @"SMAPI-(?<version>[\d\.]+(?:-.+)?)-installer(?<forDevs>-for-developers)?.zip");
-                if (!match.Success || !SemanticVersion.TryParse(match.Groups["version"].Value, out ISemanticVersion version))
+                if (!match.Success || !SemanticVersion.TryParse(match.Groups["version"].Value, out ISemanticVersion? version))
                     continue;
-                bool isBeta = version.IsPrerelease();
                 bool isForDevs = match.Groups["forDevs"].Success;
 
-                yield return new ReleaseVersion(release, asset, version, isBeta, isForDevs);
+                yield return new ReleaseVersion(release, asset, version, isForDevs);
             }
         }
 
@@ -168,9 +145,6 @@ namespace StardewModdingAPI.Web.Controllers
             /// <summary>The SMAPI version.</summary>
             public ISemanticVersion Version { get; }
 
-            /// <summary>Whether this is a beta download.</summary>
-            public bool IsBeta { get; }
-
             /// <summary>Whether this is a 'for developers' download.</summary>
             public bool IsForDevs { get; }
 
@@ -182,14 +156,12 @@ namespace StardewModdingAPI.Web.Controllers
             /// <param name="release">The underlying GitHub release.</param>
             /// <param name="asset">The underlying download asset.</param>
             /// <param name="version">The SMAPI version.</param>
-            /// <param name="isBeta">Whether this is a beta download.</param>
             /// <param name="isForDevs">Whether this is a 'for developers' download.</param>
-            public ReleaseVersion(GitRelease release, GitAsset asset, ISemanticVersion version, bool isBeta, bool isForDevs)
+            public ReleaseVersion(GitRelease release, GitAsset asset, ISemanticVersion version, bool isForDevs)
             {
                 this.Release = release;
                 this.Asset = asset;
                 this.Version = version;
-                this.IsBeta = isBeta;
                 this.IsForDevs = isForDevs;
             }
         }

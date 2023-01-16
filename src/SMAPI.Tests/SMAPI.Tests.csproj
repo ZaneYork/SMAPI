@@ -1,37 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\build\define-constant.targets" />
   <PropertyGroup>
-    <AssemblyName>SMAPI.Tests</AssemblyName>
-    <RootNamespace>SMAPI.Tests</RootNamespace>
-    <TargetFramework>net4.5</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <LangVersion>latest</LangVersion>
-    <PlatformTarget>x86</PlatformTarget>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
+  <Import Project="..\..\build\common.targets" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\SMAPI.Tests.ModApiConsumer\SMAPI.Tests.ModApiConsumer.csproj" />
+    <ProjectReference Include="..\SMAPI.Tests.ModApiProvider\SMAPI.Tests.ModApiProvider.csproj" />
     <ProjectReference Include="..\SMAPI.Toolkit.CoreInterfaces\SMAPI.Toolkit.CoreInterfaces.csproj" />
     <ProjectReference Include="..\SMAPI.Toolkit\SMAPI.Toolkit.csproj" />
     <ProjectReference Include="..\SMAPI\SMAPI.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
-    <PackageReference Include="Moq" Version="4.15.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="NUnit" Version="3.12.0" />
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.8.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+    <PackageReference Include="Moq" Version="4.18.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.3.1" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
-    <Reference Include="$(GameExecutableName)">
-      <HintPath>$(GamePath)\$(GameExecutableName).exe</HintPath>
-      <Private>True</Private>
-    </Reference>
+  <ItemGroup>
+    <Reference Include="Stardew Valley" HintPath="$(GamePath)\Stardew Valley.dll" Private="True" />
   </ItemGroup>
 
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-
-  <Import Project="..\..\build\common.targets" />
-
 </Project>

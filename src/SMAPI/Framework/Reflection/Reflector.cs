@@ -1,11 +1,12 @@
 using System;
-using System.Linq;
 using System.Reflection;
 #if SMAPI_FOR_MOBILE
 using System.Collections.Generic;
 #else
 using System.Runtime.Caching;
 #endif
+using StardewModdingAPI.Framework.Utilities;
+
 namespace StardewModdingAPI.Framework.Reflection
 {
     /// <summary>Provides helper methods for accessing inaccessible code.</summary>
@@ -17,9 +18,10 @@ namespace StardewModdingAPI.Framework.Reflection
         *********/
         /// <summary>The cached fields and methods found via reflection.</summary>
 #if SMAPI_FOR_MOBILE
-        private readonly Dictionary<string, CacheEntry> Cache = new Dictionary<string, CacheEntry>();
+        // private readonly Dictionary<string, CacheEntry> Cache = new Dictionary<string, CacheEntry>();
+        private readonly IntervalMemoryCache<string, MemberInfo?> Cache = new();
 #else
-        private readonly MemoryCache Cache = new MemoryCache(typeof(Reflector).FullName);
+        private readonly IntervalMemoryCache<string, MemberInfo?> Cache = new();
 #endif
 
         /// <summary>The sliding cache expiration time.</summary>
@@ -36,8 +38,9 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <typeparam name="TValue">The field type.</typeparam>
         /// <param name="obj">The object which has the field.</param>
         /// <param name="name">The field name.</param>
-        /// <param name="required">Whether to throw an exception if the field is not found.</param>
-        /// <returns>Returns the field wrapper, or <c>null</c> if the field doesn't exist and <paramref name="required"/> is <c>false</c>.</returns>
+        /// <param name="required">Whether to throw an exception if the field isn't found. <strong>Due to limitations with nullable reference types, setting this to <c>false</c> will still mark the value non-nullable.</strong></param>
+        /// <returns>Returns the field wrapper, or <c>null</c> if <paramref name="required"/> is <c>false</c> and the field doesn't exist.</returns>
+        /// <exception cref="InvalidOperationException">The target field doesn't exist, and <paramref name="required"/> is true.</exception>
         public IReflectedField<TValue> GetField<TValue>(object obj, string name, bool required = true)
         {
             // validate
@@ -45,24 +48,26 @@ namespace StardewModdingAPI.Framework.Reflection
                 throw new ArgumentNullException(nameof(obj), "Can't get a instance field from a null object.");
 
             // get field from hierarchy
-            IReflectedField<TValue> field = this.GetFieldFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            IReflectedField<TValue>? field = this.GetFieldFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (required && field == null)
                 throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a '{name}' instance field.");
-            return field;
+            return field!;
         }
 
         /// <summary>Get a static field.</summary>
         /// <typeparam name="TValue">The field type.</typeparam>
         /// <param name="type">The type which has the field.</param>
         /// <param name="name">The field name.</param>
-        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        /// <param name="required">Whether to throw an exception if the field isn't found. <strong>Due to limitations with nullable reference types, setting this to <c>false</c> will still mark the value non-nullable.</strong></param>
+        /// <returns>Returns the field wrapper, or <c>null</c> if <paramref name="required"/> is <c>false</c> and the field doesn't exist.</returns>
+        /// <exception cref="InvalidOperationException">The target field doesn't exist, and <paramref name="required"/> is true.</exception>
         public IReflectedField<TValue> GetField<TValue>(Type type, string name, bool required = true)
         {
             // get field from hierarchy
-            IReflectedField<TValue> field = this.GetFieldFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
+            IReflectedField<TValue>? field = this.GetFieldFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
             if (required && field == null)
                 throw new InvalidOperationException($"The {type.FullName} object doesn't have a '{name}' static field.");
-            return field;
+            return field!;
         }
 
         /****
@@ -72,7 +77,9 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <typeparam name="TValue">The property type.</typeparam>
         /// <param name="obj">The object which has the property.</param>
         /// <param name="name">The property name.</param>
-        /// <param name="required">Whether to throw an exception if the property is not found.</param>
+        /// <param name="required">Whether to throw an exception if the property isn't found. <strong>Due to limitations with nullable reference types, setting this to <c>false</c> will still mark the value non-nullable.</strong></param>
+        /// <returns>Returns the property wrapper, or <c>null</c> if <paramref name="required"/> is <c>false</c> and the property doesn't exist.</returns>
+        /// <exception cref="InvalidOperationException">The target property doesn't exist, and <paramref name="required"/> is true.</exception>
         public IReflectedProperty<TValue> GetProperty<TValue>(object obj, string name, bool required = true)
         {
             // validate
@@ -80,24 +87,26 @@ namespace StardewModdingAPI.Framework.Reflection
                 throw new ArgumentNullException(nameof(obj), "Can't get a instance property from a null object.");
 
             // get property from hierarchy
-            IReflectedProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            IReflectedProperty<TValue>? property = this.GetPropertyFromHierarchy<TValue>(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (required && property == null)
                 throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a '{name}' instance property.");
-            return property;
+            return property!;
         }
 
         /// <summary>Get a static property.</summary>
         /// <typeparam name="TValue">The property type.</typeparam>
         /// <param name="type">The type which has the property.</param>
         /// <param name="name">The property name.</param>
-        /// <param name="required">Whether to throw an exception if the property is not found.</param>
+        /// <param name="required">Whether to throw an exception if the property isn't found. <strong>Due to limitations with nullable reference types, setting this to <c>false</c> will still mark the value non-nullable.</strong></param>
+        /// <returns>Returns the property wrapper, or <c>null</c> if <paramref name="required"/> is <c>false</c> and the property doesn't exist.</returns>
+        /// <exception cref="InvalidOperationException">The target property doesn't exist, and <paramref name="required"/> is true.</exception>
         public IReflectedProperty<TValue> GetProperty<TValue>(Type type, string name, bool required = true)
         {
             // get field from hierarchy
-            IReflectedProperty<TValue> property = this.GetPropertyFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+            IReflectedProperty<TValue>? property = this.GetPropertyFromHierarchy<TValue>(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
             if (required && property == null)
                 throw new InvalidOperationException($"The {type.FullName} object doesn't have a '{name}' static property.");
-            return property;
+            return property!;
         }
 
         /****
@@ -105,8 +114,10 @@ namespace StardewModdingAPI.Framework.Reflection
         ****/
         /// <summary>Get a instance method.</summary>
         /// <param name="obj">The object which has the method.</param>
-        /// <param name="name">The field name.</param>
-        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        /// <param name="name">The method name.</param>
+        /// <param name="required">Whether to throw an exception if the method isn't found. <strong>Due to limitations with nullable reference types, setting this to <c>false</c> will still mark the value non-nullable.</strong></param>
+        /// <returns>Returns the method wrapper, or <c>null</c> if <paramref name="required"/> is <c>false</c> and the method doesn't exist.</returns>
+        /// <exception cref="InvalidOperationException">The target method doesn't exist, and <paramref name="required"/> is true.</exception>
         public IReflectedMethod GetMethod(object obj, string name, bool required = true)
         {
             // validate
@@ -114,58 +125,34 @@ namespace StardewModdingAPI.Framework.Reflection
                 throw new ArgumentNullException(nameof(obj), "Can't get a instance method from a null object.");
 
             // get method from hierarchy
-            IReflectedMethod method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            IReflectedMethod? method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (required && method == null)
                 throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a '{name}' instance method.");
-            return method;
+            return method!;
         }
 
         /// <summary>Get a static method.</summary>
         /// <param name="type">The type which has the method.</param>
-        /// <param name="name">The field name.</param>
-        /// <param name="required">Whether to throw an exception if the field is not found.</param>
+        /// <param name="name">The method name.</param>
+        /// <param name="required">Whether to throw an exception if the method isn't found. <strong>Due to limitations with nullable reference types, setting this to <c>false</c> will still mark the value non-nullable.</strong></param>
+        /// <returns>Returns the method wrapper, or <c>null</c> if <paramref name="required"/> is <c>false</c> and the method doesn't exist.</returns>
+        /// <exception cref="InvalidOperationException">The target method doesn't exist, and <paramref name="required"/> is true.</exception>
         public IReflectedMethod GetMethod(Type type, string name, bool required = true)
         {
             // get method from hierarchy
-            IReflectedMethod method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+            IReflectedMethod? method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
             if (required && method == null)
                 throw new InvalidOperationException($"The {type.FullName} object doesn't have a '{name}' static method.");
-            return method;
+            return method!;
         }
 
         /****
-        ** Methods by signature
+        ** Management
         ****/
-        /// <summary>Get a instance method.</summary>
-        /// <param name="obj">The object which has the method.</param>
-        /// <param name="name">The field name.</param>
-        /// <param name="argumentTypes">The argument types of the method signature to find.</param>
-        /// <param name="required">Whether to throw an exception if the field is not found.</param>
-        public IReflectedMethod GetMethod(object obj, string name, Type[] argumentTypes, bool required = true)
+        /// <summary>Start a new cache interval, clearing stale reflection lookups.</summary>
+        public void NewCacheInterval()
         {
-            // validate parent
-            if (obj == null)
-                throw new ArgumentNullException(nameof(obj), "Can't get a instance method from a null object.");
-
-            // get method from hierarchy
-            ReflectedMethod method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, argumentTypes);
-            if (required && method == null)
-                throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a '{name}' instance method with that signature.");
-            return method;
-        }
-
-        /// <summary>Get a static method.</summary>
-        /// <param name="type">The type which has the method.</param>
-        /// <param name="name">The field name.</param>
-        /// <param name="argumentTypes">The argument types of the method signature to find.</param>
-        /// <param name="required">Whether to throw an exception if the field is not found.</param>
-        public IReflectedMethod GetMethod(Type type, string name, Type[] argumentTypes, bool required = true)
-        {
-            // get field from hierarchy
-            ReflectedMethod method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, argumentTypes);
-            if (required && method == null)
-                throw new InvalidOperationException($"The {type.FullName} object doesn't have a '{name}' static method with that signature.");
-            return method;
+            this.Cache.StartNewInterval();
         }
 
 
@@ -175,19 +162,29 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <summary>Get a field from the type hierarchy.</summary>
         /// <typeparam name="TValue">The expected field type.</typeparam>
         /// <param name="type">The type which has the field.</param>
-        /// <param name="obj">The object which has the field.</param>
+        /// <param name="obj">The object which has the field, or <c>null</c> for a static field.</param>
         /// <param name="name">The field name.</param>
         /// <param name="bindingFlags">The reflection binding which flags which indicates what type of field to find.</param>
-        private IReflectedField<TValue> GetFieldFromHierarchy<TValue>(Type type, object obj, string name, BindingFlags bindingFlags)
+        private IReflectedField<TValue>? GetFieldFromHierarchy<TValue>(Type type, object? obj, string name, BindingFlags bindingFlags)
         {
             bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
-            FieldInfo field = this.GetCached<FieldInfo>($"field::{isStatic}::{type.FullName}::{name}", () =>
-            {
-                FieldInfo fieldInfo = null;
-                for (; type != null && fieldInfo == null; type = type.BaseType)
-                    fieldInfo = type.GetField(name, bindingFlags);
-                return fieldInfo;
-            });
+            FieldInfo? field = this.GetCached(
+                'f', type, name, isStatic,
+                fetch: () =>
+                {
+                    for (Type? curType = type; curType != null; curType = curType.BaseType)
+                    {
+                        FieldInfo? fieldInfo = curType.GetField(name, bindingFlags);
+                        if (fieldInfo != null)
+                        {
+                            type = curType;
+                            return fieldInfo;
+                        }
+                    }
+
+                    return null;
+                }
+            );
 
             return field != null
                 ? new ReflectedField<TValue>(type, obj, field, isStatic)
@@ -197,19 +194,29 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <summary>Get a property from the type hierarchy.</summary>
         /// <typeparam name="TValue">The expected property type.</typeparam>
         /// <param name="type">The type which has the property.</param>
-        /// <param name="obj">The object which has the property.</param>
+        /// <param name="obj">The object which has the property, or <c>null</c> for a static property.</param>
         /// <param name="name">The property name.</param>
         /// <param name="bindingFlags">The reflection binding which flags which indicates what type of property to find.</param>
-        private IReflectedProperty<TValue> GetPropertyFromHierarchy<TValue>(Type type, object obj, string name, BindingFlags bindingFlags)
+        private IReflectedProperty<TValue>? GetPropertyFromHierarchy<TValue>(Type type, object? obj, string name, BindingFlags bindingFlags)
         {
             bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
-            PropertyInfo property = this.GetCached<PropertyInfo>($"property::{isStatic}::{type.FullName}::{name}", () =>
-            {
-                PropertyInfo propertyInfo = null;
-                for (; type != null && propertyInfo == null; type = type.BaseType)
-                    propertyInfo = type.GetProperty(name, bindingFlags);
-                return propertyInfo;
-            });
+            PropertyInfo? property = this.GetCached(
+                'p', type, name, isStatic,
+                fetch: () =>
+                {
+                    for (Type? curType = type; curType != null; curType = curType.BaseType)
+                    {
+                        PropertyInfo? propertyInfo = curType.GetProperty(name, bindingFlags);
+                        if (propertyInfo != null)
+                        {
+                            type = curType;
+                            return propertyInfo;
+                        }
+                    }
+
+                    return null;
+                }
+            );
 
             return property != null
                 ? new ReflectedProperty<TValue>(type, obj, property, isStatic)
@@ -218,74 +225,68 @@ namespace StardewModdingAPI.Framework.Reflection
 
         /// <summary>Get a method from the type hierarchy.</summary>
         /// <param name="type">The type which has the method.</param>
-        /// <param name="obj">The object which has the method.</param>
+        /// <param name="obj">The object which has the method, or <c>null</c> for a static method.</param>
         /// <param name="name">The method name.</param>
         /// <param name="bindingFlags">The reflection binding which flags which indicates what type of method to find.</param>
-        private IReflectedMethod GetMethodFromHierarchy(Type type, object obj, string name, BindingFlags bindingFlags)
+        private IReflectedMethod? GetMethodFromHierarchy(Type type, object? obj, string name, BindingFlags bindingFlags)
         {
             bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
-            MethodInfo method = this.GetCached($"method::{isStatic}::{type.FullName}::{name}", () =>
-            {
-                MethodInfo methodInfo = null;
-                for (; type != null && methodInfo == null; type = type.BaseType)
-                    methodInfo = type.GetMethod(name, bindingFlags);
-                return methodInfo;
-            });
+            MethodInfo? method = this.GetCached(
+                'm', type, name, isStatic,
+                fetch: () =>
+                {
+                    for (Type? curType = type; curType != null; curType = curType.BaseType)
+                    {
+                        MethodInfo? methodInfo = curType.GetMethod(name, bindingFlags);
+                        if (methodInfo != null)
+                        {
+                            type = curType;
+                            return methodInfo;
+                        }
+                    }
+
+                    return null;
+                }
+            );
 
             return method != null
-                ? new ReflectedMethod(type, obj, method, isStatic: bindingFlags.HasFlag(BindingFlags.Static))
-                : null;
-        }
-
-        /// <summary>Get a method from the type hierarchy.</summary>
-        /// <param name="type">The type which has the method.</param>
-        /// <param name="obj">The object which has the method.</param>
-        /// <param name="name">The method name.</param>
-        /// <param name="bindingFlags">The reflection binding which flags which indicates what type of method to find.</param>
-        /// <param name="argumentTypes">The argument types of the method signature to find.</param>
-        private ReflectedMethod GetMethodFromHierarchy(Type type, object obj, string name, BindingFlags bindingFlags, Type[] argumentTypes)
-        {
-            bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
-            MethodInfo method = this.GetCached($"method::{isStatic}::{type.FullName}::{name}({string.Join(",", argumentTypes.Select(p => p.FullName))})", () =>
-            {
-                MethodInfo methodInfo = null;
-                for (; type != null && methodInfo == null; type = type.BaseType)
-                    methodInfo = type.GetMethod(name, bindingFlags, null, argumentTypes, null);
-                return methodInfo;
-            });
-            return method != null
-                ? new ReflectedMethod(type, obj, method, isStatic)
+                ? new ReflectedMethod(type, obj, method, isStatic: isStatic)
                 : null;
         }
 
         /// <summary>Get a method or field through the cache.</summary>
         /// <typeparam name="TMemberInfo">The expected <see cref="MemberInfo"/> type.</typeparam>
-        /// <param name="key">The cache key.</param>
+        /// <param name="memberType">A letter representing the member type (like 'm' for method).</param>
+        /// <param name="type">The type whose members are being reflected.</param>
+        /// <param name="memberName">The member name.</param>
+        /// <param name="isStatic">Whether the member is static.</param>
         /// <param name="fetch">Fetches a new value to cache.</param>
-        private TMemberInfo GetCached<TMemberInfo>(string key, Func<TMemberInfo> fetch) where TMemberInfo : MemberInfo
+        private TMemberInfo? GetCached<TMemberInfo>(char memberType, Type type, string memberName, bool isStatic, Func<TMemberInfo?> fetch)
+            where TMemberInfo : MemberInfo
         {
             // get from cache
+// #if SMAPI_FOR_MOBILE
+//             if (this.Cache.ContainsKey(key))
+// #else
+//             if (this.Cache.Contains(key))
+// #endif
+//             {
+//                 CacheEntry entry = (CacheEntry)this.Cache[key];
+//                 return entry.IsValid
+//                     ? (TMemberInfo)entry.MemberInfo
+//                     : default;
+//             }
+//
+//             // fetch & cache new value
+//             TMemberInfo result = fetch();
+//             CacheEntry cacheEntry = new CacheEntry(result != null, result);
 #if SMAPI_FOR_MOBILE
-            if (this.Cache.ContainsKey(key))
+            string key = $"{memberType}{(isStatic ? 's' : 'i')}{type.FullName}:{memberName}";
+            return (TMemberInfo?)this.Cache.GetOrSet(key, fetch);
 #else
-            if (this.Cache.Contains(key))
+            string key = $"{memberType}{(isStatic ? 's' : 'i')}{type.FullName}:{memberName}";
+            return (TMemberInfo?)this.Cache.GetOrSet(key, fetch);
 #endif
-            {
-                CacheEntry entry = (CacheEntry)this.Cache[key];
-                return entry.IsValid
-                    ? (TMemberInfo)entry.MemberInfo
-                    : default;
-            }
-
-            // fetch & cache new value
-            TMemberInfo result = fetch();
-            CacheEntry cacheEntry = new CacheEntry(result != null, result);
-#if SMAPI_FOR_MOBILE
-            this.Cache.Add(key, cacheEntry);
-#else
-            this.Cache.Add(key, cacheEntry, new CacheItemPolicy { SlidingExpiration = this.SlidingCacheExpiry });
-#endif
-            return result;
         }
     }
 }

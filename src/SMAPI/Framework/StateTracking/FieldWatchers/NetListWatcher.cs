@@ -25,13 +25,16 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether the collection changed since the last reset.</summary>
+        /// <inheritdoc />
+        public string Name { get; }
+
+        /// <inheritdoc />
         public bool IsChanged => this.AddedImpl.Count > 0 || this.RemovedImpl.Count > 0;
 
-        /// <summary>The values added since the last reset.</summary>
+        /// <inheritdoc />
         public IEnumerable<TValue> Added => this.AddedImpl;
 
-        /// <summary>The values removed since the last reset.</summary>
+        /// <inheritdoc />
         public IEnumerable<TValue> Removed => this.RemovedImpl;
 
 #if SMAPI_FOR_MOBILE
@@ -42,9 +45,11 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="name">A name which identifies what the watcher is watching, used for troubleshooting.</param>
         /// <param name="field">The field to watch.</param>
-        public NetListWatcher(NetList<TValue, NetRef<TValue>> field)
+        public NetListWatcher(string name, NetList<TValue, NetRef<TValue>> field)
         {
+            this.Name = name;
             this.Field = field;
 #if SMAPI_FOR_MOBILE
             this.innerArray = (NetRef<NetArray<TValue, NetRef<TValue>>>)this.Field.GetType().GetField("array", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(this.Field);
@@ -77,20 +82,20 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             //this.innerArray.OnFieldCreate += new NetArray<TValue, NetRef<TValue>>.FieldCreateEvent(this.hookField);
         }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset()
         {
             this.AddedImpl.Clear();
             this.RemovedImpl.Clear();
         }
 
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update()
         {
             this.AssertNotDisposed();
         }
 
-        /// <summary>Stop watching the field and release all references.</summary>
+        /// <inheritdoc />
         public override void Dispose()
         {
 #if !SMAPI_FOR_MOBILE
@@ -133,7 +138,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <param name="index">The list index which changed.</param>
         /// <param name="oldValue">The previous value.</param>
         /// <param name="newValue">The new value.</param>
-        private void OnElementChanged(NetList<TValue, NetRef<TValue>> list, int index, TValue oldValue, TValue newValue)
+        private void OnElementChanged(NetList<TValue, NetRef<TValue>> list, int index, TValue? oldValue, TValue? newValue)
         {
             this.Remove(oldValue);
             this.Add(newValue);
@@ -141,7 +146,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
 
         /// <summary>Track an added item.</summary>
         /// <param name="value">The value that was added.</param>
-        private void Add(TValue value)
+        private void Add(TValue? value)
         {
             if (value == null)
                 return;
@@ -157,7 +162,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
 
         /// <summary>Track a removed item.</summary>
         /// <param name="value">The value that was removed.</param>
-        private void Remove(TValue value)
+        private void Remove(TValue? value)
         {
             if (value == null)
                 return;

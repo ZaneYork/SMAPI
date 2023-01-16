@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Toolkit.Serialization.Converters
         /// <param name="objectType">The object type.</param>
         /// <param name="existingValue">The object being read.</param>
         /// <param name="serializer">The calling serializer.</param>
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             return serializer.Deserialize<ManifestContentPackFor>(reader);
         }
@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Toolkit.Serialization.Converters
         /// <param name="writer">The JSON writer.</param>
         /// <param name="value">The value.</param>
         /// <param name="serializer">The calling serializer.</param>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             throw new InvalidOperationException("This converter does not write JSON.");
         }

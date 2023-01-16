@@ -87,13 +87,13 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         [TestCase("SObject obj = null; if (obj.netRefProperty != null);", 24, "obj.netRefProperty", "NetRef", "object")]
         [TestCase("Item item = new Item(); object list = item.netList;", 38, "item.netList", "NetList", "object")] // ↓ NetList field converted to a non-interface type
         [TestCase("Item item = new Item(); object list = item.netCollection;", 38, "item.netCollection", "NetCollection", "object")]
-        [TestCase("Item item = new Item(); int x = (int)item.netIntField;", 32, "item.netIntField", "NetInt", "int")] // ↓ explicit conversion to invalid type
+        [TestCase("Item item = new Item(); int x = (int)item.netIntField;", 32, "item.netIntField", "NetFieldBase", "int")] // ↓ explicit conversion to invalid type
         [TestCase("Item item = new Item(); int x = item.netRefField as object;", 32, "item.netRefField", "NetRef", "object")]
         public void AvoidImplicitNetFieldComparisons_RaisesDiagnostic(string codeText, int column, string expression, string fromType, string toType)
         {
             // arrange
             string code = NetFieldAnalyzerTests.SampleProgram.Replace("{{test-code}}", codeText);
-            DiagnosticResult expected = new DiagnosticResult
+            DiagnosticResult expected = new()
             {
                 Id = "AvoidImplicitNetFieldCast",
                 Message = $"This implicitly converts '{expression}' from {fromType} to {toType}, but {fromType} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/package/avoid-implicit-net-field-cast for details.",
@@ -135,7 +135,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         {
             // arrange
             string code = NetFieldAnalyzerTests.SampleProgram.Replace("{{test-code}}", codeText);
-            DiagnosticResult expected = new DiagnosticResult
+            DiagnosticResult expected = new()
             {
                 Id = "AvoidNetField",
                 Message = $"'{expression}' is a {netType} field; consider using the {suggestedProperty} property instead. See https://smapi.io/package/avoid-net-field for details.",

@@ -4,16 +4,19 @@
     "title": "Content Patcher content pack",
     "description": "Content Patcher content file for mods",
     "@documentationUrl": "https://github.com/Pathoschild/StardewMods/tree/develop/ContentPatcher#readme",
-    "type": "object",
 
+    "allowComments": true,
+    "allowTrailingCommas": true,
+
+    "type": "object",
     "properties": {
         "Format": {
             "title": "Format version",
-            "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
+            "description": "The format version. You should always use the latest version to enable the latest features, avoid obsolete behavior, and reduce load times.",
             "type": "string",
-            "const": "1.18.0",
+            "pattern": "^1\\.28\\.[0-9]+$",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.18.0'."
+                "pattern": "Incorrect value '@value'. You should always use the latest format version (currently 1.28.0) to enable the latest features, avoid obsolete behavior, and reduce load times."
             }
         },
         "ConfigSchema": {
@@ -48,6 +51,11 @@
                         "description": "An optional explanation of the config field for players, shown in UIs like Generic Mod Config Menu.",
                         "type": "string"
                     },
+                    "Section": {
+                        "title": "Section",
+                        "description": "An optional section key to group related fields on config UIs. This can be the literal text to show, or you can add a translation with the key 'config.section.<section value>.name' and '.description' to add a translated name & tooltip.",
+                        "type": "string" 
+                    },
 
                     "additionalProperties": false
                 },
@@ -67,6 +75,65 @@
                 "@errorMessages": {
                     "allOf": "If 'AllowBlank' is false, the 'Default' field is required."
                 }
+            }
+        },
+        "CustomLocations": {
+            "title": "Custom locations",
+            "description": "The custom in-game locations to make available.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "Name": {
+                        "title": "Name",
+                        "description": "The location's unique internal name. This can't contain tokens. The name must begin with 'Custom_' (to avoid conflicting with current or future vanilla locations), can only contain alphanumeric or underscore characters, and must be *globally* unique. Prefixing it with your mod name is strongly recommended.",
+                        "type": "string",
+                        "allOf": [
+                            {
+                                "pattern": "^ *Custom_"
+                            },
+                            {
+                                "pattern": "^ *[a-zA-Z0-9_]+ *$"
+                            },
+                            {
+                                "pattern": "^ *Custom_.+_.+ *$"
+                            }
+                        ],
+                        "@errorMessages": {
+                            "allOf:indexes: 0": "Custom location names must start with the exact text 'Custom_'.",
+                            "allOf:indexes: 1": "Custom location names can only contain alphanumeric or underscore characters.",
+                            "allOf:indexes: 2": "The location name should have three parts separated by underscores: the exact text 'Custom', a short label or acronym for your mod, and a map name (like 'Custom_YourModName_MapName'). Although not strictly required, this is very strongly recommended due to the consequences if two mods accidentally use the same location name."
+                        }
+                    },
+                    "FromMapFile": {
+                        "title": "From map file",
+                        "description": "The relative path to the location's map file in your content pack folder (file can be .tmx, .tbin, or .xnb). This can't contain tokens, but you can make conditional changes using EditMap.",
+                        "type": "string",
+                        "allOf": [
+                            {
+                                "not": {
+                                    "pattern": "\b\\.\\.[/\\]"
+                                }
+                            },
+                            {
+                                "pattern": "\\.(tbin|tmx|xnb) *$"
+                            }
+                        ],
+                        "@errorMessages": {
+                            "allOf:indexes: 0": "Invalid value; must not contain directory climbing (like '../').",
+                            "allOf:indexes: 1": "Invalid value; must be a file path ending with .tbin, .tmx, or .xnb."
+                        }
+                    },
+                    "MigrateLegacyNames": {
+                        "title": "Migrate legacy names",
+                        "description": "An optional list of former location names that may appear in the save file instead of the one given by Name. This can't contain tokens. This is only meant to allow migrating older locations, and shouldn't be used in most cases.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
             }
         },
         "DynamicTokens": {
@@ -97,6 +164,14 @@
                 "additionalProperties": false
             }
         },
+        "AliasTokenNames": {
+            "title": "Alias token names",
+            "description": "Defines optional alternate name for existing tokens. This only affects your content pack, and you can use both the alias name and the original token name. This is mostly useful for custom tokens provided by other mods, which often have longer names. Each entry key is the alias name, and the value is the original token name.",
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
         "Changes": {
             "title": "Changes",
             "description": "The changes you want to make. Each entry is called a patch, and describes a specific action to perform: replace this file, copy this image into the file, etc. You can list any number of patches.",
@@ -125,35 +200,18 @@
                         "description": "A name for this patch shown in log messages. This is very useful for understanding errors; if not specified, will default to a name like 'entry #14 (EditImage Animals/Dinosaurs)'.",
                         "type": "string"
                     },
-                    "Enabled": {
-                        "title": "Enabled",
-                        "description": "Whether to apply this patch. Default true. This fields supports immutable tokens (e.g. config tokens) if they return true/false.",
-                        "anyOf": [
-                            {
-                                "type": "boolean"
-                            },
-                            {
-                                "type": "string",
-                                "enum": [ "true", "false" ]
-                            },
-                            {
-                                "type": "string",
-                                "pattern": "\\{\\{[^{}]+\\}\\}"
-                            }
-                        ],
-                        "@errorMessages": {
-                            "anyOf": "Invalid value; must be true, false, or a single token which evaluates to true or false."
-                        }
-                    },
                     "Update": {
                         "title": "Update",
-                        "description": "When the patch should update if it changed. The possible values are 'OnDayStart' and 'OnLocationChange' (defaults to OnDayStart).",
+                        "description": "When the patch should update if it changed. The possible values are 'OnDayStart', 'OnLocationChange', or 'OnTimeChange' (defaults to OnDayStart).",
                         "type": "string",
-                        "enum": [ "OnDayStart", "OnLocationChange" ]
+                        "pattern": "^ *((OnDayStart|OnLocationChange|OnTimeChange), *)*(OnDayStart|OnLocationChange|OnTimeChange) *$",
+                        "@errorMessages": {
+                            "pattern": "Invalid value; must be 'OnDayStart', 'OnLocationChange', 'OnTimeChange', or a comma-delimited combination of those values."
+                        }
                     },
                     "FromFile": {
                         "title": "Source file",
-                        "description": "The relative file path in your content pack folder to load instead (like 'assets/dinosaur.png'). This can be a .json (data), .png (image), .tbin or .tmx (map), or .xnb file. This field supports tokens and capitalization doesn't matter.",
+                        "description": "The relative file path in your content pack folder to load instead (like 'assets/dinosaur.png'), or multiple comma-delimited values. This can be a .fnt (font), .json (data), .png (image), .tbin or .tmx (map), or .xnb file. This field supports tokens and capitalization doesn't matter.",
                         "type": "string",
                         "allOf": [
                             {
@@ -162,12 +220,12 @@
                                 }
                             },
                             {
-                                "pattern": "\\.(json|png|tbin|tmx|xnb) *$"
+                                "pattern": "\\.(fnt|json|png|tbin|tmx|xnb) *$"
                             }
                         ],
                         "@errorMessages": {
                             "allOf:indexes: 0": "Invalid value; must not contain directory climbing (like '../').",
-                            "allOf:indexes: 1": "Invalid value; must be a file path ending with .json, .png, .tbin, .tmx, or .xnb."
+                            "allOf:indexes: 1": "Invalid value; must be a file path ending with .fnt, .json, .png, .tbin, .tmx, or .xnb."
                         }
                     },
                     "FromArea": {
@@ -180,12 +238,13 @@
                         "description": "The part of the target image to replace. Defaults to the FromArea size starting from the top-left corner.",
                         "$ref": "#/definitions/Rectangle"
                     },
-                    "PatchMode": {
-                        "title": "Patch mode",
-                        "description": "How to apply FromArea to ToArea. Defaults to Replace.",
-                        "type": "string",
-                        "enum": [ "Replace", "Overlay" ],
-                        "default": "Replace"
+                    "TargetField": {
+                        "title": "Target field",
+                        "description": "The path to the field within the value to set as the root scope. See 'target field' in the EditData documentation for more info. This field supports tokens.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     },
                     "Fields": {
                         "title": "Fields",
@@ -271,6 +330,18 @@
                             }
                         }
                     },
+                    "AddWarps": {
+                        "title": "Add warps",
+                        "description": "The warp values to add to the location, in the format recognized by the game's Warp map property.",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": " *-?\\d+ -?\\d+ [A-Za-z0-9_]+ -?\\d+ -?\\d+ *$",
+                            "@errorMessages": {
+                                "pattern": "Each warp must match the exact format recognized by the game's Warp map property (i.e. 'fromX fromY targetMap targetX targetY', like '10 10 Town 0 30'."
+                            }
+                        }
+                    },
                     "MapProperties": {
                         "title": "Map properties",
                         "description": "The map properties (not tile properties) to add, replace, or delete. To add an property, just specify a key that doesn't exist; to delete an entry, set the value to null (like \"some key\": null). This field supports tokens in property keys and values.",
@@ -342,7 +413,6 @@
                             "propertyNames": {
                                 "enum": [
                                     "Action",
-                                    "Enabled",
                                     "FromFile",
                                     "LogName",
                                     "Target",
@@ -359,11 +429,19 @@
                             }
                         },
                         "then": {
+                            "properties": {
+                                "PatchMode": {
+                                    "title": "Patch mode",
+                                    "description": "How to apply FromArea to ToArea. Defaults to Replace.",
+                                    "type": "string",
+                                    "enum": [ "Replace", "Overlay" ],
+                                    "default": "Replace"
+                                }
+                            },
                             "required": [ "FromFile", "Target" ],
                             "propertyNames": {
                                 "enum": [
                                     "Action",
-                                    "Enabled",
                                     "FromFile",
                                     "LogName",
                                     "Target",
@@ -387,12 +465,12 @@
                             "propertyNames": {
                                 "enum": [
                                     "Action",
-                                    "Enabled",
                                     "LogName",
                                     "Target",
                                     "Update",
                                     "When",
 
+                                    "TargetField",
                                     "Entries",
                                     "Fields",
                                     "MoveEntries",
@@ -417,21 +495,29 @@
                                 },
                                 "ToArea": {
                                     "description": "The part of the target map to replace."
+                                },
+                                "PatchMode": {
+                                    "title": "Patch mode",
+                                    "description": "How to apply FromArea to ToArea. Defaults to ReplaceByLayer.",
+                                    "type": "string",
+                                    "enum": [ "Overlay", "Replace", "ReplaceByLayer" ],
+                                    "default": "ReplaceByLayer"
                                 }
                             },
                             "propertyNames": {
                                 "enum": [
                                     "Action",
-                                    "Enabled",
                                     "FromFile",
                                     "LogName",
                                     "Target",
                                     "Update",
                                     "When",
 
+                                    "AddWarps",
                                     "FromArea",
                                     "MapProperties",
                                     "MapTiles",
+                                    "PatchMode",
                                     "TextOperations",
                                     "ToArea"
                                 ]
@@ -449,7 +535,6 @@
                             "propertyNames": {
                                 "enum": [
                                     "Action",
-                                    "Enabled",
                                     "FromFile",
                                     "LogName",
                                     "Update",
@@ -482,13 +567,13 @@
                     "title": "X position",
                     "description": "The X position, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 },
                 "Y": {
                     "title": "Y position",
                     "description": "The Y position, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 }
             },
 
@@ -502,25 +587,25 @@
                     "title": "X position",
                     "description": "The X position of the area's top-left corner, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 },
                 "Y": {
                     "title": "Y position",
                     "description": "The Y position of the area's top-left corner, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 },
                 "Width": {
                     "title": "Width",
                     "description": "The width of the area, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 },
                 "Height": {
                     "title": "Height",
                     "description": "The height of the area, measured in pixels for a texture or tiles for a map. This can contain tokens.",
                     "type": [ "integer", "string" ],
-                    "minimum:": 0
+                    "minimum": 0
                 }
             },
 

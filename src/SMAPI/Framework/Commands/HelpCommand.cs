@@ -39,23 +39,35 @@ namespace StardewModdingAPI.Framework.Commands
         {
             if (args.Any())
             {
-                Command result = this.CommandManager.Get(args[0]);
+                Command? result = this.CommandManager.Get(args[0]);
                 if (result == null)
-                    monitor.Log("There's no command with that name.", LogLevel.Error);
+                    monitor.Log("There's no command with that name. Type 'help' by itself for more info.", LogLevel.Error);
                 else
                     monitor.Log($"{result.Name}: {result.Documentation}{(result.Mod != null ? $"\n(Added by {result.Mod.DisplayName}.)" : "")}", LogLevel.Info);
             }
             else
             {
-                string message = "The following commands are registered:\n";
-                IGrouping<string, string>[] groups = (from command in this.CommandManager.GetAll() orderby command.Mod?.DisplayName, command.Name group command.Name by command.Mod?.DisplayName).ToArray();
+                string message =
+                    "\n\n"
+                    + "Need help with a SMAPI or mod issue?\n"
+                    + "------------------------------------\n"
+                    + "See https://smapi.io/help for the best places to ask.\n\n\n"
+                    + "How commands work\n"
+                    + "-----------------\n"
+                    + "Just enter a command directly to run it, just like you did for this help command. Commands may take optional arguments\n"
+                    + "which change what they do; for example, type 'help help' to see help about the help command. When playing in split-screen\n"
+                    + "mode, you can add screen=X to send the command to a specific screen instance.\n\n\n"
+                    + "Valid commands\n"
+                    + "--------------\n"
+                    + "The following commands are registered. For more info about a command, type 'help command_name'.\n\n";
+
+                IGrouping<string, string>[] groups = (from command in this.CommandManager.GetAll() orderby command.Mod?.DisplayName, command.Name group command.Name by command.Mod?.DisplayName ?? "SMAPI").ToArray();
                 foreach (var group in groups)
                 {
-                    string modName = group.Key ?? "SMAPI";
+                    string modName = group.Key;
                     string[] commandNames = group.ToArray();
                     message += $"{modName}:\n  {string.Join("\n  ", commandNames)}\n\n";
                 }
-                message += "For more information about a command, type 'help command_name'.";
 
                 monitor.Log(message, LogLevel.Info);
             }

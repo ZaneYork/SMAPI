@@ -33,24 +33,24 @@ namespace StardewModdingAPI.Web.Framework.Clients.Pastebin
             try
             {
                 // get from API
-                string content = await this.Client
+                string? content = await this.Client
                     .GetAsync($"raw/{id}")
                     .AsString();
 
                 // handle Pastebin errors
                 if (string.IsNullOrWhiteSpace(content))
-                    return new PasteInfo { Error = "Received an empty response from Pastebin." };
+                    return new PasteInfo(null, "Received an empty response from Pastebin.");
                 if (content.StartsWith("<!DOCTYPE"))
-                    return new PasteInfo { Error = $"Received a captcha challenge from Pastebin. Please visit https://pastebin.com/{id} in a new window to solve it." };
-                return new PasteInfo { Success = true, Content = content };
+                    return new PasteInfo(null, $"Received a captcha challenge from Pastebin. Please visit https://pastebin.com/{id} in a new window to solve it.");
+                return new PasteInfo(content, null);
             }
             catch (ApiException ex) when (ex.Status == HttpStatusCode.NotFound)
             {
-                return new PasteInfo { Error = "There's no log with that ID." };
+                return new PasteInfo(null, "There's no log with that ID.");
             }
             catch (Exception ex)
             {
-                return new PasteInfo { Error = $"Pastebin error: {ex}" };
+                return new PasteInfo(null, $"Pastebin error: {ex}");
             }
         }
 

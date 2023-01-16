@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -46,7 +47,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="stackSizes">The items with their previous stack sizes.</param>
         /// <param name="changes">The inventory changes, or <c>null</c> if nothing changed.</param>
         /// <returns>Returns whether anything changed.</returns>
-        public static bool TryGetChanges(ISet<Item> added, ISet<Item> removed, IDictionary<Item, int> stackSizes, out SnapshotItemListDiff changes)
+        public static bool TryGetChanges(ISet<Item> added, ISet<Item> removed, IDictionary<Item, int> stackSizes, [NotNullWhen(true)] out SnapshotItemListDiff? changes)
         {
             KeyValuePair<Item, int>[] sizesChanged = stackSizes.Where(p => p.Key.Stack != p.Value).ToArray();
             if (sizesChanged.Any() || added.Any() || removed.Any())

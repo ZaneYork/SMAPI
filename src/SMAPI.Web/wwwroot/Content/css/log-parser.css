@@ -54,6 +54,41 @@ table caption {
 }
 
 /*********
+** Suggested fixes
+*********/
+#fix-list {
+    padding-left: 1em;
+    margin-bottom: 2em;
+}
+
+#fix-list li {
+    padding: 0.5em;
+    background: #FFC;
+    border: 1px solid #880;
+    border-radius: 5px;
+    list-style-type: none;
+}
+
+#fix-list li:not(:last-child) {
+     margin-bottom: 0.5em;
+}
+
+#fix-list li.notice {
+    background: #EEFFEE;
+    border-color: #080;
+}
+
+#fix-list li.important {
+    background: #FCC;
+    border-color: #800;
+}
+
+#fix-list li::before {
+    content: "⚠ ";
+}
+
+
+/*********
 ** Log metadata & filters
 *********/
 .table, #filters {
@@ -84,10 +119,6 @@ table caption {
     min-height: 1.3em;
 }
 
-#fix-list {
-    margin-bottom: 2em;
-}
-
 #updates {
     min-width: 10em;
 }
@@ -113,7 +144,7 @@ table caption {
 }
 
 .table tr {
-    background: #eee
+    background: #eee;
 }
 
 #mods span.notice {
@@ -148,18 +179,79 @@ table caption {
     font-style: italic;
 }
 
+.table .content-packs-collapsed {
+    opacity: 0.75;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
 #metadata td:first-child {
     padding-right: 5px;
 }
 
 .table tr:nth-child(even) {
-    background: #fff
+    background: #fff;
 }
 
 #filters {
     margin: 1em 0 0 0;
-    padding: 0;
+    padding: 0 0 0.5em;
+    display: flex;
+    justify-content: space-between;
+    width: calc(100vw - 16em);
+}
+
+#filters > div {
+    align-self: center;
+}
+
+#filters .toggles {
+    display: flex;
+}
+
+#filters .toggles > div:first-child {
     font-weight: bold;
+    padding: 0.2em 1em 0 0;
+}
+
+#filters .filter-text {
+    margin-top: 0.5em;
+}
+
+#filters .filter-error {
+    color: #880000;
+}
+
+#filters .filter-error,
+#filters .stats {
+    margin-top: 0.5em;
+    font-size: 0.75em;
+}
+
+#filters.sticky {
+    position: fixed;
+    top: 0;
+    left: 0em;
+    background: #fff;
+    margin: 0;
+    padding: 0.5em;
+    width: calc(100% - 1em);
+}
+
+@media (min-width: 1020px) and (max-width: 1199px) {
+    #filters:not(.sticky) {
+        width: calc(100vw - 13em);
+    }
+}
+
+@media (max-width: 1019px) {
+    #filters:not(.sticky) {
+        width: calc(100vw - 5em);
+    }
+
+    #filters {
+        display: block;
+    }
 }
 
 #filters span {
@@ -173,6 +265,17 @@ table caption {
     color: #000;
     border-color: #880000;
     background-color: #fcc;
+
+    user-select: none;
+}
+
+#filters .filter-text span {
+    padding: 3px 0.5em;
+}
+
+#filters .whole-word i {
+    padding: 0 1px;
+    border: 1px dashed;
 }
 
 #filters span:hover {
@@ -188,11 +291,48 @@ table caption {
     background: #efe;
 }
 
+#filters .pager {
+    margin-top: 0.5em;
+    text-align: right;
+}
+
+#filters .pager div {
+    margin-top: 0.5em;
+}
+
+#filters .pager div span {
+    padding: 0 0.5em;
+    margin: 0 1px;
+}
+
+#filters .pager span {
+    background-color: #eee;
+    border-color: #888;
+}
+
+#filters .pager span.active {
+    font-weight: bold;
+    border-color: transparent;
+    background: transparent;
+    cursor: unset;
+}
+
+#filters .pager span.disabled {
+    opacity: 0.3;
+    cursor: unset;
+}
+
+#filters .pager span:not(.disabled):hover {
+    background-color: #fff;
+}
+
+
 /*********
 ** Log
 *********/
 #log .mod-repeat {
     font-size: 0.85em;
+    font-style: italic;
 }
 
 #log .trace {
@@ -235,6 +375,11 @@ table caption {
 
 #log .log-message-text {
     white-space: pre-wrap;
+}
+
+#log .log-message-text strong {
+    background-color: yellow;
+    font-weight: normal;
 }
 
 #log {
@@ -291,13 +436,29 @@ table caption {
 
 
 /*********
-** Upload form
+** OS instructions
 *********/
-#os-list {
-    list-style: none;
+#os-instructions {
+    display: grid;
+    grid-template-columns: minmax(16em, auto) 30em;
 }
 
-div[data-os] {
-    display: none;
+#os-instructions [role="tablist"] {
+    border: 0;
 }
 
+#os-instructions [role="tab"] {
+    display: block;
+    border: 0;
+    position: relative;
+}
+
+#os-instructions [role="tab"][aria-selected="true"] {
+    font-weight: bold;
+    border-radius: 0 10px 10px 0;
+}
+
+[role="tab"][aria-selected="true"]::after {
+    content: "▶";
+    padding-left: 0.5em;
+}

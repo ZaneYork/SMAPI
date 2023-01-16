@@ -40,8 +40,8 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
 
             // invalid
             fromExpression = null;
-            fromType = default(TypeInfo);
-            toType = default(TypeInfo);
+            fromType = default;
+            toType = default;
             return false;
         }
 
@@ -64,7 +64,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
             }
 
             // conditional access
-            if (node is ConditionalAccessExpressionSyntax conditionalAccess && conditionalAccess.WhenNotNull is MemberBindingExpressionSyntax conditionalBinding)
+            if (node is ConditionalAccessExpressionSyntax { WhenNotNull: MemberBindingExpressionSyntax conditionalBinding } conditionalAccess)
             {
                 declaringType = semanticModel.GetTypeInfo(conditionalAccess.Expression).Type;
                 memberType = semanticModel.GetTypeInfo(node);
@@ -74,7 +74,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
 
             // invalid
             declaringType = null;
-            memberType = default(TypeInfo);
+            memberType = default;
             memberName = null;
             return false;
         }

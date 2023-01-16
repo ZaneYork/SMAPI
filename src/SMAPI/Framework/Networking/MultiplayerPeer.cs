@@ -25,16 +25,22 @@ namespace StardewModdingAPI.Framework.Networking
         public bool IsHost { get; }
 
         /// <inheritdoc />
+        public bool IsSplitScreen => this.ScreenID != null;
+
+        /// <inheritdoc />
         public bool HasSmapi => this.ApiVersion != null;
+
+        /// <inheritdoc />
+        public int? ScreenID { get; }
 
         /// <inheritdoc />
         public GamePlatform? Platform { get; }
 
         /// <inheritdoc />
-        public ISemanticVersion GameVersion { get; }
+        public ISemanticVersion? GameVersion { get; }
 
         /// <inheritdoc />
-        public ISemanticVersion ApiVersion { get; }
+        public ISemanticVersion? ApiVersion { get; }
 
         /// <inheritdoc />
         public IEnumerable<IMultiplayerPeerMod> Mods { get; }
@@ -45,13 +51,16 @@ namespace StardewModdingAPI.Framework.Networking
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="playerID">The player's unique ID.</param>
+        /// <param name="screenID">The player's screen ID, if applicable.</param>
         /// <param name="model">The metadata to copy.</param>
         /// <param name="sendMessage">A method which sends a message to the peer.</param>
         /// <param name="isHost">Whether this is a connection to the host player.</param>
-        public MultiplayerPeer(long playerID, RemoteContextModel model, Action<OutgoingMessage> sendMessage, bool isHost)
+        public MultiplayerPeer(long playerID, int? screenID, RemoteContextModel? model, Action<OutgoingMessage> sendMessage, bool isHost)
         {
             this.PlayerID = playerID;
+            this.ScreenID = screenID;
             this.IsHost = isHost;
+
             if (model != null)
             {
                 this.Platform = model.Platform;
@@ -59,13 +68,16 @@ namespace StardewModdingAPI.Framework.Networking
                 this.ApiVersion = model.ApiVersion;
                 this.Mods = model.Mods.Select(mod => new MultiplayerPeerMod(mod)).ToArray();
             }
+            else
+                this.Mods = Array.Empty<IMultiplayerPeerMod>();
+
             this.SendMessageImpl = sendMessage;
         }
 
         /// <inheritdoc />
-        public IMultiplayerPeerMod GetMod(string id)
+        public IMultiplayerPeerMod? GetMod(string? id)
         {
-            if (string.IsNullOrWhiteSpace(id) || this.Mods == null || !this.Mods.Any())
+            if (string.IsNullOrWhiteSpace(id) || !this.Mods.Any())
                 return null;
 
             id = id.Trim();

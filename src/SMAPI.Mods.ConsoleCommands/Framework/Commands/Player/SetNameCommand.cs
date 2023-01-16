@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
 {
     /// <summary>A command which edits the player's name.</summary>
-    internal class SetNameCommand : TrainerCommand
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
+    internal class SetNameCommand : ConsoleCommand
     {
         /*********
         ** Public methods
@@ -19,9 +21,9 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             // parse arguments
-            if (!args.TryGet(0, "target", out string target, oneOf: new[] { "player", "farm" }))
+            if (!args.TryGet(0, "target", out string? target, oneOf: new[] { "player", "farm" }))
                 return;
-            args.TryGet(1, "name", out string name, required: false);
+            args.TryGet(1, "name", out string? name, required: false);
 
             // handle
             switch (target)

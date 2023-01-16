@@ -16,7 +16,7 @@ namespace StardewModdingAPI
         /// <summary>Get a connected player.</summary>
         /// <param name="id">The player's unique ID.</param>
         /// <returns>Returns the connected player, or <c>null</c> if no such player is connected.</returns>
-        IMultiplayerPeer GetConnectedPlayer(long id);
+        IMultiplayerPeer? GetConnectedPlayer(long id);
 
         /// <summary>Get all connected players.</summary>
         IEnumerable<IMultiplayerPeer> GetConnectedPlayers();
@@ -28,6 +28,6 @@ namespace StardewModdingAPI
         /// <param name="modIDs">The mod IDs which should receive the message on the destination computers, or <c>null</c> for all mods. Specifying mod IDs is recommended to improve performance, unless it's a general-purpose broadcast.</param>
         /// <param name="playerIDs">The <see cref="Farmer.UniqueMultiplayerID" /> values for the players who should receive the message, or <c>null</c> for all players. If you don't need to broadcast to all players, specifying player IDs is recommended to reduce latency.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="message"/> or <paramref name="messageType" /> is null.</exception>
-        void SendMessage<TMessage>(TMessage message, string messageType, string[] modIDs = null, long[] playerIDs = null);
+        void SendMessage<TMessage>(TMessage message, string messageType, string[]? modIDs = null, long[]? playerIDs = null);
     }
 }

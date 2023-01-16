@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Framework.PerformanceMonitoring;
+using StardewModdingAPI.Internal;
 
 namespace StardewModdingAPI.Framework.Events
 {
@@ -17,30 +17,30 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>The mod registry with which to identify mods.</summary>
         protected readonly ModRegistry ModRegistry;
 
-        /// <summary>Tracks performance metrics.</summary>
-        private readonly PerformanceMonitor PerformanceMonitor;
-
         /// <summary>The underlying event handlers.</summary>
-        private readonly List<ManagedEventHandler<TEventArgs>> Handlers = new List<ManagedEventHandler<TEventArgs>>();
+        private readonly List<ManagedEventHandler<TEventArgs>> Handlers = new();
 
-        /// <summary>A cached snapshot of <see cref="Handlers"/>, or <c>null</c> to rebuild it next raise.</summary>
-        private ManagedEventHandler<TEventArgs>[] CachedHandlers = new ManagedEventHandler<TEventArgs>[0];
+        /// <summary>A cached snapshot of the <see cref="Handlers"/> sorted by event priority, or <c>null</c> to rebuild it next raise.</summary>
+        private ManagedEventHandler<TEventArgs>[]? CachedHandlers = Array.Empty<ManagedEventHandler<TEventArgs>>();
 
         /// <summary>The total number of event handlers registered for this events, regardless of whether they're still registered.</summary>
         private int RegistrationIndex;
 
-        /// <summary>Whether new handlers were added since the last raise.</summary>
-        private bool HasNewHandlers;
+        /// <summary>Whether handlers were removed since the last raise.</summary>
+        private bool HasRemovedHandlers;
+
+        /// <summary>Whether any of the handlers have a custom priority.</summary>
+        private bool HasPriorities;
 
 
         /*********
         ** Accessors
         *********/
-        /// <summary>A human-readable name for the event.</summary>
+        /// <inheritdoc />
         public string EventName { get; }
 
-        /// <summary>Whether the event is typically called at least once per second.</summary>
-        public bool IsPerformanceCritical { get; }
+        /// <inheritdoc />
+        public bool HasListeners { get; private set; }
 
 
         /*********
@@ -49,20 +49,10 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="eventName">A human-readable name for the event.</param>
         /// <param name="modRegistry">The mod registry with which to identify mods.</param>
-        /// <param name="performanceMonitor">Tracks performance metrics.</param>
-        /// <param name="isPerformanceCritical">Whether the event is typically called at least once per second.</param>
-        public ManagedEvent(string eventName, ModRegistry modRegistry, PerformanceMonitor performanceMonitor, bool isPerformanceCritical = false)
+        public ManagedEvent(string eventName, ModRegistry modRegistry)
         {
             this.EventName = eventName;
             this.ModRegistry = modRegistry;
-            this.PerformanceMonitor = performanceMonitor;
-            this.IsPerformanceCritical = isPerformanceCritical;
-        }
-
-        /// <summary>Get whether anything is listening to the event.</summary>
-        public bool HasListeners()
-        {
-            return this.Handlers.Count > 0;
         }
 
         /// <summary>Add an event handler.</summary>
@@ -77,7 +67,8 @@ namespace StardewModdingAPI.Framework.Events
 
                 this.Handlers.Add(managedHandler);
                 this.CachedHandlers = null;
-                this.HasNewHandlers = true;
+                this.HasListeners = true;
+                this.HasPriorities |= priority != EventPriority.Normal;
             }
         }
 
@@ -95,6 +86,8 @@ namespace StardewModdingAPI.Framework.Events
 
                     this.Handlers.RemoveAt(i);
                     this.CachedHandlers = null;
+                    this.HasListeners = this.Handlers.Count != 0;
+                    this.HasRemovedHandlers = true;
                     break;
                 }
             }
@@ -102,70 +95,97 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <summary>Raise the event and notify all handlers.</summary>
         /// <param name="args">The event arguments to pass.</param>
-        /// <param name="match">A lambda which returns true if the event should be raised for the given mod.</param>
-        public void Raise(TEventArgs args, Func<IModMetadata, bool> match = null)
+        public void Raise(TEventArgs args)
         {
             // skip if no handlers
             if (this.Handlers.Count == 0)
                 return;
 
-            // update cached data
-            // (This is debounced here to avoid repeatedly sorting when handlers are added/removed,
-            // and keeping a separate cached list allows changes during enumeration.)
-            var handlers = this.CachedHandlers; // iterate local copy in case a mod adds/removes a handler while handling the event, which will set this field to null
-            if (handlers == null)
+            // raise event
+            foreach (ManagedEventHandler<TEventArgs> handler in this.GetHandlers())
             {
-                lock (this.Handlers)
-                {
-                    if (this.HasNewHandlers && this.Handlers.Any(p => p.Priority != EventPriority.Normal))
-                        this.Handlers.Sort();
+                Context.HeuristicModsRunningCode.Push(handler.SourceMod);
 
-                    this.CachedHandlers = handlers = this.Handlers.ToArray();
-                    this.HasNewHandlers = false;
+                try
+                {
+                    handler.Handler(null, args);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(handler, ex);
+                }
+                finally
+                {
+                    Context.HeuristicModsRunningCode.TryPop(out _);
                 }
             }
+        }
+
+        /// <summary>Raise the event and notify all handlers.</summary>
+        /// <param name="invoke">Invoke an event handler. This receives the mod which registered the handler, and should invoke the callback with the event arguments to pass it.</param>
+        public void Raise(Action<IModMetadata, Action<TEventArgs>> invoke)
+        {
+            // skip if no handlers
+            if (this.Handlers.Count == 0)
+                return;
 
             // raise event
-            this.PerformanceMonitor.Track(this.EventName, () =>
+            foreach (ManagedEventHandler<TEventArgs> handler in this.GetHandlers())
             {
-                foreach (ManagedEventHandler<TEventArgs> handler in handlers)
-                {
-                    if (match != null && !match(handler.SourceMod))
-                        continue;
+                Context.HeuristicModsRunningCode.Push(handler.SourceMod);
 
-                    try
-                    {
-                        this.PerformanceMonitor.Track(this.EventName, this.GetModNameForPerformanceCounters(handler), () => handler.Handler.Invoke(null, args));
-                    }
-                    catch (Exception ex)
-                    {
-                        this.LogError(handler, ex);
-                    }
+                try
+                {
+                    invoke(handler.SourceMod, args => handler.Handler(null, args));
                 }
-            });
+                catch (Exception ex)
+                {
+                    this.LogError(handler, ex);
+                }
+                finally
+                {
+                    Context.HeuristicModsRunningCode.TryPop(out _);
+                }
+            }
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Get the mod name for a given event handler to display in performance monitoring reports.</summary>
-        /// <param name="handler">The event handler.</param>
-        private string GetModNameForPerformanceCounters(ManagedEventHandler<TEventArgs> handler)
-        {
-            IModMetadata mod = handler.SourceMod;
-
-            return mod.HasManifest()
-                ? mod.Manifest.UniqueID
-                : mod.DisplayName;
-        }
-
         /// <summary>Log an exception from an event handler.</summary>
         /// <param name="handler">The event handler instance.</param>
         /// <param name="ex">The exception that was raised.</param>
-        protected void LogError(ManagedEventHandler<TEventArgs> handler, Exception ex)
+        private void LogError(ManagedEventHandler<TEventArgs> handler, Exception ex)
         {
             handler.SourceMod.LogAsMod($"This mod failed in the {this.EventName} event. Technical details: \n{ex.GetLogSummary()}", LogLevel.Error);
+        }
+
+        /// <summary>Get cached copy of the sorted handlers to invoke.</summary>
+        /// <remarks>This returns the handlers sorted by priority, and allows iterating the list even if a mod adds/removes handlers while handling it. This is debounced when requested to avoid repeatedly sorting when handlers are added/removed.</remarks>
+        private ManagedEventHandler<TEventArgs>[] GetHandlers()
+        {
+            ManagedEventHandler<TEventArgs>[]? handlers = this.CachedHandlers;
+
+            if (handlers == null)
+            {
+                lock (this.Handlers)
+                {
+                    // recheck priorities
+                    if (this.HasRemovedHandlers)
+                        this.HasPriorities = this.Handlers.Any(p => p.Priority != EventPriority.Normal);
+
+                    // sort by priority if needed
+                    if (this.HasPriorities)
+                        this.Handlers.Sort();
+
+                    // update cache
+                    this.CachedHandlers = handlers = this.Handlers.ToArray();
+                    this.HasRemovedHandlers = false;
+                }
+            }
+
+            return handlers;
         }
     }
 }

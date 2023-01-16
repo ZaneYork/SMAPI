@@ -132,7 +132,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         };
 
         /// <summary>The diagnostic info for an implicit net field cast.</summary>
-        private readonly DiagnosticDescriptor AvoidImplicitNetFieldCastRule = new DiagnosticDescriptor(
+        private readonly DiagnosticDescriptor AvoidImplicitNetFieldCastRule = new(
             id: "AvoidImplicitNetFieldCast",
             title: "Netcode types shouldn't be implicitly converted",
             messageFormat: "This implicitly converts '{0}' from {1} to {2}, but {1} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/package/avoid-implicit-net-field-cast for details.",
@@ -143,7 +143,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         );
 
         /// <summary>The diagnostic info for an avoidable net field access.</summary>
-        private readonly DiagnosticDescriptor AvoidNetFieldRule = new DiagnosticDescriptor(
+        private readonly DiagnosticDescriptor AvoidNetFieldRule = new(
             id: "AvoidNetField",
             title: "Avoid Netcode types when possible",
             messageFormat: "'{0}' is a {1} field; consider using the {2} property instead. See https://smapi.io/package/avoid-net-field for details.",
@@ -174,6 +174,9 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <param name="context">The analysis context.</param>
         public override void Initialize(AnalysisContext context)
         {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
+            context.EnableConcurrentExecution();
+
             context.RegisterSyntaxNodeAction(
                 this.AnalyzeMemberAccess,
                 SyntaxKind.SimpleMemberAccessExpression,
@@ -224,10 +227,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
 
                 // warn: implicit conversion
                 if (this.IsInvalidConversion(memberType.Type, memberType.ConvertedType))
-                {
                     context.ReportDiagnostic(Diagnostic.Create(this.AvoidImplicitNetFieldCastRule, context.Node.GetLocation(), context.Node, memberType.Type.Name, memberType.ConvertedType));
-                    return;
-                }
             });
         }
 
@@ -312,7 +312,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
                 return false;
 
             // conversion to implemented interface is OK
-            if (fromType.AllInterfaces.Contains(toType))
+            if (fromType.AllInterfaces.Contains(toType, SymbolEqualityComparer.Default))
                 return false;
 
             // avoid any other conversions

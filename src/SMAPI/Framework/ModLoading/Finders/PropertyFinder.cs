@@ -52,7 +52,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /// <param name="instruction">The IL instruction.</param>
         protected bool IsMatch(Instruction instruction)
         {
-            MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
+            MethodReference? methodRef = RewriteHelper.AsMethodReference(instruction);
             return
                 methodRef != null
                 && methodRef.DeclaringType.FullName == this.FullTypeName

@@ -24,7 +24,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <summary>Describes the diagnostic rule covered by the analyzer.</summary>
         private readonly IDictionary<string, DiagnosticDescriptor> Rules = new Dictionary<string, DiagnosticDescriptor>
         {
-            ["AvoidObsoleteField"] = new DiagnosticDescriptor(
+            ["AvoidObsoleteField"] = new(
                 id: "AvoidObsoleteField",
                 title: "Reference to obsolete field",
                 messageFormat: "The '{0}' field is obsolete and should be replaced with '{1}'. See https://smapi.io/package/avoid-obsolete-field for details.",
@@ -56,6 +56,9 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <param name="context">The analysis context.</param>
         public override void Initialize(AnalysisContext context)
         {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
+            context.EnableConcurrentExecution();
+
             context.RegisterSyntaxNodeAction(
                 this.AnalyzeObsoleteFields,
                 SyntaxKind.SimpleMemberAccessExpression,
@@ -74,7 +77,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
             try
             {
                 // get reference info
-                if (!AnalyzerUtilities.TryGetMemberInfo(context.Node, context.SemanticModel, out ITypeSymbol declaringType, out TypeInfo memberType, out string memberName))
+                if (!AnalyzerUtilities.TryGetMemberInfo(context.Node, context.SemanticModel, out ITypeSymbol declaringType, out _, out string memberName))
                     return;
 
                 // suggest replacement

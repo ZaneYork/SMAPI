@@ -17,10 +17,13 @@ namespace StardewModdingAPI
         /// <exception cref="ArgumentException">There's already a command with that name.</exception>
         ICommandHelper Add(string name, string documentation, Action<string, string[]> callback);
 
+#if SMAPI_DEPRECATED
         /// <summary>Trigger a command.</summary>
         /// <param name="name">The command name.</param>
         /// <param name="arguments">The command arguments.</param>
         /// <returns>Returns whether a matching command was triggered.</returns>
+        [Obsolete("Use mod-provided APIs to integrate with mods instead. This method will be removed in SMAPI 4.0.0.")]
         bool Trigger(string name, string[] arguments);
+#endif
     }
 }

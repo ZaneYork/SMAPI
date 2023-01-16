@@ -1,8 +1,9 @@
-#if HARMONY_2
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using HarmonyLib;
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters that shouldn't be called directly.
 
 namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
@@ -20,7 +21,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             this.ImportMethodImpl(method);
         }
 
-        public HarmonyMethodFacade(Type type, string name, Type[] parameters = null)
+        public HarmonyMethodFacade(Type type, string name, Type[]? parameters = null)
         {
             this.ImportMethodImpl(AccessTools.Method(type, name, parameters));
         }
@@ -37,11 +38,10 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             // internal code still handles null fine. For backwards compatibility, this bypasses
             // the new restriction when the mod hasn't been updated for Harmony 2.0 yet.
 
-            MethodInfo importMethod = typeof(HarmonyMethod).GetMethod("ImportMethod", BindingFlags.Instance | BindingFlags.NonPublic);
+            MethodInfo? importMethod = typeof(HarmonyMethod).GetMethod("ImportMethod", BindingFlags.Instance | BindingFlags.NonPublic);
             if (importMethod == null)
                 throw new InvalidOperationException("Can't find 'HarmonyMethod.ImportMethod' method");
             importMethod.Invoke(this, new object[] { methodInfo });
         }
     }
 }
-#endif

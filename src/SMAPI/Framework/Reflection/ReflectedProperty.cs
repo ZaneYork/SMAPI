@@ -14,10 +14,10 @@ namespace StardewModdingAPI.Framework.Reflection
         private readonly string DisplayName;
 
         /// <summary>The underlying property getter.</summary>
-        private readonly Func<TValue> GetMethod;
+        private readonly Func<TValue>? GetMethod;
 
         /// <summary>The underlying property setter.</summary>
-        private readonly Action<TValue> SetMethod;
+        private readonly Action<TValue>? SetMethod;
 
 
         /*********
@@ -32,12 +32,12 @@ namespace StardewModdingAPI.Framework.Reflection
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="parentType">The type that has the property.</param>
-        /// <param name="obj">The object that has the instance property (if applicable).</param>
+        /// <param name="obj">The object that has the instance property, or <c>null</c> for a static property.</param>
         /// <param name="property">The reflection metadata.</param>
         /// <param name="isStatic">Whether the property is static.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="parentType"/> or <paramref name="property"/> is null.</exception>
         /// <exception cref="ArgumentException">The <paramref name="obj"/> is null for a non-static property, or not null for a static property.</exception>
-        public ReflectedProperty(Type parentType, object obj, PropertyInfo property, bool isStatic)
+        public ReflectedProperty(Type parentType, object? obj, PropertyInfo property, bool isStatic)
         {
             // validate input
             if (parentType == null)

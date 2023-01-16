@@ -3,17 +3,18 @@
   <PropertyGroup>
     <AssemblyName>SaveBackup</AssemblyName>
     <RootNamespace>StardewModdingAPI.Mods.SaveBackup</RootNamespace>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
+
+  <Import Project="..\..\build\common.targets" />
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
     <ProjectReference Include="..\SMAPI\SMAPI.csproj" Private="False" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
-    <Reference Include="$(GameExecutableName)" HintPath="$(GamePath)\$(GameExecutableName).exe" Private="False" />
+    <Reference Include="Stardew Valley" HintPath="$(GamePath)\Stardew Valley.dll" Private="False" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,5 +37,4 @@
   </ItemGroup>
 
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
-  <Import Project="..\..\build\common.targets" />
 </Project>

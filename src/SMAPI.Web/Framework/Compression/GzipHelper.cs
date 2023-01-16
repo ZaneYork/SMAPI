@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -29,9 +30,9 @@ namespace StardewModdingAPI.Web.Framework.Compression
 
             // compressed
             byte[] compressedData;
-            using (MemoryStream stream = new MemoryStream())
+            using (MemoryStream stream = new())
             {
-                using (GZipStream zipStream = new GZipStream(stream, CompressionLevel.Optimal, leaveOpen: true))
+                using (GZipStream zipStream = new(stream, CompressionLevel.Optimal, leaveOpen: true))
                     zipStream.Write(buffer, 0, buffer.Length);
 
                 stream.Position = 0;
@@ -51,8 +52,12 @@ namespace StardewModdingAPI.Web.Framework.Compression
         /// <summary>Decompress a string.</summary>
         /// <param name="rawText">The compressed text.</param>
         /// <remarks>Derived from <a href="https://stackoverflow.com/a/17993002/262123"/>.</remarks>
-        public string DecompressString(string rawText)
+        [return: NotNullIfNotNull("rawText")]
+        public string? DecompressString(string? rawText)
         {
+            if (rawText is null)
+                return rawText;
+
             // get raw bytes
             byte[] zipBuffer;
             try
@@ -69,7 +74,7 @@ namespace StardewModdingAPI.Web.Framework.Compression
                 return rawText;
 
             // decompress
-            using MemoryStream memoryStream = new MemoryStream();
+            using MemoryStream memoryStream = new();
             {
                 // read length prefix
                 int dataLength = BitConverter.ToInt32(zipBuffer, 0);
@@ -78,7 +83,7 @@ namespace StardewModdingAPI.Web.Framework.Compression
                 // read data
                 byte[] buffer = new byte[dataLength];
                 memoryStream.Position = 0;
-                using (GZipStream gZipStream = new GZipStream(memoryStream, CompressionMode.Decompress))
+                using (GZipStream gZipStream = new(memoryStream, CompressionMode.Decompress))
                     gZipStream.Read(buffer, 0, buffer.Length);
 
                 // return original string

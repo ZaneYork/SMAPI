@@ -9,12 +9,16 @@ smapi.modList = function (mods, enableBeta) {
         soon: 0,
         broken: 0,
         abandoned: 0,
-        invalid: 0
+        invalid: 0,
+        percentCompatible: 0,
+        percentBroken: 0,
+        percentObsolete: 0
     };
     var data = {
         mods: mods,
         showAdvanced: false,
-        visibleStats: $.extend({}, defaultStats),
+        visibleMainStats: $.extend({}, defaultStats),
+        visibleBetaStats: $.extend({}, defaultStats),
         filters: {
             source: {
                 value: {
@@ -124,7 +128,8 @@ smapi.modList = function (mods, enableBeta) {
                 var words = data.search.toLowerCase().split(" ");
 
                 // apply criteria
-                var stats = data.visibleStats = $.extend({}, defaultStats);
+                var mainStats = data.visibleMainStats = $.extend({}, defaultStats);
+                var betaStats = data.visibleBetaStats = $.extend({}, defaultStats);
                 for (var i = 0; i < data.mods.length; i++) {
                     var mod = data.mods[i];
                     mod.Visible = true;
@@ -132,9 +137,19 @@ smapi.modList = function (mods, enableBeta) {
                     // check filters
                     mod.Visible = this.matchesFilters(mod, words);
                     if (mod.Visible) {
-                        stats.total++;
-                        stats[this.getCompatibilityGroup(mod)]++;
+                        mainStats.total++;
+                        betaStats.total++;
+
+                        mainStats[this.getCompatibilityGroup(mod.Compatibility.Status)]++;
+                        betaStats[this.getCompatibilityGroup(mod.LatestCompatibility.Status)]++;
                     }
+                }
+
+                // add aggregate stats
+                for (let stats of [mainStats, betaStats]) {
+                    stats.percentCompatible = Math.round((stats.compatible + stats.workaround) / stats.total * 100);
+                    stats.percentBroken = Math.round((stats.soon + stats.broken) / stats.total * 100);
+                    stats.percentObsolete = Math.round(stats.abandoned / stats.total * 100);
                 }
             },
 
@@ -220,11 +235,10 @@ smapi.modList = function (mods, enableBeta) {
 
             /**
              * Get a mod's compatibility group for mod metrics.
-             * @param {object} mod The mod to check.
+             * @param {string} mod The mod status for which to get the group.
              * @returns {string} The compatibility group (one of 'compatible', 'workaround', 'soon', 'broken', 'abandoned', or 'invalid').
              */
-            getCompatibilityGroup: function (mod) {
-                var status = mod.LatestCompatibility.Status;
+            getCompatibilityGroup: function (status) {
                 switch (status) {
                     // obsolete
                     case "abandoned":

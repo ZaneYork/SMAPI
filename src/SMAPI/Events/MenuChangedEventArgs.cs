@@ -9,20 +9,20 @@ namespace StardewModdingAPI.Events
         /*********
         ** Accessors
         *********/
-        /// <summary>The previous menu.</summary>
-        public IClickableMenu OldMenu { get; }
+        /// <summary>The previous menu, if any.</summary>
+        public IClickableMenu? OldMenu { get; }
 
-        /// <summary>The current menu.</summary>
-        public IClickableMenu NewMenu { get; }
+        /// <summary>The current menu, if any.</summary>
+        public IClickableMenu? NewMenu { get; }
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="oldMenu">The previous menu.</param>
-        /// <param name="newMenu">The current menu.</param>
-        internal MenuChangedEventArgs(IClickableMenu oldMenu, IClickableMenu newMenu)
+        /// <param name="oldMenu">The previous menu, if any.</param>
+        /// <param name="newMenu">The current menu, if any.</param>
+        internal MenuChangedEventArgs(IClickableMenu? oldMenu, IClickableMenu? newMenu)
         {
             this.OldMenu = oldMenu;
             this.NewMenu = newMenu;

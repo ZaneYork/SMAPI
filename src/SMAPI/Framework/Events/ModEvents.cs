@@ -2,31 +2,34 @@ using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI.Framework.Events
 {
-    /// <summary>Manages access to events raised by SMAPI.</summary>
+    /// <inheritdoc />
     internal class ModEvents : IModEvents
     {
         /*********
         ** Accessors
         *********/
-        /// <summary>Events related to UI and drawing to the screen.</summary>
+        /// <inheritdoc />
+        public IContentEvents Content { get; }
+
+        /// <inheritdoc />
         public IDisplayEvents Display { get; }
 
-        /// <summary>Events linked to the game's update loop. The update loop runs roughly ≈60 times/second to run game logic like state changes, action handling, etc. These can be useful, but you should consider more semantic events like <see cref="IModEvents.Input"/> if possible.</summary>
+        /// <inheritdoc />
         public IGameLoopEvents GameLoop { get; }
 
-        /// <summary>Events raised when the player provides input using a controller, keyboard, or mouse.</summary>
+        /// <inheritdoc />
         public IInputEvents Input { get; }
 
-        /// <summary>Events raised for multiplayer messages and connections.</summary>
+        /// <inheritdoc />
         public IMultiplayerEvents Multiplayer { get; }
 
-        /// <summary>Events raised when the player data changes.</summary>
+        /// <inheritdoc />
         public IPlayerEvents Player { get; }
 
-        /// <summary>Events raised when something changes in the world.</summary>
+        /// <inheritdoc />
         public IWorldEvents World { get; }
 
-        /// <summary>Events serving specialized edge cases that shouldn't be used by most mods.</summary>
+        /// <inheritdoc />
         public ISpecializedEvents Specialized { get; }
 
 
@@ -38,6 +41,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="eventManager">The underlying event manager.</param>
         public ModEvents(IModMetadata mod, EventManager eventManager)
         {
+            this.Content = new ModContentEvents(mod, eventManager);
             this.Display = new ModDisplayEvents(mod, eventManager);
             this.GameLoop = new ModGameLoopEvents(mod, eventManager);
             this.Input = new ModInputEvents(mod, eventManager);

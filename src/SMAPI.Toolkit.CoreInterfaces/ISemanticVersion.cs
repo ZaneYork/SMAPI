@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StardewModdingAPI
 {
@@ -18,46 +19,55 @@ namespace StardewModdingAPI
         int PatchVersion { get; }
 
         /// <summary>An optional prerelease tag.</summary>
-        string PrereleaseTag { get; }
+        string? PrereleaseTag { get; }
 
         /// <summary>Optional build metadata. This is ignored when determining version precedence.</summary>
-        string BuildMetadata { get; }
+        string? BuildMetadata { get; }
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>Whether this is a prerelease version.</summary>
+#if NET5_0_OR_GREATER
+        [MemberNotNullWhen(true, nameof(ISemanticVersion.PrereleaseTag))]
+#endif
         bool IsPrerelease();
 
         /// <summary>Get whether this version is older than the specified version.</summary>
         /// <param name="other">The version to compare with this instance.</param>
-        bool IsOlderThan(ISemanticVersion other);
+        /// <remarks>Although the <paramref name="other"/> parameter is nullable, it isn't optional. A <c>null</c> version is considered earlier than every possible valid version, so passing <c>null</c> to <paramref name="other"/> will always return false.</remarks>
+        bool IsOlderThan(ISemanticVersion? other);
 
         /// <summary>Get whether this version is older than the specified version.</summary>
-        /// <param name="other">The version to compare with this instance.</param>
+        /// <param name="other">The version to compare with this instance.  A null value is never older.</param>
         /// <exception cref="FormatException">The specified version is not a valid semantic version.</exception>
-        bool IsOlderThan(string other);
+        /// <remarks>Although the <paramref name="other"/> parameter is nullable, it isn't optional. A <c>null</c> version is considered earlier than every possible valid version, so passing <c>null</c> to <paramref name="other"/> will always return false.</remarks>
+        bool IsOlderThan(string? other);
 
         /// <summary>Get whether this version is newer than the specified version.</summary>
-        /// <param name="other">The version to compare with this instance.</param>
-        bool IsNewerThan(ISemanticVersion other);
+        /// <param name="other">The version to compare with this instance. A null value is always older.</param>
+        /// <remarks>Although the <paramref name="other"/> parameter is nullable, it isn't optional. A <c>null</c> version is considered earlier than every possible valid version, so passing <c>null</c> to <paramref name="other"/> will always return true.</remarks>
+        bool IsNewerThan(ISemanticVersion? other);
 
         /// <summary>Get whether this version is newer than the specified version.</summary>
-        /// <param name="other">The version to compare with this instance.</param>
+        /// <param name="other">The version to compare with this instance. A null value is always older.</param>
         /// <exception cref="FormatException">The specified version is not a valid semantic version.</exception>
-        bool IsNewerThan(string other);
+        /// <remarks>Although the <paramref name="other"/> parameter is nullable, it isn't optional. A <c>null</c> version is considered earlier than every possible valid version, so passing <c>null</c> to <paramref name="other"/> will always return true.</remarks>
+        bool IsNewerThan(string? other);
 
         /// <summary>Get whether this version is between two specified versions (inclusively).</summary>
-        /// <param name="min">The minimum version.</param>
-        /// <param name="max">The maximum version.</param>
-        bool IsBetween(ISemanticVersion min, ISemanticVersion max);
+        /// <param name="min">The minimum version. A null value is always older.</param>
+        /// <param name="max">The maximum version. A null value is never newer.</param>
+        /// <remarks>Although the <paramref name="min"/> and <paramref name="max"/> parameters are nullable, they are not optional. A <c>null</c> version is considered earlier than every possible valid version. For example, passing <c>null</c> to <paramref name="max"/> will always return false, since no valid version can be earlier than <c>null</c>.</remarks>
+        bool IsBetween(ISemanticVersion? min, ISemanticVersion? max);
 
         /// <summary>Get whether this version is between two specified versions (inclusively).</summary>
-        /// <param name="min">The minimum version.</param>
-        /// <param name="max">The maximum version.</param>
+        /// <param name="min">The minimum version. A null value is always older.</param>
+        /// <param name="max">The maximum version. A null value is never newer.</param>
         /// <exception cref="FormatException">One of the specified versions is not a valid semantic version.</exception>
-        bool IsBetween(string min, string max);
+        /// <remarks>Although the <paramref name="min"/> and <paramref name="max"/> parameters are nullable, they are not optional. A <c>null</c> version is considered earlier than every possible valid version. For example, passing <c>null</c> to <paramref name="max"/> will always return false, since no valid version can be earlier than <c>null</c>.</remarks>
+        bool IsBetween(string? min, string? max);
 
         /// <summary>Get a string representation of the version.</summary>
         string ToString();

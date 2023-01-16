@@ -18,10 +18,10 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         public bool IsDefault { get; }
 
         /// <summary>The lowest version in the range, or <c>null</c> for all past versions.</summary>
-        public ISemanticVersion LowerVersion { get; }
+        public ISemanticVersion? LowerVersion { get; }
 
         /// <summary>The highest version in the range, or <c>null</c> for all future versions.</summary>
-        public ISemanticVersion UpperVersion { get; }
+        public ISemanticVersion? UpperVersion { get; }
 
 
         /*********
@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /// <param name="isDefault">Whether this field should only be applied if it's not already set.</param>
         /// <param name="lowerVersion">The lowest version in the range, or <c>null</c> for all past versions.</param>
         /// <param name="upperVersion">The highest version in the range, or <c>null</c> for all future versions.</param>
-        public ModDataField(ModDataFieldKey key, string value, bool isDefault, ISemanticVersion lowerVersion, ISemanticVersion upperVersion)
+        public ModDataField(ModDataFieldKey key, string value, bool isDefault, ISemanticVersion? lowerVersion, ISemanticVersion? upperVersion)
         {
             this.Key = key;
             this.Value = value;
@@ -44,7 +44,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
 
         /// <summary>Get whether this data field applies for the given manifest.</summary>
         /// <param name="manifest">The mod manifest.</param>
-        public bool IsMatch(IManifest manifest)
+        public bool IsMatch(IManifest? manifest)
         {
             return
                 manifest?.Version != null // ignore invalid manifest
@@ -66,11 +66,11 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
             {
                 // update key
                 case ModDataFieldKey.UpdateKey:
-                    return manifest.UpdateKeys != null && manifest.UpdateKeys.Any(p => !string.IsNullOrWhiteSpace(p));
+                    return manifest.UpdateKeys.Any(p => !string.IsNullOrWhiteSpace(p));
 
                 // non-manifest fields
-                case ModDataFieldKey.AlternativeUrl:
                 case ModDataFieldKey.StatusReasonPhrase:
+                case ModDataFieldKey.StatusReasonDetails:
                 case ModDataFieldKey.Status:
                     return false;
 

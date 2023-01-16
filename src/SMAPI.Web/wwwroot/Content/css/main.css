@@ -68,7 +68,7 @@ a {
     margin-top: 3em;
     min-height: 75%;
     width: 12em;
-    background: url("../images/sidebar-bg.gif") no-repeat top right;
+    background: url("../images/sidebar-bg.svg") no-repeat top right;
     color: #666;
 }
 
@@ -97,6 +97,22 @@ a {
     margin-left: 1em;
 }
 
+/* quick navigation */
+
+#quickNav {
+    position: fixed;
+    bottom: 3em;
+    width: 12em;
+}
+
+@media (max-height: 400px) {
+    #quickNav {
+        position: unset;
+        width: auto;
+    }
+}
+
+
 /* footer */
 #footer {
     margin: 1em;
@@ -111,9 +127,14 @@ a {
 
 /* mobile fixes */
 @media (min-width: 1020px) and (max-width: 1199px) {
+    #quickNav,
     #sidebar {
         width: 7em;
         background: none;
+    }
+
+    #quickNav h4 {
+        width: unset;
     }
 
     #content-column {
@@ -137,5 +158,10 @@ a {
         position: inherit;
         top: inherit;
         left: inherit;
+    }
+
+    #quickNav {
+        position: unset;
+        width: auto;
     }
 }

@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
 {
     /// <summary>A command which shows the data files.</summary>
-    internal class ShowDataFilesCommand : TrainerCommand
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
+    internal class ShowDataFilesCommand : ConsoleCommand
     {
         /*********
         ** Public methods

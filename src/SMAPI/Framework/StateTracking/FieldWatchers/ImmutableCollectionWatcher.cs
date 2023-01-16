@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
@@ -10,28 +11,31 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Accessors
         *********/
         /// <summary>A singleton collection watcher instance.</summary>
-        public static ImmutableCollectionWatcher<TValue> Instance { get; } = new ImmutableCollectionWatcher<TValue>();
+        public static ImmutableCollectionWatcher<TValue> Instance { get; } = new();
 
-        /// <summary>Whether the collection changed since the last reset.</summary>
+        /// <inheritdoc />
+        public string Name => nameof(ImmutableCollectionWatcher<TValue>);
+
+        /// <inheritdoc />
         public bool IsChanged { get; } = false;
 
-        /// <summary>The values added since the last reset.</summary>
-        public IEnumerable<TValue> Added { get; } = new TValue[0];
+        /// <inheritdoc />
+        public IEnumerable<TValue> Added { get; } = Array.Empty<TValue>();
 
-        /// <summary>The values removed since the last reset.</summary>
-        public IEnumerable<TValue> Removed { get; } = new TValue[0];
+        /// <inheritdoc />
+        public IEnumerable<TValue> Removed { get; } = Array.Empty<TValue>();
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update() { }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset() { }
 
-        /// <summary>Stop watching the field and release all references.</summary>
+        /// <inheritdoc />
         public override void Dispose() { }
     }
 }

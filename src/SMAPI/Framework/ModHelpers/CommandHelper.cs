@@ -1,4 +1,7 @@
 using System;
+#if SMAPI_DEPRECATED
+using StardewModdingAPI.Framework.Deprecations;
+#endif
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -8,9 +11,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Fields
         *********/
-        /// <summary>The mod using this instance.</summary>
-        private readonly IModMetadata Mod;
-
         /// <summary>Manages console commands.</summary>
         private readonly CommandManager CommandManager;
 
@@ -22,9 +22,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="mod">The mod using this instance.</param>
         /// <param name="commandManager">Manages console commands.</param>
         public CommandHelper(IModMetadata mod, CommandManager commandManager)
-            : base(mod?.Manifest?.UniqueID ?? "SMAPI")
+            : base(mod)
         {
-            this.Mod = mod;
             this.CommandManager = commandManager;
         }
 
@@ -35,10 +34,20 @@ namespace StardewModdingAPI.Framework.ModHelpers
             return this;
         }
 
+#if SMAPI_DEPRECATED
         /// <inheritdoc />
+        [Obsolete("Use mod-provided APIs to integrate with mods instead. This method will be removed in SMAPI 4.0.0.")]
         public bool Trigger(string name, string[] arguments)
         {
+            SCore.DeprecationManager.Warn(
+                source: this.Mod,
+                nounPhrase: $"{nameof(IModHelper)}.{nameof(IModHelper.ConsoleCommands)}.{nameof(ICommandHelper.Trigger)}",
+                version: "3.8.1",
+                severity: DeprecationLevel.PendingRemoval
+            );
+
             return this.CommandManager.Trigger(name, arguments);
         }
+#endif
     }
 }

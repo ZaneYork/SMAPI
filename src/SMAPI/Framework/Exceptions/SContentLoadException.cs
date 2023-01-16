@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework.Content;
 
 namespace StardewModdingAPI.Framework.Exceptions
@@ -7,12 +7,23 @@ namespace StardewModdingAPI.Framework.Exceptions
     internal class SContentLoadException : ContentLoadException
     {
         /*********
+        ** Accessors
+        *********/
+        /// <summary>Why loading the asset through the content pipeline failed.</summary>
+        public ContentLoadErrorType ErrorType { get; }
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="errorType">Why loading the asset through the content pipeline failed.</param>
         /// <param name="message">The error message.</param>
         /// <param name="ex">The underlying exception, if any.</param>
-        public SContentLoadException(string message, Exception ex = null)
-            : base(message, ex) { }
+        public SContentLoadException(ContentLoadErrorType errorType, string message, Exception? ex = null)
+            : base(message, ex)
+        {
+            this.ErrorType = errorType;
+        }
     }
 }

@@ -1,27 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
+using Pathoschild.Http.Client;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 {
     /// <summary>Provides methods for interacting with the SMAPI web API.</summary>
-    public class WebApiClient
+    public class WebApiClient : IDisposable
     {
         /*********
         ** Fields
         *********/
-        /// <summary>The base URL for the web API.</summary>
-        private readonly Uri BaseUrl;
-
         /// <summary>The API version number.</summary>
         private readonly ISemanticVersion Version;
 
-        /// <summary>The JSON serializer settings to use.</summary>
-        private readonly JsonSerializerSettings JsonSettings = new JsonHelper().JsonSettings;
+        /// <summary>The underlying HTTP client.</summary>
+        private readonly IClient Client;
 
 
         /*********
@@ -32,8 +29,11 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <param name="version">The web API version.</param>
         public WebApiClient(string baseUrl, ISemanticVersion version)
         {
-            this.BaseUrl = new Uri(baseUrl);
             this.Version = version;
+            this.Client = new FluentClient(baseUrl)
+                .SetUserAgent($"SMAPI/{version}");
+
+            this.Client.Formatters.JsonFormatter.SerializerSettings = JsonHelper.CreateDefaultSettings();
         }
 
         /// <summary>Get metadata about a set of mods from the web API.</summary>
@@ -42,35 +42,22 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <param name="gameVersion">The Stardew Valley version installed by the player.</param>
         /// <param name="platform">The OS on which the player plays.</param>
         /// <param name="includeExtendedMetadata">Whether to include extended metadata for each mod.</param>
-        public IDictionary<string, ModEntryModel> GetModInfo(ModSearchEntryModel[] mods, ISemanticVersion apiVersion, ISemanticVersion gameVersion, Platform platform, bool includeExtendedMetadata = false)
+        public async Task<IDictionary<string, ModEntryModel>> GetModInfoAsync(ModSearchEntryModel[] mods, ISemanticVersion apiVersion, ISemanticVersion gameVersion, Platform platform, bool includeExtendedMetadata = false)
         {
-            return this.Post<ModSearchModel, ModEntryModel[]>(
-                $"v{this.Version}/mods",
-                new ModSearchModel(mods, apiVersion, gameVersion, platform, includeExtendedMetadata)
-            ).ToDictionary(p => p.ID);
+            ModEntryModel[] result = await this.Client
+                .PostAsync(
+                    $"v{this.Version}/mods",
+                    new ModSearchModel(mods, apiVersion, gameVersion, platform, includeExtendedMetadata)
+                )
+                .As<ModEntryModel[]>();
+
+            return result.ToDictionary(p => p.ID);
         }
 
-
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>Fetch the response from the backend API.</summary>
-        /// <typeparam name="TBody">The body content type.</typeparam>
-        /// <typeparam name="TResult">The expected response type.</typeparam>
-        /// <param name="url">The request URL, optionally excluding the base URL.</param>
-        /// <param name="content">The body content to post.</param>
-        private TResult Post<TBody, TResult>(string url, TBody content)
+        /// <inheritdoc />
+        public void Dispose()
         {
-            // note: avoid HttpClient for Mac compatibility
-            using WebClient client = new WebClient();
-
-            Uri fullUrl = new Uri(this.BaseUrl, url);
-            string data = JsonConvert.SerializeObject(content);
-
-            client.Headers["Content-Type"] = "application/json";
-            client.Headers["User-Agent"] = $"SMAPI/{this.Version}";
-            string response = client.UploadString(fullUrl, data);
-            return JsonConvert.DeserializeObject<TResult>(response, this.JsonSettings);
+            this.Client.Dispose();
         }
     }
 }

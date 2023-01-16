@@ -1,17 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Reflection;
-using StardewValley;
+using StardewValley.Menus;
 
 namespace StardewModdingAPI.Framework
 {
     /// <summary>Provides extension methods for SMAPI's internal use.</summary>
     internal static class InternalExtensions
     {
+        /*********
+        ** Public methods
+        *********/
         /****
         ** IMonitor
         ****/
@@ -38,7 +42,19 @@ namespace StardewModdingAPI.Framework
         /// <param name="level">The log severity level.</param>
         public static void LogAsMod(this IModMetadata metadata, string message, LogLevel level = LogLevel.Trace)
         {
+            if (metadata.Monitor is null)
+                throw new InvalidOperationException($"Can't log as mod {metadata.DisplayName}: mod is broken or a content pack. Logged message:\n[{level}] {message}");
+
             metadata.Monitor.Log(message, level);
+        }
+
+        /// <summary>Log a message using the mod's monitor, but only if it hasn't already been logged since the last game launch.</summary>
+        /// <param name="metadata">The mod whose monitor to use.</param>
+        /// <param name="message">The message to log.</param>
+        /// <param name="level">The log severity level.</param>
+        public static void LogAsModOnce(this IModMetadata metadata, string message, LogLevel level = LogLevel.Trace)
+        {
+            metadata.Monitor?.LogOnce(message, level);
         }
 
         /****
@@ -49,39 +65,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="event">The event to raise.</param>
         public static void RaiseEmpty<TEventArgs>(this ManagedEvent<TEventArgs> @event) where TEventArgs : new()
         {
-            @event.Raise(Singleton<TEventArgs>.Instance);
-        }
-
-        /****
-        ** Exceptions
-        ****/
-        /// <summary>Get a string representation of an exception suitable for writing to the error log.</summary>
-        /// <param name="exception">The error to summarize.</param>
-        public static string GetLogSummary(this Exception exception)
-        {
-            switch (exception)
-            {
-                case TypeLoadException ex:
-                    return $"Failed loading type '{ex.TypeName}': {exception}";
-
-                case ReflectionTypeLoadException ex:
-                    string summary = exception.ToString();
-                    foreach (Exception childEx in ex.LoaderExceptions)
-                        summary += $"\n\n{childEx.GetLogSummary()}";
-                    return summary;
-
-                default:
-                    return exception.ToString();
-            }
-        }
-
-        /// <summary>Get the lowest exception in an exception stack.</summary>
-        /// <param name="exception">The exception from which to search.</param>
-        public static Exception GetInnermostException(this Exception exception)
-        {
-            while (exception.InnerException != null)
-                exception = exception.InnerException;
-            return exception;
+            if (@event.HasListeners)
+                @event.Raise(Singleton<TEventArgs>.Instance);
         }
 
         /****
@@ -154,6 +139,22 @@ namespace StardewModdingAPI.Framework
         }
 
         /****
+        ** IActiveClickableMenu
+        ****/
+        /// <summary>Get a string representation of the menu chain to the given menu (including the specified menu), in parent to child order.</summary>
+        /// <param name="menu">The menu whose chain to get.</param>
+        public static string GetMenuChainLabel(this IClickableMenu menu)
+        {
+            static IEnumerable<IClickableMenu> GetAncestors(IClickableMenu menu)
+            {
+                for (; menu != null; menu = menu.GetParentMenu())
+                    yield return menu;
+            }
+
+            return string.Join(" > ", GetAncestors(menu).Reverse().Select(p => p.GetType().FullName));
+        }
+
+        /****
         ** Sprite batch
         ****/
         /// <summary>Get whether the sprite batch is between a begin and end pair.</summary>
@@ -161,16 +162,36 @@ namespace StardewModdingAPI.Framework
         /// <param name="reflection">The reflection helper with which to access private fields.</param>
         public static bool IsOpen(this SpriteBatch spriteBatch, Reflector reflection)
         {
-            // get field name
-            const string fieldName =
-#if SMAPI_FOR_WINDOWS
-                "inBeginEndPair";
-#else
-                "_beginCalled";
-#endif
+            return reflection.GetField<bool>(spriteBatch, "_beginCalled").GetValue();
+        }
 
-            // get result
-            return reflection.GetField<bool>(Game1.spriteBatch, fieldName).GetValue();
+        /****
+        ** Texture2D
+        ****/
+        /// <summary>Set the texture name field.</summary>
+        /// <param name="texture">The texture whose name to set.</param>
+        /// <param name="assetName">The asset name to set.</param>
+        /// <returns>Returns the texture for chaining.</returns>
+        [return: NotNullIfNotNull("texture")]
+        public static Texture2D? SetName(this Texture2D? texture, IAssetName assetName)
+        {
+            if (texture != null)
+                texture.Name = assetName.Name;
+
+            return texture;
+        }
+
+        /// <summary>Set the texture name field.</summary>
+        /// <param name="texture">The texture whose name to set.</param>
+        /// <param name="assetName">The asset name to set.</param>
+        /// <returns>Returns the texture for chaining.</returns>
+        [return: NotNullIfNotNull("texture")]
+        public static Texture2D? SetName(this Texture2D? texture, string assetName)
+        {
+            if (texture != null)
+                texture.Name = assetName;
+
+            return texture;
         }
     }
 }

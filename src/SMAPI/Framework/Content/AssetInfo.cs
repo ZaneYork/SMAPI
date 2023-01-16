@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+#if SMAPI_DEPRECATED
+using StardewModdingAPI.Framework.Deprecations;
+#endif
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -12,18 +15,48 @@ namespace StardewModdingAPI.Framework.Content
         /// <summary>Normalizes an asset key to match the cache key.</summary>
         protected readonly Func<string, string> GetNormalizedPath;
 
+        /// <summary>The backing field for <see cref="NameWithoutLocale"/>.</summary>
+        private IAssetName? NameWithoutLocaleImpl;
+
 
         /*********
         ** Accessors
         *********/
         /// <inheritdoc />
-        public string Locale { get; }
+        public string? Locale { get; }
 
         /// <inheritdoc />
-        public string AssetName { get; }
+        public IAssetName Name { get; }
+
+        /// <inheritdoc />
+        public IAssetName NameWithoutLocale => this.NameWithoutLocaleImpl ??= this.Name.GetBaseAssetName();
 
         /// <inheritdoc />
         public Type DataType { get; }
+
+#if SMAPI_DEPRECATED
+        /// <inheritdoc />
+        [Obsolete($"Use {nameof(AssetInfo.Name)} or {nameof(AssetInfo.NameWithoutLocale)} instead. This property will be removed in SMAPI 4.0.0.")]
+        public string AssetName
+        {
+            get
+            {
+                SCore.DeprecationManager.Warn(
+                    source: null,
+                    nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetName)}",
+                    version: "3.14.0",
+                    severity: DeprecationLevel.PendingRemoval,
+                    unlessStackIncludes: new[]
+                    {
+                        $"{typeof(AssetInterceptorChange).FullName}.{nameof(AssetInterceptorChange.CanIntercept)}",
+                        $"{typeof(ContentCoordinator).FullName}.{nameof(ContentCoordinator.GetAssetOperations)}"
+                    }
+                );
+
+                return this.NameWithoutLocale.Name;
+            }
+        }
+#endif
 
 
         /*********
@@ -31,23 +64,38 @@ namespace StardewModdingAPI.Framework.Content
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="locale">The content's locale code, if the content is localized.</param>
-        /// <param name="assetName">The normalized asset name being read.</param>
+        /// <param name="assetName">The asset name being read.</param>
         /// <param name="type">The content type being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
-        public AssetInfo(string locale, string assetName, Type type, Func<string, string> getNormalizedPath)
+        public AssetInfo(string? locale, IAssetName assetName, Type type, Func<string, string> getNormalizedPath)
         {
             this.Locale = locale;
-            this.AssetName = assetName;
+            this.Name = assetName;
             this.DataType = type;
             this.GetNormalizedPath = getNormalizedPath;
         }
 
+#if SMAPI_DEPRECATED
         /// <inheritdoc />
+        [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} or {nameof(AssetInfo.NameWithoutLocale)}.{nameof(IAssetName.IsEquivalentTo)} instead. This method will be removed in SMAPI 4.0.0.")]
         public bool AssetNameEquals(string path)
         {
-            path = this.GetNormalizedPath(path);
-            return this.AssetName.Equals(path, StringComparison.OrdinalIgnoreCase);
+            SCore.DeprecationManager.Warn(
+                source: null,
+                nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetNameEquals)}",
+                version: "3.14.0",
+                severity: DeprecationLevel.PendingRemoval,
+                unlessStackIncludes: new[]
+                {
+                    $"{typeof(AssetInterceptorChange).FullName}.{nameof(AssetInterceptorChange.CanIntercept)}",
+                    $"{typeof(ContentCoordinator).FullName}.{nameof(ContentCoordinator.GetAssetOperations)}"
+                }
+            );
+
+
+            return this.NameWithoutLocale.IsEquivalentTo(path);
         }
+#endif
 
 
         /*********
@@ -75,7 +123,7 @@ namespace StardewModdingAPI.Framework.Content
                 return "string";
 
             // default
-            return type.FullName;
+            return type.FullName!;
         }
     }
 }

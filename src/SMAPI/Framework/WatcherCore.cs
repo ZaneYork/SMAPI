@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Framework
         ** Fields
         *********/
         /// <summary>The underlying watchers for convenience. These are accessible individually as separate properties.</summary>
-        private readonly List<IWatcher> Watchers = new List<IWatcher>();
+        private readonly List<IWatcher> Watchers = new();
 
 
         /*********
@@ -27,7 +27,7 @@ namespace StardewModdingAPI.Framework
         public readonly IValueWatcher<Point> WindowSizeWatcher;
 
         /// <summary>Tracks changes to the current player.</summary>
-        public PlayerTracker CurrentPlayerTracker;
+        public PlayerTracker? CurrentPlayerTracker;
 
         /// <summary>Tracks changes to the time of day (in 24-hour military format).</summary>
         public readonly IValueWatcher<int> TimeWatcher;
@@ -60,14 +60,14 @@ namespace StardewModdingAPI.Framework
         public WatcherCore(SInputState inputState, ObservableCollection<GameLocation> gameLocations)
         {
             // init watchers
-            this.CursorWatcher = WatcherFactory.ForEquatable(() => inputState.CursorPosition);
-            this.MouseWheelScrollWatcher = WatcherFactory.ForEquatable(() => inputState.MouseState.ScrollWheelValue);
-            this.SaveIdWatcher = WatcherFactory.ForEquatable(() => Game1.hasLoadedGame ? Game1.uniqueIDForThisGame : 0);
-            this.WindowSizeWatcher = WatcherFactory.ForEquatable(() => new Point(Game1.viewport.Width, Game1.viewport.Height));
-            this.TimeWatcher = WatcherFactory.ForEquatable(() => Game1.timeOfDay);
-            this.ActiveMenuWatcher = WatcherFactory.ForReference(() => Game1.activeClickableMenu);
-            this.LocationsWatcher = new WorldLocationsTracker(gameLocations, MineShaft.activeMines);
-            this.LocaleWatcher = WatcherFactory.ForGenericEquality(() => LocalizedContentManager.CurrentLanguageCode);
+            this.CursorWatcher = WatcherFactory.ForEquatable(nameof(inputState.CursorPosition), () => inputState.CursorPosition);
+            this.MouseWheelScrollWatcher = WatcherFactory.ForEquatable(nameof(inputState.MouseState.ScrollWheelValue), () => inputState.MouseState.ScrollWheelValue);
+            this.SaveIdWatcher = WatcherFactory.ForEquatable(nameof(Game1.uniqueIDForThisGame), () => Game1.hasLoadedGame ? Game1.uniqueIDForThisGame : 0);
+            this.WindowSizeWatcher = WatcherFactory.ForEquatable(nameof(Game1.viewport), () => new Point(Game1.viewport.Width, Game1.viewport.Height));
+            this.TimeWatcher = WatcherFactory.ForEquatable(nameof(Game1.timeOfDay), () => Game1.timeOfDay);
+            this.ActiveMenuWatcher = WatcherFactory.ForReference(nameof(Game1.activeClickableMenu), () => Game1.activeClickableMenu);
+            this.LocationsWatcher = new WorldLocationsTracker(gameLocations, MineShaft.activeMines, VolcanoDungeon.activeLevels);
+            this.LocaleWatcher = WatcherFactory.ForGenericEquality(nameof(LocalizedContentManager.CurrentLanguageCode), () => LocalizedContentManager.CurrentLanguageCode);
             this.Watchers.AddRange(new IWatcher[]
             {
                 this.CursorWatcher,

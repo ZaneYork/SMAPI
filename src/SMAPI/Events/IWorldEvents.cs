@@ -28,5 +28,8 @@ namespace StardewModdingAPI.Events
 
         /// <summary>Raised after terrain features (like floors and trees) are added or removed in a location.</summary>
         event EventHandler<TerrainFeatureListChangedEventArgs> TerrainFeatureListChanged;
+
+        /// <summary>Raised after furniture are added or removed in a location.</summary>
+        event EventHandler<FurnitureListChangedEventArgs> FurnitureListChanged;
     }
 }

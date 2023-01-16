@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         ** Fields
         *********/
         /// <summary>The comparer which heuristically compares type definitions.</summary>
-        private static readonly TypeReferenceComparer TypeDefinitionComparer = new TypeReferenceComparer();
+        private static readonly TypeReferenceComparer TypeDefinitionComparer = new();
 
 
         /*********
@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         *********/
         /// <summary>Get the field reference from an instruction if it matches.</summary>
         /// <param name="instruction">The IL instruction.</param>
-        public static FieldReference AsFieldReference(Instruction instruction)
+        public static FieldReference? AsFieldReference(Instruction instruction)
         {
             return instruction.OpCode == OpCodes.Ldfld || instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Stfld || instruction.OpCode == OpCodes.Stsfld || (instruction.OpCode == OpCodes.Ldtoken && instruction.Operand is FieldReference)
                 ? (FieldReference)instruction.Operand
@@ -59,7 +59,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
 
         /// <summary>Get the method reference from an instruction if it matches.</summary>
         /// <param name="instruction">The IL instruction.</param>
-        public static MethodReference AsMethodReference(Instruction instruction)
+        public static MethodReference? AsMethodReference(Instruction instruction)
         {
             return instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt || instruction.OpCode == OpCodes.Newobj || (instruction.OpCode == OpCodes.Ldtoken && instruction.Operand is MethodReference)
                 ? (MethodReference)instruction.Operand
@@ -69,7 +69,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <summary>Get the CIL instruction to load a value onto the stack.</summary>
         /// <param name="rawValue">The constant value to inject.</param>
         /// <returns>Returns the instruction, or <c>null</c> if the value type isn't supported.</returns>
-        public static Instruction GetLoadValueInstruction(object rawValue)
+        public static Instruction? GetLoadValueInstruction(object? rawValue)
         {
             return rawValue switch
             {
@@ -191,7 +191,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <param name="typeA">The type ID to compare.</param>
         /// <param name="typeB">The other type ID to compare.</param>
         /// <returns>true if the type IDs look like the same type, false if not.</returns>
-        public static bool LooksLikeSameType(TypeReference typeA, TypeReference typeB)
+        public static bool LooksLikeSameType(TypeReference? typeA, TypeReference? typeB)
         {
             return RewriteHelper.TypeDefinitionComparer.Equals(typeA, typeB);
         }

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewModdingAPI.Utilities;
 using StardewValley;
@@ -5,7 +6,8 @@ using StardewValley;
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 {
     /// <summary>A command which sets the current season.</summary>
-    internal class SetSeasonCommand : TrainerCommand
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
+    internal class SetSeasonCommand : ConsoleCommand
     {
         /*********
         ** Fields
@@ -35,7 +37,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
             }
 
             // parse arguments
-            if (!args.TryGet(0, "season", out string season, oneOf: this.ValidSeasons))
+            if (!args.TryGet(0, "season", out string? season, oneOf: this.ValidSeasons))
                 return;
 
             // handle

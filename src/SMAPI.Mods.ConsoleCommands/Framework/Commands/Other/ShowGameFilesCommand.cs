@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
 {
     /// <summary>A command which shows the game files.</summary>
-    internal class ShowGameFilesCommand : TrainerCommand
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
+    internal class ShowGameFilesCommand : ConsoleCommand
     {
         /*********
         ** Public methods
@@ -18,8 +20,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         /// <param name="args">The command arguments.</param>
         public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            Process.Start(Constants.ExecutionPath);
-            monitor.Log($"OK, opening {Constants.ExecutionPath}.", LogLevel.Info);
+            Process.Start(Constants.GamePath);
+            monitor.Log($"OK, opening {Constants.GamePath}.", LogLevel.Info);
         }
     }
 }

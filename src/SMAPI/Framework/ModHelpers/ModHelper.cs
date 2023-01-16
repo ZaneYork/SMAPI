@@ -1,6 +1,9 @@
 using System;
 using System.IO;
 using StardewModdingAPI.Events;
+#if SMAPI_DEPRECATED
+using StardewModdingAPI.Framework.Deprecations;
+#endif
 using StardewModdingAPI.Framework.Input;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -8,6 +11,16 @@ namespace StardewModdingAPI.Framework.ModHelpers
     /// <summary>Provides simplified APIs for writing mods.</summary>
     internal class ModHelper : BaseHelper, IModHelper, IDisposable
     {
+#if SMAPI_DEPRECATED
+        /*********
+        ** Fields
+        *********/
+        /// <summary>The backing field for <see cref="Content"/>.</summary>
+        [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
+        private readonly ContentHelper ContentImpl;
+#endif
+
+
         /*********
         ** Accessors
         *********/
@@ -17,8 +30,30 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <inheritdoc />
         public IModEvents Events { get; }
 
+#if SMAPI_DEPRECATED
         /// <inheritdoc />
-        public IContentHelper Content { get; }
+        [Obsolete($"Use {nameof(IGameContentHelper)} or {nameof(IModContentHelper)} instead.")]
+        public IContentHelper Content
+        {
+            get
+            {
+                SCore.DeprecationManager.Warn(
+                    source: this.Mod,
+                    nounPhrase: $"{nameof(IModHelper)}.{nameof(IModHelper.Content)}",
+                    version: "3.14.0",
+                    severity: DeprecationLevel.PendingRemoval
+                );
+
+                return this.ContentImpl;
+            }
+        }
+#endif
+
+        /// <inheritdoc />
+        public IGameContentHelper GameContent { get; }
+
+        /// <inheritdoc />
+        public IModContentHelper ModContent { get; }
 
         /// <inheritdoc />
         public IContentPackHelper ContentPacks { get; }
@@ -49,11 +84,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The mod's unique ID.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="modDirectory">The full path to the mod's folder.</param>
-        /// <param name="inputState">Manages the game's input state.</param>
+        /// <param name="currentInputState">Manages the game's input state for the current player instance. That may not be the main player in split-screen mode.</param>
         /// <param name="events">Manages access to events raised by SMAPI.</param>
         /// <param name="contentHelper">An API for loading content assets.</param>
+        /// <param name="gameContentHelper">An API for loading content assets from the game's <c>Content</c> folder or via <see cref="IModEvents.Content"/>.</param>
+        /// <param name="modContentHelper">An API for loading content assets from your mod's files.</param>
         /// <param name="contentPackHelper">An API for managing content packs.</param>
         /// <param name="commandHelper">An API for managing console commands.</param>
         /// <param name="dataHelper">An API for reading and writing persistent mod data.</param>
@@ -63,8 +100,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="translationHelper">An API for reading translations stored in the mod's <c>i18n</c> folder.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, SInputState inputState, IModEvents events, IContentHelper contentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper)
-            : base(modID)
+        public ModHelper(
+            IModMetadata mod, string modDirectory, Func<SInputState> currentInputState, IModEvents events,
+#if SMAPI_DEPRECATED
+            ContentHelper contentHelper,
+#endif
+            IGameContentHelper gameContentHelper, IModContentHelper modContentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper
+        )
+            : base(mod)
         {
             // validate directory
             if (string.IsNullOrWhiteSpace(modDirectory))
@@ -74,10 +117,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             // initialize
             this.DirectoryPath = modDirectory;
-            this.Content = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
+#if SMAPI_DEPRECATED
+            this.ContentImpl = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
+#endif
+            this.GameContent = gameContentHelper ?? throw new ArgumentNullException(nameof(gameContentHelper));
+            this.ModContent = modContentHelper ?? throw new ArgumentNullException(nameof(modContentHelper));
             this.ContentPacks = contentPackHelper ?? throw new ArgumentNullException(nameof(contentPackHelper));
             this.Data = dataHelper ?? throw new ArgumentNullException(nameof(dataHelper));
-            this.Input = new InputHelper(modID, inputState);
+            this.Input = new InputHelper(mod, currentInputState);
             this.ModRegistry = modRegistry ?? throw new ArgumentNullException(nameof(modRegistry));
             this.ConsoleCommands = commandHelper ?? throw new ArgumentNullException(nameof(commandHelper));
             this.Reflection = reflectionHelper ?? throw new ArgumentNullException(nameof(reflectionHelper));
@@ -85,6 +132,15 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.Translation = translationHelper ?? throw new ArgumentNullException(nameof(translationHelper));
             this.Events = events;
         }
+
+#if SMAPI_DEPRECATED
+        /// <summary>Get the underlying instance for <see cref="IContentHelper"/>.</summary>
+        [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
+        public ContentHelper GetLegacyContentHelper()
+        {
+            return this.ContentImpl;
+        }
+#endif
 
         /****
         ** Mod config file

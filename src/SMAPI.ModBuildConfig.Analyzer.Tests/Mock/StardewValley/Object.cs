@@ -7,6 +7,6 @@ namespace StardewValley
     public class Object : Item
     {
         /// <summary>A net int field with an equivalent non-net property.</summary>
-        public NetInt type = new NetInt { Value = 42 };
+        public NetInt type = new() { Value = 42 };
     }
 }

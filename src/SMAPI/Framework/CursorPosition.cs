@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using StardewValley;
 
 namespace StardewModdingAPI.Framework
 {
@@ -25,8 +26,8 @@ namespace StardewModdingAPI.Framework
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="absolutePixels">The pixel position relative to the top-left corner of the in-game map, adjusted for pixel zoom.</param>
-        /// <param name="screenPixels">The pixel position relative to the top-left corner of the visible screen, adjusted for pixel zoom.</param>
+        /// <param name="absolutePixels">The pixel position relative to the top-left corner of the in-game map, adjusted for zoom but not UI scaling.</param>
+        /// <param name="screenPixels">The pixel position relative to the top-left corner of the visible screen, adjusted for zoom but not UI scaling.</param>
         /// <param name="tile">The tile position relative to the top-left corner of the map.</param>
         /// <param name="grabTile">The tile position that the game considers under the cursor for purposes of clicking actions.</param>
         public CursorPosition(Vector2 absolutePixels, Vector2 screenPixels, Vector2 tile, Vector2 grabTile)
@@ -38,9 +39,25 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <inheritdoc />
-        public bool Equals(ICursorPosition other)
+        public bool Equals(ICursorPosition? other)
         {
             return other != null && this.AbsolutePixels == other.AbsolutePixels;
+        }
+
+        /// <inheritdoc />
+        public Vector2 GetScaledAbsolutePixels()
+        {
+            return Game1.uiMode
+                ? Utility.ModifyCoordinatesForUIScale(this.AbsolutePixels)
+                : this.AbsolutePixels;
+        }
+
+        /// <inheritdoc />
+        public Vector2 GetScaledScreenPixels()
+        {
+            return Game1.uiMode
+                ? Utility.ModifyCoordinatesForUIScale(this.ScreenPixels)
+                : this.ScreenPixels;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Construct an instance.</summary>
         /// <param name="message">The error message.</param>
         /// <param name="ex">The underlying exception, if any.</param>
-        public InvalidModStateException(string message, Exception ex = null)
+        public InvalidModStateException(string message, Exception? ex = null)
             : base(message, ex) { }
     }
 }

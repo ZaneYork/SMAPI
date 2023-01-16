@@ -33,26 +33,26 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
         /// <param name="acceptHeader">The Accept header value expected by the GitHub API.</param>
         /// <param name="username">The username with which to authenticate to the GitHub API.</param>
         /// <param name="password">The password with which to authenticate to the GitHub API.</param>
-        public GitHubClient(string baseUrl, string userAgent, string acceptHeader, string username, string password)
+        public GitHubClient(string baseUrl, string userAgent, string acceptHeader, string? username, string? password)
         {
             this.Client = new FluentClient(baseUrl)
                 .SetUserAgent(userAgent)
                 .AddDefault(req => req.WithHeader("Accept", acceptHeader));
             if (!string.IsNullOrWhiteSpace(username))
-                this.Client = this.Client.SetBasicAuthentication(username, password);
+                this.Client = this.Client.SetBasicAuthentication(username, password!);
         }
 
         /// <summary>Get basic metadata for a GitHub repository, if available.</summary>
         /// <param name="repo">The repository key (like <c>Pathoschild/SMAPI</c>).</param>
         /// <returns>Returns the repository info if it exists, else <c>null</c>.</returns>
-        public async Task<GitRepo> GetRepositoryAsync(string repo)
+        public async Task<GitRepo?> GetRepositoryAsync(string repo)
         {
             this.AssertKeyFormat(repo);
             try
             {
                 return await this.Client
                     .GetAsync($"repos/{repo}")
-                    .As<GitRepo>();
+                    .As<GitRepo?>();
             }
             catch (ApiException ex) when (ex.Status == HttpStatusCode.NotFound)
             {
@@ -64,7 +64,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
         /// <param name="repo">The repository key (like <c>Pathoschild/SMAPI</c>).</param>
         /// <param name="includePrerelease">Whether to return a prerelease version if it's latest.</param>
         /// <returns>Returns the release if found, else <c>null</c>.</returns>
-        public async Task<GitRelease> GetLatestReleaseAsync(string repo, bool includePrerelease = false)
+        public async Task<GitRelease?> GetLatestReleaseAsync(string repo, bool includePrerelease = false)
         {
             this.AssertKeyFormat(repo);
             try
@@ -79,7 +79,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
 
                 return await this.Client
                     .GetAsync($"repos/{repo}/releases/latest")
-                    .As<GitRelease>();
+                    .As<GitRelease?>();
             }
             catch (ApiException ex) when (ex.Status == HttpStatusCode.NotFound)
             {
@@ -89,7 +89,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
 
         /// <summary>Get update check info about a mod.</summary>
         /// <param name="id">The mod ID.</param>
-        public async Task<IModPage> GetModData(string id)
+        public async Task<IModPage?> GetModData(string id)
         {
             IModPage page = new GenericModPage(this.SiteKey, id);
 
@@ -97,15 +97,15 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
                 return page.SetError(RemoteModStatus.DoesNotExist, $"The value '{id}' isn't a valid GitHub mod ID, must be a username and project name like 'Pathoschild/SMAPI'.");
 
             // fetch repo info
-            GitRepo repository = await this.GetRepositoryAsync(id);
+            GitRepo? repository = await this.GetRepositoryAsync(id);
             if (repository == null)
                 return page.SetError(RemoteModStatus.DoesNotExist, "Found no GitHub repository for this ID.");
             string name = repository.FullName;
             string url = $"{repository.WebUrl}/releases";
 
             // get releases
-            GitRelease latest;
-            GitRelease preview;
+            GitRelease? latest;
+            GitRelease? preview;
             {
                 // get latest release (whether preview or stable)
                 latest = await this.GetLatestReleaseAsync(id, includePrerelease: true);
@@ -116,7 +116,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
                 preview = null;
                 if (latest.IsPrerelease)
                 {
-                    GitRelease release = await this.GetLatestReleaseAsync(id, includePrerelease: false);
+                    GitRelease? release = await this.GetLatestReleaseAsync(id, includePrerelease: false);
                     if (release != null)
                     {
                         preview = latest;
@@ -127,8 +127,8 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
 
             // get downloads
             IModDownload[] downloads = new[] { latest, preview }
-                .Where(release => release != null)
-                .Select(release => (IModDownload)new GenericModDownload(release.Name, release.Body, release.Tag))
+                .Where(release => release is not null)
+                .Select(release => (IModDownload)new GenericModDownload(release!.Name, release.Body, release.Tag))
                 .ToArray();
 
             // return info
@@ -138,7 +138,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.GitHub
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
-            this.Client?.Dispose();
+            this.Client.Dispose();
         }
 
 

@@ -64,7 +64,7 @@ namespace StardewModdingAPI.Web.Controllers
         [Route("json/{schemaName}")]
         [Route("json/{schemaName}/{id}")]
         [Route("json/{schemaName}/{id}/{operation}")]
-        public async Task<ViewResult> Index(string schemaName = null, string id = null, string operation = null)
+        public async Task<ViewResult> Index(string? schemaName = null, string? id = null, string? operation = null)
         {
             // parse arguments
             schemaName = this.NormalizeSchemaName(schemaName);
@@ -79,7 +79,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", result);
 
             // fetch raw JSON
-            StoredFileInfo file = await this.Storage.GetAsync(id, renew);
+            StoredFileInfo file = await this.Storage.GetAsync(id!, renew);
             if (string.IsNullOrWhiteSpace(file.Content))
                 return this.View("Index", result.SetUploadError("The JSON file seems to be empty."));
             result.SetContent(file.Content, expiry: file.Expiry, uploadWarning: file.Warning);
@@ -90,21 +90,27 @@ namespace StardewModdingAPI.Web.Controllers
 
             // parse JSON
             JToken parsed;
-            try
             {
-                parsed = JToken.Parse(file.Content, new JsonLoadSettings
+                // load raw JSON
+                var settings = new JsonLoadSettings
                 {
                     DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error,
                     CommentHandling = CommentHandling.Load
-                });
-            }
-            catch (JsonReaderException ex)
-            {
-                return this.View("Index", result.AddErrors(new JsonValidatorErrorModel(ex.LineNumber, ex.Path, ex.Message, ErrorType.None)));
-            }
+                };
+                try
+                {
+                    parsed = JToken.Parse(file.Content, settings);
+                }
+                catch (JsonReaderException ex)
+                {
+                    return this.View("Index", result.AddErrors(new JsonValidatorErrorModel(ex.LineNumber, ex.Path!, ex.Message, ErrorType.None)));
+                }
 
-            // format JSON
-            result.SetContent(parsed.ToString(Formatting.Indented), expiry: file.Expiry, uploadWarning: file.Warning);
+                // format JSON
+                string formatted = parsed.ToString(Formatting.Indented);
+                result.SetContent(formatted, expiry: file.Expiry, uploadWarning: file.Warning);
+                parsed = JToken.Parse(formatted); // update line number references
+            }
 
             // skip if no schema selected
             if (schemaName == "none")
@@ -113,10 +119,10 @@ namespace StardewModdingAPI.Web.Controllers
             // load schema
             JSchema schema;
             {
-                FileInfo schemaFile = this.FindSchemaFile(schemaName);
+                FileInfo? schemaFile = this.FindSchemaFile(schemaName);
                 if (schemaFile == null)
                     return this.View("Index", result.SetParseError($"Invalid schema '{schemaName}'."));
-                schema = JSchema.Parse(System.IO.File.ReadAllText(schemaFile.FullName));
+                schema = JSchema.Parse(await System.IO.File.ReadAllTextAsync(schemaFile.FullName));
             }
 
             // get format doc URL
@@ -136,7 +142,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Save raw JSON data.</summary>
         [HttpPost, AllowLargePosts]
         [Route("json")]
-        public async Task<ActionResult> PostAsync(JsonValidatorRequestModel request)
+        public async Task<ActionResult> PostAsync(JsonValidatorRequestModel? request)
         {
             if (request == null)
                 return this.View("Index", this.GetModel(null, null, isEditView: true).SetUploadError("The request seems to be invalid."));
@@ -145,7 +151,7 @@ namespace StardewModdingAPI.Web.Controllers
             string schemaName = this.NormalizeSchemaName(request.SchemaName);
 
             // get raw text
-            string input = request.Content;
+            string? input = request.Content;
             if (string.IsNullOrWhiteSpace(input))
                 return this.View("Index", this.GetModel(null, schemaName, isEditView: true).SetUploadError("The JSON file seems to be empty."));
 
@@ -155,7 +161,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", this.GetModel(result.ID, schemaName, isEditView: true).SetContent(input, null).SetUploadError(result.UploadError));
 
             // redirect to view
-            return this.Redirect(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = schemaName, id = result.ID }));
+            return this.Redirect(this.Url.PlainAction("Index", "JsonValidator", new { schemaName, id = result.ID })!);
         }
 
 
@@ -166,14 +172,14 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="pasteID">The stored file ID.</param>
         /// <param name="schemaName">The schema name with which the JSON was validated.</param>
         /// <param name="isEditView">Whether to show the edit view.</param>
-        private JsonValidatorModel GetModel(string pasteID, string schemaName, bool isEditView)
+        private JsonValidatorModel GetModel(string? pasteID, string? schemaName, bool isEditView)
         {
             return new JsonValidatorModel(pasteID, schemaName, this.SchemaFormats, isEditView);
         }
 
         /// <summary>Get a normalized schema name, or the <see cref="DefaultSchemaID"/> if blank.</summary>
         /// <param name="schemaName">The raw schema name to normalize.</param>
-        private string NormalizeSchemaName(string schemaName)
+        private string NormalizeSchemaName(string? schemaName)
         {
             schemaName = schemaName?.Trim().ToLower();
             return !string.IsNullOrWhiteSpace(schemaName)
@@ -183,7 +189,7 @@ namespace StardewModdingAPI.Web.Controllers
 
         /// <summary>Get the schema file given its unique ID.</summary>
         /// <param name="id">The schema ID.</param>
-        private FileInfo FindSchemaFile(string id)
+        private FileInfo? FindSchemaFile(string? id)
         {
             // normalize ID
             id = id?.Trim().ToLower();
@@ -191,7 +197,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return null;
 
             // get matching file
-            DirectoryInfo schemaDir = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "schemas"));
+            DirectoryInfo schemaDir = new(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "schemas"));
             foreach (FileInfo file in schemaDir.EnumerateFiles("*.json"))
             {
                 if (file.Name.Equals($"{id}.json"))
@@ -208,13 +214,13 @@ namespace StardewModdingAPI.Web.Controllers
             // skip through transparent errors
             if (this.IsTransparentError(error))
             {
-                foreach (var model in error.ChildErrors.SelectMany(this.GetErrorModels))
+                foreach (JsonValidatorErrorModel model in error.ChildErrors.SelectMany(this.GetErrorModels))
                     yield return model;
                 yield break;
             }
 
             // get message
-            string message = this.GetOverrideError(error);
+            string? message = this.GetOverrideError(error);
             if (message == null || message == this.TransparentToken)
                 message = this.FlattenErrorMessage(error);
 
@@ -228,7 +234,7 @@ namespace StardewModdingAPI.Web.Controllers
         private string FlattenErrorMessage(ValidationError error, int indent = 0)
         {
             // get override
-            string message = this.GetOverrideError(error);
+            string? message = this.GetOverrideError(error);
             if (message != null && message != this.TransparentToken)
                 return message;
 
@@ -249,7 +255,7 @@ namespace StardewModdingAPI.Web.Controllers
                     break;
 
                 case ErrorType.Required:
-                    message = $"Missing required fields: {string.Join(", ", (List<string>)error.Value)}.";
+                    message = $"Missing required fields: {string.Join(", ", (List<string>)error.Value!)}.";
                     break;
             }
 
@@ -266,7 +272,7 @@ namespace StardewModdingAPI.Web.Controllers
             if (!error.ChildErrors.Any())
                 return false;
 
-            string @override = this.GetOverrideError(error);
+            string? @override = this.GetOverrideError(error);
             return
                 @override == this.TransparentToken
                 || (error.ErrorType == ErrorType.Then && @override == null);
@@ -274,18 +280,18 @@ namespace StardewModdingAPI.Web.Controllers
 
         /// <summary>Get an override error from the JSON schema, if any.</summary>
         /// <param name="error">The schema validation error.</param>
-        private string GetOverrideError(ValidationError error)
+        private string? GetOverrideError(ValidationError error)
         {
-            string GetRawOverrideError()
+            string? GetRawOverrideError()
             {
                 // get override errors
-                IDictionary<string, string> errors = this.GetExtensionField<Dictionary<string, string>>(error.Schema, "@errorMessages");
+                IDictionary<string, string?>? errors = this.GetExtensionField<Dictionary<string, string?>>(error.Schema, "@errorMessages");
                 if (errors == null)
                     return null;
-                errors = new Dictionary<string, string>(errors, StringComparer.OrdinalIgnoreCase);
+                errors = new Dictionary<string, string?>(errors, StringComparer.OrdinalIgnoreCase);
 
                 // match error by type and message
-                foreach ((string target, string errorMessage) in errors)
+                foreach ((string target, string? errorMessage) in errors)
                 {
                     if (!target.Contains(":"))
                         continue;
@@ -296,7 +302,7 @@ namespace StardewModdingAPI.Web.Controllers
                 }
 
                 // match by type
-                return errors.TryGetValue(error.ErrorType.ToString(), out string message)
+                return errors.TryGetValue(error.ErrorType.ToString(), out string? message)
                     ? message?.Trim()
                     : null;
             }
@@ -309,15 +315,12 @@ namespace StardewModdingAPI.Web.Controllers
         /// <typeparam name="T">The field type.</typeparam>
         /// <param name="schema">The schema whose extension fields to search.</param>
         /// <param name="key">The case-insensitive field key.</param>
-        private T GetExtensionField<T>(JSchema schema, string key)
+        private T? GetExtensionField<T>(JSchema schema, string key)
         {
-            if (schema.ExtensionData != null)
+            foreach ((string curKey, JToken value) in schema.ExtensionData)
             {
-                foreach ((string curKey, JToken value) in schema.ExtensionData)
-                {
-                    if (curKey.Equals(key, StringComparison.OrdinalIgnoreCase))
-                        return value.ToObject<T>();
-                }
+                if (curKey.Equals(key, StringComparison.OrdinalIgnoreCase))
+                    return value.ToObject<T>();
             }
 
             return default;
@@ -325,7 +328,7 @@ namespace StardewModdingAPI.Web.Controllers
 
         /// <summary>Format a schema value for display.</summary>
         /// <param name="value">The value to format.</param>
-        private string FormatValue(object value)
+        private string FormatValue(object? value)
         {
             return value switch
             {

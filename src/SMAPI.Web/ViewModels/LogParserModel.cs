@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Web.Framework.LogParsing.Models;
 
@@ -14,52 +16,73 @@ namespace StardewModdingAPI.Web.ViewModels
         ** Fields
         *********/
         /// <summary>A regex pattern matching characters to remove from a mod name to create the slug ID.</summary>
-        private readonly Regex SlugInvalidCharPattern = new Regex("[^a-z0-9]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex SlugInvalidCharPattern = new("[^a-z0-9]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>The paste ID.</summary>
-        public string PasteID { get; set; }
+        public string? PasteID { get; }
 
         /// <summary>The viewer's detected OS, if known.</summary>
-        public Platform? DetectedPlatform { get; set; }
+        public Platform? DetectedPlatform { get; }
 
         /// <summary>The parsed log info.</summary>
-        public ParsedLog ParsedLog { get; set; }
+        public ParsedLog? ParsedLog { get; private set; }
 
         /// <summary>Whether to show the raw unparsed log.</summary>
-        public bool ShowRaw { get; set; }
+        public bool ShowRaw { get; private set; }
 
         /// <summary>A non-blocking warning while uploading the log.</summary>
-        public string UploadWarning { get; set; }
+        public string? UploadWarning { get; set; }
 
         /// <summary>An error which occurred while uploading the log.</summary>
-        public string UploadError { get; set; }
+        public string? UploadError { get; set; }
 
         /// <summary>An error which occurred while parsing the log file.</summary>
-        public string ParseError => this.ParsedLog?.Error;
+        public string? ParseError => this.ParsedLog?.Error;
 
         /// <summary>When the uploaded file will no longer be available.</summary>
-        public DateTime? Expiry { get; set; }
+        public DateTimeOffset? Expiry { get; set; }
+
+        /// <summary>Whether parsed log data is available.</summary>
+        [MemberNotNullWhen(true, nameof(LogParserModel.PasteID), nameof(LogParserModel.ParsedLog))]
+        public bool HasLog => this.ParsedLog != null;
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public LogParserModel() { }
-
-        /// <summary>Construct an instance.</summary>
         /// <param name="pasteID">The paste ID.</param>
         /// <param name="platform">The viewer's detected OS, if known.</param>
-        public LogParserModel(string pasteID, Platform? platform)
+        public LogParserModel(string? pasteID, Platform? platform)
         {
             this.PasteID = pasteID;
             this.DetectedPlatform = platform;
             this.ParsedLog = null;
             this.ShowRaw = false;
+        }
+
+        /// <summary>Construct an instance.</summary>
+        /// <param name="pasteId">The paste ID.</param>
+        /// <param name="detectedPlatform">The viewer's detected OS, if known.</param>
+        /// <param name="parsedLog">The parsed log info.</param>
+        /// <param name="showRaw">Whether to show the raw unparsed log.</param>
+        /// <param name="uploadWarning">A non-blocking warning while uploading the log.</param>
+        /// <param name="uploadError">An error which occurred while uploading the log.</param>
+        /// <param name="expiry">When the uploaded file will no longer be available.</param>
+        [JsonConstructor]
+        public LogParserModel(string pasteId, Platform? detectedPlatform, ParsedLog? parsedLog, bool showRaw, string? uploadWarning, string? uploadError, DateTime? expiry)
+        {
+            this.PasteID = pasteId;
+            this.DetectedPlatform = detectedPlatform;
+            this.ParsedLog = parsedLog;
+            this.ShowRaw = showRaw;
+            this.UploadWarning = uploadWarning;
+            this.UploadError = uploadError;
+            this.Expiry = expiry;
         }
 
         /// <summary>Set the log parser result.</summary>
@@ -77,14 +100,14 @@ namespace StardewModdingAPI.Web.ViewModels
         public IDictionary<string, LogModInfo[]> GetContentPacksByMod()
         {
             // get all mods & content packs
-            LogModInfo[] mods = this.ParsedLog?.Mods;
+            LogModInfo[]? mods = this.ParsedLog?.Mods;
             if (mods == null || !mods.Any())
                 return new Dictionary<string, LogModInfo[]>();
 
             // group by mod
             return mods
-                .Where(mod => mod.ContentPackFor != null)
-                .GroupBy(mod => mod.ContentPackFor)
+                .Where(mod => mod.IsContentPack)
+                .GroupBy(mod => mod.ContentPackFor ?? "")
                 .ToDictionary(group => group.Key, group => group.ToArray());
         }
 

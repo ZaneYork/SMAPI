@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using NUnit.Framework;
 using StardewModdingAPI.Toolkit.Utilities;
 
@@ -5,6 +7,7 @@ namespace SMAPI.Tests.Utilities
 {
     /// <summary>Unit tests for <see cref="PathUtilities"/>.</summary>
     [TestFixture]
+    [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = "These are standard game install paths.")]
     internal class PathUtilitiesTests
     {
         /*********
@@ -13,136 +16,125 @@ namespace SMAPI.Tests.Utilities
         /// <summary>Sample paths used in unit tests.</summary>
         public static readonly SamplePath[] SamplePaths = {
             // Windows absolute path
-            new SamplePath
-            {
-                OriginalPath = @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley",
+            new(
+                OriginalPath: @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley",
 
-                Segments = new[] { "C:", "Program Files (x86)", "Steam", "steamapps", "common", "Stardew Valley" },
-                SegmentsLimit3 = new [] { "C:", "Program Files (x86)", @"Steam\steamapps\common\Stardew Valley" },
+                Segments: new[] { "C:", "Program Files (x86)", "Steam", "steamapps", "common", "Stardew Valley" },
+                SegmentsLimit3: new [] { "C:", "Program Files (x86)", @"Steam\steamapps\common\Stardew Valley" },
 
-                NormalizedOnWindows = @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley",
-                NormalizedOnUnix = @"C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley"
-            },
+                NormalizedOnWindows: @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley",
+                NormalizedOnUnix: @"C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley"
+            ),
 
             // Windows absolute path (with trailing slash)
-            new SamplePath
-            {
-                OriginalPath = @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\",
+            new(
+                OriginalPath: @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\",
 
-                Segments = new[] { "C:", "Program Files (x86)", "Steam", "steamapps", "common", "Stardew Valley" },
-                SegmentsLimit3 = new [] { "C:", "Program Files (x86)", @"Steam\steamapps\common\Stardew Valley\" },
+                Segments: new[] { "C:", "Program Files (x86)", "Steam", "steamapps", "common", "Stardew Valley" },
+                SegmentsLimit3: new [] { "C:", "Program Files (x86)", @"Steam\steamapps\common\Stardew Valley\" },
 
-                NormalizedOnWindows = @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\",
-                NormalizedOnUnix = @"C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley/"
-            },
+                NormalizedOnWindows: @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\",
+                NormalizedOnUnix: @"C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley/"
+            ),
 
             // Windows relative path
-            new SamplePath
-            {
-                OriginalPath = @"Content\Characters\Dialogue\Abigail",
+            new(
+                OriginalPath: @"Content\Characters\Dialogue\Abigail",
 
-                Segments = new [] { "Content", "Characters", "Dialogue", "Abigail" },
-                SegmentsLimit3 = new [] { "Content", "Characters", @"Dialogue\Abigail" },
+                Segments: new [] { "Content", "Characters", "Dialogue", "Abigail" },
+                SegmentsLimit3: new [] { "Content", "Characters", @"Dialogue\Abigail" },
 
-                NormalizedOnWindows = @"Content\Characters\Dialogue\Abigail",
-                NormalizedOnUnix = @"Content/Characters/Dialogue/Abigail"
-            },
+                NormalizedOnWindows: @"Content\Characters\Dialogue\Abigail",
+                NormalizedOnUnix: @"Content/Characters/Dialogue/Abigail"
+            ),
 
             // Windows relative path (with directory climbing)
-            new SamplePath
-            {
-                OriginalPath = @"..\..\Content",
+            new(
+                OriginalPath: @"..\..\Content",
 
-                Segments = new [] { "..", "..", "Content" },
-                SegmentsLimit3 = new [] { "..", "..", "Content" },
+                Segments: new [] { "..", "..", "Content" },
+                SegmentsLimit3: new [] { "..", "..", "Content" },
 
-                NormalizedOnWindows = @"..\..\Content",
-                NormalizedOnUnix = @"../../Content"
-            },
+                NormalizedOnWindows: @"..\..\Content",
+                NormalizedOnUnix: @"../../Content"
+            ),
 
             // Windows UNC path
-            new SamplePath
-            {
-                OriginalPath = @"\\unc\path",
+            new(
+                OriginalPath: @"\\unc\path",
 
-                Segments = new [] { "unc", "path" },
-                SegmentsLimit3 = new [] { "unc", "path" },
+                Segments: new [] { "unc", "path" },
+                SegmentsLimit3: new [] { "unc", "path" },
 
-                NormalizedOnWindows = @"\\unc\path",
-                NormalizedOnUnix = "/unc/path" // there's no good way to normalize this on Unix since UNC paths aren't supported; path normalization is meant for asset names anyway, so this test only ensures it returns some sort of sane value
-            },
+                NormalizedOnWindows: @"\\unc\path",
+                NormalizedOnUnix: "/unc/path" // there's no good way to normalize this on Unix since UNC paths aren't supported; path normalization is meant for asset names anyway, so this test only ensures it returns some sort of sane value
+            ),
 
             // Linux absolute path
-            new SamplePath
-            {
-                OriginalPath = @"/home/.steam/steam/steamapps/common/Stardew Valley",
+            new(
+                OriginalPath: @"/home/.steam/steam/steamapps/common/Stardew Valley",
 
-                Segments = new [] { "home", ".steam", "steam", "steamapps", "common", "Stardew Valley" },
-                SegmentsLimit3 = new [] { "home", ".steam", "steam/steamapps/common/Stardew Valley" },
+                Segments: new [] { "home", ".steam", "steam", "steamapps", "common", "Stardew Valley" },
+                SegmentsLimit3: new [] { "home", ".steam", "steam/steamapps/common/Stardew Valley" },
 
-                NormalizedOnWindows = @"\home\.steam\steam\steamapps\common\Stardew Valley",
-                NormalizedOnUnix = @"/home/.steam/steam/steamapps/common/Stardew Valley"
-            },
+                NormalizedOnWindows: @"\home\.steam\steam\steamapps\common\Stardew Valley",
+                NormalizedOnUnix: @"/home/.steam/steam/steamapps/common/Stardew Valley"
+            ),
 
             // Linux absolute path (with trailing slash)
-            new SamplePath
-            {
-                OriginalPath = @"/home/.steam/steam/steamapps/common/Stardew Valley/",
+            new(
+                OriginalPath: @"/home/.steam/steam/steamapps/common/Stardew Valley/",
 
-                Segments = new [] { "home", ".steam", "steam", "steamapps", "common", "Stardew Valley" },
-                SegmentsLimit3 = new [] { "home", ".steam", "steam/steamapps/common/Stardew Valley/" },
+                Segments: new [] { "home", ".steam", "steam", "steamapps", "common", "Stardew Valley" },
+                SegmentsLimit3: new [] { "home", ".steam", "steam/steamapps/common/Stardew Valley/" },
 
-                NormalizedOnWindows = @"\home\.steam\steam\steamapps\common\Stardew Valley\",
-                NormalizedOnUnix = @"/home/.steam/steam/steamapps/common/Stardew Valley/"
-            },
+                NormalizedOnWindows: @"\home\.steam\steam\steamapps\common\Stardew Valley\",
+                NormalizedOnUnix: @"/home/.steam/steam/steamapps/common/Stardew Valley/"
+            ),
 
             // Linux absolute path (with ~)
-            new SamplePath
-            {
-                OriginalPath = @"~/.steam/steam/steamapps/common/Stardew Valley",
+            new(
+                OriginalPath: @"~/.steam/steam/steamapps/common/Stardew Valley",
 
-                Segments = new [] { "~", ".steam", "steam", "steamapps", "common", "Stardew Valley" },
-                SegmentsLimit3 = new [] { "~", ".steam", "steam/steamapps/common/Stardew Valley" },
+                Segments: new [] { "~", ".steam", "steam", "steamapps", "common", "Stardew Valley" },
+                SegmentsLimit3: new [] { "~", ".steam", "steam/steamapps/common/Stardew Valley" },
 
-                NormalizedOnWindows = @"~\.steam\steam\steamapps\common\Stardew Valley",
-                NormalizedOnUnix = @"~/.steam/steam/steamapps/common/Stardew Valley"
-            },
+                NormalizedOnWindows: @"~\.steam\steam\steamapps\common\Stardew Valley",
+                NormalizedOnUnix: @"~/.steam/steam/steamapps/common/Stardew Valley"
+            ),
 
             // Linux relative path
-            new SamplePath
-            {
-                OriginalPath = @"Content/Characters/Dialogue/Abigail",
+            new(
+                OriginalPath: @"Content/Characters/Dialogue/Abigail",
 
-                Segments = new [] { "Content", "Characters", "Dialogue", "Abigail" },
-                SegmentsLimit3 = new [] { "Content", "Characters", "Dialogue/Abigail" },
+                Segments: new [] { "Content", "Characters", "Dialogue", "Abigail" },
+                SegmentsLimit3: new [] { "Content", "Characters", "Dialogue/Abigail" },
 
-                NormalizedOnWindows = @"Content\Characters\Dialogue\Abigail",
-                NormalizedOnUnix = @"Content/Characters/Dialogue/Abigail"
-            },
+                NormalizedOnWindows: @"Content\Characters\Dialogue\Abigail",
+                NormalizedOnUnix: @"Content/Characters/Dialogue/Abigail"
+            ),
 
             // Linux relative path (with directory climbing)
-            new SamplePath
-            {
-                OriginalPath = @"../../Content",
+            new(
+                OriginalPath: @"../../Content",
 
-                Segments = new [] { "..", "..", "Content" },
-                SegmentsLimit3 = new [] { "..", "..", "Content" },
+                Segments: new [] { "..", "..", "Content" },
+                SegmentsLimit3: new [] { "..", "..", "Content" },
 
-                NormalizedOnWindows = @"..\..\Content",
-                NormalizedOnUnix = @"../../Content"
-            },
+                NormalizedOnWindows: @"..\..\Content",
+                NormalizedOnUnix: @"../../Content"
+            ),
 
             // Mixed directory separators
-            new SamplePath
-            {
-                OriginalPath = @"C:\some/mixed\path/separators",
+            new(
+                OriginalPath: @"C:\some/mixed\path/separators",
 
-                Segments = new [] { "C:", "some", "mixed", "path", "separators" },
-                SegmentsLimit3 = new [] { "C:", "some", @"mixed\path/separators" },
+                Segments: new [] { "C:", "some", "mixed", "path", "separators" },
+                SegmentsLimit3: new [] { "C:", "some", @"mixed\path/separators" },
 
-                NormalizedOnWindows = @"C:\some\mixed\path\separators",
-                NormalizedOnUnix = @"C:/some/mixed/path/separators"
-            },
+                NormalizedOnWindows: @"C:\some\mixed\path\separators",
+                NormalizedOnUnix: @"C:/some/mixed/path/separators"
+            )
         };
 
 
@@ -175,9 +167,26 @@ namespace SMAPI.Tests.Utilities
         }
 
         /****
-        ** NormalizePathSeparators
+        ** NormalizeAssetName
         ****/
-        [Test(Description = "Assert that PathUtilities.NormalizePathSeparators normalizes paths correctly.")]
+        [Test(Description = "Assert that PathUtilities.NormalizeAssetName normalizes paths correctly.")]
+        [TestCaseSource(nameof(PathUtilitiesTests.SamplePaths))]
+        public void NormalizeAssetName(SamplePath path)
+        {
+            if (Path.IsPathRooted(path.OriginalPath) || path.OriginalPath.StartsWith('/') || path.OriginalPath.StartsWith('\\'))
+                Assert.Ignore("Absolute paths can't be used as asset names.");
+
+            // act
+            string normalized = PathUtilities.NormalizeAssetName(path.OriginalPath);
+
+            // assert
+            Assert.AreEqual(path.NormalizedOnUnix, normalized); // MonoGame uses the Linux format
+        }
+
+        /****
+        ** NormalizePath
+        ****/
+        [Test(Description = "Assert that PathUtilities.NormalizePath normalizes paths correctly.")]
         [TestCaseSource(nameof(PathUtilitiesTests.SamplePaths))]
         public void NormalizePath(SamplePath path)
         {
@@ -251,7 +260,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(
             @"~/parent",
             @"~/PARENT/child",
-            ExpectedResult = @"child" // note: incorrect on Linux and sometimes MacOS, but not worth the complexity of detecting whether the filesystem is case-sensitive for SMAPI's purposes
+            ExpectedResult = @"child" // note: incorrect on Linux and sometimes macOS, but not worth the complexity of detecting whether the filesystem is case-sensitive for SMAPI's purposes
         )]
 #endif
         public string GetRelativePath(string sourceDir, string targetPath)
@@ -263,14 +272,14 @@ namespace SMAPI.Tests.Utilities
         /*********
         ** Private classes
         *********/
-        public class SamplePath
+        /// <summary>A sample path in multiple formats.</summary>
+        /// <param name="OriginalPath">The original path to pass to the <see cref="PathUtilities"/>.</param>
+        /// <param name="Segments">The normalized path segments.</param>
+        /// <param name="SegmentsLimit3">The normalized path segments, if we stop segmenting after the second one.</param>
+        /// <param name="NormalizedOnWindows">The normalized form on Windows.</param>
+        /// <param name="NormalizedOnUnix">The normalized form on Linux or macOS.</param>
+        public record SamplePath(string OriginalPath, string[] Segments, string[] SegmentsLimit3, string NormalizedOnWindows, string NormalizedOnUnix)
         {
-            public string OriginalPath { get; set; }
-            public string[] Segments { get; set; }
-            public string[] SegmentsLimit3 { get; set; }
-            public string NormalizedOnWindows { get; set; }
-            public string NormalizedOnUnix { get; set; }
-
             public override string ToString()
             {
                 return this.OriginalPath;

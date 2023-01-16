@@ -11,6 +11,7 @@
 [Oo]bj/
 
 # Visual Studio cache/options
+.config/
 .vs/
 
 # ReSharper
@@ -32,6 +33,10 @@ appsettings.Development.json
 
 # Azure generated files
 src/SMAPI.Web/Properties/PublishProfiles/*.pubxml
+src/SMAPI.Web/Properties/ServiceDependencies/* - Web Deploy/
+
+# macOS
+.DS_Store
 
 # Loader Game Asserts
 src/Loader/Assets/Content/

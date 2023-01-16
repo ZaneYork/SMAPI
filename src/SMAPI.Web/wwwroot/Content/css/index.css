@@ -97,6 +97,10 @@ h1 {
     display: block;
 }
 
+.cta-blurb {
+    font-size: 0.85em;
+}
+
 .sublinks {
     font-size: 0.9em;
     margin-bottom: 1em;

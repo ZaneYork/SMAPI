@@ -25,7 +25,7 @@ namespace StardewModdingAPI.Framework.Rendering
         /// <param name="tile">The tile to draw.</param>
         /// <param name="location">The tile position to draw.</param>
         /// <param name="layerDepth">The layer depth at which to draw.</param>
-        public override void DrawTile(Tile tile, Location location, float layerDepth)
+        public override void DrawTile(Tile? tile, Location location, float layerDepth)
         {
             // identical to XnaDisplayDevice
             if (tile == null)
@@ -56,7 +56,7 @@ namespace StardewModdingAPI.Framework.Rendering
         /// <param name="tile">The tile being drawn.</param>
         private SpriteEffects GetSpriteEffects(Tile tile)
         {
-            return tile.Properties.TryGetValue("@Flip", out PropertyValue propertyValue) && int.TryParse(propertyValue, out int value)
+            return tile.Properties.TryGetValue("@Flip", out PropertyValue? propertyValue) && int.TryParse(propertyValue, out int value)
                 ? (SpriteEffects)value
                 : SpriteEffects.None;
         }
@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Framework.Rendering
         /// <param name="tile">The tile being drawn.</param>
         private float GetRotation(Tile tile)
         {
-            if (!tile.Properties.TryGetValue("@Rotation", out PropertyValue propertyValue) || !int.TryParse(propertyValue, out int value))
+            if (!tile.Properties.TryGetValue("@Rotation", out PropertyValue? propertyValue) || !int.TryParse(propertyValue, out int value))
                 return 0;
 
             value %= 360;

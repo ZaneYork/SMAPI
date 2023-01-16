@@ -16,8 +16,11 @@ namespace SMAPI.Tests.Utilities
         /*********
         ** Fields
         *********/
-        /// <summary>All valid seasons.</summary>
+        /// <summary>The valid seasons.</summary>
         private static readonly string[] ValidSeasons = { "spring", "summer", "fall", "winter" };
+
+        /// <summary>Sample user inputs for season names.</summary>
+        private static readonly string[] SampleSeasonValues = SDateTests.ValidSeasons.Concat(new[] { "  WIntEr  " }).ToArray();
 
         /// <summary>All valid days of a month.</summary>
         private static readonly int[] ValidDays = Enumerable.Range(1, 28).ToArray();
@@ -55,19 +58,18 @@ namespace SMAPI.Tests.Utilities
         ** Constructor
         ****/
         [Test(Description = "Assert that the constructor sets the expected values for all valid dates.")]
-        public void Constructor_SetsExpectedValues([ValueSource(nameof(SDateTests.ValidSeasons))] string season, [ValueSource(nameof(SDateTests.ValidDays))] int day, [Values(1, 2, 100)] int year)
+        public void Constructor_SetsExpectedValues([ValueSource(nameof(SDateTests.SampleSeasonValues))] string season, [ValueSource(nameof(SDateTests.ValidDays))] int day, [Values(1, 2, 100)] int year)
         {
             // act
-            SDate date = new SDate(day, season, year);
+            SDate date = new(day, season, year);
 
             // assert
             Assert.AreEqual(day, date.Day);
-            Assert.AreEqual(season, date.Season);
+            Assert.AreEqual(season.Trim().ToLowerInvariant(), date.Season);
             Assert.AreEqual(year, date.Year);
         }
 
         [Test(Description = "Assert that the constructor throws an exception if the values are invalid.")]
-        [TestCase(01, "Spring", 1)] // seasons are case-sensitive
         [TestCase(01, "springs", 1)] // invalid season name
         [TestCase(-1, "spring", 1)] // day < 0
         [TestCase(0, "spring", 1)] // day zero
@@ -252,9 +254,9 @@ namespace SMAPI.Tests.Utilities
                 {
                     foreach (int day in SDateTests.ValidDays)
                     {
-                        SDate date = new SDate(day, season, year);
+                        SDate date = new(day, season, year);
                         int hash = date.GetHashCode();
-                        if (hashes.TryGetValue(hash, out SDate otherDate))
+                        if (hashes.TryGetValue(hash, out SDate? otherDate))
                             Assert.Fail($"Received identical hash code {hash} for dates {otherDate} and {date}.");
                         if (hash < lastHash)
                             Assert.Fail($"Received smaller hash code for date {date} ({hash}) relative to {hashes[lastHash]} ({lastHash}).");
@@ -294,7 +296,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = false)]
-        public bool Operators_Equals(string now, string other)
+        public bool Operators_Equals(string? now, string other)
         {
             return this.GetDate(now) == this.GetDate(other);
         }
@@ -308,7 +310,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = true)]
-        public bool Operators_NotEquals(string now, string other)
+        public bool Operators_NotEquals(string? now, string other)
         {
             return this.GetDate(now) != this.GetDate(other);
         }
@@ -322,7 +324,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = true)]
-        public bool Operators_LessThan(string now, string other)
+        public bool Operators_LessThan(string? now, string other)
         {
             return this.GetDate(now) < this.GetDate(other);
         }
@@ -336,7 +338,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = true)]
-        public bool Operators_LessThanOrEqual(string now, string other)
+        public bool Operators_LessThanOrEqual(string? now, string other)
         {
             return this.GetDate(now) <= this.GetDate(other);
         }
@@ -350,7 +352,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = false)]
-        public bool Operators_MoreThan(string now, string other)
+        public bool Operators_MoreThan(string? now, string other)
         {
             return this.GetDate(now) > this.GetDate(other);
         }
@@ -364,7 +366,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = false)]
-        public bool Operators_MoreThanOrEqual(string now, string other)
+        public bool Operators_MoreThanOrEqual(string? now, string other)
         {
             return this.GetDate(now) > this.GetDate(other);
         }
@@ -375,7 +377,8 @@ namespace SMAPI.Tests.Utilities
         *********/
         /// <summary>Convert a string date into a game date, to make unit tests easier to read.</summary>
         /// <param name="dateStr">The date string like "dd MMMM yy".</param>
-        private SDate GetDate(string dateStr)
+        [return: NotNullIfNotNull("dateStr")]
+        private SDate? GetDate(string? dateStr)
         {
             if (dateStr == null)
                 return null;

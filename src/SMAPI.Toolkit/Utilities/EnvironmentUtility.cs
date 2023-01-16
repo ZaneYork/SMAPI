@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI.Toolkit.Framework;
 
 namespace StardewModdingAPI.Toolkit.Utilities
@@ -34,24 +33,16 @@ namespace StardewModdingAPI.Toolkit.Utilities
 
         /// <summary>Get the human-readable OS name and version.</summary>
         /// <param name="platform">The current platform.</param>
-        [SuppressMessage("ReSharper", "EmptyGeneralCatchClause", Justification = "Error suppressed deliberately to fallback to default behaviour.")]
         public static string GetFriendlyPlatformName(Platform platform)
         {
             return LowLevelEnvironmentUtility.GetFriendlyPlatformName(platform.ToString());
         }
 
-        /// <summary>Get the name of the Stardew Valley executable.</summary>
-        /// <param name="platform">The current platform.</param>
-        public static string GetExecutableName(Platform platform)
+        /// <summary>Get whether an executable is 64-bit.</summary>
+        /// <param name="path">The absolute path to the assembly file.</param>
+        public static bool Is64BitAssembly(string path)
         {
-            return LowLevelEnvironmentUtility.GetExecutableName(platform.ToString());
-        }
-
-        /// <summary>Get whether the platform uses Mono.</summary>
-        /// <param name="platform">The current platform.</param>
-        public static bool IsMono(this Platform platform)
-        {
-            return LowLevelEnvironmentUtility.IsMono(platform.ToString());
+            return LowLevelEnvironmentUtility.Is64BitAssembly(path);
         }
     }
 }

@@ -3,66 +3,73 @@ using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI.Framework.Events
 {
-    /// <summary>Events raised when something changes in the world.</summary>
+    /// <inheritdoc cref="IWorldEvents" />
     internal class ModWorldEvents : ModEventsBase, IWorldEvents
     {
         /*********
         ** Accessors
         *********/
-        /// <summary>Raised after a game location is added or removed.</summary>
+        /// <inheritdoc />
         public event EventHandler<LocationListChangedEventArgs> LocationListChanged
         {
             add => this.EventManager.LocationListChanged.Add(value, this.Mod);
             remove => this.EventManager.LocationListChanged.Remove(value);
         }
 
-        /// <summary>Raised after buildings are added or removed in a location.</summary>
+        /// <inheritdoc />
         public event EventHandler<BuildingListChangedEventArgs> BuildingListChanged
         {
             add => this.EventManager.BuildingListChanged.Add(value, this.Mod);
             remove => this.EventManager.BuildingListChanged.Remove(value);
         }
 
-        /// <summary>Raised after debris are added or removed in a location.</summary>
+        /// <inheritdoc />
         public event EventHandler<DebrisListChangedEventArgs> DebrisListChanged
         {
             add => this.EventManager.DebrisListChanged.Add(value, this.Mod);
             remove => this.EventManager.DebrisListChanged.Remove(value);
         }
 
-        /// <summary>Raised after large terrain features (like bushes) are added or removed in a location.</summary>
+        /// <inheritdoc />
         public event EventHandler<LargeTerrainFeatureListChangedEventArgs> LargeTerrainFeatureListChanged
         {
             add => this.EventManager.LargeTerrainFeatureListChanged.Add(value, this.Mod);
             remove => this.EventManager.LargeTerrainFeatureListChanged.Remove(value);
         }
 
-        /// <summary>Raised after NPCs are added or removed in a location.</summary>
+        /// <inheritdoc />
         public event EventHandler<NpcListChangedEventArgs> NpcListChanged
         {
             add => this.EventManager.NpcListChanged.Add(value, this.Mod);
             remove => this.EventManager.NpcListChanged.Remove(value);
         }
 
-        /// <summary>Raised after objects are added or removed in a location.</summary>
+        /// <inheritdoc />
         public event EventHandler<ObjectListChangedEventArgs> ObjectListChanged
         {
             add => this.EventManager.ObjectListChanged.Add(value, this.Mod);
             remove => this.EventManager.ObjectListChanged.Remove(value);
         }
 
-        /// <summary>Raised after items are added or removed from a chest.</summary>
+        /// <inheritdoc />
         public event EventHandler<ChestInventoryChangedEventArgs> ChestInventoryChanged
         {
             add => this.EventManager.ChestInventoryChanged.Add(value, this.Mod);
             remove => this.EventManager.ChestInventoryChanged.Remove(value);
         }
 
-        /// <summary>Raised after terrain features (like floors and trees) are added or removed in a location.</summary>
+        /// <inheritdoc />
         public event EventHandler<TerrainFeatureListChangedEventArgs> TerrainFeatureListChanged
         {
             add => this.EventManager.TerrainFeatureListChanged.Add(value, this.Mod);
             remove => this.EventManager.TerrainFeatureListChanged.Remove(value);
+        }
+
+        /// <inheritdoc />
+        public event EventHandler<FurnitureListChangedEventArgs> FurnitureListChanged
+        {
+            add => this.EventManager.FurnitureListChanged.Add(value, this.Mod);
+            remove => this.EventManager.FurnitureListChanged.Remove(value);
         }
 
 

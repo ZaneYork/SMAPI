@@ -37,9 +37,9 @@ namespace StardewModdingAPI.Web.Framework.RedirectRules
         /// <summary>Get the new redirect URL.</summary>
         /// <param name="context">The rewrite context.</param>
         /// <returns>Returns the redirect URL, or <c>null</c> if the redirect doesn't apply.</returns>
-        protected override string GetNewUrl(RewriteContext context)
+        protected override string? GetNewUrl(RewriteContext context)
         {
-            string path = context.HttpContext.Request.Path.Value;
+            string? path = context.HttpContext.Request.Path.Value;
 
             if (!string.IsNullOrWhiteSpace(path))
             {

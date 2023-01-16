@@ -1,6 +1,11 @@
-﻿namespace StardewModdingAPI
+#if SMAPI_DEPRECATED
+using System;
+using StardewModdingAPI.Events;
+
+namespace StardewModdingAPI
 {
     /// <summary>Edits matching content assets.</summary>
+    [Obsolete($"Use {nameof(IMod.Helper)}.{nameof(IModHelper.Events)}.{nameof(IModEvents.Content)} instead. This interface will be removed in SMAPI 4.0.0.")]
     public interface IAssetEditor
     {
         /*********
@@ -15,3 +20,4 @@
         void Edit<T>(IAssetData asset);
     }
 }
+#endif

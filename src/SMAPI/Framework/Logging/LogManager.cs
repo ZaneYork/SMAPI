@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using StardewModdingAPI.Framework.Commands;
+using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Internal;
 using StardewModdingAPI.Internal.ConsoleWriting;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -22,31 +25,34 @@ namespace StardewModdingAPI.Framework.Logging
         /// <summary>The log file to which to write messages.</summary>
         private readonly LogFileManager LogFile;
 
-        /// <summary>Prefixing a low-level message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</summary>
-        private readonly char IgnoreChar = '\u200B';
+        /// <summary>The text writer which intercepts console output.</summary>
+        private readonly InterceptingTextWriter ConsoleInterceptor;
 
-        /// <summary>Get a named monitor instance.</summary>
-        private readonly Func<string, Monitor> GetMonitorImpl;
+        /// <summary>Prefixing a low-level message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</summary>
+        private const char IgnoreChar = InterceptingTextWriter.IgnoreChar;
+
+        /// <summary>Create a monitor instance given the ID and name.</summary>
+        private readonly Func<string, string, Monitor> GetMonitorImpl;
 
         /// <summary>Regex patterns which match console non-error messages to suppress from the console and log.</summary>
         private readonly Regex[] SuppressConsolePatterns =
         {
-            new Regex(@"^TextBox\.Selected is now '(?:True|False)'\.$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^(?:FRUIT )?TREE: IsClient:(?:True|False) randomOutput: \d+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^loadPreferences\(\); begin", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^savePreferences\(\); async=", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^DebugOutput:\s+(?:added CLOUD|added cricket|dismount tile|Ping|playerPos)", RegexOptions.Compiled | RegexOptions.CultureInvariant)
+            new(@"^TextBox\.Selected is now '(?:True|False)'\.$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            new(@"^loadPreferences\(\); begin", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            new(@"^savePreferences\(\); async=", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            new(@"^DebugOutput:\s+(?:added cricket|dismount tile|Ping|playerPos)", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            new(@"^Ignoring keys: ", RegexOptions.Compiled | RegexOptions.CultureInvariant)
         };
 
         /// <summary>Regex patterns which match console messages to show a more friendly error for.</summary>
         private readonly ReplaceLogPattern[] ReplaceConsolePatterns =
         {
             // Steam not loaded
-            new ReplaceLogPattern(
+            new(
                 search: new Regex(@"^System\.InvalidOperationException: Steamworks is not initialized\.[\s\S]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
                 replacement:
 #if SMAPI_FOR_WINDOWS
-                    "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that (see 'Part 2: Configure Steam' in the install guide for more info: https://smapi.io/install).",
+                    "Oops! Steam achievements won't work because Steam isn't loaded. See 'Configure your game client' in the install guide for more info: https://smapi.io/install.",
 #else
                     "Oops! Steam achievements won't work because Steam isn't loaded. You can launch the game through Steam to fix that.",
 #endif
@@ -54,7 +60,7 @@ namespace StardewModdingAPI.Framework.Logging
             ),
 
             // save file not found error
-            new ReplaceLogPattern(
+            new(
                 search: new Regex(@"^System\.IO\.FileNotFoundException: [^\n]+\n[^:]+: '[^\n]+[/\\]Saves[/\\]([^'\r\n]+)[/\\]([^'\r\n]+)'[\s\S]+LoadGameMenu\.FindSaveGames[\s\S]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
                 replacement: "The game can't find the '$2' file for your '$1' save. See https://stardewvalleywiki.com/Saves#Troubleshooting for help.",
                 logLevel: LogLevel.Error
@@ -82,35 +88,47 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="logPath">The log file path to write.</param>
         /// <param name="colorConfig">The colors to use for text written to the SMAPI console.</param>
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
-        /// <param name="isVerbose">Whether verbose logging is enabled. This enables more detailed diagnostic messages than are normally needed.</param>
+        /// <param name="verboseLogging">The log contexts for which to enable verbose logging, which may show a lot more information to simplify troubleshooting.</param>
         /// <param name="isDeveloperMode">Whether to enable full console output for developers.</param>
-        public LogManager(string logPath, ColorSchemeConfig colorConfig, bool writeToConsole, bool isVerbose, bool isDeveloperMode)
+        /// <param name="getScreenIdForLog">Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</param>
+        public LogManager(string logPath, ColorSchemeConfig colorConfig, bool writeToConsole, HashSet<string> verboseLogging, bool isDeveloperMode, Func<int?> getScreenIdForLog)
         {
-            // init construction logic
-            this.GetMonitorImpl = name => new Monitor(name, this.IgnoreChar, this.LogFile, colorConfig, isVerbose)
+            // init log file
+            this.LogFile = new LogFileManager(logPath);
+
+            // init monitor
+            this.GetMonitorImpl = (id, name) => new Monitor(name, LogManager.IgnoreChar, this.LogFile, colorConfig, verboseLogging.Contains("*") || verboseLogging.Contains(id), getScreenIdForLog)
             {
                 WriteToConsole = writeToConsole,
                 ShowTraceInConsole = isDeveloperMode,
                 ShowFullStampInConsole = isDeveloperMode
             };
-
-            // init fields
-            this.LogFile = new LogFileManager(logPath);
-            this.Monitor = this.GetMonitor("SMAPI");
-            this.MonitorForGame = this.GetMonitor("game");
+            this.Monitor = this.GetMonitor("SMAPI", "SMAPI");
+            this.MonitorForGame = this.GetMonitor("game", "game");
 
             // redirect direct console output
-            var output = new InterceptingTextWriter(Console.Out, this.IgnoreChar);
-            if (writeToConsole)
-                output.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
-            Console.SetOut(output);
+            this.ConsoleInterceptor = new InterceptingTextWriter(
+                output: Console.Out,
+                onMessageIntercepted: writeToConsole
+                    ? message => this.HandleConsoleMessage(this.MonitorForGame, message)
+                    : _ => { }
+            );
+            Console.SetOut(this.ConsoleInterceptor);
+
+            // enable Unicode handling on Windows
+            // (the terminal defaults to UTF-8 on Linux/macOS)
+#if SMAPI_FOR_WINDOWS
+            Console.InputEncoding = Encoding.Unicode;
+            Console.OutputEncoding = Encoding.Unicode;
+#endif
         }
 
         /// <summary>Get a monitor instance derived from SMAPI's current settings.</summary>
+        /// <param name="id">The unique ID for the mod context.</param>
         /// <param name="name">The name of the module which will log messages with this instance.</param>
-        public Monitor GetMonitor(string name)
+        public Monitor GetMonitor(string id, string name)
         {
-            return this.GetMonitorImpl(name);
+            return this.GetMonitorImpl(id, name);
         }
 
         /// <summary>Set the title of the SMAPI console window.</summary>
@@ -135,12 +153,12 @@ namespace StardewModdingAPI.Framework.Logging
                 .Add(new ReloadI18nCommand(reloadTranslations), this.Monitor);
 
             // start handling command line input
-            Thread inputThread = new Thread(() =>
+            Thread inputThread = new(() =>
             {
                 while (true)
                 {
                     // get input
-                    string input = Console.ReadLine();
+                    string? input = Console.ReadLine();
                     if (string.IsNullOrWhiteSpace(input))
                         continue;
 
@@ -154,8 +172,6 @@ namespace StardewModdingAPI.Framework.Logging
             // keep console thread alive while the game is running
             while (continueWhile())
                 Thread.Sleep(1000 / 10);
-            if (inputThread.ThreadState == ThreadState.Running)
-                inputThread.Abort();
         }
 
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>
@@ -211,8 +227,8 @@ namespace StardewModdingAPI.Framework.Logging
             // show update alert
             if (File.Exists(Constants.UpdateMarker))
             {
-                string[] rawUpdateFound = File.ReadAllText(Constants.UpdateMarker).Split(new [] { '|' }, 2);
-                if (SemanticVersion.TryParse(rawUpdateFound[0], out ISemanticVersion updateFound))
+                string[] rawUpdateFound = File.ReadAllText(Constants.UpdateMarker).Split('|', 2);
+                if (SemanticVersion.TryParse(rawUpdateFound[0], out ISemanticVersion? updateFound))
                 {
                     if (Constants.ApiVersion.IsPrerelease() && updateFound.IsNewerThan(Constants.ApiVersion))
                     {
@@ -249,25 +265,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="exception">The exception details.</param>
         public void LogFatalLaunchError(Exception exception)
         {
-            switch (exception)
-            {
-                // audio crash
-                case InvalidOperationException ex when ex.Source == "Microsoft.Xna.Framework.Xact" && ex.StackTrace.Contains("Microsoft.Xna.Framework.Audio.AudioEngine..ctor"):
-                    this.Monitor.Log("The game couldn't load audio. Do you have speakers or headphones plugged in?", LogLevel.Error);
-                    this.Monitor.Log($"Technical details: {ex.GetLogSummary()}");
-                    break;
-
-                // missing content folder exception
-                case FileNotFoundException ex when ex.Message == "Could not find file 'C:\\Program Files (x86)\\Steam\\SteamApps\\common\\Stardew Valley\\Content\\XACT\\FarmerSounds.xgs'.": // path in error is hardcoded regardless of install path
-                    this.Monitor.Log("The game can't find its Content\\XACT\\FarmerSounds.xgs file. You can usually fix this by resetting your content files (see https://smapi.io/troubleshoot#reset-content ), or by uninstalling and reinstalling the game.", LogLevel.Error);
-                    this.Monitor.Log($"Technical details: {ex.GetLogSummary()}");
-                    break;
-
-                // generic exception
-                default:
-                    this.MonitorForGame.Log($"The game failed to launch: {exception.GetLogSummary()}", LogLevel.Error);
-                    break;
-            }
+            this.MonitorForGame.Log($"The game failed to launch: {exception.GetLogSummary()}", LogLevel.Error);
         }
 
         /****
@@ -276,10 +274,16 @@ namespace StardewModdingAPI.Framework.Logging
         /// <summary>Log the initial header with general SMAPI and system details.</summary>
         /// <param name="modsPath">The path from which mods will be loaded.</param>
         /// <param name="customSettings">The custom SMAPI settings.</param>
-        public void LogIntro(string modsPath, IDictionary<string, object> customSettings)
+        public void LogIntro(string modsPath, IDictionary<string, object?> customSettings)
         {
-            // init logging
-            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
+            // log platform
+            this.Monitor.Log($"SMAPI {Constants.ApiVersion} "
+#if !SMAPI_DEPRECATED
+                + "(strict mode) "
+#endif
+                + $"with Stardew Valley {Constants.GameVersion} (build {Constants.GetBuildVersionLabel()}) on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
+
+            // log basic info
             this.Monitor.Log($"Mods go here: {modsPath}", LogLevel.Info);
             if (modsPath != Constants.DefaultModsPath)
                 this.Monitor.Log("(Using custom --mods-path argument.)");
@@ -288,21 +292,30 @@ namespace StardewModdingAPI.Framework.Logging
             // log custom settings
             if (customSettings.Any())
                 this.Monitor.Log($"Loaded with custom settings: {string.Join(", ", customSettings.OrderBy(p => p.Key).Select(p => $"{p.Key}: {p.Value}"))}");
+
+#if !SMAPI_DEPRECATED
+            this.Monitor.Log("SMAPI is running in 'strict mode', which removes all deprecated APIs. This can significantly improve performance, but some mods may not work. You can reinstall SMAPI to disable it if you run into problems.", LogLevel.Info);
+#endif
         }
 
         /// <summary>Log details for settings that don't match the default.</summary>
-        /// <param name="isDeveloperMode">Whether to enable full console output for developers.</param>
-        /// <param name="checkForUpdates">Whether to check for newer versions of SMAPI and mods on startup.</param>
-        public void LogSettingsHeader(bool isDeveloperMode, bool checkForUpdates)
+        /// <param name="settings">The settings to log.</param>
+        public void LogSettingsHeader(SConfig settings)
         {
-            if (isDeveloperMode)
-                this.Monitor.Log($"You have SMAPI for developers, so the console will be much more verbose. You can disable developer mode by installing the non-developer version of SMAPI, or by editing {Constants.ApiConfigPath}.", LogLevel.Info);
-            if (!checkForUpdates)
-                this.Monitor.Log($"You configured SMAPI to not check for updates. Running an old version of SMAPI is not recommended. You can enable update checks by reinstalling SMAPI or editing {Constants.ApiConfigPath}.", LogLevel.Warn);
+            // developer mode
+            if (settings.DeveloperMode)
+                this.Monitor.Log("You enabled developer mode, so the console will be much more verbose. You can disable it by installing the non-developer version of SMAPI.", LogLevel.Info);
+            // warnings
+            if (!settings.CheckForUpdates)
+                this.Monitor.Log("You disabled update checks, so you won't be notified of new SMAPI or mod updates. Running an old version of SMAPI is not recommended. You can undo this by reinstalling SMAPI.", LogLevel.Warn);
+            if (!settings.RewriteMods)
+                this.Monitor.Log("You disabled rewriting broken mods, so many older mods may fail to load. You can undo this by reinstalling SMAPI.", LogLevel.Info);
 #if !SMAPI_FOR_MOBILE
             if (!this.Monitor.WriteToConsole)
                 this.Monitor.Log("Writing to the terminal is disabled because the --no-terminal argument was received. This usually means launching the terminal failed.", LogLevel.Warn);
 #endif
+
+            // verbose logging
             this.Monitor.VerboseLog("Verbose logging enabled.");
         }
 
@@ -332,7 +345,7 @@ namespace StardewModdingAPI.Framework.Logging
             // log loaded content packs
             if (loadedContentPacks.Any())
             {
-                string GetModDisplayName(string id) => loadedMods.FirstOrDefault(p => p.HasID(id))?.DisplayName;
+                string? GetModDisplayName(string id) => loadedMods.FirstOrDefault(p => p.HasID(id))?.DisplayName;
 
                 this.Monitor.Log($"Loaded {loadedContentPacks.Length} content packs:", LogLevel.Info);
                 foreach (IModMetadata metadata in loadedContentPacks.OrderBy(p => p.DisplayName))
@@ -341,7 +354,7 @@ namespace StardewModdingAPI.Framework.Logging
                     this.Monitor.Log(
                         $"   {metadata.DisplayName} {manifest.Version}"
                         + (!string.IsNullOrWhiteSpace(manifest.Author) ? $" by {manifest.Author}" : "")
-                        + $" | for {GetModDisplayName(metadata.Manifest.ContentPackFor.UniqueID)}"
+                        + $" | for {GetModDisplayName(metadata.Manifest.ContentPackFor!.UniqueID)}"
                         + (!string.IsNullOrWhiteSpace(manifest.Description) ? $" | {manifest.Description}" : ""),
                         LogLevel.Info
                     );
@@ -374,7 +387,10 @@ namespace StardewModdingAPI.Framework.Logging
 
             // ignore suppressed message
             if (level != LogLevel.Error && this.SuppressConsolePatterns.Any(p => p.IsMatch(message)))
+            {
+                this.ConsoleInterceptor.IgnoreNextIfNewline = true;
                 return;
+            }
 
             // show friendly error if applicable
             foreach (ReplaceLogPattern entry in this.ReplaceConsolePatterns)
@@ -388,14 +404,20 @@ namespace StardewModdingAPI.Framework.Logging
                 }
             }
 
+            // simplify exception messages
+            if (level == LogLevel.Error)
+                message = ExceptionHelper.SimplifyExtensionMessage(message);
+
             // forward to monitor
             gameMonitor.Log(message, level);
+            this.ConsoleInterceptor.IgnoreNextIfNewline = true;
         }
 
         /// <summary>Write a summary of mod warnings to the console and log.</summary>
         /// <param name="mods">The loaded mods.</param>
         /// <param name="skippedMods">The mods which could not be loaded.</param>
         /// <param name="logParanoidWarnings">Whether to log issues for mods which directly use potentially sensitive .NET APIs like file or shell access.</param>
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "Manifests aren't guaranteed non-null at this point in the loading process.")]
         private void LogModWarnings(IEnumerable<IModMetadata> mods, IModMetadata[] skippedMods, bool logParanoidWarnings)
         {
             // get mods with warnings
@@ -412,57 +434,38 @@ namespace StardewModdingAPI.Framework.Logging
             // log skipped mods
             if (skippedMods.Any())
             {
-                // get logging logic
-                HashSet<string> loggedDuplicateIds = new HashSet<string>();
-                void LogSkippedMod(IModMetadata mod)
-                {
-                    string message = $"      - {mod.DisplayName}{(mod.Manifest?.Version != null ? " " + mod.Manifest.Version.ToString() : "")} because {mod.Error}";
+                var loggedDuplicateIds = new HashSet<string>();
 
-                    // handle duplicate mods
-                    // (log first duplicate only, don't show redundant version)
-                    if (mod.FailReason == ModFailReason.Duplicate && mod.HasManifest())
-                    {
-                        if (!loggedDuplicateIds.Add(mod.Manifest.UniqueID))
-                            return; // already logged
-
-                        message = $"      - {mod.DisplayName} because {mod.Error}";
-                    }
-
-                    // log message
-                    this.Monitor.Log(message, LogLevel.Error);
-                    if (mod.ErrorDetails != null)
-                        this.Monitor.Log($"        ({mod.ErrorDetails})");
-                }
-
-                // find skipped dependencies
-                IModMetadata[] skippedDependencies;
-                {
-                    HashSet<string> skippedDependencyIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    HashSet<string> skippedModIds = new HashSet<string>(from mod in skippedMods where mod.HasID() select mod.Manifest.UniqueID, StringComparer.OrdinalIgnoreCase);
-                    foreach (IModMetadata mod in skippedMods)
-                    {
-                        foreach (string requiredId in skippedModIds.Intersect(mod.GetRequiredModIds()))
-                            skippedDependencyIds.Add(requiredId);
-                    }
-                    skippedDependencies = skippedMods.Where(p => p.HasID() && skippedDependencyIds.Contains(p.Manifest.UniqueID)).ToArray();
-                }
-
-                // log skipped mods
                 this.Monitor.Log("   Skipped mods", LogLevel.Error);
                 this.Monitor.Log("   " + "".PadRight(50, '-'), LogLevel.Error);
                 this.Monitor.Log("      These mods could not be added to your game.", LogLevel.Error);
                 this.Monitor.Newline();
-
-                if (skippedDependencies.Any())
+                foreach (var list in this.GroupFailedModsByPriority(skippedMods))
                 {
-                    foreach (IModMetadata mod in skippedDependencies.OrderBy(p => p.DisplayName))
-                        LogSkippedMod(mod);
-                    this.Monitor.Newline();
-                }
+                    if (list.Any())
+                    {
+                        foreach (IModMetadata mod in list.OrderBy(p => p.DisplayName))
+                        {
+                            string message = $"      - {mod.DisplayName}{(" " + mod.Manifest?.Version?.ToString()).TrimEnd()} because {mod.Error}";
 
-                foreach (IModMetadata mod in skippedMods.OrderBy(p => p.DisplayName))
-                    LogSkippedMod(mod);
-                this.Monitor.Newline();
+                            // duplicate mod: log first one only, don't show redundant version
+                            if (mod.FailReason == ModFailReason.Duplicate && mod.HasManifest())
+                            {
+                                if (loggedDuplicateIds.Add(mod.Manifest!.UniqueID))
+                                    continue; // already logged
+
+                                message = $"      - {mod.DisplayName} because {mod.Error}";
+                            }
+
+                            // log message
+                            this.Monitor.Log(message, LogLevel.Error);
+                            if (mod.ErrorDetails != null)
+                                this.Monitor.Log($"        ({mod.ErrorDetails})");
+                        }
+
+                        this.Monitor.Newline();
+                    }
+                }
             }
 
             // log warnings
@@ -497,7 +500,7 @@ namespace StardewModdingAPI.Framework.Logging
                 {
                     this.LogModWarningGroup(
                         modsWithWarnings,
-                        match: mod => mod.HasUnsuppressedWarnings(ModWarning.AccessesConsole, ModWarning.AccessesFilesystem, ModWarning.AccessesShell),
+                        match: mod => mod.HasWarnings(ModWarning.AccessesConsole, ModWarning.AccessesFilesystem, ModWarning.AccessesShell),
                         level: LogLevel.Debug,
                         heading: "Direct system access",
                         blurb: new[]
@@ -509,11 +512,11 @@ namespace StardewModdingAPI.Framework.Logging
                         modLabel: mod =>
                         {
                             List<string> labels = new List<string>();
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesConsole))
+                            if (mod.HasWarnings(ModWarning.AccessesConsole))
                                 labels.Add("console");
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesFilesystem))
+                            if (mod.HasWarnings(ModWarning.AccessesFilesystem))
                                 labels.Add("files");
-                            if (mod.HasUnsuppressedWarnings(ModWarning.AccessesShell))
+                            if (mod.HasWarnings(ModWarning.AccessesShell))
                                 labels.Add("shells/processes");
 
                             return $"{mod.DisplayName} ({string.Join(", ", labels)})";
@@ -526,11 +529,92 @@ namespace StardewModdingAPI.Framework.Logging
                     "These mods have no update keys in their manifest. SMAPI may not notify you about updates for these",
                     "mods. Consider notifying the mod authors about this problem."
                 );
+            }
+        }
 
-                // not crossplatform
-                this.LogModWarningGroup(modsWithWarnings, ModWarning.UsesDynamic, LogLevel.Debug, "Not crossplatform",
-                    "These mods use the 'dynamic' keyword, and won't work on Linux/Mac."
+        /// <summary>Group failed mods by the priority players should update them, where mods in earlier groups are more likely to fix multiple mods.</summary>
+        /// <param name="failedMods">The failed mods to group.</param>
+        private IEnumerable<IList<IModMetadata>> GroupFailedModsByPriority(IList<IModMetadata> failedMods)
+        {
+            var failedOthers = failedMods.ToList();
+            var skippedModIds = new HashSet<string>(from mod in failedMods where mod.HasID() select mod.Manifest.UniqueID, StringComparer.OrdinalIgnoreCase);
+
+            // group B: dependencies which failed
+            var failedOtherDependencies = new List<IModMetadata>();
+            {
+                // get failed dependency IDs
+                var skippedDependencyIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (IModMetadata mod in failedMods)
+                {
+                    foreach (string requiredId in skippedModIds.Intersect(mod.GetRequiredModIds()))
+                        skippedDependencyIds.Add(requiredId);
+                }
+
+                // group matching mods
+                this.FilterThrough(
+                    fromList: failedOthers,
+                    toList: failedOtherDependencies,
+                    match: mod => mod.HasID() && skippedDependencyIds.Contains(mod.Manifest.UniqueID)
                 );
+            }
+
+            // group A: failed root dependencies which other dependencies need
+            var failedRootDependencies = new List<IModMetadata>();
+            {
+                var skippedDependencyIds = new HashSet<string>(failedOtherDependencies.Select(p => p.Manifest.UniqueID));
+                this.FilterThrough(
+                    fromList: failedOtherDependencies,
+                    toList: failedRootDependencies,
+                    match: mod =>
+                    {
+                        // has no failed dependency
+                        foreach (string requiredId in mod.GetRequiredModIds())
+                        {
+                            if (skippedDependencyIds.Contains(requiredId))
+                                return false;
+                        }
+
+                        // another dependency depends on this mod
+                        bool isDependedOn = false;
+                        foreach (IModMetadata other in failedOtherDependencies)
+                        {
+                            if (other.HasRequiredModId(mod.Manifest.UniqueID, includeOptional: false))
+                            {
+                                isDependedOn = true;
+                                break;
+                            }
+                        }
+
+                        return isDependedOn;
+                    }
+                );
+            }
+
+            // return groups
+            return new[]
+            {
+                failedRootDependencies,
+                failedOtherDependencies,
+                failedOthers
+            };
+        }
+
+        /// <summary>Filter matching items from one list and add them to the other.</summary>
+        /// <typeparam name="TItem">The list item type.</typeparam>
+        /// <param name="fromList">The list to filter.</param>
+        /// <param name="toList">The list to which to add filtered items.</param>
+        /// <param name="match">Matches items to filter through.</param>
+        private void FilterThrough<TItem>(IList<TItem> fromList, IList<TItem> toList, Func<TItem, bool> match)
+        {
+            for (int i = 0; i < fromList.Count; i++)
+            {
+                TItem item = fromList[i];
+                if (match(item))
+                {
+                    toList.Add(item);
+                    fromList.RemoveAt(i);
+                    i--;
+                }
             }
         }
 
@@ -541,7 +625,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="heading">A brief heading label for the group.</param>
         /// <param name="blurb">A detailed explanation of the warning, split into lines.</param>
         /// <param name="modLabel">Formats the mod label, or <c>null</c> to use the <see cref="IModMetadata.DisplayName"/>.</param>
-        private void LogModWarningGroup(IModMetadata[] mods, Func<IModMetadata, bool> match, LogLevel level, string heading, string[] blurb, Func<IModMetadata, string> modLabel = null)
+        private void LogModWarningGroup(IModMetadata[] mods, Func<IModMetadata, bool> match, LogLevel level, string heading, string[] blurb, Func<IModMetadata, string>? modLabel = null)
         {
             // get matching mods
             string[] modLabels = mods
@@ -574,7 +658,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="blurb">A detailed explanation of the warning, split into lines.</param>
         private void LogModWarningGroup(IModMetadata[] mods, ModWarning warning, LogLevel level, string heading, params string[] blurb)
         {
-            this.LogModWarningGroup(mods, mod => mod.HasUnsuppressedWarnings(warning), level, heading, blurb);
+            this.LogModWarningGroup(mods, mod => mod.HasWarnings(warning), level, heading, blurb);
         }
 
 

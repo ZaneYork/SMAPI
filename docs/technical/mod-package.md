@@ -1,7 +1,7 @@
 &larr; [SMAPI](../README.md)
 
 The **mod build package** is an open-source NuGet package which automates the MSBuild configuration
-for SMAPI mods and related tools. The package is fully compatible with Linux, Mac, and Windows.
+for SMAPI mods and related tools. The package is fully compatible with Linux, macOS, and Windows.
 
 ## Contents
 * [Use](#use)
@@ -29,20 +29,19 @@ change how these work):
 * **Detect game path:**  
   The package automatically finds your game folder by scanning the default install paths and
   Windows registry. It adds two MSBuild properties for use in your `.csproj` file if needed:
-  `$(GamePath)` and `$(GameExecutableName)`.
+  `$(GamePath)` and `$(GameModsPath)`.
 
 * **Add assembly references:**  
-  The package adds assembly references to SMAPI, Stardew Valley, xTile, and the game framework
-  (MonoGame on Linux/Mac, XNA Framework on Windows). It automatically adjusts depending on which OS
-  you're compiling it on. If you use [Harmony](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Harmony),
-  it can optionally add a reference to that too.
+  The package adds assembly references to MonoGame, SMAPI, Stardew Valley, and xTile. It
+  automatically adjusts depending on which OS you're compiling it on. If you use
+  [Harmony](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Harmony), it can optionally add
+  a reference to that too.
 
 * **Copy files into the `Mods` folder:**  
   The package automatically copies your mod's DLL and PDB files, `manifest.json`, [`i18n`
-  files](https://stardewvalleywiki.com/Modding:Translations) (if any), the `assets` folder (if
-  any), and [build output](https://stackoverflow.com/a/10828462/262123) into your game's `Mods`
-  folder when you rebuild the code, with a subfolder matching the mod's project name. That lets you
-  try the mod in-game right after building it.
+  files](https://stardewvalleywiki.com/Modding:Translations) (if any), and the `assets` folder (if
+  any) into the `Mods` folder when you rebuild the code, with a subfolder matching the mod's project
+  name. That lets you try the mod in-game right after building it.
 
 * **Create release zip:**  
   The package adds a zip file in your project's `bin` folder when you rebuild the code, in the
@@ -55,7 +54,7 @@ change how these work):
   breakpoints](https://docs.microsoft.com/en-us/visualstudio/debugger/using-breakpoints?view=vs-2019)
   in your code while the game is running, or [make simple changes to the mod code without needing to
   restart the game](https://docs.microsoft.com/en-us/visualstudio/debugger/edit-and-continue?view=vs-2019).
-  This is disabled on Linux/Mac due to limitations with the Mono wrapper.
+  This is disabled on Linux/macOS due to limitations with the Mono wrapper.
 
 * **Preconfigure common settings:**  
   The package automatically enables `.pdb` files (so error logs show line numbers to simplify
@@ -82,7 +81,7 @@ There are two places you can put them:
 
   1. Open the home folder on your computer (see instructions for
      [Linux](https://superuser.com/questions/409218/where-is-my-users-home-folder-in-ubuntu),
-     [MacOS](https://www.cnet.com/how-to/how-to-find-your-macs-home-folder-and-add-it-to-finder/),
+     [macOS](https://www.cnet.com/how-to/how-to-find-your-macs-home-folder-and-add-it-to-finder/),
      or [Windows](https://www.computerhope.com/issues/ch000109.htm)).
   2. Create a `stardewvalley.targets` file with this content:
      ```xml
@@ -129,14 +128,6 @@ The absolute path to the folder containing the game's installed mods (defaults t
 </td>
 </tr>
 <tr>
-<td><code>GameExecutableName</code></td>
-<td>
-
-The filename for the game's executable (i.e. `StardewValley.exe` on Linux/Mac or
-`Stardew Valley.exe` on Windows). This is auto-detected, and you should almost never change this.
-
-</td>
-</tr>
 </table>
 </li>
 
@@ -197,11 +188,63 @@ The folder path where the release zip is created (defaults to the project's `bin
   <th>effect</th>
 </tr>
 <tr>
-<td><code>CopyModReferencesToBuildOutput</code></td>
+<td><code>BundleExtraAssemblies</code></td>
 <td>
 
-Whether to copy game and framework DLLs into the mod folder (default `false`). This is useful for
-unit test projects, but not needed for mods that'll be run through SMAPI.
+**Most mods should not change this option.**
+
+By default (when this is _not_ enabled), only the mod files [normally considered part of the
+mod](#Features) will be added to the release `.zip` and copied into the `Mods` folder (i.e.
+"deployed"). That includes the assembly files (`*.dll`, `*.pdb`, and `*.xml`) for your mod project,
+but any other DLLs won't be deployed.
+
+Enabling this option will add _all_ dependencies to the build output, then deploy _some_ of them
+depending on the comma-separated value(s) you set:
+
+<table>
+<tr>
+  <th>option</th>
+  <th>result</th>
+</tr>
+<tr>
+<td><code>ThirdParty</code></td>
+<td>
+
+Assembly files which don't match any other category.
+
+</td>
+</tr>
+<tr>
+<td><code>System</code></td>
+<td>
+
+Assembly files whose names start with `Microsoft.*` or `System.*`.
+
+</td>
+</tr>
+<tr>
+<td><code>Game</code></td>
+<td>
+
+Assembly files which are part of MonoGame, SMAPI, or Stardew Valley.
+
+</td>
+</tr>
+<tr>
+<td><code>All</code></td>
+<td>
+
+Equivalent to `System, Game, ThirdParty`.
+
+</td>
+</tr>
+</table>
+
+Most mods should omit the option. Some mods may need `ThirdParty` if they bundle third-party DLLs
+with their mod. The other options are mainly useful for unit tests.
+
+When enabling this option, you should **manually review which files get deployed** and use the
+`IgnoreModFilePaths` or `IgnoreModFilePatterns` options to exclude files as needed.
 
 </td>
 </tr>
@@ -212,6 +255,20 @@ unit test projects, but not needed for mods that'll be run through SMAPI.
 Whether to configure the project so you can launch or debug the game through the _Debug_ menu in
 Visual Studio (default `true`). There's usually no reason to change this, unless it's a unit test
 project.
+
+</td>
+</tr>
+<tr>
+<td><code>IgnoreModFilePaths</code></td>
+<td>
+
+A comma-delimited list of literal file paths to ignore, relative to the mod's `bin` folder. Paths
+are case-sensitive, but path delimiters are normalized automatically. For example, this ignores a
+set of tilesheets:
+
+```xml
+<IgnoreModFilePaths>assets/paths.png, assets/springobjects.png</IgnoreModFilePaths>
+```
 
 </td>
 </tr>
@@ -291,6 +348,15 @@ Warning text:
 
 Your code accesses a field which is obsolete or no longer works. Use the suggested field instead.
 
+### Wrong processor architecture
+Warning text:
+> The target platform should be set to 'Any CPU' for compatibility with both 32-bit and 64-bit
+> versions of Stardew Valley (currently set to '{{current platform}}').
+
+Mods can be used in either 32-bit or 64-bit mode. Your project's target platform isn't set to the
+default 'Any CPU', so it won't work in both. You can fix it by [setting the target platform to
+'Any CPU'](https://docs.microsoft.com/en-ca/visualstudio/ide/how-to-configure-projects-to-target-platforms).
+
 ## FAQs
 ### How do I set the game path?<span id="custom-game-path"></span>
 The package detects where your game is installed automatically, so you usually don't need to set it
@@ -306,22 +372,21 @@ To do that:
        <GamePath>PATH_HERE</GamePath>
    </PropertyGroup>
    ```
-3. Replace `PATH_HERE` with your game's folder path.
+3. Replace `PATH_HERE` with your game's folder path (don't add quotes).
 
 The configuration will check your custom path first, then fall back to the default paths (so it'll
 still compile on a different computer).
 
 ### How do I change which files are included in the mod deploy/zip?
-For custom files, you can [add/remove them in the build output](https://stackoverflow.com/a/10828462/262123).
-(If your project references another mod, make sure the reference is [_not_ marked 'copy
-local'](https://msdn.microsoft.com/en-us/library/t1zz5y8c(v=vs.100).aspx).)
-
-To exclude a file the package copies by default, see `IgnoreModFilePatterns` under
-[_configure_](#configure).
+* For normal files, you can [add/remove them in the build output](https://stackoverflow.com/a/10828462/262123).
+* For assembly files (`*.dll`, `*.exe`, `*.pdb`, or `*.xml`), see the
+  [`BundleExtraAssemblies` option](#configure).
+* To exclude a file which the package copies by default, see the [`IgnoreModFilePaths` or
+  `IgnoreModFilePatterns` options](#configure).
 
 ### Can I use the package for non-mod projects?
-You can use the package in non-mod projects too (e.g. unit tests or framework DLLs). Just disable
-the mod-related package features (see [_configure_](#configure)):
+Yep, this works in unit tests and framework projects too. Just disable the mod-related package
+features (see [_configure_](#configure)):
 
 ```xml
 <EnableGameDebugging>false</EnableGameDebugging>
@@ -329,9 +394,9 @@ the mod-related package features (see [_configure_](#configure)):
 <EnableModZip>false</EnableModZip>
 ```
 
-If you need to copy the referenced DLLs into your build output, add this too:
+To copy referenced DLLs into your build output for unit tests, add this too:
 ```xml
-<CopyModReferencesToBuildOutput>true</CopyModReferencesToBuildOutput>
+<BundleExtraAssemblies>All</BundleExtraAssemblies>
 ```
 
 ## For SMAPI developers
@@ -347,11 +412,63 @@ The NuGet package is generated automatically in `StardewModdingAPI.ModBuildConfi
 when you compile it.
 
 ## Release notes
-## 3.2.2
+### 4.1.0
+Released 08 January 2023.
+
+* Added `manifest.json` format validation on build (thanks to tylergibbs2!).
+* Fixed game DLLs not excluded from the release zip when they're referenced explicitly but `BundleExtraAssemblies` isn't set.
+
+### 4.0.2
+Released 09 October 2022.
+
+* Switched to the newer crossplatform `portable` debug symbols (thanks to lanturnalis!).
+* Fixed `BundleExtraAssemblies` option being partly case-sensitive.
+* Fixed `BundleExtraAssemblies` not applying `All` value to game assemblies.
+
+### 4.0.1
+Released 14 April 2022.
+
+* Added detection for Xbox app game folders.
+* Fixed "_conflicts between different versions of Microsoft.Win32.Registry_" warnings in recent SMAPI versions.
+* Internal refactoring.
+
+### 4.0.0
+Released 30 November 2021.
+
+* Updated for Stardew Valley 1.5.5 and SMAPI 3.13.0. (Older versions are no longer supported.)
+* Added `IgnoreModFilePaths` option to ignore literal paths.
+* Added `BundleExtraAssemblies` option to copy bundled DLLs into the mod zip/folder.
+* Removed the `GameExecutableName` and `GameFramework` options (since they now have the same value
+  on all platforms).
+* Removed the `CopyModReferencesToBuildOutput` option (superseded by `BundleExtraAssemblies`).
+* Improved analyzer performance by enabling parallel execution.
+
+**Migration guide for mod authors:**
+1. See [_migrate to 64-bit_](https://stardewvalleywiki.com/Modding:Migrate_to_64-bit_on_Windows) and
+   [_migrate to Stardew Valley 1.5.5_](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.5.5).
+2. Possible changes in your `.csproj` or `.targets` files:
+   * Replace `$(GameExecutableName)` with `Stardew Valley`.
+   * Replace `$(GameFramework)` with `MonoGame` and remove any XNA Framework-specific logic.
+   * Replace `<CopyModReferencesToBuildOutput>true</CopyModReferencesToBuildOutput>` with
+     `<BundleExtraAssemblies>Game</BundleExtraAssemblies>`.
+   * If you need to bundle extra DLLs besides your mod DLL, see the [`BundleExtraAssemblies`
+     documentation](#configure).
+
+### 3.3.0
+Released 30 March 2021.
+
+* Added a build warning when the mod isn't compiled for `Any CPU`.
+* Added a `GameFramework` build property set to `MonoGame` or `Xna` based on the platform. This can
+  be overridden to change which framework it references.
+* Added support for building mods against the 64-bit Linux version of the game on Windows.
+* The package now suppresses the misleading 'processor architecture mismatch' warnings.
+
+### 3.2.2
 Released 23 September 2020.
 
 * Reworked and streamlined how the package is compiled.
-* Added [SMAPI-ModTranslationClassBuilder](https://github.com/Pathoschild/SMAPI-ModTranslationClassBuilder) files to the ignore list.
+* Added [SMAPI-ModTranslationClassBuilder](https://github.com/Pathoschild/SMAPI-ModTranslationClassBuilder)
+  files to the ignore list.
 
 ### 3.2.1
 Released 11 September 2020.
@@ -359,19 +476,19 @@ Released 11 September 2020.
 * Added more detailed logging.
 * Fixed _path's format is not supported_ error when using default `Mods` path in 3.2.
 
-### 3.2
+### 3.2.0
 Released 07 September 2020.
 
 * Added option to change `Mods` folder path.
 * Rewrote documentation to make it easier to read.
 
-### 3.1
+### 3.1.0
 Released 01 February 2020.
 
 * Added support for semantic versioning 2.0.
 * `0Harmony.dll` is now ignored if the mod references Harmony directly (it's bundled with SMAPI).
 
-### 3.0
+### 3.0.0
 Released 26 November 2019.
 
 * Updated for SMAPI 3.0 and Stardew Valley 1.4.
@@ -386,14 +503,14 @@ Released 26 November 2019.
 * Dropped support for older versions of SMAPI and Visual Studio.
 * Migrated package icon to NuGet's new format.
 
-### 2.2
+### 2.2.0
 Released 28 October 2018.
 
 * Added support for SMAPI 2.8+ (still compatible with earlier versions).
 * Added default game paths for 32-bit Windows.
 * Fixed valid manifests marked invalid in some cases.
 
-### 2.1
+### 2.1.0
 Released 27 July 2018.
 
 * Added support for Stardew Valley 1.3.
@@ -413,7 +530,7 @@ Released 11 October 2017.
 
 * Fixed mod deploy failing to create subfolders if they don't already exist.
 
-### 2.0
+### 2.0.0
 Released 11 October 2017.
 
 * Added: mods are now copied into the `Mods` folder automatically (configurable).
@@ -431,7 +548,7 @@ Released 28 July 2017.
 * The manifest/i18n files in the project now take precedence over those in the build output if both
   are present.
 
-### 1.7
+### 1.7.0
 Released 28 July 2017.
 
 * Added option to create release zips on build.
@@ -448,19 +565,19 @@ Released 09 July 2017.
 
 * Improved crossplatform game path detection.
 
-### 1.6
+### 1.6.0
 Released 05 June 2017.
 
 * Added support for deploying mod files into `Mods` automatically.
 * Added a build error if a game folder is found, but doesn't contain Stardew Valley or SMAPI.
 
-### 1.5
+### 1.5.0
 Released 23 January 2017.
 
 * Added support for setting a custom game path globally.
-* Added default GOG path on Mac.
+* Added default GOG path on macOS.
 
-### 1.4
+### 1.4.0
 Released 11 January 2017.
 
 * Fixed detection of non-default game paths on 32-bit Windows.
@@ -468,22 +585,22 @@ Released 11 January 2017.
 * Removed support for overriding the target platform (no longer needed since SMAPI crossplatforms
   mods automatically).
 
-### 1.3
+### 1.3.0
 Released 31 December 2016.
 
 * Added support for non-default game paths on Windows.
 
-### 1.2
+### 1.2.0
 Released 24 October 2016.
 
 * Exclude game binaries from mod build output.
 
-### 1.1
+### 1.1.0
 Released 21 October 2016.
 
 * Added support for overriding the target platform.
 
-### 1.0
+### 1.0.0
 Released 21 October 2016.
 
 * Initial release.

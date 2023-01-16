@@ -1,6 +1,9 @@
 using System;
-using System.Linq;
+using System.Collections.Specialized;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Web.Framework;
@@ -39,24 +42,42 @@ namespace StardewModdingAPI.Web.Controllers
         ***/
         /// <summary>Render the log parser UI.</summary>
         /// <param name="id">The stored file ID.</param>
-        /// <param name="raw">Whether to display the raw unparsed log.</param>
+        /// <param name="format">How to render the log view.</param>
         /// <param name="renew">Whether to reset the log expiry.</param>
         [HttpGet]
         [Route("log")]
         [Route("log/{id}")]
-        public async Task<ViewResult> Index(string id = null, bool raw = false, bool renew = false)
+        public async Task<ActionResult> Index(string? id = null, LogViewFormat format = LogViewFormat.Default, bool renew = false)
         {
             // fresh page
             if (string.IsNullOrWhiteSpace(id))
                 return this.View("Index", this.GetModel(id));
 
-            // log page
+            // fetch log
             StoredFileInfo file = await this.Storage.GetAsync(id, renew);
-            ParsedLog log = file.Success
-                ? new LogParser().Parse(file.Content)
-                : new ParsedLog { IsValid = false, Error = file.Error };
 
-            return this.View("Index", this.GetModel(id, uploadWarning: file.Warning, expiry: file.Expiry).SetResult(log, raw));
+            // render view
+            switch (format)
+            {
+                case LogViewFormat.Default:
+                case LogViewFormat.RawView:
+                    {
+                        ParsedLog log = file.Success
+                            ? new LogParser().Parse(file.Content)
+                            : new ParsedLog { IsValid = false, Error = file.Error };
+
+                        return this.View("Index", this.GetModel(id, uploadWarning: file.Warning, expiry: file.Expiry).SetResult(log, showRaw: format == LogViewFormat.RawView));
+                    }
+
+                case LogViewFormat.RawDownload:
+                    {
+                        string content = file.Error ?? file.Content ?? string.Empty;
+                        return this.File(Encoding.UTF8.GetBytes(content), "plain/text", $"SMAPI log ({id}).txt");
+                    }
+
+                default:
+                    throw new InvalidOperationException($"Unknown log view format '{format}'.");
+            }
         }
 
         /***
@@ -68,9 +89,15 @@ namespace StardewModdingAPI.Web.Controllers
         public async Task<ActionResult> PostAsync()
         {
             // get raw log text
-            string input = this.Request.Form["input"].FirstOrDefault();
-            if (string.IsNullOrWhiteSpace(input))
-                return this.View("Index", this.GetModel(null, uploadError: "The log file seems to be empty."));
+            // note: avoid this.Request.Form, which fails if any mod logged a null character.
+            string? input;
+            {
+                using StreamReader reader = new StreamReader(this.Request.Body);
+                NameValueCollection parsed = HttpUtility.ParseQueryString(await reader.ReadToEndAsync());
+                input = parsed["input"];
+                if (string.IsNullOrWhiteSpace(input))
+                    return this.View("Index", this.GetModel(null, uploadError: "The log file seems to be empty."));
+            }
 
             // upload log
             UploadResult uploadResult = await this.Storage.SaveAsync(input);
@@ -78,7 +105,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", this.GetModel(null, uploadError: uploadResult.UploadError));
 
             // redirect to view
-            return this.Redirect(this.Url.PlainAction("Index", "LogParser", new { id = uploadResult.ID }));
+            return this.Redirect(this.Url.PlainAction("Index", "LogParser", new { id = uploadResult.ID })!);
         }
 
 
@@ -90,7 +117,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="expiry">When the uploaded file will no longer be available.</param>
         /// <param name="uploadWarning">A non-blocking warning while uploading the log.</param>
         /// <param name="uploadError">An error which occurred while uploading the log.</param>
-        private LogParserModel GetModel(string pasteID, DateTime? expiry = null, string uploadWarning = null, string uploadError = null)
+        private LogParserModel GetModel(string? pasteID, DateTimeOffset? expiry = null, string? uploadWarning = null, string? uploadError = null)
         {
             Platform? platform = this.DetectClientPlatform();
 

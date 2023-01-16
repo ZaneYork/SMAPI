@@ -2,9 +2,8 @@
   <PropertyGroup>
     <RootNamespace>StardewModdingAPI</RootNamespace>
     <Description>Provides toolkit interfaces which are available to SMAPI mods.</Description>
-    <TargetFrameworks>net4.5;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net5.0; netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PlatformTarget Condition="'$(TargetFramework)' == 'net4.5'">x86</PlatformTarget>
   </PropertyGroup>
 
   <Import Project="..\..\build\common.targets" />

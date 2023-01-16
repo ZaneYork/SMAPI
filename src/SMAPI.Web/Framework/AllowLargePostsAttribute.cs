@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Web.Framework
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             IFeatureCollection features = context.HttpContext.Features;
-            IFormFeature formFeature = features.Get<IFormFeature>();
+            IFormFeature? formFeature = features.Get<IFormFeature>();
 
             if (formFeature?.Form == null)
             {

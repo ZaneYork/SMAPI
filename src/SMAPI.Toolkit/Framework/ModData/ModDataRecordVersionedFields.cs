@@ -7,24 +7,32 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         ** Accessors
         *********/
         /// <summary>The underlying data record.</summary>
-        public ModDataRecord DataRecord { get; set; }
+        public ModDataRecord DataRecord { get; }
 
-        /// <summary>The default mod name to display when the name isn't available (e.g. during dependency checks).</summary>
-        public string DisplayName { get; set; }
-
-        /// <summary>The update key to apply.</summary>
-        public string UpdateKey { get; set; }
-
-        /// <summary>The alternative URL the player can check for an updated version.</summary>
-        public string AlternativeUrl { get; set; }
+        /// <summary>The update key to apply (if any).</summary>
+        public string? UpdateKey { get; set; }
 
         /// <summary>The predefined compatibility status.</summary>
         public ModStatus Status { get; set; } = ModStatus.None;
 
         /// <summary>A reason phrase for the <see cref="Status"/>, or <c>null</c> to use the default reason.</summary>
-        public string StatusReasonPhrase { get; set; }
+        public string? StatusReasonPhrase { get; set; }
+
+        /// <summary>Technical details shown in TRACE logs for the <see cref="Status"/>, or <c>null</c> to omit it.</summary>
+        public string? StatusReasonDetails { get; set; }
 
         /// <summary>The upper version for which the <see cref="Status"/> applies (if any).</summary>
-        public ISemanticVersion StatusUpperVersion { get; set; }
+        public ISemanticVersion? StatusUpperVersion { get; set; }
+
+
+        /*********
+        ** Public methods
+        *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="dataRecord">The underlying data record.</param>
+        public ModDataRecordVersionedFields(ModDataRecord dataRecord)
+        {
+            this.DataRecord = dataRecord;
+        }
     }
 }

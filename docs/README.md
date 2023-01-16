@@ -11,9 +11,9 @@ doesn't change any of your game files. It serves seven main purposes:
    couldn't._
 
 3. **Rewrite mods for compatibility.**  
-   _SMAPI rewrites mods' compiled code before loading them so they work on Linux/Mac/Windows
-   without the mods needing to handle differences between the Linux/Mac and Windows versions of the
-   game. In some cases it also rewrites code broken by a game update so the mod doesn't break._
+   _SMAPI rewrites mods' compiled code before loading them so they work on Linux/macOS/Windows
+   without the mods needing to handle differences between the Linux/macOS and Windows versions of
+   the game. In some cases it also rewrites code broken by a game update so the mod doesn't break._
 
 5. **Intercept errors and automatically fix saves.**  
    _SMAPI intercepts errors, shows the error info in the SMAPI console, and in most cases
@@ -56,17 +56,24 @@ SMAPI rarely shows text in-game, so it only has a few translations. Contribution
 [Modding:Translations](https://stardewvalleywiki.com/Modding:Translations) on the wiki for help
 contributing translations.
 
-locale     | status
----------- | :----------------
-default    | ✓ [fully translated](../src/SMAPI/i18n/default.json)
-Chinese    | ✓ [fully translated](../src/SMAPI/i18n/zh.json)
-French     | ✓ [fully translated](../src/SMAPI/i18n/fr.json)
-German     | ✓ [fully translated](../src/SMAPI/i18n/de.json)
-Hungarian  | ✓ [fully translated](../src/SMAPI/i18n/hu.json)
-Italian    | ✓ [fully translated](../src/SMAPI/i18n/it.json)
-Japanese   | ✓ [fully translated](../src/SMAPI/i18n/ja.json)
-Korean     | ✓ [fully translated](../src/SMAPI/i18n/ko.json)
-Portuguese | ✓ [fully translated](../src/SMAPI/i18n/pt.json)
-Russian    | ✓ [fully translated](../src/SMAPI/i18n/ru.json)
-Spanish    | ✓ [fully translated](../src/SMAPI/i18n/es.json)
-Turkish    | ✓ [fully translated](../src/SMAPI/i18n/tr.json)
+locale      | status
+----------- | :----------------
+default     | ✓ [fully translated](../src/SMAPI/i18n/default.json)
+Chinese     | ✓ [fully translated](../src/SMAPI/i18n/zh.json)
+French      | ✓ [fully translated](../src/SMAPI/i18n/fr.json)
+German      | ✓ [fully translated](../src/SMAPI/i18n/de.json)
+Hungarian   | ✓ [fully translated](../src/SMAPI/i18n/hu.json)
+Italian     | ✓ [fully translated](../src/SMAPI/i18n/it.json)
+Japanese    | ✓ [fully translated](../src/SMAPI/i18n/ja.json)
+Korean      | ✓ [fully translated](../src/SMAPI/i18n/ko.json)
+[Polish]    | ✓ [fully translated](../src/SMAPI/i18n/pl.json)
+Portuguese  | ✓ [fully translated](../src/SMAPI/i18n/pt.json)
+Russian     | ✓ [fully translated](../src/SMAPI/i18n/ru.json)
+Spanish     | ✓ [fully translated](../src/SMAPI/i18n/es.json)
+[Thai]      | ✓ [fully translated](../src/SMAPI/i18n/th.json)
+Turkish     | ✓ [fully translated](../src/SMAPI/i18n/tr.json)
+[Ukrainian] | ✓ [fully translated](../src/SMAPI/i18n/uk.json)
+
+[Polish]: https://www.nexusmods.com/stardewvalley/mods/3616
+[Thai]: https://www.nexusmods.com/stardewvalley/mods/7052
+[Ukrainian]: https://www.nexusmods.com/stardewvalley/mods/8427

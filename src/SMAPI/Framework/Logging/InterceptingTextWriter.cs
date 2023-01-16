@@ -10,21 +10,25 @@ namespace StardewModdingAPI.Framework.Logging
         /*********
         ** Fields
         *********/
-        /// <summary>Prefixing a message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</summary>
-        private readonly char IgnoreChar;
+        /// <summary>The event raised when a message is written to the console directly.</summary>
+        private readonly Action<string> OnMessageIntercepted;
 
 
         /*********
         ** Accessors
         *********/
+        /// <summary>Prefixing a message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</summary>
+        public const char IgnoreChar = '\u200B';
+
         /// <summary>The underlying console output.</summary>
         public TextWriter Out { get; }
 
         /// <inheritdoc />
         public override Encoding Encoding => this.Out.Encoding;
 
-        /// <summary>The event raised when a message is written to the console directly.</summary>
-        public event Action<string> OnMessageIntercepted;
+        /// <summary>Whether the text writer should ignore the next input if it's a newline.</summary>
+        /// <remarks>This is used when log output is suppressed from the console, since <c>Console.WriteLine</c> writes the trailing newline as a separate call.</remarks>
+        public bool IgnoreNextIfNewline { get; set; }
 
 
         /*********
@@ -32,36 +36,46 @@ namespace StardewModdingAPI.Framework.Logging
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="output">The underlying output writer.</param>
-        /// <param name="ignoreChar">Prefixing a message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</param>
-        public InterceptingTextWriter(TextWriter output, char ignoreChar)
+        /// <param name="onMessageIntercepted">The event raised when a message is written to the console directly.</param>
+        public InterceptingTextWriter(TextWriter output, Action<string> onMessageIntercepted)
         {
             this.Out = output;
-            this.IgnoreChar = ignoreChar;
+            this.OnMessageIntercepted = onMessageIntercepted;
         }
 
         /// <inheritdoc />
         public override void Write(char[] buffer, int index, int count)
         {
-            if (buffer.Length == 0)
+            // track newline skip
+            bool ignoreIfNewline = this.IgnoreNextIfNewline;
+            this.IgnoreNextIfNewline = false;
+
+            // get first character if valid
+            if (count == 0 || index < 0 || index >= buffer.Length)
+            {
                 this.Out.Write(buffer, index, count);
-            else if (buffer[0] == this.IgnoreChar)
+                return;
+            }
+            char firstChar = buffer[index];
+
+            // handle output
+            if (firstChar == InterceptingTextWriter.IgnoreChar)
                 this.Out.Write(buffer, index + 1, count - 1);
-            else if (this.IsEmptyOrNewline(buffer))
+            else if (char.IsControl(firstChar) && firstChar is not ('\r' or '\n'))
                 this.Out.Write(buffer, index, count);
+            else if (this.IsEmptyOrNewline(buffer))
+            {
+                if (!ignoreIfNewline)
+                    this.Out.Write(buffer, index, count);
+            }
             else
-                this.OnMessageIntercepted?.Invoke(new string(buffer, index, count).TrimEnd('\r', '\n'));
+                this.OnMessageIntercepted(new string(buffer, index, count));
         }
 
         /// <inheritdoc />
         public override void Write(char ch)
         {
             this.Out.Write(ch);
-        }
-
-        /// <inheritdoc />
-        protected override void Dispose(bool disposing)
-        {
-            this.OnMessageIntercepted = null;
         }
 
 

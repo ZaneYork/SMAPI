@@ -51,8 +51,7 @@ namespace StardewModdingAPI.Framework.Input
             this.ScrollWheelValue = state.ScrollWheelValue;
         }
 
-        /// <summary>Override the states for a set of buttons.</summary>
-        /// <param name="overrides">The button state overrides.</param>
+        /// <inheritdoc />
         public MouseStateBuilder OverrideButtons(IDictionary<SButton, SButtonState> overrides)
         {
             foreach (var pair in overrides)
@@ -67,7 +66,7 @@ namespace StardewModdingAPI.Framework.Input
             return this;
         }
 
-        /// <summary>Get the currently pressed buttons.</summary>
+        /// <inheritdoc />
         public IEnumerable<SButton> GetPressedButtons()
         {
             foreach (var pair in this.ButtonStates)
@@ -77,7 +76,7 @@ namespace StardewModdingAPI.Framework.Input
             }
         }
 
-        /// <summary>Get the equivalent state.</summary>
+        /// <inheritdoc />
         public MouseState GetState()
         {
             this.State ??= new MouseState(

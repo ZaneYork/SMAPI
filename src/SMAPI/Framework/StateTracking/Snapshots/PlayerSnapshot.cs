@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         ** Fields
         *********/
         /// <summary>An empty item list diff.</summary>
-        private readonly SnapshotItemListDiff EmptyItemListDiff = new SnapshotItemListDiff(new Item[0], new Item[0], new ItemStackSizeChange[0]);
+        private readonly SnapshotItemListDiff EmptyItemListDiff = new(Array.Empty<Item>(), Array.Empty<Item>(), Array.Empty<ItemStackSizeChange>());
 
 
         /*********
@@ -24,14 +24,14 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         public Farmer Player { get; }
 
         /// <summary>The player's current location.</summary>
-        public SnapshotDiff<GameLocation> Location { get; } = new SnapshotDiff<GameLocation>();
+        public SnapshotDiff<GameLocation> Location { get; } = new();
 
         /// <summary>Tracks changes to the player's skill levels.</summary>
         public IDictionary<SkillType, SnapshotDiff<int>> Skills { get; } =
             Enum
                 .GetValues(typeof(SkillType))
                 .Cast<SkillType>()
-                .ToDictionary(skill => skill, skill => new SnapshotDiff<int>());
+                .ToDictionary(skill => skill, _ => new SnapshotDiff<int>());
 
         /// <summary>Get a list of inventory changes.</summary>
         public SnapshotItemListDiff Inventory { get; private set; }
@@ -45,17 +45,18 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         public PlayerSnapshot(Farmer player)
         {
             this.Player = player;
+            this.Inventory = this.EmptyItemListDiff;
         }
 
         /// <summary>Update the tracked values.</summary>
         /// <param name="watcher">The player watcher to snapshot.</param>
         public void Update(PlayerTracker watcher)
         {
-            this.Location.Update(watcher.LocationWatcher);
-            foreach (var pair in this.Skills)
-                pair.Value.Update(watcher.SkillWatchers[pair.Key]);
+            this.Location.Update(watcher.LocationWatcher!);
+            foreach ((SkillType skill, var value) in this.Skills)
+                value.Update(watcher.SkillWatchers[skill]);
 
-            this.Inventory = watcher.TryGetInventoryChanges(out SnapshotItemListDiff itemChanges)
+            this.Inventory = watcher.TryGetInventoryChanges(out SnapshotItemListDiff? itemChanges)
                 ? itemChanges
                 : this.EmptyItemListDiff;
         }

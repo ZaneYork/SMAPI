@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Framework.Logging
             this.Path = path;
 
             // create log directory if needed
-            string logDir = System.IO.Path.GetDirectoryName(path);
+            string? logDir = System.IO.Path.GetDirectoryName(path);
             if (logDir == null)
                 throw new ArgumentException($"The log path '{path}' is not valid.");
             Directory.CreateDirectory(logDir);
@@ -44,7 +44,7 @@ namespace StardewModdingAPI.Framework.Logging
         public void WriteLine(string message)
         {
             // always use Windows-style line endings for convenience
-            // (Linux/Mac editors are fine with them, Windows editors often require them)
+            // (Linux/macOS editors are fine with them, Windows editors often require them)
             this.Stream.Write(message + "\r\n");
         }
 

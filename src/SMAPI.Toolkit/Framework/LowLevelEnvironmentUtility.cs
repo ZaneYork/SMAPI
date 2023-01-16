@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 #if SMAPI_FOR_WINDOWS
 using System.Management;
 #endif
@@ -20,7 +21,8 @@ namespace StardewModdingAPI.Toolkit.Framework
         /// <summary>Get the OS name from the system uname command.</summary>
         /// <param name="buffer">The buffer to fill with the resulting string.</param>
         [DllImport("libc")]
-        static extern int uname(IntPtr buffer);
+        [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "This is the actual external command name.")]
+        private static extern int uname(IntPtr buffer);
 
 
         /*********
@@ -48,22 +50,25 @@ namespace StardewModdingAPI.Toolkit.Framework
             }
         }
 
-
         /// <summary>Get the human-readable OS name and version.</summary>
         /// <param name="platform">The current platform.</param>
-        [SuppressMessage("ReSharper", "EmptyGeneralCatchClause", Justification = "Error suppressed deliberately to fallback to default behaviour.")]
         public static string GetFriendlyPlatformName(string platform)
         {
 #if SMAPI_FOR_WINDOWS
             try
             {
-                return new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem")
+                string? result = new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem")
                     .Get()
                     .Cast<ManagementObject>()
                     .Select(entry => entry.GetPropertyValue("Caption").ToString())
                     .FirstOrDefault();
+
+                return result ?? "Windows";
             }
-            catch { }
+            catch
+            {
+                // fallback to default behavior
+            }
 #endif
 
             string name = Environment.OSVersion.ToString();
@@ -74,26 +79,17 @@ namespace StardewModdingAPI.Toolkit.Framework
                     break;
 
                 case nameof(Platform.Mac):
-                    name = $"MacOS {name}";
+                    name = $"macOS {name}";
                     break;
             }
             return name;
         }
 
-        /// <summary>Get the name of the Stardew Valley executable.</summary>
-        /// <param name="platform">The current platform.</param>
-        public static string GetExecutableName(string platform)
+        /// <summary>Get whether an executable is 64-bit.</summary>
+        /// <param name="path">The absolute path to the assembly file.</param>
+        public static bool Is64BitAssembly(string path)
         {
-            return platform == nameof(Platform.Windows)
-                ? "Stardew Valley.exe"
-                : "StardewValley.exe";
-        }
-
-        /// <summary>Get whether the platform uses Mono.</summary>
-        /// <param name="platform">The current platform.</param>
-        public static bool IsMono(string platform)
-        {
-            return platform == nameof(Platform.Linux) || platform == nameof(Platform.Mac);
+            return AssemblyName.GetAssemblyName(path).ProcessorArchitecture != ProcessorArchitecture.X86;
         }
 
 
@@ -107,7 +103,7 @@ namespace StardewModdingAPI.Toolkit.Framework
         /// </remarks>
         private static bool IsRunningAndroid()
         {
-            using Process process = new Process
+            using Process process = new()
             {
                 StartInfo =
                 {
@@ -131,10 +127,10 @@ namespace StardewModdingAPI.Toolkit.Framework
             }
         }
 
-        /// <summary>Detect whether the code is running on Mac.</summary>
+        /// <summary>Detect whether the code is running on macOS.</summary>
         /// <remarks>
-        /// This code is derived from the Mono project (see System.Windows.Forms/System.Windows.Forms/XplatUI.cs). It detects Mac by calling the
-        /// <c>uname</c> system command and checking the response, which is always 'Darwin' for MacOS.
+        /// This code is derived from the Mono project (see System.Windows.Forms/System.Windows.Forms/XplatUI.cs). It detects macOS by calling the
+        /// <c>uname</c> system command and checking the response, which is always 'Darwin' for macOS.
         /// </remarks>
         private static bool IsRunningMac()
         {
@@ -144,7 +140,7 @@ namespace StardewModdingAPI.Toolkit.Framework
                 buffer = Marshal.AllocHGlobal(8192);
                 if (LowLevelEnvironmentUtility.uname(buffer) == 0)
                 {
-                    string os = Marshal.PtrToStringAnsi(buffer);
+                    string? os = Marshal.PtrToStringAnsi(buffer);
                     return os == "Darwin";
                 }
                 return false;

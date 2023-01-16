@@ -1,15 +1,44 @@
+<!--
+
+This MSBuild file sets the common configuration and build scripts used by all the projects in this
+repo. It imports the other MSBuild files as needed.
+
+-->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-  <Import Project="find-game-folder.targets" />
-
-  <!--set properties -->
   <PropertyGroup>
-    <Version>3.7.6</Version>
+    <!--set general build properties -->
+    <Version>3.18.2</Version>
     <Product>SMAPI</Product>
-
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
-    <DefineConstants Condition="$(OS) == 'Windows_NT' AND '$(BUILD_FOR_MOBILE)' == ''">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
+    <DefineConstants Condition="$(OS) == 'Windows_NT' AND '$(BUILD_FOR_MOBILE)' == ''">$(DefineConstants);SMAPI_DEPRECATED;SMAPI_FOR_WINDOWS</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+
+    <!--enable nullable annotations, except in .NET Standard 2.0 where they aren't supported-->
+    <Nullable Condition="'$(TargetFramework)' != 'netstandard2.0'">enable</Nullable>
+    <NoWarn Condition="'$(TargetFramework)' == 'netstandard2.0'">$(NoWarn);CS8632</NoWarn>
+
+    <!--set platform-->
+    <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
+    <CopyToGameFolder>true</CopyToGameFolder>
+
+    <!-- allow mods to be compiled as AnyCPU for compatibility with older platforms -->
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+
+    <!--
+      suppress warnings that don't apply, so it's easier to spot actual issues.
+
+      warning | builds     | summary                                   | rationale
+      ┄┄┄┄┄┄┄ | ┄┄┄┄┄┄┄┄┄┄ | ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄ | ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+      CS0436  | all        | local type conflicts with imported type   | SMAPI needs to use certain low-level code during very early compatibility checks, before it's safe to load any other DLLs.
+      CS0612  | deprecated | member is obsolete                        | internal references to deprecated code when deprecated code is enabled.
+      CS0618  | deprecated | member is obsolete (with message)         | internal references to deprecated code when deprecated code is enabled.
+      CA1416  | all        | platform code available on all platforms  | Compiler doesn't recognize the #if constants used by SMAPI.
+      CS0809  | all        | obsolete overload for non-obsolete member | This is deliberate to signal to mods that certain APIs are only implemented for the game and shouldn't be called by mods.
+      NU1701  | all        | NuGet package targets older .NET version  | All such packages are carefully tested to make sure they do work.
+    -->
+    <NoWarn Condition="$(DefineConstants.Contains(SMAPI_DEPRECATED))">$(NoWarn);CS0612;CS0618</NoWarn>
+    <NoWarn>$(NoWarn);CS0436;CA1416;CS0809;NU1701</NoWarn>
   </PropertyGroup>
 
   <ItemGroup Condition="$(COMPILE_WITH_PLUGIN) == 'True'">
@@ -19,45 +48,11 @@
     </PackageReference>
   </ItemGroup>
 
-  <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->
+  <!--find game folder-->
+  <Import Project="find-game-folder.targets" />
   <Target Name="ValidateInstallPath" AfterTargets="BeforeBuild">
+    <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->
     <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path automatically. You can specify where to find it; see https://smapi.io/package/custom-game-path." />
-  </Target>
-
-  <!-- copy files into game directory and enable debugging -->
-  <Target Name="CopySmapiFiles" AfterTargets="AfterBuild" Condition="!$(DefineConstants.Contains('SMAPI_FOR_MOBILE'))">
-    <CallTarget Targets="CopySMAPI;CopyDefaultMods" />
-  </Target>
-  <Target Name="CopySMAPI" Condition="'$(MSBuildProjectName)' == 'SMAPI'">
-    <ItemGroup>
-      <TranslationFiles Include="$(TargetDir)\i18n\*.json" />
-    </ItemGroup>
-
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\SMAPI.config.json" DestinationFiles="$(GamePath)\smapi-internal\config.json" />
-    <Copy SourceFiles="$(TargetDir)\SMAPI.metadata.json" DestinationFiles="$(GamePath)\smapi-internal\metadata.json" />
-    <Copy SourceFiles="$(TargetDir)\0Harmony.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\TMXTile.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="@(TranslationFiles)" DestinationFolder="$(GamePath)\smapi-internal\i18n" />
-  </Target>
-  <Target Name="CopyDefaultMods" Condition="'$(MSBuildProjectName)' == 'SMAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'SMAPI.Mods.SaveBackup'">
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
-    <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" />
-  </Target>
-  <Target Name="CopyToolkit" Condition="'$(MSBuildProjectName)' == 'SMAPI.Toolkit' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
-  </Target>
-  <Target Name="CopyToolkitCoreInterfaces" Condition="'$(MSBuildProjectName)' == 'SMAPI.Toolkit.CoreInterfaces' AND $(TargetFramework) == 'net4.5'" AfterTargets="PostBuildEvent">
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
   </Target>
 
   <!-- common build settings -->
@@ -65,6 +60,8 @@
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
+  <!--deploy local files-->
+  <Import Project="deploy-local-smapi.targets" Condition="'$(CopyToGameFolder)' == 'true'" />
 
   <!-- launch SMAPI through Visual Studio -->
   <PropertyGroup Condition="'$(MSBuildProjectName)' == 'SMAPI'">
@@ -73,7 +70,6 @@
     <StartWorkingDirectory>$(GamePath)</StartWorkingDirectory>
   </PropertyGroup>
 
-  <!-- Somehow this makes Visual Studio for Mac recognise the previous section. Nobody knows why. -->
+  <!-- Somehow this makes Visual Studio for macOS recognise the previous section. Nobody knows why. -->
   <PropertyGroup Condition="'$(RunConfiguration)' == 'Default'" />
-
 </Project>

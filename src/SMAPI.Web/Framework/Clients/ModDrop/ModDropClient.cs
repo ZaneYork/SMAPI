@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
@@ -41,9 +42,10 @@ namespace StardewModdingAPI.Web.Framework.Clients.ModDrop
 
         /// <summary>Get update check info about a mod.</summary>
         /// <param name="id">The mod ID.</param>
-        public async Task<IModPage> GetModData(string id)
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "The nullability is validated in this method.")]
+        public async Task<IModPage?> GetModData(string id)
         {
-            var page = new GenericModPage(this.SiteKey, id);
+            IModPage page = new GenericModPage(this.SiteKey, id);
 
             if (!long.TryParse(id, out long parsedId))
                 return page.SetError(RemoteModStatus.DoesNotExist, $"The value '{id}' isn't a valid ModDrop mod ID, must be an integer ID.");
@@ -58,9 +60,11 @@ namespace StardewModdingAPI.Web.Framework.Clients.ModDrop
                     Mods = true
                 })
                 .As<ModListModel>();
-            ModModel mod = response.Mods[parsedId];
-            if (mod.Mod?.Title == null || mod.Mod.ErrorCode.HasValue)
-                return null;
+
+            if (!response.Mods.TryGetValue(parsedId, out ModModel? mod) || mod?.Mod is null)
+                return page.SetError(RemoteModStatus.DoesNotExist, "Found no ModDrop page with this ID.");
+            if (mod.Mod.ErrorCode is not null)
+                return page.SetError(RemoteModStatus.InvalidData, $"ModDrop returned error code {mod.Mod.ErrorCode} for mod ID '{id}'.");
 
             // get files
             var downloads = new List<IModDownload>();
@@ -75,7 +79,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.ModDrop
             }
 
             // return info
-            string name = mod.Mod?.Title;
+            string name = mod.Mod.Title;
             string url = string.Format(this.ModUrlFormat, id);
             return page.SetInfo(name: name, version: null, url: url, downloads: downloads);
         }
@@ -83,7 +87,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.ModDrop
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
-            this.Client?.Dispose();
+            this.Client.Dispose();
         }
     }
 }

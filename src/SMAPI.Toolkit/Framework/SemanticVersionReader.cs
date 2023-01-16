@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace StardewModdingAPI.Toolkit.Framework
 {
     /// <summary>Reads strings into a semantic version.</summary>
@@ -16,7 +18,7 @@ namespace StardewModdingAPI.Toolkit.Framework
         /// <param name="prereleaseTag">An optional prerelease tag.</param>
         /// <param name="buildMetadata">Optional build metadata. This is ignored when determining version precedence.</param>
         /// <returns>Returns whether the version was successfully parsed.</returns>
-        public static bool TryParse(string versionStr, bool allowNonStandard, out int major, out int minor, out int patch, out int platformRelease, out string prereleaseTag, out string buildMetadata)
+        public static bool TryParse(string? versionStr, bool allowNonStandard, out int major, out int minor, out int patch, out int platformRelease, out string? prereleaseTag, out string? buildMetadata)
         {
             // init
             major = 0;
@@ -103,7 +105,12 @@ namespace StardewModdingAPI.Toolkit.Framework
         /// <param name="raw">The raw characters to parse.</param>
         /// <param name="index">The index of the next character to read.</param>
         /// <param name="tag">The parsed tag.</param>
-        private static bool TryParseTag(char[] raw, ref int index, out string tag)
+        private static bool TryParseTag(char[] raw, ref int index,
+#if NET5_0_OR_GREATER
+            [NotNullWhen(true)]
+#endif
+            out string? tag
+        )
         {
             // read tag length
             int length = 0;

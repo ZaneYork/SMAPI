@@ -46,8 +46,8 @@ namespace StardewModdingAPI.Framework.Networking
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "The callback is invoked synchronously.")]
         protected override void onReceiveMessage(GalaxyID peer, Stream messageStream)
         {
-            using IncomingMessage message = new IncomingMessage();
-            using BinaryReader reader = new BinaryReader(messageStream);
+            using IncomingMessage message = new();
+            using BinaryReader reader = new(messageStream);
 
             message.Read(reader);
             ulong peerID = peer.ToUint64(); // note: GalaxyID instances get reused, so need to store the underlying ID instead
@@ -58,7 +58,7 @@ namespace StardewModdingAPI.Framework.Networking
                 else if (message.MessageType == StardewValley.Multiplayer.playerIntroduction)
                 {
                     NetFarmerRoot farmer = this.Multiplayer.readFarmer(message.Reader);
-                    GalaxyID capturedPeer = new GalaxyID(peerID);
+                    GalaxyID capturedPeer = new(peerID);
                     this.gameServer.checkFarmhandRequest(Convert.ToString(peerID), this.getConnectionId(peer), farmer, msg => this.sendMessage(capturedPeer, msg), () => this.peers[farmer.Value.UniqueMultiplayerID] = capturedPeer.ToUint64());
                 }
             });

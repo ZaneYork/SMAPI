@@ -1,11 +1,13 @@
-using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 {
     /// <summary>A command which sets the current time.</summary>
-    internal class SetTimeCommand : TrainerCommand
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
+    internal class SetTimeCommand : ConsoleCommand
     {
         /*********
         ** Public methods
@@ -45,12 +47,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         /// <param name="time">The time of day.</param>
         private void SafelySetTime(int time)
         {
-            // define conversion between game time and TimeSpan
-            TimeSpan ToTimeSpan(int value) => new TimeSpan(0, value / 100, value % 100, 0);
-            int FromTimeSpan(TimeSpan span) => (span.Hours * 100) + span.Minutes;
-
             // transition to new time
-            int intervals = (int)((ToTimeSpan(time) - ToTimeSpan(Game1.timeOfDay)).TotalMinutes / 10);
+            int intervals = Utility.CalculateMinutesBetweenTimes(Game1.timeOfDay, time) / 10;
             if (intervals > 0)
             {
                 for (int i = 0; i < intervals; i++)
@@ -60,10 +58,20 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
             {
                 for (int i = 0; i > intervals; i--)
                 {
-                    Game1.timeOfDay = FromTimeSpan(ToTimeSpan(Game1.timeOfDay).Subtract(TimeSpan.FromMinutes(20))); // offset 20 minutes so game updates to next interval
+                    Game1.timeOfDay = Utility.ModifyTime(Game1.timeOfDay, -20); // offset 20 mins so game updates to next interval
                     Game1.performTenMinuteClockUpdate();
                 }
             }
+
+            // reset ambient light
+            // White is the default non-raining color. If it's raining or dark out, UpdateGameClock
+            // below will update it automatically.
+            Game1.outdoorLight = Color.White;
+            Game1.ambientLight = Color.White;
+
+            // run clock update (to correct lighting, etc)
+            Game1.gameTimeInterval = 0;
+            Game1.UpdateGameClock(Game1.currentGameTime);
         }
     }
 }

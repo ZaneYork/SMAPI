@@ -11,51 +11,48 @@ namespace StardewModdingAPI.Web.ViewModels.JsonValidator
         ** Accessors
         *********/
         /// <summary>Whether to show the edit view.</summary>
-        public bool IsEditView { get; set; }
+        public bool IsEditView { get; }
 
         /// <summary>The paste ID.</summary>
-        public string PasteID { get; set; }
+        public string? PasteID { get; }
 
         /// <summary>The schema name with which the JSON was validated.</summary>
-        public string SchemaName { get; set; }
+        public string? SchemaName { get; }
 
         /// <summary>The supported JSON schemas (names indexed by ID).</summary>
-        public readonly IDictionary<string, string> SchemaFormats;
+        public IDictionary<string, string> SchemaFormats { get; }
 
         /// <summary>The validated content.</summary>
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
         /// <summary>The schema validation errors, if any.</summary>
-        public JsonValidatorErrorModel[] Errors { get; set; } = new JsonValidatorErrorModel[0];
+        public JsonValidatorErrorModel[] Errors { get; set; } = Array.Empty<JsonValidatorErrorModel>();
 
         /// <summary>A non-blocking warning while uploading the file.</summary>
-        public string UploadWarning { get; set; }
+        public string? UploadWarning { get; set; }
 
         /// <summary>When the uploaded file will no longer be available.</summary>
-        public DateTime? Expiry { get; set; }
+        public DateTimeOffset? Expiry { get; set; }
 
         /// <summary>An error which occurred while uploading the JSON.</summary>
-        public string UploadError { get; set; }
+        public string? UploadError { get; set; }
 
         /// <summary>An error which occurred while parsing the JSON.</summary>
-        public string ParseError { get; set; }
+        public string? ParseError { get; set; }
 
         /// <summary>A web URL to the user-facing format documentation.</summary>
-        public string FormatUrl { get; set; }
+        public string? FormatUrl { get; set; }
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public JsonValidatorModel() { }
-
-        /// <summary>Construct an instance.</summary>
         /// <param name="pasteID">The stored file ID.</param>
         /// <param name="schemaName">The schema name with which the JSON was validated.</param>
         /// <param name="schemaFormats">The supported JSON schemas (names indexed by ID).</param>
         /// <param name="isEditView">Whether to show the edit view.</param>
-        public JsonValidatorModel(string pasteID, string schemaName, IDictionary<string, string> schemaFormats, bool isEditView)
+        public JsonValidatorModel(string? pasteID, string? schemaName, IDictionary<string, string> schemaFormats, bool isEditView)
         {
             this.PasteID = pasteID;
             this.SchemaName = schemaName;
@@ -67,7 +64,7 @@ namespace StardewModdingAPI.Web.ViewModels.JsonValidator
         /// <param name="content">The validated content.</param>
         /// <param name="expiry">When the uploaded file will no longer be available.</param>
         /// <param name="uploadWarning">A non-blocking warning while uploading the log.</param>
-        public JsonValidatorModel SetContent(string content, DateTime? expiry, string uploadWarning = null)
+        public JsonValidatorModel SetContent(string content, DateTimeOffset? expiry, string? uploadWarning = null)
         {
             this.Content = content;
             this.Expiry = expiry;

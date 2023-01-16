@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
-using StardewModdingAPI.Web.Framework.Clients;
 
 namespace StardewModdingAPI.Web.Framework.Caching.Mods
 {
@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Web.Framework.Caching.Mods
         /// <param name="id">The mod's unique ID within the <paramref name="site"/>.</param>
         /// <param name="mod">The fetched mod.</param>
         /// <param name="markRequested">Whether to update the mod's 'last requested' date.</param>
-        public bool TryGetMod(ModSiteKey site, string id, out Cached<IModPage> mod, bool markRequested = true)
+        public bool TryGetMod(ModSiteKey site, string id, [NotNullWhen(true)] out Cached<IModPage>? mod, bool markRequested = true)
         {
             // get mod
             if (!this.Mods.TryGetValue(this.GetKey(site, id), out var cachedMod))

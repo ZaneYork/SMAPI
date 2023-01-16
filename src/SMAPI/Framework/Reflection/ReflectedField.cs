@@ -13,8 +13,8 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <summary>The type that has the field.</summary>
         private readonly Type ParentType;
 
-        /// <summary>The object that has the instance field (if applicable).</summary>
-        private readonly object Parent;
+        /// <summary>The object that has the instance field, or <c>null</c> for a static field.</summary>
+        private readonly object? Parent;
 
         /// <summary>The display name shown in error messages.</summary>
         private string DisplayName => $"{this.ParentType.FullName}::{this.FieldInfo.Name}";
@@ -32,12 +32,12 @@ namespace StardewModdingAPI.Framework.Reflection
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="parentType">The type that has the field.</param>
-        /// <param name="obj">The object that has the instance field (if applicable).</param>
+        /// <param name="obj">The object that has the instance field, or <c>null</c> for a static field.</param>
         /// <param name="field">The reflection metadata.</param>
         /// <param name="isStatic">Whether the field is static.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="parentType"/> or <paramref name="field"/> is null.</exception>
         /// <exception cref="ArgumentException">The <paramref name="obj"/> is null for a non-static field, or not null for a static field.</exception>
-        public ReflectedField(Type parentType, object obj, FieldInfo field, bool isStatic)
+        public ReflectedField(Type parentType, object? obj, FieldInfo field, bool isStatic)
         {
             // validate
             if (parentType == null)
@@ -60,7 +60,7 @@ namespace StardewModdingAPI.Framework.Reflection
         {
             try
             {
-                return (TValue)this.FieldInfo.GetValue(this.Parent);
+                return (TValue)this.FieldInfo.GetValue(this.Parent)!;
             }
             catch (InvalidCastException)
             {

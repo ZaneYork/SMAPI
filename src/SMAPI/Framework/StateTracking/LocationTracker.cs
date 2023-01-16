@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -18,13 +19,16 @@ namespace StardewModdingAPI.Framework.StateTracking
         ** Fields
         *********/
         /// <summary>The underlying watchers.</summary>
-        private readonly List<IWatcher> Watchers = new List<IWatcher>();
+        private readonly List<IWatcher> Watchers = new();
 
 
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether the value changed since the last reset.</summary>
+        /// <inheritdoc />
+        public string Name { get; }
+
+        /// <inheritdoc />
         public bool IsChanged => this.Watchers.Any(p => p.IsChanged);
 
         /// <summary>The tracked location.</summary>
@@ -48,6 +52,9 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>Tracks added or removed terrain features.</summary>
         public IDictionaryWatcher<Vector2, TerrainFeature> TerrainFeaturesWatcher { get; }
 
+        /// <summary>Tracks added or removed furniture.</summary>
+        public ICollectionWatcher<Furniture> FurnitureWatcher { get; }
+
         /// <summary>Tracks items added or removed to chests.</summary>
         public IDictionary<Vector2, ChestTracker> ChestWatchers { get; } = new Dictionary<Vector2, ChestTracker>();
 
@@ -59,12 +66,14 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <param name="location">The location to track.</param>
         public LocationTracker(GameLocation location)
         {
+            this.Name = $"Locations.{location.NameOrUniqueName}";
             this.Location = location;
 
             // init watchers
             this.BuildingsWatcher = location is BuildableGameLocation buildableLocation ? WatcherFactory.ForNetCollection(buildableLocation.buildings) : WatcherFactory.ForImmutableCollection<Building>();
 #if SMAPI_FOR_MOBILE
             this.DebrisWatcher = WatcherFactory.ForNetCollection(location.debris.debrisNetCollection);
+            // this.DebrisWatcher = WatcherFactory.ForNetCollection($"{this.Name}.{nameof(location.debris)}", location.debris);
 #else
             this.DebrisWatcher = WatcherFactory.ForNetCollection(location.debris);
 #endif
@@ -72,6 +81,7 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.NpcsWatcher = WatcherFactory.ForNetCollection(location.characters);
             this.ObjectsWatcher = WatcherFactory.ForNetDictionary(location.netObjects);
             this.TerrainFeaturesWatcher = WatcherFactory.ForNetDictionary(location.terrainFeatures);
+            this.FurnitureWatcher = WatcherFactory.ForNetCollection($"{this.Name}.{nameof(location.furniture)}", location.furniture);
 
             this.Watchers.AddRange(new IWatcher[]
             {
@@ -80,13 +90,14 @@ namespace StardewModdingAPI.Framework.StateTracking
                 this.LargeTerrainFeaturesWatcher,
                 this.NpcsWatcher,
                 this.ObjectsWatcher,
-                this.TerrainFeaturesWatcher
+                this.TerrainFeaturesWatcher,
+                this.FurnitureWatcher
             });
 
-            this.UpdateChestWatcherList(added: location.Objects.Pairs, removed: new KeyValuePair<Vector2, SObject>[0]);
+            this.UpdateChestWatcherList(added: location.Objects.Pairs, removed: Array.Empty<KeyValuePair<Vector2, SObject>>());
         }
 
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update()
         {
             foreach (IWatcher watcher in this.Watchers)
@@ -98,7 +109,7 @@ namespace StardewModdingAPI.Framework.StateTracking
                 watcher.Value.Update();
         }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset()
         {
             foreach (IWatcher watcher in this.Watchers)
@@ -108,7 +119,7 @@ namespace StardewModdingAPI.Framework.StateTracking
                 watcher.Value.Reset();
         }
 
-        /// <summary>Stop watching the player fields and release all references.</summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             foreach (IWatcher watcher in this.Watchers)
@@ -128,20 +139,20 @@ namespace StardewModdingAPI.Framework.StateTracking
         private void UpdateChestWatcherList(IEnumerable<KeyValuePair<Vector2, SObject>> added, IEnumerable<KeyValuePair<Vector2, SObject>> removed)
         {
             // remove unused watchers
-            foreach (KeyValuePair<Vector2, SObject> pair in removed)
+            foreach ((Vector2 tile, SObject? obj) in removed)
             {
-                if (pair.Value is Chest && this.ChestWatchers.TryGetValue(pair.Key, out ChestTracker watcher))
+                if (obj is Chest && this.ChestWatchers.TryGetValue(tile, out ChestTracker? watcher))
                 {
                     watcher.Dispose();
-                    this.ChestWatchers.Remove(pair.Key);
+                    this.ChestWatchers.Remove(tile);
                 }
             }
 
             // add new watchers
-            foreach (KeyValuePair<Vector2, SObject> pair in added)
+            foreach ((Vector2 tile, SObject? obj) in added)
             {
-                if (pair.Value is Chest chest && !this.ChestWatchers.ContainsKey(pair.Key))
-                    this.ChestWatchers.Add(pair.Key, new ChestTracker(chest));
+                if (obj is Chest chest && !this.ChestWatchers.ContainsKey(tile))
+                    this.ChestWatchers.Add(tile, new ChestTracker($"{this.Name}.chest({tile})", chest));
             }
         }
     }

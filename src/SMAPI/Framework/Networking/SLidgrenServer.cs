@@ -45,9 +45,9 @@ namespace StardewModdingAPI.Framework.Networking
         {
             // add hook to call multiplayer core
             NetConnection peer = rawMessage.SenderConnection;
-            using IncomingMessage message = new IncomingMessage();
+            using IncomingMessage message = new();
             using Stream readStream = new NetBufferReadStream(rawMessage);
-            using BinaryReader reader = new BinaryReader(readStream);
+            using BinaryReader reader = new(readStream);
 
             while (rawMessage.LengthBits - rawMessage.Position >= 8)
             {

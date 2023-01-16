@@ -7,6 +7,6 @@ namespace StardewModdingAPI
         string UniqueID { get; }
 
         /// <summary>The minimum required version (if any).</summary>
-        ISemanticVersion MinimumVersion { get; }
+        ISemanticVersion? MinimumVersion { get; }
     }
 }

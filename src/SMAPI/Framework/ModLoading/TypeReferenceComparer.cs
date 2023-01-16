@@ -16,7 +16,7 @@ namespace StardewModdingAPI.Framework.ModLoading
     /// <c>TKey</c> in the above example). If all components are equal after substitution, and the
     /// tokens can all be mapped to the same generic type, the types are considered equal.
     /// </remarks>
-    internal class TypeReferenceComparer : IEqualityComparer<TypeReference>
+    internal class TypeReferenceComparer : IEqualityComparer<TypeReference?>
     {
         /*********
         ** Public methods
@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Get whether the specified objects are equal.</summary>
         /// <param name="a">The first object to compare.</param>
         /// <param name="b">The second object to compare.</param>
-        public bool Equals(TypeReference a, TypeReference b)
+        public bool Equals(TypeReference? a, TypeReference? b)
         {
             if (a == null || b == null)
                 return a == b;
@@ -52,7 +52,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="typeB">The second type to compare.</param>
         private bool HeuristicallyEquals(TypeReference typeA, TypeReference typeB)
         {
-            bool HeuristicallyEquals(string typeNameA, string typeNameB, IDictionary<string, string> tokenMap)
+            bool HeuristicallyEqualsImpl(string typeNameA, string typeNameB, IDictionary<string, string> tokenMap)
             {
                 // analyze type names
                 bool hasTokensA = typeNameA.Contains("!");
@@ -80,14 +80,14 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                 for (int i = 0; i < symbolsA.Length; i++)
                 {
-                    if (!HeuristicallyEquals(symbolsA[i], symbolsB[i], tokenMap))
+                    if (!HeuristicallyEqualsImpl(symbolsA[i], symbolsB[i], tokenMap))
                         return false;
                 }
 
                 return true;
             }
 
-            return HeuristicallyEquals(typeA.FullName, typeB.FullName, new Dictionary<string, string>());
+            return HeuristicallyEqualsImpl(typeA.FullName, typeB.FullName, new Dictionary<string, string>());
         }
 
         /// <summary>Map a generic type placeholder (like <c>!0</c>) to its actual type.</summary>
@@ -97,7 +97,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <returns>Returns the previously-mapped type if applicable, else the <paramref name="type"/>.</returns>
         private string MapPlaceholder(string placeholder, string type, IDictionary<string, string> map)
         {
-            if (map.TryGetValue(placeholder, out string result))
+            if (map.TryGetValue(placeholder, out string? result))
                 return result;
 
             map[placeholder] = type;

@@ -14,38 +14,38 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         ** Fields
         *********/
         /// <summary>A regex pattern matching the start of a SMAPI message.</summary>
-        private readonly Regex MessageHeaderPattern = new Regex(@"^\[(?<time>\d\d[:\.]\d\d[:\.]\d\d) (?<level>[a-z]+) +(?<modName>[^\]]+)\] ", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex MessageHeaderPattern = new(@"^\[(?<time>\d\d[:\.]\d\d[:\.]\d\d) (?<level>[a-z]+)(?: +screen_(?<screen>\d+))? +(?<modName>[^\]]+)\] ", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's initial platform info message.</summary>
-        private readonly Regex InfoLinePattern = new Regex(@"^SMAPI (?<apiVersion>.+) with Stardew Valley (?<gameVersion>.+) on (?<os>.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex InfoLinePattern = new(@"^SMAPI (?<apiVersion>.+) with Stardew Valley (?<gameVersion>.+) on (?<os>.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's mod folder path line.</summary>
-        private readonly Regex ModPathPattern = new Regex(@"^Mods go here: (?<path>.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModPathPattern = new(@"^Mods go here: (?<path>.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's log timestamp line.</summary>
-        private readonly Regex LogStartedAtPattern = new Regex(@"^Log started at (?<timestamp>.+) UTC", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex LogStartedAtPattern = new(@"^Log started at (?<timestamp>.+) UTC", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching the start of SMAPI's mod list.</summary>
-        private readonly Regex ModListStartPattern = new Regex(@"^Loaded \d+ mods:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModListStartPattern = new(@"^Loaded \d+ mods:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching an entry in SMAPI's mod list.</summary>
         /// <remarks>The author name and description are optional.</remarks>
-        private readonly Regex ModListEntryPattern = new Regex(@"^   (?<name>.+?) (?<version>[^\s]+)(?: by (?<author>[^\|]+))?(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModListEntryPattern = new(@"^   (?<name>.+?) (?<version>[^\s]+)(?: by (?<author>[^\|]+))?(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching the start of SMAPI's content pack list.</summary>
-        private readonly Regex ContentPackListStartPattern = new Regex(@"^Loaded \d+ content packs:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ContentPackListStartPattern = new(@"^Loaded \d+ content packs:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching an entry in SMAPI's content pack list.</summary>
-        private readonly Regex ContentPackListEntryPattern = new Regex(@"^   (?<name>.+?) (?<version>[^\s]+)(?: by (?<author>[^\|]+))? \| for (?<for>[^\|]+)(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ContentPackListEntryPattern = new(@"^   (?<name>.+?) (?<version>[^\s]+)(?: by (?<author>[^\|]+))? \| for (?<for>[^\|]*)(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching the start of SMAPI's mod update list.</summary>
-        private readonly Regex ModUpdateListStartPattern = new Regex(@"^You can update \d+ mods?:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModUpdateListStartPattern = new(@"^You can update \d+ mods?:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching an entry in SMAPI's mod update list.</summary>
-        private readonly Regex ModUpdateListEntryPattern = new Regex(@"^   (?<name>.+?) (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModUpdateListEntryPattern = new(@"^   (?<name>.+) (?<version>[^\s]+): (?<link>[^\s]+)(?: \(you have [^\)]+\))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's update line.</summary>
-        private readonly Regex SmapiUpdatePattern = new Regex(@"^You can update SMAPI to (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex SmapiUpdatePattern = new(@"^You can update SMAPI to (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 
         /*********
@@ -53,7 +53,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         *********/
         /// <summary>Parse SMAPI log text.</summary>
         /// <param name="logText">The SMAPI log text.</param>
-        public ParsedLog Parse(string logText)
+        public ParsedLog Parse(string? logText)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 }
 
                 // init log
-                ParsedLog log = new ParsedLog
+                ParsedLog log = new()
                 {
                     IsValid = true,
                     RawText = logText,
@@ -77,9 +77,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 };
 
                 // parse log messages
-                LogModInfo smapiMod = new LogModInfo { Name = "SMAPI", Author = "Pathoschild", Description = "", Loaded = true };
-                LogModInfo gameMod = new LogModInfo { Name = "game", Author = "", Description = "", Loaded = true };
-                IDictionary<string, LogModInfo> mods = new Dictionary<string, LogModInfo>();
+                LogModInfo smapiMod = new(ModType.Special, name: "SMAPI", author: "Pathoschild", version: "", description: "", loaded: true);
+                LogModInfo gameMod = new(ModType.Special, name: "game", author: "", version: "", description: "", loaded: true);
+                IDictionary<string, List<LogModInfo>> mods = new Dictionary<string, List<LogModInfo>>();
                 bool inModList = false;
                 bool inContentPackList = false;
                 bool inModUpdateList = false;
@@ -99,22 +99,26 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                                 break;
 
                             default:
-                                if (mods.ContainsKey(message.Mod))
-                                    mods[message.Mod].Errors++;
+                                if (mods.TryGetValue(message.Mod, out var entries))
+                                {
+                                    foreach (LogModInfo entry in entries)
+                                        entry.Errors++;
+                                }
                                 break;
                         }
                     }
+
+                    // detect split-screen mode
+                    if (message.ScreenId != 0)
+                        log.IsSplitScreen = true;
 
                     // collect SMAPI metadata
                     if (message.Mod == "SMAPI")
                     {
                         // update flags
-                        if (inModList && !this.ModListEntryPattern.IsMatch(message.Text))
-                            inModList = false;
-                        if (inContentPackList && !this.ContentPackListEntryPattern.IsMatch(message.Text))
-                            inContentPackList = false;
-                        if (inModUpdateList && !this.ModUpdateListEntryPattern.IsMatch(message.Text))
-                            inModUpdateList = false;
+                        inModList = inModList && message.Level == LogLevel.Info && this.ModListEntryPattern.IsMatch(message.Text);
+                        inContentPackList = inContentPackList && message.Level == LogLevel.Info && this.ContentPackListEntryPattern.IsMatch(message.Text);
+                        inModUpdateList = inModUpdateList && message.Level == LogLevel.Alert && this.ModUpdateListEntryPattern.IsMatch(message.Text);
 
                         // mod list
                         if (!inModList && message.Level == LogLevel.Info && this.ModListStartPattern.IsMatch(message.Text))
@@ -130,7 +134,10 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             string version = match.Groups["version"].Value;
                             string author = match.Groups["author"].Value;
                             string description = match.Groups["description"].Value;
-                            mods[name] = new LogModInfo { Name = name, Author = author, Version = version, Description = description, Loaded = true };
+
+                            if (!mods.TryGetValue(name, out List<LogModInfo>? entries))
+                                mods[name] = entries = new List<LogModInfo>();
+                            entries.Add(new LogModInfo(ModType.CodeMod, name: name, author: author, version: version, description: description, loaded: true));
 
                             message.Section = LogSection.ModsList;
                         }
@@ -150,7 +157,10 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             string author = match.Groups["author"].Value;
                             string description = match.Groups["description"].Value;
                             string forMod = match.Groups["for"].Value;
-                            mods[name] = new LogModInfo { Name = name, Author = author, Version = version, Description = description, ContentPackFor = forMod, Loaded = true };
+
+                            if (!mods.TryGetValue(name, out List<LogModInfo>? entries))
+                                mods[name] = entries = new List<LogModInfo>();
+                            entries.Add(new LogModInfo(ModType.ContentPack, name: name, author: author, version: version, description: description, contentPackFor: forMod, loaded: true));
 
                             message.Section = LogSection.ContentPackList;
                         }
@@ -168,26 +178,22 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             string name = match.Groups["name"].Value;
                             string version = match.Groups["version"].Value;
                             string link = match.Groups["link"].Value;
-                            if (mods.ContainsKey(name))
+
+                            if (mods.TryGetValue(name, out var entries))
                             {
-                                mods[name].UpdateLink = link;
-                                mods[name].UpdateVersion = version;
-                            }
-                            else
-                            {
-                                mods[name] = new LogModInfo { Name = name, UpdateVersion = version, UpdateLink = link, Loaded = false };
+                                foreach (LogModInfo entry in entries)
+                                    entry.SetUpdate(version, link);
                             }
 
                             message.Section = LogSection.ModUpdateList;
                         }
-
                         else if (message.Level == LogLevel.Alert && this.SmapiUpdatePattern.IsMatch(message.Text))
                         {
                             Match match = this.SmapiUpdatePattern.Match(message.Text);
                             string version = match.Groups["version"].Value;
                             string link = match.Groups["link"].Value;
-                            smapiMod.UpdateVersion = version;
-                            smapiMod.UpdateLink = link;
+
+                            smapiMod.SetUpdate(version, link);
                         }
 
                         // platform info line
@@ -197,7 +203,16 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             log.ApiVersion = match.Groups["apiVersion"].Value;
                             log.GameVersion = match.Groups["gameVersion"].Value;
                             log.OperatingSystem = match.Groups["os"].Value;
-                            smapiMod.Version = log.ApiVersion;
+
+                            const string strictModeSuffix = " (strict mode)";
+                            if (log.ApiVersion.EndsWith(strictModeSuffix))
+                            {
+                                log.IsStrictMode = true;
+                                log.ApiVersion = log.ApiVersion[..^strictModeSuffix.Length];
+                            }
+
+                            smapiMod.OverrideVersion(log.ApiVersion);
+                            log.ApiVersionParsed = smapiMod.GetParsedVersion();
                         }
 
                         // mod path line
@@ -205,9 +220,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                         {
                             Match match = this.ModPathPattern.Match(message.Text);
                             log.ModPath = match.Groups["path"].Value;
-                            int lastDelimiterPos = log.ModPath.LastIndexOfAny(new char[] { '/', '\\' });
+                            int lastDelimiterPos = log.ModPath.LastIndexOfAny(new[] { '/', '\\' });
                             log.GamePath = lastDelimiterPos >= 0
-                                ? log.ModPath.Substring(0, lastDelimiterPos)
+                                ? log.ModPath[..lastDelimiterPos]
                                 : log.ModPath;
                         }
 
@@ -221,8 +236,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 }
 
                 // finalize log
-                gameMod.Version = log.GameVersion;
-                log.Mods = new[] { gameMod, smapiMod }.Concat(mods.Values.OrderBy(p => p.Name)).ToArray();
+                if (log.GameVersion != null)
+                    gameMod.OverrideVersion(log.GameVersion);
+                log.Mods = new[] { gameMod, smapiMod }.Concat(mods.Values.SelectMany(p => p).OrderBy(p => p.Name)).ToArray();
                 return log;
             }
             catch (LogParseException ex)
@@ -253,7 +269,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         /// <param name="messages">The messages to filter.</param>
         private IEnumerable<LogMessage> CollapseRepeats(IEnumerable<LogMessage> messages)
         {
-            LogMessage next = null;
+            LogMessage? next = null;
+
             foreach (LogMessage message in messages)
             {
                 // new message
@@ -274,7 +291,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 yield return next;
                 next = message;
             }
-            yield return next;
+
+            if (next != null)
+                yield return next;
         }
 
         /// <summary>Split a SMAPI log into individual log messages.</summary>
@@ -282,12 +301,12 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         /// <exception cref="LogParseException">The log text can't be parsed successfully.</exception>
         private IEnumerable<LogMessage> GetMessages(string logText)
         {
-            LogMessageBuilder builder = new LogMessageBuilder();
-            using StringReader reader = new StringReader(logText);
+            LogMessageBuilder builder = new();
+            using StringReader reader = new(logText);
             while (true)
             {
                 // read line
-                string line = reader.ReadLine();
+                string? line = reader.ReadLine();
                 if (line == null)
                     break;
 
@@ -300,15 +319,17 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 {
                     if (builder.Started)
                     {
-                        yield return builder.Build();
+                        yield return builder.Build()!;
                         builder.Clear();
                     }
 
+                    Group screenGroup = header.Groups["screen"];
                     builder.Start(
                         time: header.Groups["time"].Value,
                         level: Enum.Parse<LogLevel>(header.Groups["level"].Value, ignoreCase: true),
+                        screenId: screenGroup.Success ? int.Parse(screenGroup.Value) : 0, // main player is always screen ID 0
                         mod: header.Groups["modName"].Value,
-                        text: line.Substring(header.Length)
+                        text: line[header.Length..]
                     );
                 }
                 else
@@ -322,7 +343,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
 
             // end last message
             if (builder.Started)
-                yield return builder.Build();
+                yield return builder.Build()!;
         }
     }
 }

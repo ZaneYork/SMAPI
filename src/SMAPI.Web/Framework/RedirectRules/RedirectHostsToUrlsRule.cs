@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Web.Framework.RedirectRules
         ** Fields
         *********/
         /// <summary>Maps a lowercase hostname to the resulting redirect URL.</summary>
-        private readonly Func<string, string> Map;
+        private readonly Func<string, string?> Map;
 
 
         /*********
@@ -20,7 +20,7 @@ namespace StardewModdingAPI.Web.Framework.RedirectRules
         /// <summary>Construct an instance.</summary>
         /// <param name="statusCode">The status code to use for redirects.</param>
         /// <param name="map">Hostnames mapped to the resulting redirect URL.</param>
-        public RedirectHostsToUrlsRule(HttpStatusCode statusCode, Func<string, string> map)
+        public RedirectHostsToUrlsRule(HttpStatusCode statusCode, Func<string, string?> map)
         {
             this.StatusCode = statusCode;
             this.Map = map ?? throw new ArgumentNullException(nameof(map));
@@ -33,12 +33,10 @@ namespace StardewModdingAPI.Web.Framework.RedirectRules
         /// <summary>Get the new redirect URL.</summary>
         /// <param name="context">The rewrite context.</param>
         /// <returns>Returns the redirect URL, or <c>null</c> if the redirect doesn't apply.</returns>
-        protected override string GetNewUrl(RewriteContext context)
+        protected override string? GetNewUrl(RewriteContext context)
         {
             // get requested host
-            string host = context.HttpContext.Request.Host.Host;
-            if (host == null)
-                return null;
+            string? host = context.HttpContext.Request.Host.Host;
 
             // get new host
             host = this.Map(host);

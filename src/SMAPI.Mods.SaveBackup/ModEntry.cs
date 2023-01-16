@@ -1,9 +1,8 @@
 using System;
-using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using StardewValley;
 
@@ -19,7 +18,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
         private readonly int BackupsToKeep = 10;
 
         /// <summary>The absolute path to the folder in which to store save backups.</summary>
-        private readonly string BackupFolder = Path.Combine(Constants.ExecutionPath, "save-backups");
+        private readonly string BackupFolder = Path.Combine(Constants.GamePath, "save-backups");
 
         /// <summary>A unique label for the save backup to create.</summary>
         private readonly string BackupLabel = $"{DateTime.UtcNow:yyyy-MM-dd} - SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version}";
@@ -38,13 +37,13 @@ namespace StardewModdingAPI.Mods.SaveBackup
             try
             {
                 // init backup folder
-                DirectoryInfo backupFolder = new DirectoryInfo(this.BackupFolder);
+                DirectoryInfo backupFolder = new(this.BackupFolder);
                 backupFolder.Create();
 
                 // back up & prune saves
                 Task
                     .Run(() => this.CreateBackup(backupFolder))
-                    .ContinueWith(backupTask => this.PruneBackups(backupFolder, this.BackupsToKeep));
+                    .ContinueWith(_ => this.PruneBackups(backupFolder, this.BackupsToKeep));
             }
             catch (Exception ex)
             {
@@ -63,8 +62,8 @@ namespace StardewModdingAPI.Mods.SaveBackup
             try
             {
                 // get target path
-                FileInfo targetFile = new FileInfo(Path.Combine(backupFolder.FullName, this.FileName));
-                DirectoryInfo fallbackDir = new DirectoryInfo(Path.Combine(backupFolder.FullName, this.BackupLabel));
+                FileInfo targetFile = new(Path.Combine(backupFolder.FullName, this.FileName));
+                DirectoryInfo fallbackDir = new(Path.Combine(backupFolder.FullName, this.BackupLabel));
                 if (targetFile.Exists || fallbackDir.Exists)
                 {
                     this.Monitor.Log("Already backed up today.");
@@ -72,7 +71,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
                 }
 
                 // copy saves to fallback directory (ignore non-save files/folders)
-                DirectoryInfo savesDir = new DirectoryInfo(Constants.SavesPath);
+                DirectoryInfo savesDir = new(Constants.SavesPath);
                 if (!this.RecursiveCopy(savesDir, fallbackDir, entry => this.MatchSaveFolders(savesDir, entry), copyRoot: false))
                 {
                     this.Monitor.Log("No saves found.");
@@ -80,7 +79,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
                 }
 
                 // compress backup if possible
-                if (!this.TryCompress(fallbackDir.FullName, targetFile, out Exception compressError))
+                if (!this.TryCompressDir(fallbackDir.FullName, targetFile, out Exception? compressError))
                 {
                     this.Monitor.Log(Constants.TargetPlatform != GamePlatform.Android
                         ? $"Backed up to {fallbackDir.FullName}." // expected to fail on Android
@@ -135,19 +134,16 @@ namespace StardewModdingAPI.Mods.SaveBackup
             }
         }
 
-        /// <summary>Create a zip using the best available method.</summary>
-        /// <param name="sourcePath">The file or directory path to zip.</param>
+        /// <summary>Try to create a compressed zip file for a directory.</summary>
+        /// <param name="sourcePath">The directory path to zip.</param>
         /// <param name="destination">The destination file to create.</param>
         /// <param name="error">The error which occurred trying to compress, if applicable. This is <see cref="NotSupportedException"/> if compression isn't supported on this platform.</param>
         /// <returns>Returns whether compression succeeded.</returns>
-        private bool TryCompress(string sourcePath, FileInfo destination, out Exception error)
+        private bool TryCompressDir(string sourcePath, FileInfo destination, [NotNullWhen(false)] out Exception? error)
         {
             try
             {
-                if (Constants.TargetPlatform == GamePlatform.Mac)
-                    this.CompressUsingMacProcess(sourcePath, destination); // due to limitations with the bundled Mono on Mac, we can't reference System.IO.Compression
-                else
-                    this.CompressUsingNetFramework(sourcePath, destination);
+                ZipFile.CreateFromDirectory(sourcePath, destination.FullName, CompressionLevel.Fastest, false);
 
                 error = null;
                 return true;
@@ -159,48 +155,6 @@ namespace StardewModdingAPI.Mods.SaveBackup
             }
         }
 
-        /// <summary>Create a zip using the .NET compression library.</summary>
-        /// <param name="sourcePath">The file or directory path to zip.</param>
-        /// <param name="destination">The destination file to create.</param>
-        /// <exception cref="NotSupportedException">The compression libraries aren't available on this system.</exception>
-        private void CompressUsingNetFramework(string sourcePath, FileInfo destination)
-        {
-            // get compress method
-            MethodInfo createFromDirectory;
-            try
-            {
-                // create compressed backup
-                Assembly coreAssembly = Assembly.Load("System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089") ?? throw new InvalidOperationException("Can't load System.IO.Compression assembly.");
-                Assembly fsAssembly = Assembly.Load("System.IO.Compression.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089") ?? throw new InvalidOperationException("Can't load System.IO.Compression assembly.");
-                Type compressionLevelType = coreAssembly.GetType("System.IO.Compression.CompressionLevel") ?? throw new InvalidOperationException("Can't load CompressionLevel type.");
-                Type zipFileType = fsAssembly.GetType("System.IO.Compression.ZipFile") ?? throw new InvalidOperationException("Can't load ZipFile type.");
-                createFromDirectory = zipFileType.GetMethod("CreateFromDirectory", new[] { typeof(string), typeof(string), compressionLevelType, typeof(bool) }) ?? throw new InvalidOperationException("Can't load ZipFile.CreateFromDirectory method.");
-            }
-            catch (Exception ex)
-            {
-                throw new NotSupportedException("Couldn't load the .NET compression libraries on this system.", ex);
-            }
-
-            // compress file
-            createFromDirectory.Invoke(null, new object[] { sourcePath, destination.FullName, CompressionLevel.Fastest, false });
-        }
-
-        /// <summary>Create a zip using a process command on MacOS.</summary>
-        /// <param name="sourcePath">The file or directory path to zip.</param>
-        /// <param name="destination">The destination file to create.</param>
-        private void CompressUsingMacProcess(string sourcePath, FileInfo destination)
-        {
-            DirectoryInfo saveFolder = new DirectoryInfo(sourcePath);
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                FileName = "zip",
-                Arguments = $"-rq \"{destination.FullName}\" \"{saveFolder.Name}\" -x \"*.DS_Store\" -x \"__MACOSX\"",
-                WorkingDirectory = $"{saveFolder.FullName}/../",
-                CreateNoWindow = true
-            };
-            new Process { StartInfo = startInfo }.Start();
-        }
-
         /// <summary>Recursively copy a directory or file.</summary>
         /// <param name="source">The file or folder to copy.</param>
         /// <param name="targetFolder">The folder to copy into.</param>
@@ -208,7 +162,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
         /// <param name="filter">A filter which matches the files or directories to copy, or <c>null</c> to copy everything.</param>
         /// <remarks>Derived from the SMAPI installer code.</remarks>
         /// <returns>Returns whether any files were copied.</returns>
-        private bool RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder, Func<FileSystemInfo, bool> filter, bool copyRoot = true)
+        private bool RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder, Func<FileSystemInfo, bool>? filter, bool copyRoot = true)
         {
             if (!source.Exists || filter?.Invoke(source) == false)
                 return false;
@@ -242,7 +196,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
         private bool MatchSaveFolders(DirectoryInfo savesFolder, FileSystemInfo entry)
         {
             // only need to filter top-level entries
-            string parentPath = (entry as FileInfo)?.DirectoryName ?? (entry as DirectoryInfo)?.Parent?.FullName;
+            string? parentPath = (entry as FileInfo)?.DirectoryName ?? (entry as DirectoryInfo)?.Parent?.FullName;
             if (parentPath != savesFolder.FullName)
                 return true;
 

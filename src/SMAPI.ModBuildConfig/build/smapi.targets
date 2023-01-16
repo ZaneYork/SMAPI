@@ -8,12 +8,14 @@
   ** Set build options
   **********************************************-->
   <PropertyGroup>
-    <!-- include PDB file by default to enable line numbers in stack traces -->
-    <DebugType>pdbonly</DebugType>
+    <!-- enable line numbers in stack traces -->
     <DebugSymbols>true</DebugSymbols>
 
-    <!-- recognise XNA Framework DLLs in the GAC (only affects mods using new csproj format) -->
-    <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
+    <!-- don't create the 'refs' folder (which isn't useful for mods) -->
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+
+    <!-- suppress processor architecture mismatch warning (mods should be compiled in 'Any CPU' so they work in both 32-bit and 64-bit mode) -->
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
 
     <!-- set default package options -->
     <ModFolderName Condition="'$(ModFolderName)' == ''">$(MSBuildProjectName)</ModFolderName>
@@ -23,7 +25,14 @@
     <EnableModZip Condition="'$(EnableModZip)' == ''">true</EnableModZip>
     <EnableHarmony Condition="'$(EnableHarmony)' == ''">false</EnableHarmony>
     <EnableGameDebugging Condition="'$(EnableGameDebugging)' == ''">true</EnableGameDebugging>
-    <CopyModReferencesToBuildOutput Condition="'$(CopyModReferencesToBuildOutput)' == '' OR ('$(CopyModReferencesToBuildOutput)' != 'true' AND '$(CopyModReferencesToBuildOutput)' != 'false')">false</CopyModReferencesToBuildOutput>
+    <BundleExtraAssemblies Condition="'$(BundleExtraAssemblies)' == ''"></BundleExtraAssemblies>
+
+    <!-- simplify conditions -->
+    <_BundleExtraAssembliesForGame>$([System.Text.RegularExpressions.Regex]::IsMatch('$(BundleExtraAssemblies)', '\bGame|All\b', RegexOptions.IgnoreCase))</_BundleExtraAssembliesForGame>
+    <_BundleExtraAssembliesForAny>$([System.Text.RegularExpressions.Regex]::IsMatch('$(BundleExtraAssemblies)', '\bGame|System|ThirdParty|All\b', RegexOptions.IgnoreCase))</_BundleExtraAssembliesForAny>
+
+    <!-- coppy referenced DLLs into build output -->
+    <CopyLocalLockFileAssemblies Condition="$(_BundleExtraAssembliesForAny)">true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT' AND '$(EnableGameDebugging)' == 'true'">
@@ -37,40 +46,36 @@
   <!--*********************************************
   ** Add assembly references
   **********************************************-->
-  <!-- common -->
   <ItemGroup>
-    <Reference Include="$(GameExecutableName)" HintPath="$(GamePath)\$(GameExecutableName).exe" Private="$(CopyModReferencesToBuildOutput)" />
-    <Reference Include="StardewValley.GameData" HintPath="$(GamePath)\StardewValley.GameData.dll" Private="$(CopyModReferencesToBuildOutput)" />
-    <Reference Include="StardewModdingAPI" HintPath="$(GamePath)\StardewModdingAPI.exe" Private="$(CopyModReferencesToBuildOutput)" />
-    <Reference Include="SMAPI.Toolkit.CoreInterfaces" HintPath="$(GamePath)\smapi-internal\SMAPI.Toolkit.CoreInterfaces.dll" Private="$(CopyModReferencesToBuildOutput)" />
-    <Reference Include="xTile" HintPath="$(GamePath)\xTile.dll" Private="$(CopyModReferencesToBuildOutput)" />
-    <Reference Include="0Harmony" Condition="'$(EnableHarmony)' == 'true'" HintPath="$(GamePath)\smapi-internal\0Harmony.dll" Private="$(CopyModReferencesToBuildOutput)" />
-  </ItemGroup>
+    <!-- game -->
+    <Reference Include="Stardew Valley" HintPath="$(GamePath)\Stardew Valley.dll" Private="$(_BundleExtraAssembliesForGame)" />
+    <Reference Include="StardewValley.GameData" HintPath="$(GamePath)\StardewValley.GameData.dll" Private="$(_BundleExtraAssembliesForGame)" />
+    <Reference Include="MonoGame.Framework" HintPath="$(GamePath)\MonoGame.Framework.dll" Private="$(_BundleExtraAssembliesForGame)" />
+    <Reference Include="xTile" HintPath="$(GamePath)\xTile.dll" Private="$(_BundleExtraAssembliesForGame)" />
 
-  <!-- Windows -->
-  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
-    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="$(CopyModReferencesToBuildOutput)" />
-    <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="$(CopyModReferencesToBuildOutput)" />
-    <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="$(CopyModReferencesToBuildOutput)" />
-    <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" Private="$(CopyModReferencesToBuildOutput)" />
-    <Reference Include="Netcode" HintPath="$(GamePath)\Netcode.dll" Private="$(CopyModReferencesToBuildOutput)" />
-  </ItemGroup>
+    <!-- SMAPI -->
+    <Reference Include="StardewModdingAPI" HintPath="$(GamePath)\StardewModdingAPI.dll" Private="$(_BundleExtraAssembliesForGame)" />
+    <Reference Include="SMAPI.Toolkit.CoreInterfaces" HintPath="$(GamePath)\smapi-internal\SMAPI.Toolkit.CoreInterfaces.dll" Private="$(_BundleExtraAssembliesForGame)" />
 
-  <!-- Linux/Mac -->
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <Reference Include="MonoGame.Framework" HintPath="$(GamePath)\MonoGame.Framework.dll" Private="$(CopyModReferencesToBuildOutput)" />
+    <!-- Harmony -->
+    <Reference Include="0Harmony" Condition="'$(EnableHarmony)' == 'true'" HintPath="$(GamePath)\smapi-internal\0Harmony.dll" Private="$(_BundleExtraAssembliesForGame)" />
   </ItemGroup>
 
 
   <!--*********************************************
-  ** Show friendly error for invalid OS or game path
+  ** Show validation messages
   **********************************************-->
   <Target Name="BeforeBuild">
+    <!-- unknown OS type -->
     <Error Condition="'$(OS)' != 'OSX' AND '$(OS)' != 'Unix' AND '$(OS)' != 'Windows_NT'" Text="The mod build package doesn't recognise OS type '$(OS)'." />
 
-    <Error Condition="!Exists('$(GamePath)')" Text="The mod build package can't find your game folder. You can specify where to find it; see https://smapi.io/package/custom-game-path." />
-    <Error Condition="!Exists('$(GamePath)\$(GameExecutableName).exe')" Text="The mod build package found a game folder at $(GamePath), but it doesn't contain the $(GameExecutableName) file. If this folder is invalid, delete it and the package will autodetect another game install path." />
-    <Error Condition="!Exists('$(GamePath)\StardewModdingAPI.exe')" Text="The mod build package found a game folder at $(GamePath), but it doesn't contain SMAPI. You need to install SMAPI before building the mod." />
+    <!-- invalid game path -->
+    <Error Condition="!Exists('$(GamePath)')" Text="The mod build package can't find your game folder. You can specify where to find it; see https://smapi.io/package/custom-game-path." ContinueOnError="false" />
+    <Error Condition="!Exists('$(GamePath)\Stardew Valley.dll')" Text="The mod build package found a game folder at $(GamePath), but it doesn't contain the Stardew Valley file. If this folder is invalid, delete it and the package will autodetect another game install path." ContinueOnError="false" />
+    <Error Condition="!Exists('$(GamePath)\StardewModdingAPI.dll')" Text="The mod build package found a game folder at $(GamePath), but it doesn't contain SMAPI. You need to install SMAPI before building the mod." ContinueOnError="false" />
+
+    <!-- invalid target architecture (note: internal value is 'AnyCPU', value shown in Visual Studio is 'Any CPU') -->
+    <Warning Condition="'$(Platform)' != 'AnyCPU'" Text="The target platform should be set to 'Any CPU' for compatibility with both 32-bit and 64-bit versions of Stardew Valley (currently set to '$(Platform)'). See https://smapi.io/package/wrong-processor-architecture for details." HelpLink="https://smapi.io/package/wrong-processor-architecture" />
   </Target>
 
 
@@ -79,6 +84,7 @@
   **********************************************-->
   <Target Name="AfterBuild">
     <DeployModTask
+      ModDllName="$(TargetName)"
       ModFolderName="$(ModFolderName)"
       ModZipPath="$(ModZipPath)"
 
@@ -89,6 +95,9 @@
       TargetDir="$(TargetDir)"
       GameModsDir="$(GameModsPath)"
       IgnoreModFilePatterns="$(IgnoreModFilePatterns)"
+      IgnoreModFilePaths="$(IgnoreModFilePaths)"
+
+      BundleExtraAssemblies="$(BundleExtraAssemblies)"
     />
   </Target>
 </Project>

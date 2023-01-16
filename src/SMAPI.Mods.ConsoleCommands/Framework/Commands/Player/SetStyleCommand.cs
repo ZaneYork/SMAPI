@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
 {
     /// <summary>A command which edits a player style.</summary>
-    internal class SetStyleCommand : TrainerCommand
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
+    internal class SetStyleCommand : ConsoleCommand
     {
         /*********
         ** Public methods
@@ -19,7 +21,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             // parse arguments
-            if (!args.TryGet(0, "target", out string target, oneOf: new[] { "hair", "shirt", "acc", "skin", "shoe", "swim", "gender" }))
+            if (!args.TryGet(0, "target", out string? target, oneOf: new[] { "hair", "shirt", "acc", "skin", "shoe", "swim", "gender" }))
                 return;
             if (!args.TryGetInt(1, "style ID", out int styleID))
                 return;

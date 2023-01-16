@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -14,7 +15,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         ** Fields
         *********/
         /// <summary>The assembly names to which to heuristically detect broken references.</summary>
-        private readonly HashSet<string> ValidateReferencesToAssemblies;
+        private readonly ISet<string> ValidateReferencesToAssemblies;
 
 
         /*********
@@ -22,21 +23,21 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="validateReferencesToAssemblies">The assembly names to which to heuristically detect broken references.</param>
-        public ReferenceToMemberWithUnexpectedTypeFinder(string[] validateReferencesToAssemblies)
+        public ReferenceToMemberWithUnexpectedTypeFinder(ISet<string> validateReferencesToAssemblies)
             : base(defaultPhrase: "")
         {
-            this.ValidateReferencesToAssemblies = new HashSet<string>(validateReferencesToAssemblies);
+            this.ValidateReferencesToAssemblies = validateReferencesToAssemblies;
         }
 
         /// <inheritdoc />
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // field reference
-            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+            FieldReference? fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null && this.ShouldValidate(fieldRef.DeclaringType))
             {
                 // get target field
-                FieldDefinition targetField = fieldRef.DeclaringType.Resolve()?.Fields.FirstOrDefault(p => p.Name == fieldRef.Name);
+                FieldDefinition? targetField = fieldRef.DeclaringType.Resolve()?.Fields.FirstOrDefault(p => p.Name == fieldRef.Name);
                 if (targetField == null)
                     return false;
 
@@ -49,16 +50,16 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             }
 
             // method reference
-            MethodReference methodReference = RewriteHelper.AsMethodReference(instruction);
+            MethodReference? methodReference = RewriteHelper.AsMethodReference(instruction);
             if (methodReference != null && !this.IsUnsupported(methodReference) && this.ShouldValidate(methodReference.DeclaringType))
             {
                 // get potential targets
-                MethodDefinition[] candidateMethods = methodReference.DeclaringType.Resolve()?.Methods.Where(found => found.Name == methodReference.Name).ToArray();
+                MethodDefinition[]? candidateMethods = methodReference.DeclaringType.Resolve()?.Methods.Where(found => found.Name == methodReference.Name).ToArray();
                 if (candidateMethods == null || !candidateMethods.Any())
                     return false;
 
                 // compare return types
-                MethodDefinition methodDef = methodReference.Resolve();
+                MethodDefinition? methodDef = methodReference.Resolve();
                 if (methodDef == null)
                     return false; // validated by ReferenceToMissingMemberFinder
 
@@ -78,7 +79,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         *********/
         /// <summary>Whether references to the given type should be validated.</summary>
         /// <param name="type">The type reference.</param>
-        private bool ShouldValidate(TypeReference type)
+        private bool ShouldValidate([NotNullWhen(true)] TypeReference? type)
         {
             return type != null && this.ValidateReferencesToAssemblies.Contains(type.Scope.Name);
         }

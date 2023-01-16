@@ -6,13 +6,10 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether to show SMAPI beta versions on the main page, if any.</summary>
-        public bool BetaEnabled { get; set; }
-
-        /// <summary>A short sentence shown under the beta download button, if any.</summary>
-        public string BetaBlurb { get; set; }
+        /// <summary>A message to show below the download button (e.g. for details on downloading a beta version), in Markdown format.</summary>
+        public string? OtherBlurb { get; set; }
 
         /// <summary>A list of supports to credit on the main page, in Markdown format.</summary>
-        public string SupporterList { get; set; }
+        public string? SupporterList { get; set; }
     }
 }

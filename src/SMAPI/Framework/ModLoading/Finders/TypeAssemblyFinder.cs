@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         private readonly InstructionHandleResult Result;
 
         /// <summary>Get whether a matched type should be ignored.</summary>
-        private readonly Func<TypeReference, bool> ShouldIgnore;
+        private readonly Func<TypeReference, bool>? ShouldIgnore;
 
 
         /*********
@@ -27,7 +27,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /// <param name="assemblyName">The full assembly name to which to find references.</param>
         /// <param name="result">The result to return for matching instructions.</param>
         /// <param name="shouldIgnore">Get whether a matched type should be ignored.</param>
-        public TypeAssemblyFinder(string assemblyName, InstructionHandleResult result, Func<TypeReference, bool> shouldIgnore = null)
+        public TypeAssemblyFinder(string assemblyName, InstructionHandleResult result, Func<TypeReference, bool>? shouldIgnore = null)
             : base(defaultPhrase: $"{assemblyName} assembly")
         {
             this.AssemblyName = assemblyName;

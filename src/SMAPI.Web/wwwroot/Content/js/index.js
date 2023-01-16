@@ -3,10 +3,10 @@ $(document).ready(function () {
     var pufferchick = $("#pufferchick");
     $(".cta-dropdown").hover(
         function () {
-            pufferchick.attr("src", "Content/images/pufferchick-cool.png");
+            pufferchick.attr("src", "Content/images/pufferchick-cool.svg");
         },
         function () {
-            pufferchick.attr("src", "Content/images/pufferchick.png");
+            pufferchick.attr("src", "Content/images/pufferchick.svg");
         }
     );
 

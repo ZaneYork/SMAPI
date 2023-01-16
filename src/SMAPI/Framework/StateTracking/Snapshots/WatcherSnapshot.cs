@@ -11,31 +11,31 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         ** Accessors
         *********/
         /// <summary>Tracks changes to the window size.</summary>
-        public SnapshotDiff<Point> WindowSize { get; } = new SnapshotDiff<Point>();
+        public SnapshotDiff<Point> WindowSize { get; } = new();
 
         /// <summary>Tracks changes to the current player.</summary>
-        public PlayerSnapshot CurrentPlayer { get; private set; }
+        public PlayerSnapshot? CurrentPlayer { get; private set; }
 
         /// <summary>Tracks changes to the time of day (in 24-hour military format).</summary>
-        public SnapshotDiff<int> Time { get; } = new SnapshotDiff<int>();
+        public SnapshotDiff<int> Time { get; } = new();
 
         /// <summary>Tracks changes to the save ID.</summary>
-        public SnapshotDiff<ulong> SaveID { get; } = new SnapshotDiff<ulong>();
+        public SnapshotDiff<ulong> SaveID { get; } = new();
 
         /// <summary>Tracks changes to the game's locations.</summary>
-        public WorldLocationsSnapshot Locations { get; } = new WorldLocationsSnapshot();
+        public WorldLocationsSnapshot Locations { get; } = new();
 
         /// <summary>Tracks changes to <see cref="Game1.activeClickableMenu"/>.</summary>
-        public SnapshotDiff<IClickableMenu> ActiveMenu { get; } = new SnapshotDiff<IClickableMenu>();
+        public SnapshotDiff<IClickableMenu> ActiveMenu { get; } = new();
 
         /// <summary>Tracks changes to the cursor position.</summary>
-        public SnapshotDiff<ICursorPosition> Cursor { get; } = new SnapshotDiff<ICursorPosition>();
+        public SnapshotDiff<ICursorPosition> Cursor { get; } = new();
 
         /// <summary>Tracks changes to the mouse wheel scroll.</summary>
-        public SnapshotDiff<int> MouseWheelScroll { get; } = new SnapshotDiff<int>();
+        public SnapshotDiff<int> MouseWheelScroll { get; } = new();
 
         /// <summary>Tracks changes to the content locale.</summary>
-        public SnapshotDiff<LocalizedContentManager.LanguageCode> Locale { get; } = new SnapshotDiff<LocalizedContentManager.LanguageCode>();
+        public SnapshotDiff<LocalizedContentManager.LanguageCode> Locale { get; } = new();
 
 
         /*********
@@ -54,7 +54,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             // update snapshots
             this.WindowSize.Update(watchers.WindowSizeWatcher);
             this.Locale.Update(watchers.LocaleWatcher);
-            this.CurrentPlayer?.Update(watchers.CurrentPlayerTracker);
+            this.CurrentPlayer?.Update(watchers.CurrentPlayerTracker!);
             this.Time.Update(watchers.TimeWatcher);
             this.SaveID.Update(watchers.SaveIdWatcher);
             this.Locations.Update(watchers.LocationsWatcher);

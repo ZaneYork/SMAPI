@@ -1,16 +1,18 @@
-﻿using System.Linq;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using StardewModdingAPI.Mods.ConsoleCommands.Framework.ItemData;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
 {
     /// <summary>A command which list item types.</summary>
-    internal class ListItemTypesCommand : TrainerCommand
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
+    internal class ListItemTypesCommand : ConsoleCommand
     {
         /*********
         ** Fields
         *********/
         /// <summary>Provides methods for searching and constructing items.</summary>
-        private readonly ItemRepository Items = new ItemRepository();
+        private readonly ItemRepository Items = new();
 
 
         /*********

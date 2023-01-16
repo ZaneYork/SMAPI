@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewModdingAPI.Framework.StateTracking.Comparers;
 using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
@@ -18,10 +19,10 @@ namespace StardewModdingAPI.Framework.StateTracking
         private readonly IDictionary<Item, int> StackSizes;
 
         /// <summary>Items added since the last update.</summary>
-        private readonly HashSet<Item> Added = new HashSet<Item>(new ObjectReferenceComparer<Item>());
+        private readonly HashSet<Item> Added = new(new ObjectReferenceComparer<Item>());
 
         /// <summary>Items removed since the last update.</summary>
-        private readonly HashSet<Item> Removed = new HashSet<Item>(new ObjectReferenceComparer<Item>());
+        private readonly HashSet<Item> Removed = new(new ObjectReferenceComparer<Item>());
 
         /// <summary>The underlying inventory watcher.</summary>
         private readonly ICollectionWatcher<Item> InventoryWatcher;
@@ -38,11 +39,12 @@ namespace StardewModdingAPI.Framework.StateTracking
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="name">A name which identifies what the watcher is watching, used for troubleshooting.</param>
         /// <param name="chest">The chest being tracked.</param>
-        public ChestTracker(Chest chest)
+        public ChestTracker(string name, Chest chest)
         {
             this.Chest = chest;
-            this.InventoryWatcher = WatcherFactory.ForNetList(chest.items);
+            this.InventoryWatcher = WatcherFactory.ForNetList($"{name}.{nameof(chest.items)}", chest.items);
 
             this.StackSizes = this.Chest.items
                 .Where(n => n != null)
@@ -84,7 +86,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>Get the inventory changes since the last update, if anything changed.</summary>
         /// <param name="changes">The inventory changes, or <c>null</c> if nothing changed.</param>
         /// <returns>Returns whether anything changed.</returns>
-        public bool TryGetInventoryChanges(out SnapshotItemListDiff changes)
+        public bool TryGetInventoryChanges([NotNullWhen(true)] out SnapshotItemListDiff? changes)
         {
             return SnapshotItemListDiff.TryGetChanges(added: this.Added, removed: this.Removed, stackSizes: this.StackSizes, out changes);
         }

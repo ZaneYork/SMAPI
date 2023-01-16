@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Utilities;
+using StardewValley;
 using xTile;
+using xTile.Dimensions;
 using xTile.Layers;
 using xTile.Tiles;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -13,30 +17,40 @@ namespace StardewModdingAPI.Framework.Content
     internal class AssetDataForMap : AssetData<Map>, IAssetDataForMap
     {
         /*********
+        ** Fields
+        *********/
+        /// <summary>Simplifies access to private code.</summary>
+        private readonly Reflector Reflection;
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="locale">The content's locale code, if the content is localized.</param>
-        /// <param name="assetName">The normalized asset name being read.</param>
+        /// <param name="assetName">The asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
         /// <param name="onDataReplaced">A callback to invoke when the data is replaced (if any).</param>
-        public AssetDataForMap(string locale, string assetName, Map data, Func<string, string> getNormalizedPath, Action<Map> onDataReplaced)
-            : base(locale, assetName, data, getNormalizedPath, onDataReplaced) { }
+        /// <param name="reflection">Simplifies access to private code.</param>
+        public AssetDataForMap(string? locale, IAssetName assetName, Map data, Func<string, string> getNormalizedPath, Action<Map> onDataReplaced, Reflector reflection)
+            : base(locale, assetName, data, getNormalizedPath, onDataReplaced)
+        {
+            this.Reflection = reflection;
+        }
 
         /// <inheritdoc />
-        /// <remarks>Derived from <see cref="StardewValley.GameLocation.ApplyMapOverride"/> with a few changes:
+        /// <remarks>Derived from <see cref="GameLocation.ApplyMapOverride(Map,string,Rectangle?,Rectangle?)"/> with a few changes:
         /// - can be applied directly to the maps when loading, before the location is created;
-        /// - added support for source/target areas;
+        /// - added support for patch modes (overlay, replace by layer, or fully replace);
         /// - added disambiguation if source has a modified version of the same tilesheet, instead of copying tiles into the target tilesheet;
-        /// - changed to always overwrite tiles within the target area (to avoid edge cases where some tiles are only partly applied);
         /// - fixed copying tilesheets (avoid "The specified TileSheet was not created for use with this map" error);
         /// - fixed tilesheets not added at the end (via z_ prefix), which can cause crashes in game code which depends on hardcoded tilesheet indexes;
         /// - fixed issue where different tilesheets are linked by ID.
         /// </remarks>
-        public void PatchMap(Map source, Rectangle? sourceArea = null, Rectangle? targetArea = null)
+        public void PatchMap(Map source, Rectangle? sourceArea = null, Rectangle? targetArea = null, PatchMapMode patchMode = PatchMapMode.Overlay)
         {
-            var target = this.Data;
+            Map target = this.Data;
 
             // get areas
             {
@@ -84,78 +98,143 @@ namespace StardewModdingAPI.Framework.Content
                 tilesheetMap[sourceSheet] = targetSheet;
             }
 
-            // get layer map
-            IDictionary<Layer, Layer> layerMap = source.Layers.ToDictionary(p => p, p => target.GetLayer(p.Id));
+            // get target layers
+            Dictionary<Layer, Layer> sourceToTargetLayers =
+                (
+                    from sourceLayer in source.Layers
+                    let targetLayer = target.GetLayer(sourceLayer.Id)
+                    where targetLayer != null
+                    select (sourceLayer, targetLayer)
+                )
+                .ToDictionary(p => p.sourceLayer, p => p.targetLayer);
+            HashSet<Layer> orphanedTargetLayers = new(target.Layers.Except(sourceToTargetLayers.Values));
 
             // apply tiles
+            bool replaceAll = patchMode == PatchMapMode.Replace;
+            bool replaceByLayer = patchMode == PatchMapMode.ReplaceByLayer;
             for (int x = 0; x < sourceArea.Value.Width; x++)
             {
                 for (int y = 0; y < sourceArea.Value.Height; y++)
                 {
                     // calculate tile positions
-                    Point sourcePos = new Point(sourceArea.Value.X + x, sourceArea.Value.Y + y);
-                    Point targetPos = new Point(targetArea.Value.X + x, targetArea.Value.Y + y);
+                    Point sourcePos = new(sourceArea.Value.X + x, sourceArea.Value.Y + y);
+                    Point targetPos = new(targetArea.Value.X + x, targetArea.Value.Y + y);
+
+                    // replace tiles on target-only layers
+                    if (replaceAll)
+                    {
+                        foreach (Layer targetLayer in orphanedTargetLayers)
+                            targetLayer.Tiles[targetPos.X, targetPos.Y] = null;
+                    }
 
                     // merge layers
                     foreach (Layer sourceLayer in source.Layers)
                     {
                         // get layer
-                        Layer targetLayer = layerMap[sourceLayer];
-                        if (targetLayer == null)
+                        if (!sourceToTargetLayers.TryGetValue(sourceLayer, out Layer? targetLayer))
                         {
                             target.AddLayer(targetLayer = new Layer(sourceLayer.Id, target, target.Layers[0].LayerSize, Layer.m_tileSize));
-                            layerMap[sourceLayer] = target.GetLayer(sourceLayer.Id);
+                            sourceToTargetLayers[sourceLayer] = target.GetLayer(sourceLayer.Id);
                         }
 
                         // copy layer properties
                         targetLayer.Properties.CopyFrom(sourceLayer.Properties);
 
-                        // copy tiles
-                        Tile sourceTile = sourceLayer.Tiles[sourcePos.X, sourcePos.Y];
-                        Tile targetTile;
-                        switch (sourceTile)
+                        // create new tile
+                        Tile? sourceTile = sourceLayer.Tiles[sourcePos.X, sourcePos.Y];
+                        Tile? newTile = null;
+                        if (sourceTile != null)
                         {
-                            case StaticTile _:
-                                targetTile = new StaticTile(targetLayer, tilesheetMap[sourceTile.TileSheet], sourceTile.BlendMode, sourceTile.TileIndex);
-                                break;
-
-                            case AnimatedTile animatedTile:
-                                {
-                                    StaticTile[] tileFrames = new StaticTile[animatedTile.TileFrames.Length];
-                                    for (int frame = 0; frame < animatedTile.TileFrames.Length; ++frame)
-                                    {
-                                        StaticTile frameTile = animatedTile.TileFrames[frame];
-                                        tileFrames[frame] = new StaticTile(targetLayer, tilesheetMap[frameTile.TileSheet], frameTile.BlendMode, frameTile.TileIndex);
-                                    }
-                                    targetTile = new AnimatedTile(targetLayer, tileFrames, animatedTile.FrameInterval);
-                                }
-                                break;
-
-                            default: // null or unhandled type
-                                targetTile = null;
-                                break;
+                            newTile = this.CreateTile(sourceTile, targetLayer, tilesheetMap[sourceTile.TileSheet]);
+                            newTile?.Properties.CopyFrom(sourceTile.Properties);
                         }
-                        targetTile?.Properties.CopyFrom(sourceTile.Properties);
-                        targetLayer.Tiles[targetPos.X, targetPos.Y] = targetTile;
+
+                        // replace tile
+                        if (newTile != null || replaceByLayer || replaceAll)
+                            targetLayer.Tiles[targetPos.X, targetPos.Y] = newTile;
                     }
                 }
             }
+        }
+
+        /// <inheritdoc />
+        public bool ExtendMap(int minWidth = 0, int minHeight = 0)
+        {
+            bool resized = false;
+            Map map = this.Data;
+
+            // resize layers
+            foreach (Layer layer in map.Layers)
+            {
+                // check if resize needed
+                if (layer.LayerWidth >= minWidth && layer.LayerHeight >= minHeight)
+                    continue;
+                resized = true;
+
+                // build new tile matrix
+                int width = Math.Max(minWidth, layer.LayerWidth);
+                int height = Math.Max(minHeight, layer.LayerHeight);
+                Tile[,] tiles = new Tile[width, height];
+                for (int x = 0; x < layer.LayerWidth; x++)
+                {
+                    for (int y = 0; y < layer.LayerHeight; y++)
+                        tiles[x, y] = layer.Tiles[x, y];
+                }
+
+                // update fields
+                this.Reflection.GetField<Tile[,]>(layer, "m_tiles").SetValue(tiles);
+                this.Reflection.GetField<TileArray>(layer, "m_tileArray").SetValue(new TileArray(layer, tiles));
+                this.Reflection.GetField<Size>(layer, "m_layerSize").SetValue(new Size(width, height));
+            }
+
+            // resize map
+            if (resized)
+                this.Reflection.GetMethod(map, "UpdateDisplaySize").Invoke();
+
+            return resized;
         }
 
 
         /*********
         ** Private methods
         *********/
+        /// <summary>Create a new tile for the target map.</summary>
+        /// <param name="sourceTile">The source tile to copy.</param>
+        /// <param name="targetLayer">The target layer.</param>
+        /// <param name="targetSheet">The target tilesheet.</param>
+        private Tile? CreateTile(Tile sourceTile, Layer targetLayer, TileSheet targetSheet)
+        {
+            switch (sourceTile)
+            {
+                case StaticTile:
+                    return new StaticTile(targetLayer, targetSheet, sourceTile.BlendMode, sourceTile.TileIndex);
+
+                case AnimatedTile animatedTile:
+                    {
+                        StaticTile[] tileFrames = new StaticTile[animatedTile.TileFrames.Length];
+                        for (int frame = 0; frame < animatedTile.TileFrames.Length; ++frame)
+                        {
+                            StaticTile frameTile = animatedTile.TileFrames[frame];
+                            tileFrames[frame] = new StaticTile(targetLayer, targetSheet, frameTile.BlendMode, frameTile.TileIndex);
+                        }
+
+                        return new AnimatedTile(targetLayer, tileFrames, animatedTile.FrameInterval);
+                    }
+
+                default: // null or unhandled type
+                    return null;
+            }
+        }
         /// <summary>Normalize a map tilesheet path for comparison. This value should *not* be used as the actual tilesheet path.</summary>
         /// <param name="path">The path to normalize.</param>
-        private string NormalizeTilesheetPathForComparison(string path)
+        private string NormalizeTilesheetPathForComparison(string? path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return string.Empty;
 
-            path = PathUtilities.NormalizePath(path);
-            if (path.StartsWith($"Maps{PathUtilities.PreferredPathSeparator}", StringComparison.OrdinalIgnoreCase))
-                path = path.Substring($"Maps{PathUtilities.PreferredPathSeparator}".Length);
+            path = PathUtilities.NormalizeAssetName(path);
+            if (path.StartsWith($"Maps{PathUtilities.PreferredAssetSeparator}", StringComparison.OrdinalIgnoreCase))
+                path = path.Substring($"Maps{PathUtilities.PreferredAssetSeparator}".Length);
             if (path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                 path = path.Substring(0, path.Length - 4);
 

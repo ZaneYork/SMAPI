@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         ** Accessors
         *********/
         /// <summary>The mod's current unique ID.</summary>
-        public string ID { get; set; }
+        public string ID { get; }
 
         /// <summary>The former mod IDs (if any).</summary>
         /// <remarks>
@@ -23,14 +23,14 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /// ID, if any. If the mod's ID changed over time, multiple variants can be separated by the
         /// <c>|</c> character.
         /// </remarks>
-        public string FormerIDs { get; set; }
+        public string? FormerIDs { get; }
 
         /// <summary>The mod warnings to suppress, even if they'd normally be shown.</summary>
-        public ModWarning SuppressWarnings { get; set; }
+        public ModWarning SuppressWarnings { get; }
 
         /// <summary>This field stores properties that aren't mapped to another field before they're parsed into <see cref="Fields"/>.</summary>
         [JsonExtensionData]
-        public IDictionary<string, JToken> ExtensionData { get; set; }
+        public IDictionary<string, JToken> ExtensionData { get; } = new Dictionary<string, JToken>();
 
         /// <summary>The versioned field data.</summary>
         /// <remarks>
@@ -50,6 +50,17 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /*********
         ** Public methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="id">The mod's current unique ID.</param>
+        /// <param name="formerIds">The former mod IDs (if any).</param>
+        /// <param name="suppressWarnings">The mod warnings to suppress, even if they'd normally be shown.</param>
+        public ModDataModel(string id, string? formerIds, ModWarning suppressWarnings)
+        {
+            this.ID = id;
+            this.FormerIDs = formerIds;
+            this.SuppressWarnings = suppressWarnings;
+        }
+
         /// <summary>Get a parsed representation of the <see cref="Fields"/>.</summary>
         public IEnumerable<ModDataField> GetFields()
         {
@@ -59,8 +70,8 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
                 string packedKey = pair.Key;
                 string value = pair.Value;
                 bool isDefault = false;
-                ISemanticVersion lowerVersion = null;
-                ISemanticVersion upperVersion = null;
+                ISemanticVersion? lowerVersion = null;
+                ISemanticVersion? upperVersion = null;
 
                 // parse
                 string[] parts = packedKey.Split('|').Select(p => p.Trim()).ToArray();
@@ -111,11 +122,8 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if (this.ExtensionData != null)
-            {
-                this.Fields = this.ExtensionData.ToDictionary(p => p.Key, p => p.Value.ToString());
-                this.ExtensionData = null;
-            }
+            this.Fields = this.ExtensionData.ToDictionary(p => p.Key, p => p.Value.ToString());
+            this.ExtensionData.Clear();
         }
     }
 }

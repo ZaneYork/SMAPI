@@ -22,11 +22,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="modName">The mod name for error messages.</param>
         /// <param name="reflector">The underlying reflection helper.</param>
-        public ReflectionHelper(string modID, string modName, Reflector reflector)
-            : base(modID)
+        public ReflectionHelper(IModMetadata mod, string modName, Reflector reflector)
+            : base(mod)
         {
             this.ModName = modName;
             this.Reflector = reflector;
@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             return this.AssertAccessAllowed(
                 this.Reflector.GetField<TValue>(obj, name, required)
-            );
+            )!;
         }
 
         /// <inheritdoc />
@@ -45,7 +45,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             return this.AssertAccessAllowed(
                 this.Reflector.GetField<TValue>(type, name, required)
-            );
+            )!;
         }
 
         /// <inheritdoc />
@@ -53,7 +53,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             return this.AssertAccessAllowed(
                 this.Reflector.GetProperty<TValue>(obj, name, required)
-            );
+            )!;
         }
 
         /// <inheritdoc />
@@ -61,7 +61,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             return this.AssertAccessAllowed(
                 this.Reflector.GetProperty<TValue>(type, name, required)
-            );
+            )!;
         }
 
         /// <inheritdoc />
@@ -69,7 +69,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             return this.AssertAccessAllowed(
                 this.Reflector.GetMethod(obj, name, required)
-            );
+            )!;
         }
 
         /// <inheritdoc />
@@ -77,7 +77,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             return this.AssertAccessAllowed(
                 this.Reflector.GetMethod(type, name, required)
-            );
+            )!;
         }
 
 
@@ -88,7 +88,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <typeparam name="T">The field value type.</typeparam>
         /// <param name="field">The field being accessed.</param>
         /// <returns>Returns the same field instance for convenience.</returns>
-        private IReflectedField<T> AssertAccessAllowed<T>(IReflectedField<T> field)
+        private IReflectedField<T>? AssertAccessAllowed<T>(IReflectedField<T>? field)
         {
             this.AssertAccessAllowed(field?.FieldInfo);
             return field;
@@ -98,7 +98,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <typeparam name="T">The property value type.</typeparam>
         /// <param name="property">The property being accessed.</param>
         /// <returns>Returns the same property instance for convenience.</returns>
-        private IReflectedProperty<T> AssertAccessAllowed<T>(IReflectedProperty<T> property)
+        private IReflectedProperty<T>? AssertAccessAllowed<T>(IReflectedProperty<T>? property)
         {
             this.AssertAccessAllowed(property?.PropertyInfo.GetMethod?.GetBaseDefinition());
             this.AssertAccessAllowed(property?.PropertyInfo.SetMethod?.GetBaseDefinition());
@@ -108,7 +108,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Assert that mods can use the reflection helper to access the given member.</summary>
         /// <param name="method">The method being accessed.</param>
         /// <returns>Returns the same method instance for convenience.</returns>
-        private IReflectedMethod AssertAccessAllowed(IReflectedMethod method)
+        private IReflectedMethod? AssertAccessAllowed(IReflectedMethod? method)
         {
             this.AssertAccessAllowed(method?.MethodInfo.GetBaseDefinition());
             return method;
@@ -116,18 +116,18 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
         /// <summary>Assert that mods can use the reflection helper to access the given member.</summary>
         /// <param name="member">The member being accessed.</param>
-        private void AssertAccessAllowed(MemberInfo member)
+        private void AssertAccessAllowed(MemberInfo? member)
         {
             if (member == null)
                 return;
 
             // get type which defines the member
-            Type declaringType = member.DeclaringType;
+            Type? declaringType = member.DeclaringType;
             if (declaringType == null)
                 throw new InvalidOperationException($"Can't validate access to {member.MemberType} {member.Name} because it has no declaring type."); // should never happen
 
             // validate access
-            string rootNamespace = typeof(Program).Namespace;
+            string? rootNamespace = typeof(Program).Namespace;
             if (declaringType.Namespace == rootNamespace || declaringType.Namespace?.StartsWith(rootNamespace + ".") == true)
                 throw new InvalidOperationException($"SMAPI blocked access by {this.ModName} to its internals through the reflection API. Accessing the SMAPI internals is strongly discouraged since they're subject to change, which means the mod can break without warning. (Detected access to {declaringType.FullName}.{member.Name}.)");
         }

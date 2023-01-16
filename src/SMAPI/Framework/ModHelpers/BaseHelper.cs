@@ -4,20 +4,27 @@ namespace StardewModdingAPI.Framework.ModHelpers
     internal abstract class BaseHelper : IModLinked
     {
         /*********
+        ** Fields
+        *********/
+        /// <summary>The mod using this instance.</summary>
+        protected readonly IModMetadata Mod;
+
+
+        /*********
         ** Accessors
         *********/
         /// <inheritdoc />
-        public string ModID { get; }
+        public string ModID => this.Mod.Manifest.UniqueID;
 
 
         /*********
         ** Protected methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
-        protected BaseHelper(string modID)
+        /// <param name="mod">The mod using this instance.</param>
+        protected BaseHelper(IModMetadata mod)
         {
-            this.ModID = modID;
+            this.Mod = mod;
         }
     }
 }

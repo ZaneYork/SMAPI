@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Web.Framework
         ** Fields
         *********/
         /// <summary>An authorization filter that allows local requests.</summary>
-        private static readonly LocalRequestsOnlyAuthorizationFilter LocalRequestsOnlyFilter = new LocalRequestsOnlyAuthorizationFilter();
+        private static readonly LocalRequestsOnlyAuthorizationFilter LocalRequestsOnlyFilter = new();
 
 
         /*********

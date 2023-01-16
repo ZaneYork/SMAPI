@@ -9,7 +9,7 @@ namespace SMAPI.Tests
         ** Fields
         *********/
         /// <summary>A random number generator.</summary>
-        private static readonly Random Random = new Random();
+        private static readonly Random Random = new();
 
 
         /*********

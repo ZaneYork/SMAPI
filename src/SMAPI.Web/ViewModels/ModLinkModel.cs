@@ -7,10 +7,10 @@ namespace StardewModdingAPI.Web.ViewModels
         ** Accessors
         *********/
         /// <summary>The URL of the linked page.</summary>
-        public string Url { get; set; }
+        public string Url { get; }
 
         /// <summary>The suggested link text.</summary>
-        public string Text { get; set; }
+        public string Text { get; }
 
 
         /*********

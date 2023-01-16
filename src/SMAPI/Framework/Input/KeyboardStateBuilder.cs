@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Framework.Input
         private KeyboardState? State;
 
         /// <summary>The pressed buttons.</summary>
-        private readonly HashSet<Keys> PressedButtons = new HashSet<Keys>();
+        private readonly HashSet<Keys> PressedButtons = new();
 
 
         /*********
@@ -27,12 +27,11 @@ namespace StardewModdingAPI.Framework.Input
             this.State = state;
 
             this.PressedButtons.Clear();
-            foreach (var button in state.GetPressedKeys())
+            foreach (Keys button in state.GetPressedKeys())
                 this.PressedButtons.Add(button);
         }
 
-        /// <summary>Override the states for a set of buttons.</summary>
-        /// <param name="overrides">The button state overrides.</param>
+        /// <inheritdoc />
         public KeyboardStateBuilder OverrideButtons(IDictionary<SButton, SButtonState> overrides)
         {
             foreach (var pair in overrides)
@@ -51,14 +50,14 @@ namespace StardewModdingAPI.Framework.Input
             return this;
         }
 
-        /// <summary>Get the currently pressed buttons.</summary>
+        /// <inheritdoc />
         public IEnumerable<SButton> GetPressedButtons()
         {
             foreach (Keys key in this.PressedButtons)
                 yield return key.ToSButton();
         }
 
-        /// <summary>Get the equivalent state.</summary>
+        /// <inheritdoc />
         public KeyboardState GetState()
         {
             return

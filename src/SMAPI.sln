@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28729.10
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".root", ".root", "{86C452BE-D2D8-45B4-B63F-E329EB06CEDA}"
 	ProjectSection(SolutionItems) = preProject
@@ -27,9 +27,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{09CF91E5-5BAB-4650-A200-E5EA9A633046}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\common.targets = ..\build\common.targets
+		..\build\deploy-local-smapi.targets = ..\build\deploy-local-smapi.targets
 		..\build\define-constant.targets = ..\build\define-constant.targets
 		..\build\find-game-folder.targets = ..\build\find-game-folder.targets
-		..\build\prepare-install-package.targets = ..\build\prepare-install-package.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB}"
@@ -49,7 +49,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "technical", "technical", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal", "Internal", "{82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mods", "Mods", "{AE9A4D46-E910-4293-8BC4-673F85FFF6A5}"
+EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SMAPI.Internal", "SMAPI.Internal\SMAPI.Internal.shproj", "{85208F8D-6FD1-4531-BE05-7142490F59FE}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SMAPI.Internal.Patching", "SMAPI.Internal.Patching\SMAPI.Internal.Patching.shproj", "{6C16E948-3E5C-47A7-BF4B-07A7469A87A5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.ModBuildConfig.Analyzer.Tests", "SMAPI.ModBuildConfig.Analyzer.Tests\SMAPI.ModBuildConfig.Analyzer.Tests.csproj", "{680B2641-81EA-467C-86A5-0E81CDC57ED0}"
 EndProject
@@ -60,6 +64,7 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Installer", "SMAPI.Installer\SMAPI.Installer.csproj", "{0A9BB24F-15FF-4C26-B1A2-81F7AE316518}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F} = {0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F}
+		{491E775B-EAD0-44D4-B6CA-F1FC3E316D33} = {491E775B-EAD0-44D4-B6CA-F1FC3E316D33}
 		{CD53AD6F-97F4-4872-A212-50C2A0FD3601} = {CD53AD6F-97F4-4872-A212-50C2A0FD3601}
 		{EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32} = {EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32}
 	EndProjectSection
@@ -69,6 +74,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.ModBuildConfig.Analyzer", "SMAPI.ModBuildConfig.Analyzer\SMAPI.ModBuildConfig.Analyzer.csproj", "{517677D7-7299-426F-B1A3-47BDCC2F1214}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Mods.ConsoleCommands", "SMAPI.Mods.ConsoleCommands\SMAPI.Mods.ConsoleCommands.csproj", "{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Mods.ErrorHandler", "SMAPI.Mods.ErrorHandler\SMAPI.Mods.ErrorHandler.csproj", "{491E775B-EAD0-44D4-B6CA-F1FC3E316D33}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Mods.SaveBackup", "SMAPI.Mods.SaveBackup\SMAPI.Mods.SaveBackup.csproj", "{CD53AD6F-97F4-4872-A212-50C2A0FD3601}"
 EndProject
@@ -84,14 +91,38 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMAPI.Mods.VirtualKeyboard"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loader", "Loader\Loader.csproj", "{45D7D2FB-6B70-45D1-A595-6E289D6A3468}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "windows", "windows", "{4D661178-38FB-43E4-AA5F-9B0406919344}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\windows\finalize-install-package.sh = ..\build\windows\finalize-install-package.sh
+		..\build\windows\prepare-install-package.ps1 = ..\build\windows\prepare-install-package.ps1
+		..\build\windows\set-smapi-version.ps1 = ..\build\windows\set-smapi-version.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unix", "unix", "{CAA1488E-842B-433D-994D-1D3D0B5DD125}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\unix\prepare-install-package.sh = ..\build\unix\prepare-install-package.sh
+		..\build\unix\set-smapi-version.sh = ..\build\unix\set-smapi-version.sh
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{3B5BF14D-F612-4C83-9EF6-E3EBFCD08766}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\windows\lib\in-place-regex.ps1 = ..\build\windows\lib\in-place-regex.ps1
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Tests.ModApiProvider", "SMAPI.Tests.ModApiProvider\SMAPI.Tests.ModApiProvider.csproj", "{239AEEAC-07D1-4A3F-AA99-8C74F5038F50}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Tests.ModApiConsumer", "SMAPI.Tests.ModApiConsumer\SMAPI.Tests.ModApiConsumer.csproj", "{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		SMAPI.Internal\SMAPI.Internal.projitems*{0634ea4c-3b8f-42db-aea6-ca9e4ef6e92f}*SharedItemsImports = 5
 		SMAPI.Internal\SMAPI.Internal.projitems*{0a9bb24f-15ff-4c26-b1a2-81f7ae316518}*SharedItemsImports = 5
+		SMAPI.Internal.Patching\SMAPI.Internal.Patching.projitems*{6c16e948-3e5c-47a7-bf4b-07a7469a87a5}*SharedItemsImports = 13
 		SMAPI.Internal\SMAPI.Internal.projitems*{80efd92f-728f-41e0-8a5b-9f6f49a91899}*SharedItemsImports = 5
 		SMAPI.Internal\SMAPI.Internal.projitems*{85208f8d-6fd1-4531-be05-7142490f59fe}*SharedItemsImports = 13
 		SMAPI.Internal\SMAPI.Internal.projitems*{cd53ad6f-97f4-4872-a212-50c2a0fd3601}*SharedItemsImports = 5
 		SMAPI.Internal\SMAPI.Internal.projitems*{ebd13eab-e70b-4d9f-92c2-c34a21e1fa32}*SharedItemsImports = 5
+		SMAPI.Internal.Patching\SMAPI.Internal.Patching.projitems*{e6da2198-7686-4f1d-b312-4a4dc70884c0}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,6 +157,10 @@ Global
 		{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{491E775B-EAD0-44D4-B6CA-F1FC3E316D33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{491E775B-EAD0-44D4-B6CA-F1FC3E316D33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{491E775B-EAD0-44D4-B6CA-F1FC3E316D33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{491E775B-EAD0-44D4-B6CA-F1FC3E316D33}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CD53AD6F-97F4-4872-A212-50C2A0FD3601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CD53AD6F-97F4-4872-A212-50C2A0FD3601}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD53AD6F-97F4-4872-A212-50C2A0FD3601}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -150,6 +185,14 @@ Global
 		{45D7D2FB-6B70-45D1-A595-6E289D6A3468}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45D7D2FB-6B70-45D1-A595-6E289D6A3468}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45D7D2FB-6B70-45D1-A595-6E289D6A3468}.Release|Any CPU.Build.0 = Release|Any CPU
+		{239AEEAC-07D1-4A3F-AA99-8C74F5038F50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{239AEEAC-07D1-4A3F-AA99-8C74F5038F50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{239AEEAC-07D1-4A3F-AA99-8C74F5038F50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{239AEEAC-07D1-4A3F-AA99-8C74F5038F50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -161,10 +204,19 @@ Global
 		{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB} = {86C452BE-D2D8-45B4-B63F-E329EB06CEDA}
 		{5947303D-3512-413A-9009-7AC43F5D3513} = {EB35A917-67B9-4EFA-8DFC-4FB49B3949BB}
 		{85208F8D-6FD1-4531-BE05-7142490F59FE} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
+		{6C16E948-3E5C-47A7-BF4B-07A7469A87A5} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 		{680B2641-81EA-467C-86A5-0E81CDC57ED0} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 		{AA95884B-7097-476E-92C8-D0500DE9D6D1} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 		{29CCE9C9-6811-415D-A681-A6D47073924D} = {6BBCA4D1-213F-4843-B910-DF2D66E3D8CF}
 		{45D7D2FB-6B70-45D1-A595-6E289D6A3468} = {6BBCA4D1-213F-4843-B910-DF2D66E3D8CF}
+		{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F} = {AE9A4D46-E910-4293-8BC4-673F85FFF6A5}
+		{491E775B-EAD0-44D4-B6CA-F1FC3E316D33} = {AE9A4D46-E910-4293-8BC4-673F85FFF6A5}
+		{CD53AD6F-97F4-4872-A212-50C2A0FD3601} = {AE9A4D46-E910-4293-8BC4-673F85FFF6A5}
+		{4D661178-38FB-43E4-AA5F-9B0406919344} = {09CF91E5-5BAB-4650-A200-E5EA9A633046}
+		{CAA1488E-842B-433D-994D-1D3D0B5DD125} = {09CF91E5-5BAB-4650-A200-E5EA9A633046}
+		{3B5BF14D-F612-4C83-9EF6-E3EBFCD08766} = {4D661178-38FB-43E4-AA5F-9B0406919344}
+		{239AEEAC-07D1-4A3F-AA99-8C74F5038F50} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
+		{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70143042-A862-47A8-A677-7C819DDC90DC}

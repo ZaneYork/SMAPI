@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework.StateTracking.Comparers;
@@ -21,10 +22,10 @@ namespace StardewModdingAPI.Framework.StateTracking
         private IDictionary<Item, int> CurrentInventory;
 
         /// <summary>The player's last valid location.</summary>
-        private GameLocation LastValidLocation;
+        private GameLocation? LastValidLocation;
 
         /// <summary>The underlying watchers.</summary>
-        private readonly List<IWatcher> Watchers = new List<IWatcher>();
+        private readonly List<IWatcher> Watchers = new();
 
 
         /*********
@@ -34,7 +35,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         public Farmer Player { get; }
 
         /// <summary>The player's current location.</summary>
-        public IValueWatcher<GameLocation> LocationWatcher { get; }
+        public IValueWatcher<GameLocation?> LocationWatcher { get; }
 
         /// <summary>Tracks changes to the player's skill levels.</summary>
         public IDictionary<SkillType, IValueWatcher<int>> SkillWatchers { get; }
@@ -49,18 +50,19 @@ namespace StardewModdingAPI.Framework.StateTracking
         {
             // init player data
             this.Player = player;
-            this.PreviousInventory = this.GetInventory();
+            this.CurrentInventory = this.GetInventory();
+            this.PreviousInventory = new Dictionary<Item, int>(this.CurrentInventory);
 
             // init trackers
-            this.LocationWatcher = WatcherFactory.ForReference(this.GetCurrentLocation);
+            this.LocationWatcher = WatcherFactory.ForReference($"player.{nameof(player.currentLocation)}", this.GetCurrentLocation);
             this.SkillWatchers = new Dictionary<SkillType, IValueWatcher<int>>
             {
-                [SkillType.Combat] = WatcherFactory.ForNetValue(player.combatLevel),
-                [SkillType.Farming] = WatcherFactory.ForNetValue(player.farmingLevel),
-                [SkillType.Fishing] = WatcherFactory.ForNetValue(player.fishingLevel),
-                [SkillType.Foraging] = WatcherFactory.ForNetValue(player.foragingLevel),
-                [SkillType.Luck] = WatcherFactory.ForNetValue(player.luckLevel),
-                [SkillType.Mining] = WatcherFactory.ForNetValue(player.miningLevel)
+                [SkillType.Combat] = WatcherFactory.ForNetValue($"player.{nameof(player.combatLevel)}", player.combatLevel),
+                [SkillType.Farming] = WatcherFactory.ForNetValue($"player.{nameof(player.farmingLevel)}", player.farmingLevel),
+                [SkillType.Fishing] = WatcherFactory.ForNetValue($"player.{nameof(player.fishingLevel)}", player.fishingLevel),
+                [SkillType.Foraging] = WatcherFactory.ForNetValue($"player.{nameof(player.foragingLevel)}", player.foragingLevel),
+                [SkillType.Luck] = WatcherFactory.ForNetValue($"player.{nameof(player.luckLevel)}", player.luckLevel),
+                [SkillType.Mining] = WatcherFactory.ForNetValue($"player.{nameof(player.miningLevel)}", player.miningLevel)
             };
 
             // track watchers for convenience
@@ -93,7 +95,7 @@ namespace StardewModdingAPI.Framework.StateTracking
 
         /// <summary>Get the player's current location, ignoring temporary null values.</summary>
         /// <remarks>The game will set <see cref="Character.currentLocation"/> to null in some cases, e.g. when they're a secondary player in multiplayer and transition to a location that hasn't been synced yet. While that's happening, this returns the player's last valid location instead.</remarks>
-        public GameLocation GetCurrentLocation()
+        public GameLocation? GetCurrentLocation()
         {
             return this.Player.currentLocation ?? this.LastValidLocation;
         }
@@ -101,7 +103,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>Get the inventory changes since the last update, if anything changed.</summary>
         /// <param name="changes">The inventory changes, or <c>null</c> if nothing changed.</param>
         /// <returns>Returns whether anything changed.</returns>
-        public bool TryGetInventoryChanges(out SnapshotItemListDiff changes)
+        public bool TryGetInventoryChanges([NotNullWhen(true)] out SnapshotItemListDiff? changes)
         {
             IDictionary<Item, int> current = this.GetInventory();
 
@@ -122,7 +124,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         public void Dispose()
         {
             this.PreviousInventory.Clear();
-            this.CurrentInventory?.Clear();
+            this.CurrentInventory.Clear();
 
             foreach (IWatcher watcher in this.Watchers)
                 watcher.Dispose();

@@ -18,6 +18,6 @@ namespace StardewModdingAPI.Web.Framework.Clients
         *********/
         /// <summary>Get update check info about a mod.</summary>
         /// <param name="id">The mod ID.</param>
-        Task<IModPage> GetModData(string id);
+        Task<IModPage?> GetModData(string id);
     }
 }

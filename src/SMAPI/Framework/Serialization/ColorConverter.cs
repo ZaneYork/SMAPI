@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.Serialization
 {
     /// <summary>Handles deserialization of <see cref="Color"/> for crossplatform compatibility.</summary>
     /// <remarks>
-    /// - Linux/Mac format: { "B": 76, "G": 51, "R": 25, "A": 102 }
+    /// - Linux/macOS format: { "B": 76, "G": 51, "R": 25, "A": 102 }
     /// - Windows format:   "26, 51, 76, 102"
     /// </remarks>
     internal class ColorConverter : SimpleReadOnlyConverter<Color>

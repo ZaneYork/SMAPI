@@ -26,11 +26,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="modFolderPath">The absolute path to the mod folder.</param>
         /// <param name="jsonHelper">The absolute path to the mod folder.</param>
-        public DataHelper(string modID, string modFolderPath, JsonHelper jsonHelper)
-            : base(modID)
+        public DataHelper(IModMetadata mod, string modFolderPath, JsonHelper jsonHelper)
+            : base(mod)
         {
             this.ModFolderPath = modFolderPath;
             this.JsonHelper = jsonHelper;
@@ -40,58 +40,66 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** JSON file
         ****/
         /// <inheritdoc />
-        public TModel ReadJsonFile<TModel>(string path) where TModel : class
+        public TModel? ReadJsonFile<TModel>(string path)
+            where TModel : class
         {
             if (!PathUtilities.IsSafeRelativePath(path))
                 throw new InvalidOperationException($"You must call {nameof(IModHelper.Data)}.{nameof(this.ReadJsonFile)} with a relative path.");
 
             path = Path.Combine(this.ModFolderPath, PathUtilities.NormalizePath(path));
-            return this.JsonHelper.ReadJsonFileIfExists(path, out TModel data)
+            return this.JsonHelper.ReadJsonFileIfExists(path, out TModel? data)
                 ? data
                 : null;
         }
 
         /// <inheritdoc />
-        public void WriteJsonFile<TModel>(string path, TModel data) where TModel : class
+        public void WriteJsonFile<TModel>(string path, TModel? data)
+            where TModel : class
         {
             if (!PathUtilities.IsSafeRelativePath(path))
                 throw new InvalidOperationException($"You must call {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteJsonFile)} with a relative path (without directory climbing).");
 
             path = Path.Combine(this.ModFolderPath, PathUtilities.NormalizePath(path));
-            this.JsonHelper.WriteJsonFile(path, data);
+
+            if (data != null)
+                this.JsonHelper.WriteJsonFile(path, data);
+            else
+                File.Delete(path);
         }
 
         /****
         ** Save file
         ****/
         /// <inheritdoc />
-        public TModel ReadSaveData<TModel>(string key) where TModel : class
+        public TModel? ReadSaveData<TModel>(string key)
+            where TModel : class
         {
             if (Context.LoadStage == LoadStage.None)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} when a save file isn't loaded.");
-            if (!Game1.IsMasterGame)
-                throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} because this isn't the main player. (Save files are stored on the main player's computer.)");
+            if (!Context.IsOnHostComputer)
+                throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.ReadSaveData)} when connected to a remote host. (Save files are stored on the main player's computer.)");
 
 
             string internalKey = this.GetSaveFileKey(key);
             foreach (IDictionary<string, string> dataField in this.GetDataFields(Context.LoadStage))
             {
-                if (dataField.TryGetValue(internalKey, out string value))
+                if (dataField.TryGetValue(internalKey, out string? value))
                     return this.JsonHelper.Deserialize<TModel>(value);
             }
             return null;
         }
 
         /// <inheritdoc />
-        public void WriteSaveData<TModel>(string key, TModel model) where TModel : class
+        public void WriteSaveData<TModel>(string key, TModel? model)
+            where TModel : class
         {
             if (Context.LoadStage == LoadStage.None)
                 throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteSaveData)} when a save file isn't loaded.");
-            if (!Game1.IsMasterGame)
-                throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteSaveData)} because this isn't the main player. (Save files are stored on the main player's computer.)");
+            if (!Context.IsOnHostComputer)
+                throw new InvalidOperationException($"Can't use {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteSaveData)} when connected to a remote host. (Save files are stored on the main player's computer.)");
 
             string internalKey = this.GetSaveFileKey(key);
-            string data = model != null
+            string? data = model != null
                 ? this.JsonHelper.Serialize(model, Formatting.None)
                 : null;
 
@@ -108,16 +116,18 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Global app data
         ****/
         /// <inheritdoc />
-        public TModel ReadGlobalData<TModel>(string key) where TModel : class
+        public TModel? ReadGlobalData<TModel>(string key)
+            where TModel : class
         {
             string path = this.GetGlobalDataPath(key);
-            return this.JsonHelper.ReadJsonFileIfExists(path, out TModel data)
+            return this.JsonHelper.ReadJsonFileIfExists(path, out TModel? data)
                 ? data
                 : null;
         }
 
         /// <inheritdoc />
-        public void WriteGlobalData<TModel>(string key, TModel data) where TModel : class
+        public void WriteGlobalData<TModel>(string key, TModel? data)
+            where TModel : class
         {
             string path = this.GetGlobalDataPath(key);
             if (data != null)

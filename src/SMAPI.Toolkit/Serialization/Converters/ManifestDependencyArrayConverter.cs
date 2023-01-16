@@ -35,13 +35,13 @@ namespace StardewModdingAPI.Toolkit.Serialization.Converters
         /// <param name="objectType">The object type.</param>
         /// <param name="existingValue">The object being read.</param>
         /// <param name="serializer">The calling serializer.</param>
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             List<ManifestDependency> result = new List<ManifestDependency>();
             foreach (JObject obj in JArray.Load(reader).Children<JObject>())
             {
-                string uniqueID = obj.ValueIgnoreCase<string>(nameof(ManifestDependency.UniqueID));
-                string minVersion = obj.ValueIgnoreCase<string>(nameof(ManifestDependency.MinimumVersion));
+                string uniqueID = obj.ValueIgnoreCase<string>(nameof(ManifestDependency.UniqueID))!; // will be validated separately if null
+                string? minVersion = obj.ValueIgnoreCase<string>(nameof(ManifestDependency.MinimumVersion));
                 bool required = obj.ValueIgnoreCase<bool?>(nameof(ManifestDependency.IsRequired)) ?? true;
                 result.Add(new ManifestDependency(uniqueID, minVersion, required));
             }
@@ -52,7 +52,7 @@ namespace StardewModdingAPI.Toolkit.Serialization.Converters
         /// <param name="writer">The JSON writer.</param>
         /// <param name="value">The value.</param>
         /// <param name="serializer">The calling serializer.</param>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             throw new InvalidOperationException("This converter does not write JSON.");
         }

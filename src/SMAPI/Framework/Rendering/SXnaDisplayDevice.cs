@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Framework.Rendering
 {
     /// <summary>A map display device which reimplements the default logic.</summary>
     /// <remarks>This is an exact copy of <see cref="XnaDisplayDevice"/>, except that private fields are protected and all methods are virtual.</remarks>
-    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Field naming deliberately matches " + nameof(XnaDisplayDevice) + " to minimize differences.")]
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = $"Field naming deliberately matches {nameof(XnaDisplayDevice)} to minimize differences.")]
     internal class SXnaDisplayDevice : IDisplayDevice
     {
         /*********
@@ -89,7 +89,7 @@ namespace StardewModdingAPI.Framework.Rendering
         /// <param name="tile">The tile to draw.</param>
         /// <param name="location">The tile position to draw.</param>
         /// <param name="layerDepth">The layer depth at which to draw.</param>
-        public virtual void DrawTile(Tile tile, Location location, float layerDepth)
+        public virtual void DrawTile(Tile? tile, Location location, float layerDepth)
         {
             if (tile == null)
                 return;

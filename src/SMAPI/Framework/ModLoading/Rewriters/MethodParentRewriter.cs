@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -26,7 +27,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="fromType">The type whose methods to remap.</param>
         /// <param name="toType">The type with methods to map to.</param>
         /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
-        public MethodParentRewriter(string fromType, Type toType, string nounPhrase = null)
+        public MethodParentRewriter(string fromType, Type toType, string? nounPhrase = null)
             : base(nounPhrase ?? $"{fromType.Split('.').Last()} methods")
         {
             this.FromType = fromType;
@@ -37,14 +38,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="fromType">The type whose methods to remap.</param>
         /// <param name="toType">The type with methods to map to.</param>
         /// <param name="nounPhrase">A brief noun phrase indicating what the instruction finder matches (or <c>null</c> to generate one).</param>
-        public MethodParentRewriter(Type fromType, Type toType, string nounPhrase = null)
-            : this(fromType.FullName, toType, nounPhrase) { }
+        public MethodParentRewriter(Type fromType, Type toType, string? nounPhrase = null)
+            : this(fromType.FullName!, toType, nounPhrase) { }
 
         /// <inheritdoc />
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // get method ref
-            MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
+            MethodReference? methodRef = RewriteHelper.AsMethodReference(instruction);
             if (!this.IsMatch(methodRef))
                 return false;
 
@@ -59,7 +60,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         *********/
         /// <summary>Get whether a CIL instruction matches.</summary>
         /// <param name="methodRef">The method reference.</param>
-        private bool IsMatch(MethodReference methodRef)
+        private bool IsMatch([NotNullWhen(true)] MethodReference? methodRef)
         {
             return
                 methodRef != null

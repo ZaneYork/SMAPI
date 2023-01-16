@@ -18,10 +18,10 @@ namespace StardewModdingAPI
         /// <summary>Invoke the method.</summary>
         /// <typeparam name="TValue">The return type.</typeparam>
         /// <param name="arguments">The method arguments to pass in.</param>
-        TValue Invoke<TValue>(params object[] arguments);
+        TValue Invoke<TValue>(params object?[] arguments);
 
         /// <summary>Invoke the method.</summary>
         /// <param name="arguments">The method arguments to pass in.</param>
-        void Invoke(params object[] arguments);
+        void Invoke(params object?[] arguments);
     }
 }

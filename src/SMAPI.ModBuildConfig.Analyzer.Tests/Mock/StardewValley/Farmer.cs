@@ -1,5 +1,5 @@
 // ReSharper disable CheckNamespace, InconsistentNaming -- matches Stardew Valley's code
-#pragma warning disable 649 // (never assigned) -- only used to test type conversions
+// ReSharper disable UnusedMember.Global -- used dynamically for unit tests
 using System.Collections.Generic;
 
 namespace StardewValley
@@ -8,6 +8,6 @@ namespace StardewValley
     internal class Farmer
     {
         /// <summary>A sample field which should be replaced with a different property.</summary>
-        public readonly IDictionary<string, int[]> friendships;
+        public readonly IDictionary<string, int[]> friendships = new Dictionary<string, int[]>();
     }
 }

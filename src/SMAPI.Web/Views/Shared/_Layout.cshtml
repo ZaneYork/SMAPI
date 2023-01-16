@@ -26,6 +26,8 @@
             <li><a href="@Url.PlainAction("Index", "LogParser", values: null)">Log parser</a></li>
             <li><a href="@Url.PlainAction("Index", "JsonValidator", values: null)">JSON validator</a></li>
         </ul>
+
+        @RenderSection("SidebarExtra", required: false)
     </div>
     <div id="content-column">
         <div id="content">

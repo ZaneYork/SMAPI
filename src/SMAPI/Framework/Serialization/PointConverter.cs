@@ -8,7 +8,7 @@ namespace StardewModdingAPI.Framework.Serialization
 {
     /// <summary>Handles deserialization of <see cref="Point"/> for crossplatform compatibility.</summary>
     /// <remarks>
-    /// - Linux/Mac format: { "X": 1, "Y": 2 }
+    /// - Linux/macOS format: { "X": 1, "Y": 2 }
     /// - Windows format:   "1, 2"
     /// </remarks>
     internal class PointConverter : SimpleReadOnlyConverter<Point>

@@ -64,7 +64,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         {
             // arrange
             string code = ObsoleteFieldAnalyzerTests.SampleProgram.Replace("{{test-code}}", codeText);
-            DiagnosticResult expected = new DiagnosticResult
+            DiagnosticResult expected = new()
             {
                 Id = "AvoidObsoleteField",
                 Message = $"The '{oldName}' field is obsolete and should be replaced with '{newName}'. See https://smapi.io/package/avoid-obsolete-field for details.",

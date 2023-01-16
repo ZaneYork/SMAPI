@@ -10,21 +10,18 @@ namespace StardewModdingAPI.Web.Framework.Caching
         ** Accessors
         *********/
         /// <summary>The cached data.</summary>
-        public T Data { get; set; }
+        public T Data { get; }
 
         /// <summary>When the data was last updated.</summary>
-        public DateTimeOffset LastUpdated { get; set; }
+        public DateTimeOffset LastUpdated { get; }
 
         /// <summary>When the data was last requested through the mod API.</summary>
-        public DateTimeOffset LastRequested { get; set; }
+        public DateTimeOffset LastRequested { get; internal set; }
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>Construct an empty instance.</summary>
-        public Cached() { }
-
         /// <summary>Construct an instance.</summary>
         /// <param name="data">The cached data.</param>
         public Cached(T data)

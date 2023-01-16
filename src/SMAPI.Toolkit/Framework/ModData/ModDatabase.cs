@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         private readonly ModDataRecord[] Records;
 
         /// <summary>Get an update URL for an update key (if valid).</summary>
-        private readonly Func<string, string> GetUpdateUrl;
+        private readonly Func<string, string?> GetUpdateUrl;
 
 
         /*********
@@ -22,12 +22,12 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         *********/
         /// <summary>Construct an empty instance.</summary>
         public ModDatabase()
-        : this(new ModDataRecord[0], key => null) { }
+        : this(Array.Empty<ModDataRecord>(), _ => null) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="records">The underlying mod data records indexed by default display name.</param>
         /// <param name="getUpdateUrl">Get an update URL for an update key (if valid).</param>
-        public ModDatabase(IEnumerable<ModDataRecord> records, Func<string, string> getUpdateUrl)
+        public ModDatabase(IEnumerable<ModDataRecord> records, Func<string, string?> getUpdateUrl)
         {
             this.Records = records.ToArray();
             this.GetUpdateUrl = getUpdateUrl;
@@ -41,7 +41,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
 
         /// <summary>Get a mod data record.</summary>
         /// <param name="modID">The unique mod ID.</param>
-        public ModDataRecord Get(string modID)
+        public ModDataRecord? Get(string? modID)
         {
             return !string.IsNullOrWhiteSpace(modID)
                 ? this.Records.FirstOrDefault(p => p.HasID(modID))
@@ -50,11 +50,11 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
 
         /// <summary>Get the mod page URL for a mod (if available).</summary>
         /// <param name="id">The unique mod ID.</param>
-        public string GetModPageUrlFor(string id)
+        public string? GetModPageUrlFor(string? id)
         {
             // get update key
-            ModDataRecord record = this.Get(id);
-            ModDataField updateKeyField = record?.Fields.FirstOrDefault(p => p.Key == ModDataFieldKey.UpdateKey);
+            ModDataRecord? record = this.Get(id);
+            ModDataField? updateKeyField = record?.Fields.FirstOrDefault(p => p.Key == ModDataFieldKey.UpdateKey);
             if (updateKeyField == null)
                 return null;
 

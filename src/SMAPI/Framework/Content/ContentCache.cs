@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using Microsoft.Xna.Framework;
-using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Utilities;
-using StardewValley;
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -16,10 +14,7 @@ namespace StardewModdingAPI.Framework.Content
         ** Fields
         *********/
         /// <summary>The underlying asset cache.</summary>
-        private readonly IDictionary<string, object> Cache;
-
-        /// <summary>Applies platform-specific asset key normalization so it's consistent with the underlying cache.</summary>
-        private readonly Func<string, string> NormalizeAssetNameForPlatform;
+        private readonly Dictionary<string, object> Cache;
 
 
         /*********
@@ -34,7 +29,7 @@ namespace StardewModdingAPI.Framework.Content
         }
 
         /// <summary>The current cache keys.</summary>
-        public IEnumerable<string> Keys => this.Cache.Keys;
+        public Dictionary<string, object>.KeyCollection Keys => this.Cache.Keys;
 
 
         /*********
@@ -44,21 +39,10 @@ namespace StardewModdingAPI.Framework.Content
         ** Constructor
         ****/
         /// <summary>Construct an instance.</summary>
-        /// <param name="contentManager">The underlying content manager whose cache to manage.</param>
-        /// <param name="reflection">Simplifies access to private game code.</param>
-        public ContentCache(LocalizedContentManager contentManager, Reflector reflection)
+        /// <param name="loadedAssets">The asset cache for the underlying content manager.</param>
+        public ContentCache(Dictionary<string, object> loadedAssets)
         {
-            // init
-            this.Cache = reflection.GetField<Dictionary<string, object>>(contentManager, "loadedAssets").GetValue();
-
-            // get key normalization logic
-            if (Constants.Platform == Platform.Windows)
-            {
-                IReflectedMethod method = reflection.GetMethod(typeof(TitleContainer), "GetCleanPath");
-                this.NormalizeAssetNameForPlatform = path => method.Invoke<string>(path);
-            }
-            else
-                this.NormalizeAssetNameForPlatform = key => key.Replace('\\', '/'); // based on MonoGame's ContentManager.Load<T> logic
+            this.Cache = loadedAssets;
         }
 
         /****
@@ -75,23 +59,25 @@ namespace StardewModdingAPI.Framework.Content
         /****
         ** Normalize
         ****/
-        /// <summary>Normalize path separators in a file path. For asset keys, see <see cref="NormalizeKey"/> instead.</summary>
+        /// <summary>Normalize path separators in an asset name.</summary>
         /// <param name="path">The file path to normalize.</param>
         [Pure]
-        public string NormalizePathSeparators(string path)
+        [return: NotNullIfNotNull("path")]
+        public string? NormalizePathSeparators(string? path)
         {
-            return PathUtilities.NormalizePath(path);
+            return PathUtilities.NormalizeAssetName(path);
         }
 
         /// <summary>Normalize a cache key so it's consistent with the underlying cache.</summary>
         /// <param name="key">The asset key.</param>
+        /// <remarks>This is equivalent to <see cref="NormalizePathSeparators"/> with added file extension logic.</remarks>
         [Pure]
         public string NormalizeKey(string key)
         {
             key = this.NormalizePathSeparators(key);
             return key.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase)
-                ? key.Substring(0, key.Length - 4)
-                : this.NormalizeAssetNameForPlatform(key);
+                ? key[..^4]
+                : key;
         }
 
         /****
@@ -103,33 +89,36 @@ namespace StardewModdingAPI.Framework.Content
         /// <returns>Returns the removed key (if any).</returns>
         public bool Remove(string key, bool dispose)
         {
-            // get entry
-            if (!this.Cache.TryGetValue(key, out object value))
+            // remove and get entry
+            if (!this.Cache.Remove(key, out object? value))
                 return false;
 
             // dispose & remove entry
             if (dispose && value is IDisposable disposable)
                 disposable.Dispose();
 
-            return this.Cache.Remove(key);
+            return true;
         }
 
-        /// <summary>Purge matched assets from the cache.</summary>
+        /// <summary>Purge assets matching <paramref name="predicate"/> from the cache.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
-        /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
-        /// <returns>Returns the removed keys (if any).</returns>
+        /// <param name="dispose">Whether to dispose invalidated assets. This should only be <see langword="true"/> when they're being invalidated as part of a <see cref="IDisposable.Dispose"/>, to avoid crashing the game.</param>
+        /// <returns>Returns any removed keys.</returns>
         public IEnumerable<string> Remove(Func<string, object, bool> predicate, bool dispose)
         {
-            List<string> removed = new List<string>();
-            foreach (string key in this.Cache.Keys.ToArray())
+            List<string> removed = new();
+            foreach ((string key, object value) in this.Cache)
             {
-                if (predicate(key, this.Cache[key]))
-                {
-                    this.Remove(key, dispose);
+                if (predicate(key, value))
                     removed.Add(key);
-                }
             }
-            return removed;
+
+            foreach (string key in removed)
+                this.Remove(key, dispose);
+
+            return removed.Count == 0
+                ? Enumerable.Empty<string>() // let GC collect the list in gen0 instead of potentially living longer
+                : removed;
         }
     }
 }

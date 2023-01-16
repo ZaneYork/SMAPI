@@ -39,12 +39,10 @@ namespace StardewModdingAPI.Framework.Events
             this.SourceMod = sourceMod;
         }
 
-        /// <summary>Compares the current instance with another object of the same type and returns an integer that indicates whether the current instance precedes, follows, or occurs in the same position in the sort order as the other object.</summary>
-        /// <param name="obj">An object to compare with this instance.</param>
-        /// <exception cref="T:System.ArgumentException"><paramref name="obj" /> is not the same type as this instance.</exception>
-        public int CompareTo(object obj)
+        /// <inheritdoc />
+        public int CompareTo(object? obj)
         {
-            if (!(obj is ManagedEventHandler<TEventArgs> other))
+            if (obj is not ManagedEventHandler<TEventArgs> other)
                 throw new ArgumentException("Can't compare to an unrelated object type.");
 
             int priorityCompare = -this.Priority.CompareTo(other.Priority); // higher value = sort first

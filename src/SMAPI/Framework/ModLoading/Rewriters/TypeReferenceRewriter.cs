@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         private readonly Type ToType;
 
         /// <summary>Get whether a matched type should be ignored.</summary>
-        private readonly Func<TypeReference, bool> ShouldIgnore;
+        private readonly Func<TypeReference, bool>? ShouldIgnore;
 
 
         /*********
@@ -27,7 +27,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="fromTypeFullName">The full type name to which to find references.</param>
         /// <param name="toType">The new type to reference.</param>
         /// <param name="shouldIgnore">Get whether a matched type should be ignored.</param>
-        public TypeReferenceRewriter(string fromTypeFullName, Type toType, Func<TypeReference, bool> shouldIgnore = null)
+        public TypeReferenceRewriter(string fromTypeFullName, Type toType, Func<TypeReference, bool>? shouldIgnore = null)
             : base($"{fromTypeFullName} type")
         {
             this.FromTypeName = fromTypeFullName;

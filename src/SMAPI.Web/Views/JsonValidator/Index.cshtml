@@ -5,10 +5,10 @@
 
 @{
     // get view data
-    string curPageUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName, id = Model.PasteID }, absoluteUrl: true);
-    string newUploadUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName });
-    string schemaDisplayName = null;
-    bool isValidSchema = Model.SchemaName != null && Model.SchemaFormats.TryGetValue(Model.SchemaName, out schemaDisplayName) && schemaDisplayName?.ToLower() != "none";
+    string curPageUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model!.SchemaName, id = Model.PasteID }, absoluteUrl: true)!;
+    string newUploadUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName })!;
+    string? schemaDisplayName = null;
+    bool isValidSchema = Model.SchemaName != null && Model.SchemaFormats.TryGetValue(Model.SchemaName, out schemaDisplayName) && schemaDisplayName.ToLower() != "none";
 
     // build title
     ViewData["Title"] = "JSON validator";

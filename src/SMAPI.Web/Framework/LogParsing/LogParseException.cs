@@ -10,6 +10,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="message">The user-friendly error message.</param>
-        public LogParseException(string message) : base(message) { }
+        public LogParseException(string message)
+            : base(message) { }
     }
 }

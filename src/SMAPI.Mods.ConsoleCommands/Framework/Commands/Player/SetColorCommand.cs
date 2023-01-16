@@ -1,10 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
 {
     /// <summary>A command which edits the color of a player feature.</summary>
-    internal class SetColorCommand : TrainerCommand
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
+    internal class SetColorCommand : ConsoleCommand
     {
         /*********
         ** Public methods
@@ -20,9 +22,9 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             // parse arguments
-            if (!args.TryGet(0, "target", out string target, oneOf: new[] { "hair", "eyes", "pants" }))
+            if (!args.TryGet(0, "target", out string? target, oneOf: new[] { "hair", "eyes", "pants" }))
                 return;
-            if (!args.TryGet(1, "color", out string rawColor))
+            if (!args.TryGet(1, "color", out string? rawColor))
                 return;
 
             // parse color
@@ -61,7 +63,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <param name="color">The color to set.</param>
         private bool TryParseColor(string input, out Color color)
         {
-            string[] colorHexes = input.Split(new[] { ',' }, 3);
+            string[] colorHexes = input.Split(',', 3);
             if (int.TryParse(colorHexes[0], out int r) && int.TryParse(colorHexes[1], out int g) && int.TryParse(colorHexes[2], out int b))
             {
                 color = new Color(r, g, b);

@@ -9,6 +9,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Multiple copies of the mod are installed.</summary>
         Duplicate,
 
+        /// <summary>The folder is empty or contains only ignored files.</summary>
+        EmptyFolder,
+
         /// <summary>The mod has incompatible code instructions, needs a newer SMAPI version, or is marked 'assume broken' in the SMAPI metadata list.</summary>
         Incompatible,
 
@@ -22,6 +25,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         MissingDependencies,
 
         /// <summary>The mod is marked obsolete in the SMAPI metadata list.</summary>
-        Obsolete
+        Obsolete,
+
+        /// <summary>The folder is an XNB mod, which can't be loaded through SMAPI.</summary>
+        XnbMod
     }
 }

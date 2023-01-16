@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework
         ** Fields
         *********/
         /// <summary>The registered mod data.</summary>
-        private readonly List<IModMetadata> Mods = new List<IModMetadata>();
+        private readonly List<IModMetadata> Mods = new();
 
         /// <summary>An assembly full name => mod lookup.</summary>
         private readonly IDictionary<string, IModMetadata> ModNamesByAssembly = new Dictionary<string, IModMetadata>();
@@ -35,12 +35,12 @@ namespace StardewModdingAPI.Framework
             this.Mods.Add(metadata);
         }
 
-        /// <summary>Track a mod's assembly for use via <see cref="GetFrom"/>.</summary>
+        /// <summary>Track a mod's assembly for use via <see cref="GetFrom(Type?)"/>.</summary>
         /// <param name="metadata">The mod metadata.</param>
         /// <param name="modAssembly">The mod assembly.</param>
         public void TrackAssemblies(IModMetadata metadata, Assembly modAssembly)
         {
-            this.ModNamesByAssembly[modAssembly.FullName] = metadata;
+            this.ModNamesByAssembly[modAssembly.FullName!] = metadata;
         }
 
         /// <summary>Get metadata for all loaded mods.</summary>
@@ -59,8 +59,8 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Get metadata for a loaded mod.</summary>
         /// <param name="uniqueID">The mod's unique ID.</param>
-        /// <returns>Returns the matching mod's metadata, or <c>null</c> if not found.</returns>
-        public IModMetadata Get(string uniqueID)
+        /// <returns>Returns the mod's metadata, or <c>null</c> if not found.</returns>
+        public IModMetadata? Get(string uniqueID)
         {
             // normalize search ID
             if (string.IsNullOrWhiteSpace(uniqueID))
@@ -73,15 +73,15 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Get the mod metadata from one of its assemblies.</summary>
         /// <param name="type">The type to check.</param>
-        /// <returns>Returns the mod name, or <c>null</c> if the type isn't part of a known mod.</returns>
-        public IModMetadata GetFrom(Type type)
+        /// <returns>Returns the mod's metadata, or <c>null</c> if the type isn't part of a known mod.</returns>
+        public IModMetadata? GetFrom(Type? type)
         {
             // null
             if (type == null)
                 return null;
 
             // known type
-            string assemblyName = type.Assembly.FullName;
+            string assemblyName = type.Assembly.FullName!;
             if (this.ModNamesByAssembly.ContainsKey(assemblyName))
                 return this.ModNamesByAssembly[assemblyName];
 
@@ -89,26 +89,27 @@ namespace StardewModdingAPI.Framework
             return null;
         }
 
-        /// <summary>Get the friendly name for the closest assembly registered as a source of deprecation warnings.</summary>
-        /// <returns>Returns the source name, or <c>null</c> if no registered assemblies were found.</returns>
-        public IModMetadata GetFromStack()
+        /// <summary>Get the mod metadata from a stack frame, if any.</summary>
+        /// <param name="frame">The stack frame to check.</param>
+        /// <returns>Returns the mod's metadata, or <c>null</c> if the frame isn't part of a known mod.</returns>
+        public IModMetadata? GetFrom(StackFrame frame)
         {
-            // get stack frames
-            StackTrace stack = new StackTrace();
-            StackFrame[] frames = stack.GetFrames();
-            if (frames == null)
-                return null;
+            MethodBase? method = frame.GetMethod();
+            return this.GetFrom(method?.ReflectedType);
+        }
 
-            // search stack for a source assembly
+        /// <summary>Get the mod metadata from the closest assembly registered as a source of deprecation warnings.</summary>
+        /// <param name="frames">The call stack to analyze.</param>
+        /// <returns>Returns the mod's metadata, or <c>null</c> if no registered assemblies were found.</returns>
+        public IModMetadata? GetFromStack(StackFrame[] frames)
+        {
             foreach (StackFrame frame in frames)
             {
-                MethodBase method = frame.GetMethod();
-                IModMetadata mod = this.GetFrom(method.ReflectedType);
+                IModMetadata? mod = this.GetFrom(frame);
                 if (mod != null)
                     return mod;
             }
 
-            // no known assembly found
             return null;
         }
     }

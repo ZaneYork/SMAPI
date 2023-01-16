@@ -5,6 +5,6 @@ namespace StardewModdingAPI.Framework
     internal static class Singleton<T> where T : new()
     {
         /// <summary>The singleton instance.</summary>
-        public static T Instance { get; } = new T();
+        public static T Instance { get; } = new();
     }
 }

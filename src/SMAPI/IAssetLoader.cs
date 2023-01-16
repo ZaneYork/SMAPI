@@ -1,6 +1,11 @@
-﻿namespace StardewModdingAPI
+#if SMAPI_DEPRECATED
+using System;
+using StardewModdingAPI.Events;
+
+namespace StardewModdingAPI
 {
     /// <summary>Provides the initial version for matching assets loaded by the game. SMAPI will raise an error if two mods try to load the same asset; in most cases you should use <see cref="IAssetEditor"/> instead.</summary>
+    [Obsolete($"Use {nameof(IMod.Helper)}.{nameof(IModHelper.Events)}.{nameof(IModEvents.Content)} instead. This interface will be removed in SMAPI 4.0.0.")]
     public interface IAssetLoader
     {
         /*********
@@ -15,3 +20,4 @@
         T Load<T>(IAssetInfo asset);
     }
 }
+#endif

@@ -21,20 +21,26 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>Tracks changes to the list of active mine locations.</summary>
         private readonly ICollectionWatcher<MineShaft> MineLocationListWatcher;
 
+        /// <summary>Tracks changes to the list of active volcano locations.</summary>
+        private readonly ICollectionWatcher<GameLocation> VolcanoLocationListWatcher;
+
         /// <summary>A lookup of the tracked locations.</summary>
-        private IDictionary<GameLocation, LocationTracker> LocationDict { get; } = new Dictionary<GameLocation, LocationTracker>(new ObjectReferenceComparer<GameLocation>());
+        private Dictionary<GameLocation, LocationTracker> LocationDict { get; } = new(new ObjectReferenceComparer<GameLocation>());
 
         /// <summary>A lookup of registered buildings and their indoor location.</summary>
-        private readonly IDictionary<Building, GameLocation> BuildingIndoors = new Dictionary<Building, GameLocation>(new ObjectReferenceComparer<Building>());
+        private readonly Dictionary<Building, GameLocation?> BuildingIndoors = new(new ObjectReferenceComparer<Building>());
 
 
         /*********
         ** Accessors
         *********/
+        /// <inheritdoc />
+        public string Name => nameof(WorldLocationsTracker);
+
         /// <summary>Whether locations were added or removed since the last reset.</summary>
         public bool IsLocationListChanged => this.Added.Any() || this.Removed.Any();
 
-        /// <summary>Whether any tracked location data changed since the last reset.</summary>
+        /// <inheritdoc />
         public bool IsChanged => this.IsLocationListChanged || this.Locations.Any(p => p.IsChanged);
 
         /// <summary>The tracked locations.</summary>
@@ -53,18 +59,21 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>Construct an instance.</summary>
         /// <param name="locations">The game's list of locations.</param>
         /// <param name="activeMineLocations">The game's list of active mine locations.</param>
-        public WorldLocationsTracker(ObservableCollection<GameLocation> locations, IList<MineShaft> activeMineLocations)
+        /// <param name="activeVolcanoLocations">The game's list of active volcano locations.</param>
+        public WorldLocationsTracker(ObservableCollection<GameLocation> locations, IList<MineShaft> activeMineLocations, IList<VolcanoDungeon> activeVolcanoLocations)
         {
-            this.LocationListWatcher = WatcherFactory.ForObservableCollection(locations);
-            this.MineLocationListWatcher = WatcherFactory.ForReferenceList(activeMineLocations);
+            this.LocationListWatcher = WatcherFactory.ForObservableCollection($"{this.Name}.{nameof(locations)}", locations);
+            this.MineLocationListWatcher = WatcherFactory.ForReferenceList($"{this.Name}.{nameof(activeMineLocations)}", activeMineLocations);
+            this.VolcanoLocationListWatcher = WatcherFactory.ForReferenceList($"{this.Name}.{nameof(activeVolcanoLocations)}", activeVolcanoLocations);
         }
 
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update()
         {
             // update watchers
             this.LocationListWatcher.Update();
             this.MineLocationListWatcher.Update();
+            this.VolcanoLocationListWatcher.Update();
             foreach (LocationTracker watcher in this.Locations)
                 watcher.Update();
 
@@ -79,6 +88,11 @@ namespace StardewModdingAPI.Framework.StateTracking
                 this.Remove(this.MineLocationListWatcher.Removed);
                 this.Add(this.MineLocationListWatcher.Added);
             }
+            if (this.VolcanoLocationListWatcher.IsChanged)
+            {
+                this.Remove(this.VolcanoLocationListWatcher.Removed);
+                this.Add(this.VolcanoLocationListWatcher.Added);
+            }
 
             // detect building changed
             foreach (LocationTracker watcher in this.Locations.Where(p => p.BuildingsWatcher.IsChanged).ToArray())
@@ -88,10 +102,9 @@ namespace StardewModdingAPI.Framework.StateTracking
             }
 
             // detect building interiors changed (e.g. construction completed)
-            foreach (KeyValuePair<Building, GameLocation> pair in this.BuildingIndoors.Where(p => !object.Equals(p.Key.indoors.Value, p.Value)))
+            foreach ((Building building, GameLocation? oldIndoors) in this.BuildingIndoors.Where(p => !object.Equals(p.Key.indoors.Value, p.Value)))
             {
-                GameLocation oldIndoors = pair.Value;
-                GameLocation newIndoors = pair.Key.indoors.Value;
+                GameLocation? newIndoors = building.indoors.Value;
 
                 if (oldIndoors != null)
                     this.Added.Add(oldIndoors);
@@ -107,9 +120,10 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.Added.Clear();
             this.LocationListWatcher.Reset();
             this.MineLocationListWatcher.Reset();
+            this.VolcanoLocationListWatcher.Reset();
         }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset()
         {
             this.ResetLocationList();
@@ -124,7 +138,7 @@ namespace StardewModdingAPI.Framework.StateTracking
             return this.LocationDict.ContainsKey(location);
         }
 
-        /// <summary>Stop watching the player fields and release all references.</summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             foreach (IWatcher watcher in this.GetWatchers())
@@ -175,19 +189,19 @@ namespace StardewModdingAPI.Framework.StateTracking
         ****/
         /// <summary>Add the given building.</summary>
         /// <param name="building">The building to add.</param>
-        public void Add(Building building)
+        public void Add(Building? building)
         {
             if (building == null)
                 return;
 
-            GameLocation indoors = building.indoors.Value;
+            GameLocation? indoors = building.indoors.Value;
             this.BuildingIndoors[building] = indoors;
             this.Add(indoors);
         }
 
         /// <summary>Add the given location.</summary>
         /// <param name="location">The location to add.</param>
-        public void Add(GameLocation location)
+        public void Add(GameLocation? location)
         {
             if (location == null)
                 return;
@@ -206,7 +220,7 @@ namespace StardewModdingAPI.Framework.StateTracking
 
         /// <summary>Remove the given building.</summary>
         /// <param name="building">The building to remove.</param>
-        public void Remove(Building building)
+        public void Remove(Building? building)
         {
             if (building == null)
                 return;
@@ -217,12 +231,12 @@ namespace StardewModdingAPI.Framework.StateTracking
 
         /// <summary>Remove the given location.</summary>
         /// <param name="location">The location to remove.</param>
-        public void Remove(GameLocation location)
+        public void Remove(GameLocation? location)
         {
             if (location == null)
                 return;
 
-            if (this.LocationDict.TryGetValue(location, out LocationTracker watcher))
+            if (this.LocationDict.TryGetValue(location, out LocationTracker? watcher))
             {
                 // track change
                 this.Removed.Add(location);
@@ -243,6 +257,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         {
             yield return this.LocationListWatcher;
             yield return this.MineLocationListWatcher;
+            yield return this.VolcanoLocationListWatcher;
             foreach (LocationTracker watcher in this.Locations)
                 yield return watcher;
         }

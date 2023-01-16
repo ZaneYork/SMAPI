@@ -63,11 +63,11 @@ namespace StardewModdingAPI.Web.Framework.Storage
                     BlobClient blob = this.GetAzureBlobClient(id);
                     await blob.UploadAsync(stream);
 
-                    return new UploadResult(true, id, null);
+                    return new UploadResult(id, null);
                 }
                 catch (Exception ex)
                 {
-                    return new UploadResult(false, null, ex.Message);
+                    return new UploadResult(null, ex.Message);
                 }
             }
 
@@ -75,10 +75,10 @@ namespace StardewModdingAPI.Web.Framework.Storage
             else
             {
                 string path = this.GetDevFilePath(id);
-                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 
                 File.WriteAllText(path, content);
-                return new UploadResult(true, id, null);
+                return new UploadResult(id, null);
             }
         }
 
@@ -103,26 +103,20 @@ namespace StardewModdingAPI.Web.Framework.Storage
                         // fetch file
                         Response<BlobDownloadInfo> response = await blob.DownloadAsync();
                         using BlobDownloadInfo result = response.Value;
-                        using StreamReader reader = new StreamReader(result.Content);
+                        using StreamReader reader = new(result.Content);
                         DateTimeOffset expiry = result.Details.LastModified + TimeSpan.FromDays(this.ExpiryDays);
                         string content = this.GzipHelper.DecompressString(reader.ReadToEnd());
 
                         // build model
-                        return new StoredFileInfo
-                        {
-                            Success = true,
-                            Content = content,
-                            Expiry = expiry.UtcDateTime
-                        };
+                        return new StoredFileInfo(content, expiry);
                     }
                     catch (RequestFailedException ex)
                     {
-                        return new StoredFileInfo
-                        {
-                            Error = ex.ErrorCode == "BlobNotFound"
+                        return new StoredFileInfo(
+                            error: ex.ErrorCode == "BlobNotFound"
                                 ? "There's no file with that ID."
                                 : $"Could not fetch that file from storage ({ex.ErrorCode}: {ex.Message})."
-                        };
+                        );
                     }
                 }
 
@@ -130,15 +124,12 @@ namespace StardewModdingAPI.Web.Framework.Storage
                 else
                 {
                     // get file
-                    FileInfo file = new FileInfo(this.GetDevFilePath(id));
+                    FileInfo file = new(this.GetDevFilePath(id));
                     if (file.Exists && file.LastWriteTimeUtc.AddDays(this.ExpiryDays) < DateTime.UtcNow) // expired
                         file.Delete();
                     if (!file.Exists)
                     {
-                        return new StoredFileInfo
-                        {
-                            Error = "There's no file with that ID."
-                        };
+                        return new StoredFileInfo(error: "There's no file with that ID.");
                     }
 
                     // renew
@@ -149,13 +140,11 @@ namespace StardewModdingAPI.Web.Framework.Storage
                     }
 
                     // build model
-                    return new StoredFileInfo
-                    {
-                        Success = true,
-                        Content = File.ReadAllText(file.FullName),
-                        Expiry = DateTime.UtcNow.AddDays(this.ExpiryDays),
-                        Warning = "This file was saved temporarily to the local computer. This should only happen in a local development environment."
-                    };
+                    return new StoredFileInfo(
+                        content: File.ReadAllText(file.FullName),
+                        expiry: DateTime.UtcNow.AddDays(this.ExpiryDays),
+                        warning: "This file was saved temporarily to the local computer. This should only happen in a local development environment."
+                    );
                 }
             }
 
@@ -164,12 +153,7 @@ namespace StardewModdingAPI.Web.Framework.Storage
             {
                 PasteInfo response = await this.Pastebin.GetAsync(id);
                 response.Content = this.GzipHelper.DecompressString(response.Content);
-                return new StoredFileInfo
-                {
-                    Success = response.Success,
-                    Content = response.Content,
-                    Error = response.Error
-                };
+                return new StoredFileInfo(response.Content, null, error: response.Error);
             }
         }
 
@@ -177,8 +161,8 @@ namespace StardewModdingAPI.Web.Framework.Storage
         /// <param name="id">The file ID.</param>
         private BlobClient GetAzureBlobClient(string id)
         {
-            var azure = new BlobServiceClient(this.ClientsConfig.AzureBlobConnectionString);
-            var container = azure.GetBlobContainerClient(this.ClientsConfig.AzureBlobTempContainer);
+            BlobServiceClient azure = new(this.ClientsConfig.AzureBlobConnectionString);
+            BlobContainerClient container = azure.GetBlobContainerClient(this.ClientsConfig.AzureBlobTempContainer);
             return container.GetBlobClient($"uploads/{id}");
         }
 

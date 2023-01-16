@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,6 +11,8 @@ using Android.App;
 #if SMAPI_FOR_WINDOWS
 #endif
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Toolkit.Serialization.Models;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI
 {
@@ -20,7 +23,10 @@ namespace StardewModdingAPI
         ** Fields
         *********/
         /// <summary>The absolute path to search for SMAPI's internal DLLs.</summary>
-        internal static readonly string DllSearchPath = EarlyConstants.InternalFilesPath;
+        private static readonly string DllSearchPath = EarlyConstants.InternalFilesPath;
+
+        /// <summary>The assembly paths in the search folders indexed by assembly name.</summary>
+        private static Dictionary<string, string>? AssemblyPathsByName;
 
 
         /*********
@@ -30,6 +36,8 @@ namespace StardewModdingAPI
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
+            Console.Title = $"SMAPI {EarlyConstants.RawApiVersion}";
+
             try
             {
                 AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
@@ -38,10 +46,12 @@ namespace StardewModdingAPI
 #else
                 Program.AssertGamePresent();
                 Program.AssertGameVersion();
+                Program.AssertSmapiVersions();
+                Program.AssertDepsJson();
                 Program.Start(args);
 #endif
             }
-            catch (BadImageFormatException ex) when (ex.FileName == "StardewValley" || ex.FileName == "Stardew Valley") // don't use EarlyConstants.GameAssemblyName, since we want to check both possible names
+            catch (BadImageFormatException ex) when (ex.FileName == EarlyConstants.GameAssemblyName)
             {
 #if SMAPI_FOR_MOBILE
                 SAlertDialogUtil.AlertMessage(
@@ -79,18 +89,38 @@ namespace StardewModdingAPI
         /// <summary>Method called when assembly resolution fails, which may return a manually resolved assembly.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs e)
+        private static Assembly? CurrentDomain_AssemblyResolve(object? sender, ResolveEventArgs e)
         {
+            // cache assembly paths by name
+            if (Program.AssemblyPathsByName == null)
+            {
+                Program.AssemblyPathsByName = new(StringComparer.OrdinalIgnoreCase);
+
+                foreach (string searchPath in new[] { EarlyConstants.GamePath, Program.DllSearchPath })
+                {
+                    foreach (string dllPath in Directory.EnumerateFiles(searchPath, "*.dll"))
+                    {
+                        try
+                        {
+                            string? curName = AssemblyName.GetAssemblyName(dllPath).Name;
+                            if (curName != null)
+                                Program.AssemblyPathsByName[curName] = dllPath;
+                        }
+                        catch
+                        {
+                            // ignore invalid DLL
+                        }
+                    }
+                }
+            }
+
+            // resolve
             try
             {
-                AssemblyName name = new AssemblyName(e.Name);
-                foreach (FileInfo dll in new DirectoryInfo(Program.DllSearchPath).EnumerateFiles("*.dll"))
-                {
-                    if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.OrdinalIgnoreCase))
-                        return Assembly.LoadFrom(dll.FullName);
-                }
-
-                return null;
+                string? searchName = new AssemblyName(e.Name).Name;
+                return searchName != null && Program.AssemblyPathsByName.TryGetValue(searchName, out string? assemblyPath)
+                    ? Assembly.LoadFrom(assemblyPath)
+                    : null;
             }
             catch (Exception ex)
             {
@@ -105,8 +135,22 @@ namespace StardewModdingAPI
         /// <remarks>This must be checked *before* any references to <see cref="Constants"/>, and this method should not reference <see cref="Constants"/> itself to avoid errors in Mono or when the game isn't present.</remarks>
         private static void AssertGamePresent()
         {
-            if (Type.GetType($"StardewValley.Game1, {EarlyConstants.GameAssemblyName}", throwOnError: false) == null)
-                Program.PrintErrorAndExit("Oops! SMAPI can't find the game. Make sure you're running StardewModdingAPI.exe in your game folder. See the readme.txt file for details.");
+            try
+            {
+                _ = Type.GetType($"StardewValley.Game1, {EarlyConstants.GameAssemblyName}", throwOnError: true);
+            }
+            catch (Exception ex)
+            {
+                // file doesn't exist
+                if (!File.Exists(Path.Combine(EarlyConstants.GamePath, $"{EarlyConstants.GameAssemblyName}.exe")))
+                    Program.PrintErrorAndExit("Oops! SMAPI can't find the game. Make sure you're running StardewModdingAPI.exe in your game folder.");
+
+                // can't load file
+                Program.PrintErrorAndExit(
+                    message: "Oops! SMAPI couldn't load the game executable. The technical details below may have more info.",
+                    technicalMessage: $"Technical details: {ex}"
+                );
+            }
         }
 
         /// <summary>Assert that the game version is within <see cref="Constants.MinimumGameVersion"/> and <see cref="Constants.MaximumGameVersion"/>.</summary>
@@ -115,7 +159,7 @@ namespace StardewModdingAPI
             // min version
             if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
             {
-                ISemanticVersion suggestedApiVersion = Constants.GetCompatibleApiVersion(Constants.GameVersion);
+                ISemanticVersion? suggestedApiVersion = Constants.GetCompatibleApiVersion(Constants.GameVersion);
                 Program.PrintErrorAndExit(suggestedApiVersion != null
                     ? $"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. You can install SMAPI {suggestedApiVersion} instead to fix this error, or update your game to the latest version."
                     : $"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI."
@@ -123,8 +167,39 @@ namespace StardewModdingAPI
             }
 
             // max version
-            else if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
+            if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
                 Program.PrintErrorAndExit($"Oops! You're running Stardew Valley {Constants.GameVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI: https://smapi.io.");
+        }
+
+        /// <summary>Assert that the versions of all SMAPI components are correct.</summary>
+        /// <remarks>Players sometimes have mismatched versions (particularly when installed through Vortex), which can cause some very confusing bugs without this check.</remarks>
+        private static void AssertSmapiVersions()
+        {
+            // get SMAPI version without prerelease suffix (since we can't get that from the assembly versions)
+            ISemanticVersion smapiVersion = new SemanticVersion(Constants.ApiVersion.MajorVersion, Constants.ApiVersion.MinorVersion, Constants.ApiVersion.PatchVersion);
+
+            // compare with assembly versions
+            foreach (var type in new[] { typeof(IManifest), typeof(Manifest) })
+            {
+                AssemblyName assemblyName = type.Assembly.GetName();
+                ISemanticVersion assemblyVersion = new SemanticVersion(assemblyName.Version!);
+                if (!assemblyVersion.Equals(smapiVersion))
+                    Program.PrintErrorAndExit($"Oops! The 'smapi-internal/{assemblyName.Name}.dll' file is version {assemblyVersion} instead of the required {Constants.ApiVersion}. SMAPI doesn't seem to be installed correctly.");
+            }
+        }
+
+        /// <summary>Assert that SMAPI's <c>StardewModdingAPI.deps.json</c> matches <c>Stardew Valley.deps.json</c>, fixing it if necessary.</summary>
+        /// <remarks>This is needed to resolve native DLLs like libSkiaSharp.</remarks>
+        private static void AssertDepsJson()
+        {
+            string sourcePath = Path.Combine(Constants.GamePath, "Stardew Valley.deps.json");
+            string targetPath = Path.Combine(Constants.GamePath, "StardewModdingAPI.deps.json");
+
+            if (!File.Exists(targetPath) || FileUtilities.GetFileHash(sourcePath) != FileUtilities.GetFileHash(targetPath))
+            {
+                File.Copy(sourcePath, targetPath, overwrite: true);
+                Program.PrintErrorAndExit($"The '{Path.GetFileName(targetPath)}' file didn't match the game's version. SMAPI fixed it automatically, but you must restart SMAPI for the change to take effect.");
+            }
         }
 
         /// <summary>Initialize SMAPI and launch the game.</summary>
@@ -136,37 +211,61 @@ namespace StardewModdingAPI
             bool writeToConsole = !args.Contains("--no-terminal") && Environment.GetEnvironmentVariable("SMAPI_NO_TERMINAL") == null;
 
             // get mods path
+            bool? developerMode = null;
             string modsPath;
             {
-                string rawModsPath = null;
+                string? rawModsPath = null;
 
-                // get from command line args
+                // get mods path from command line args
                 int pathIndex = Array.LastIndexOf(args, "--mods-path") + 1;
                 if (pathIndex >= 1 && args.Length >= pathIndex)
                     rawModsPath = args[pathIndex];
 
+                // get developer mode from command line args
+                if (args.Contains("--developer-mode"))
+                    developerMode = true;
+                if (args.Contains("--developer-mode-off"))
+                    developerMode = false;
+
                 // get from environment variables
                 if (string.IsNullOrWhiteSpace(rawModsPath))
                     rawModsPath = Environment.GetEnvironmentVariable("SMAPI_MODS_PATH");
+                if (developerMode is null)
+                {
+                    string? rawDeveloperMode = Environment.GetEnvironmentVariable("SMAPI_DEVELOPER_MODE");
+                    if (rawDeveloperMode != null)
+                        developerMode = bool.Parse(rawDeveloperMode);
+                }
 
-                // normalise
+                // normalize
                 modsPath = !string.IsNullOrWhiteSpace(rawModsPath)
-                    ? Path.Combine(Constants.ExecutionPath, rawModsPath)
+                    ? Path.Combine(Constants.GamePath, rawModsPath)
                     : Constants.DefaultModsPath;
             }
 
             // load SMAPI
-            using SCore core = new SCore(modsPath, writeToConsole);
+            using SCore core = new(modsPath, writeToConsole, developerMode);
             core.RunInteractively();
         }
 
         /// <summary>Write an error directly to the console and exit.</summary>
         /// <param name="message">The error message to display.</param>
-        private static void PrintErrorAndExit(string message)
+        /// <param name="technicalMessage">An additional message to log with technical details.</param>
+        private static void PrintErrorAndExit(string message, string? technicalMessage = null)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(message);
             Console.ResetColor();
+
+            if (technicalMessage != null)
+            {
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine(technicalMessage);
+                Console.ResetColor();
+                Console.WriteLine();
+            }
+
             Program.PressAnyKeyToExit(showMessage: true);
         }
 

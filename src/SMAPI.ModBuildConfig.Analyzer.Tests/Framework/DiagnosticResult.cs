@@ -1,6 +1,7 @@
 // <generated />
-using Microsoft.CodeAnalysis;
+// ReSharper disable All -- generated code
 using System;
+using Microsoft.CodeAnalysis;
 
 namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
 {

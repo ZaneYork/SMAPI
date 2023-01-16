@@ -6,7 +6,7 @@ using StardewValley;
 namespace StardewModdingAPI
 {
     /// <summary>A unified button constant which includes all controller, keyboard, and mouse buttons.</summary>
-    /// <remarks>Derived from <see cref="Keys"/>, <see cref="Buttons"/>, and <see cref="System.Windows.Forms.MouseButtons"/>.</remarks>
+    /// <remarks>Derived from <see cref="Keys"/>, <see cref="Buttons"/>, and <c>System.Windows.Forms.MouseButtons</c>.</remarks>
     public enum SButton
     {
         /// <summary>No valid key.</summary>
@@ -674,7 +674,7 @@ namespace StardewModdingAPI
             }
 
             // mouse
-            if (input == SButton.MouseLeft || input == SButton.MouseRight)
+            if (input is SButton.MouseLeft or SButton.MouseRight)
             {
                 button = new InputButton(mouseLeft: input == SButton.MouseLeft);
                 return true;

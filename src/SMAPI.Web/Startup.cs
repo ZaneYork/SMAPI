@@ -81,7 +81,7 @@ namespace StardewModdingAPI.Web
 
             // init Hangfire
             services
-                .AddHangfire((serv, config) =>
+                .AddHangfire((_, config) =>
                 {
                     config
                         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
@@ -100,7 +100,7 @@ namespace StardewModdingAPI.Web
             // init API clients
             {
                 ApiClientsConfig api = this.Configuration.GetSection("ApiClients").Get<ApiClientsConfig>();
-                string version = this.GetType().Assembly.GetName().Version.ToString(3);
+                string version = this.GetType().Assembly.GetName().Version!.ToString(3);
                 string userAgent = string.Format(api.UserAgent, version);
 
                 services.AddSingleton<IChucklefishClient>(new ChucklefishClient(
@@ -111,7 +111,8 @@ namespace StardewModdingAPI.Web
 
                 services.AddSingleton<ICurseForgeClient>(new CurseForgeClient(
                     userAgent: userAgent,
-                    apiUrl: api.CurseForgeBaseUrl
+                    apiUrl: api.CurseForgeBaseUrl,
+                    apiKey: api.CurseForgeApiKey
                 ));
 
                 services.AddSingleton<IGitHubClient>(new GitHubClient(
@@ -128,14 +129,21 @@ namespace StardewModdingAPI.Web
                     modUrlFormat: api.ModDropModPageUrl
                 ));
 
-                services.AddSingleton<INexusClient>(new NexusClient(
-                    webUserAgent: userAgent,
-                    webBaseUrl: api.NexusBaseUrl,
-                    webModUrlFormat: api.NexusModUrlFormat,
-                    webModScrapeUrlFormat: api.NexusModScrapeUrlFormat,
-                    apiAppVersion: version,
-                    apiKey: api.NexusApiKey
-                ));
+                if (!string.IsNullOrWhiteSpace(api.NexusApiKey))
+                {
+                    services.AddSingleton<INexusClient>(new NexusClient(
+                        webUserAgent: userAgent,
+                        webBaseUrl: api.NexusBaseUrl,
+                        webModUrlFormat: api.NexusModUrlFormat,
+                        webModScrapeUrlFormat: api.NexusModScrapeUrlFormat,
+                        apiAppVersion: version,
+                        apiKey: api.NexusApiKey
+                    ));
+                }
+                else
+                {
+                    services.AddSingleton<INexusClient>(new DisabledNexusClient());
+                }
 
                 services.AddSingleton<IPastebinClient>(new PastebinClient(
                     baseUrl: api.PastebinBaseUrl,
@@ -191,7 +199,7 @@ namespace StardewModdingAPI.Web
         /// <param name="settings">The serializer settings to edit.</param>
         private void ConfigureJsonNet(JsonSerializerSettings settings)
         {
-            foreach (JsonConverter converter in new JsonHelper().JsonSettings.Converters)
+            foreach (JsonConverter converter in JsonHelper.CreateDefaultSettings().Converters)
                 settings.Converters.Add(converter);
 
             settings.Formatting = Formatting.Indented;
@@ -205,14 +213,21 @@ namespace StardewModdingAPI.Web
                 // shortcut paths
                 .Add(new RedirectPathsToUrlsRule(new Dictionary<string, string>
                 {
+                    // wiki pages
                     [@"^/3\.0\.?$"] = "https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0",
-                    [@"^/(?:buildmsg|package)(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md#$1", // buildmsg deprecated, remove when SDV 1.4 is released
                     [@"^/community\.?$"] = "https://stardewvalleywiki.com/Modding:Community",
-                    [@"^/compat\.?$"] = "https://smapi.io/mods",
                     [@"^/docs\.?$"] = "https://stardewvalleywiki.com/Modding:Index",
+                    [@"^/help\.?$"] = "https://stardewvalleywiki.com/Modding:Help",
                     [@"^/install\.?$"] = "https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_SMAPI",
                     [@"^/troubleshoot(.*)$"] = "https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting$1",
-                    [@"^/xnb\.?$"] = "https://stardewvalleywiki.com/Modding:Using_XNB_mods"
+                    [@"^/xnb\.?$"] = "https://stardewvalleywiki.com/Modding:Using_XNB_mods",
+
+                    // GitHub docs
+                    [@"^/package(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md#$1",
+                    [@"^/release(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#$1",
+
+                    // legacy redirects
+                    [@"^/compat\.?$"] = "https://smapi.io/mods"
                 }))
 
                 // legacy paths
@@ -230,7 +245,7 @@ namespace StardewModdingAPI.Web
                         : null
                 }))
 
-                // redirect to HTTPS (except API for Linux/Mac Mono compatibility)
+                // redirect to HTTPS (except API for Linux/macOS Mono compatibility)
                 .Add(
                     new RedirectToHttpsRule(except: req => req.Host.Host == "localhost" || req.Path.StartsWithSegments("/api"))
                 );

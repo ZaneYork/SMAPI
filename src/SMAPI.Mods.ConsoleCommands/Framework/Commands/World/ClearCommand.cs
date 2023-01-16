@@ -1,6 +1,7 @@
 using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Objects;
@@ -10,13 +11,14 @@ using SObject = StardewValley.Object;
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 {
     /// <summary>A command which clears in-game objects.</summary>
-    internal class ClearCommand : TrainerCommand
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
+    internal class ClearCommand : ConsoleCommand
     {
         /*********
         ** Fields
         *********/
         /// <summary>The valid types that can be cleared.</summary>
-        private readonly string[] ValidTypes = { "crops", "debris", "fruit-trees", "grass", "trees", "everything" };
+        private readonly string[] ValidTypes = { "crops", "debris", "fruit-trees", "furniture", "grass", "trees", "removable", "everything" };
 
         /// <summary>The resource clump IDs to consider debris.</summary>
         private readonly int[] DebrisClumps = { ResourceClump.stumpIndex, ResourceClump.hollowLogIndex, ResourceClump.meteoriteIndex, ResourceClump.boulderIndex };
@@ -31,8 +33,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
                 name: "world_clear",
                 description: "Clears in-game entities in a given location.\n\n"
                     + "Usage: world_clear <location> <object type>\n"
-                    + "- location: the location name for which to clear objects (like Farm), or 'current' for the current location.\n"
-                    + " - object type: the type of object clear. You can specify 'crops', 'debris' (stones/twigs/weeds and dead crops), 'grass', and 'trees' / 'fruit-trees'. You can also specify 'everything', which includes things not removed by the other types (like furniture or resource clumps)."
+                    + " - location: the location name for which to clear objects (like Farm), or 'current' for the current location.\n"
+                    + " - object type: the type of object clear. You can specify 'crops', 'debris' (stones/twigs/weeds and dead crops), 'furniture', 'grass', and 'trees' / 'fruit-trees'. You can also specify 'removable' (remove everything that can be removed or destroyed during normal gameplay) or 'everything' (remove everything including permanent bushes)."
             )
         { }
 
@@ -50,13 +52,13 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
             }
 
             // parse arguments
-            if (!args.TryGet(0, "location", out string locationName, required: true))
+            if (!args.TryGet(0, "location", out string? locationName, required: true))
                 return;
-            if (!args.TryGet(1, "object type", out string type, required: true, oneOf: this.ValidTypes))
+            if (!args.TryGet(1, "object type", out string? type, required: true, oneOf: this.ValidTypes))
                 return;
 
             // get target location
-            GameLocation location = Game1.locations.FirstOrDefault(p => p.Name != null && p.Name.Equals(locationName, StringComparison.OrdinalIgnoreCase));
+            GameLocation? location = Game1.locations.FirstOrDefault(p => p.Name != null && p.Name.Equals(locationName, StringComparison.OrdinalIgnoreCase));
             if (location == null && locationName == "current")
                 location = Game1.currentLocation;
             if (location == null)
@@ -93,11 +95,10 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 
                         removed +=
                             this.RemoveObjects(location, obj =>
-                                !(obj is Chest)
+                                obj is not Chest
                                 && (
-                                    obj.Name == "Weeds"
-                                    || obj.Name == "Stone"
-                                    || (obj.ParentSheetIndex == 294 || obj.ParentSheetIndex == 295)
+                                    obj.Name is "Weeds" or "Stone"
+                                    || obj.ParentSheetIndex is 294 or 295
                                 )
                             )
                             + this.RemoveResourceClumps(location, clump => this.DebrisClumps.Contains(clump.parentSheetIndex.Value));
@@ -109,6 +110,13 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
                 case "fruit-trees":
                     {
                         int removed = this.RemoveTerrainFeatures(location, feature => feature is FruitTree);
+                        monitor.Log($"Done! Removed {removed} entities from {location.Name}.", LogLevel.Info);
+                        break;
+                    }
+
+                case "furniture":
+                    {
+                        int removed = this.RemoveFurniture(location, _ => true);
                         monitor.Log($"Done! Removed {removed} entities from {location.Name}.", LogLevel.Info);
                         break;
                     }
@@ -127,14 +135,16 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
                         break;
                     }
 
+                case "removable":
                 case "everything":
                     {
+                        bool everything = type == "everything";
                         int removed =
-                            this.RemoveFurniture(location, p => true)
-                            + this.RemoveObjects(location, p => true)
-                            + this.RemoveTerrainFeatures(location, p => true)
-                            + this.RemoveLargeTerrainFeatures(location, p => true)
-                            + this.RemoveResourceClumps(location, p => true);
+                            this.RemoveFurniture(location, _ => true)
+                            + this.RemoveObjects(location, _ => true)
+                            + this.RemoveTerrainFeatures(location, _ => true)
+                            + this.RemoveLargeTerrainFeatures(location, p => everything || p is not Bush bush || bush.isDestroyable(location, p.currentTileLocation))
+                            + this.RemoveResourceClumps(location, _ => true);
                         monitor.Log($"Done! Removed {removed} entities from {location.Name}.", LogLevel.Info);
                         break;
                     }
@@ -157,11 +167,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         {
             int removed = 0;
 
-            foreach (var pair in location.Objects.Pairs.ToArray())
+            foreach ((Vector2 tile, SObject? obj) in location.Objects.Pairs.ToArray())
             {
-                if (shouldRemove(pair.Value))
+                if (shouldRemove(obj))
                 {
-                    location.Objects.Remove(pair.Key);
+                    location.Objects.Remove(tile);
                     removed++;
                 }
             }
@@ -177,11 +187,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         {
             int removed = 0;
 
-            foreach (var pair in location.terrainFeatures.Pairs.ToArray())
+            foreach ((Vector2 tile, TerrainFeature? feature) in location.terrainFeatures.Pairs.ToArray())
             {
-                if (shouldRemove(pair.Value))
+                if (shouldRemove(feature))
                 {
-                    location.terrainFeatures.Remove(pair.Key);
+                    location.terrainFeatures.Remove(tile);
                     removed++;
                 }
             }
@@ -217,18 +227,17 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         {
             int removed = 0;
 
-            // get resource clumps
-            IList<ResourceClump> resourceClumps =
-                (location as Farm)?.resourceClumps
-                ?? (IList<ResourceClump>)(location as Woods)?.stumps
-                ?? new List<ResourceClump>();
-
-            // remove matching clumps
-            foreach (var clump in resourceClumps.ToArray())
+            foreach (ResourceClump clump in location.resourceClumps.Where(shouldRemove).ToArray())
             {
-                if (shouldRemove(clump))
+                location.resourceClumps.Remove(clump);
+                removed++;
+            }
+
+            if (location is Woods woods)
+            {
+                foreach (ResourceClump clump in woods.stumps.Where(shouldRemove).ToArray())
                 {
-                    resourceClumps.Remove(clump);
+                    woods.stumps.Remove(clump);
                     removed++;
                 }
             }
@@ -244,15 +253,12 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         {
             int removed = 0;
 
-            if (location is DecoratableLocation decoratableLocation)
+            foreach (Furniture furniture in location.furniture.ToArray())
             {
-                foreach (Furniture furniture in decoratableLocation.furniture.ToArray())
+                if (shouldRemove(furniture))
                 {
-                    if (shouldRemove(furniture))
-                    {
-                        decoratableLocation.furniture.Remove(furniture);
-                        removed++;
-                    }
+                    location.furniture.Remove(furniture);
+                    removed++;
                 }
             }
 

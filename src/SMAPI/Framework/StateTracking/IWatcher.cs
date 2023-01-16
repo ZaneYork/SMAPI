@@ -8,6 +8,9 @@ namespace StardewModdingAPI.Framework.StateTracking
         /*********
         ** Accessors
         *********/
+        /// <summary>A name which identifies what the watcher is watching, used for troubleshooting.</summary>
+        string Name { get; }
+
         /// <summary>Whether the value changed since the last reset.</summary>
         bool IsChanged { get; }
 

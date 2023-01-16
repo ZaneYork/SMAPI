@@ -7,10 +7,13 @@ namespace Netcode
     public class NetFieldBase<T, TSelf> where TSelf : NetFieldBase<T, TSelf>
     {
         /// <summary>The synchronised value.</summary>
-        public T Value { get; set; }
+        public T? Value { get; set; }
 
         /// <summary>Implicitly convert a net field to the its type.</summary>
         /// <param name="field">The field to convert.</param>
-        public static implicit operator T(NetFieldBase<T, TSelf> field) => field.Value;
+        public static implicit operator T?(NetFieldBase<T, TSelf> field)
+        {
+            return field.Value;
+        }
     }
 }

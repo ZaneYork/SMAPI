@@ -8,30 +8,38 @@ namespace StardewModdingAPI
         /*********
         ** Accessors
         *********/
-        /// <summary>Provides simplified APIs for writing mods.</summary>
-        public IModHelper Helper { get; internal set; }
+        /// <inheritdoc />
+        public IModHelper Helper { get; internal set; } = null!;
 
-        /// <summary>Writes messages to the console and log file.</summary>
-        public IMonitor Monitor { get; internal set; }
+        /// <inheritdoc />
+        public IMonitor Monitor { get; internal set; } = null!;
 
-        /// <summary>The mod's manifest.</summary>
-        public IManifest ModManifest { get; internal set; }
+        /// <inheritdoc />
+        public IManifest ModManifest { get; internal set; } = null!;
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>The mod entry point, called after the mod is first loaded.</summary>
-        /// <param name="helper">Provides simplified APIs for writing mods.</param>
+        /// <inheritdoc />
         public abstract void Entry(IModHelper helper);
 
-        /// <summary>Get an API that other mods can access. This is always called after <see cref="Entry"/>.</summary>
-        public virtual object GetApi() => null;
+        /// <inheritdoc />
+        public virtual object? GetApi()
+        {
+            return null;
+        }
+
+        /// <inheritdoc />
+        public virtual object? GetApi(IModInfo mod)
+        {
+            return null;
+        }
 
         /// <summary>Release or reset unmanaged resources.</summary>
         public void Dispose()
         {
-            (this.Helper as IDisposable)?.Dispose(); // deliberate do this outside overridable dispose method so mods don't accidentally suppress it
+            (this.Helper as IDisposable)?.Dispose(); // deliberately do this outside overridable dispose method so mods don't accidentally suppress it
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -47,6 +55,7 @@ namespace StardewModdingAPI
         /// <summary>Destruct the instance.</summary>
         ~Mod()
         {
+            (this.Helper as IDisposable)?.Dispose(); // deliberately do this outside overridable dispose method so mods don't accidentally suppress it
             this.Dispose(false);
         }
     }

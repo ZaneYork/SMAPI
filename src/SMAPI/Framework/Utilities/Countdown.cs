@@ -1,4 +1,4 @@
-﻿namespace StardewModdingAPI.Framework.Utilities
+namespace StardewModdingAPI.Framework.Utilities
 {
     /// <summary>Counts down from a baseline value.</summary>
     internal class Countdown

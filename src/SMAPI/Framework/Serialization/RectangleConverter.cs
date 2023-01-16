@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework.Serialization
 {
     /// <summary>Handles deserialization of <see cref="Rectangle"/> for crossplatform compatibility.</summary>
     /// <remarks>
-    /// - Linux/Mac format: { "X": 1, "Y": 2, "Width": 3, "Height": 4 }
+    /// - Linux/macOS format: { "X": 1, "Y": 2, "Width": 3, "Height": 4 }
     /// - Windows format:   "{X:1 Y:2 Width:3 Height:4}"
     /// </remarks>
     internal class RectangleConverter : SimpleReadOnlyConverter<Rectangle>

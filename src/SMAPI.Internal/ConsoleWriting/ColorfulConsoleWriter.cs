@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Internal.ConsoleWriting
@@ -11,10 +12,11 @@ namespace StardewModdingAPI.Internal.ConsoleWriting
         ** Fields
         *********/
         /// <summary>The console text color for each log level.</summary>
-        private readonly IDictionary<ConsoleLogLevel, ConsoleColor> Colors;
+        private readonly IDictionary<ConsoleLogLevel, ConsoleColor>? Colors;
 
         /// <summary>Whether the current console supports color formatting.</summary>
-        private readonly bool SupportsColor;
+        [MemberNotNullWhen(true, nameof(ColorfulConsoleWriter.Colors))]
+        private bool SupportsColor { get; }
 
 
         /*********
@@ -72,10 +74,9 @@ namespace StardewModdingAPI.Internal.ConsoleWriting
         /// <remarks>The colors here should be kept in sync with the SMAPI config file.</remarks>
         public static ColorSchemeConfig GetDefaultColorSchemeConfig(MonitorColorScheme useScheme)
         {
-            return new ColorSchemeConfig
-            {
-                UseScheme = useScheme,
-                Schemes = new Dictionary<MonitorColorScheme, IDictionary<ConsoleLogLevel, ConsoleColor>>
+            return new ColorSchemeConfig(
+                useScheme: useScheme,
+                schemes: new Dictionary<MonitorColorScheme, IDictionary<ConsoleLogLevel, ConsoleColor>>
                 {
                     [MonitorColorScheme.DarkBackground] = new Dictionary<ConsoleLogLevel, ConsoleColor>
                     {
@@ -98,7 +99,7 @@ namespace StardewModdingAPI.Internal.ConsoleWriting
                         [ConsoleLogLevel.Success] = ConsoleColor.DarkGreen
                     }
                 }
-            };
+            );
         }
 
 
@@ -129,12 +130,12 @@ namespace StardewModdingAPI.Internal.ConsoleWriting
             if (schemeID == MonitorColorScheme.AutoDetect)
             {
                 schemeID = platform == Platform.Mac
-                    ? MonitorColorScheme.LightBackground // MacOS doesn't provide console background color info, but it's usually white.
+                    ? MonitorColorScheme.LightBackground // macOS doesn't provide console background color info, but it's usually white.
                     : ColorfulConsoleWriter.IsDark(Console.BackgroundColor) ? MonitorColorScheme.DarkBackground : MonitorColorScheme.LightBackground;
             }
 
             // get colors for scheme
-            return colorConfig.Schemes.TryGetValue(schemeID, out IDictionary<ConsoleLogLevel, ConsoleColor> scheme)
+            return colorConfig.Schemes.TryGetValue(schemeID, out IDictionary<ConsoleLogLevel, ConsoleColor>? scheme)
                 ? scheme
                 : throw new NotSupportedException($"Unknown color scheme '{schemeID}'.");
         }

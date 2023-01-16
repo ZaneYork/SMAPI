@@ -27,11 +27,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="locale">The initial locale.</param>
         /// <param name="languageCode">The game's current language code.</param>
-        public TranslationHelper(string modID, string locale, LocalizedContentManager.LanguageCode languageCode)
-            : base(modID)
+        public TranslationHelper(IModMetadata mod, string locale, LocalizedContentManager.LanguageCode languageCode)
+            : base(mod)
         {
             this.Translator = new Translator();
             this.Translator.SetLocale(locale, languageCode);
@@ -50,9 +50,15 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
-        public Translation Get(string key, object tokens)
+        public Translation Get(string key, object? tokens)
         {
             return this.Translator.Get(key, tokens);
+        }
+
+        /// <inheritdoc />
+        public IDictionary<string, Translation> GetInAllLocales(string key, bool withFallback = false)
+        {
+            return this.Translator.GetInAllLocales(key, withFallback);
         }
 
         /// <summary>Set the translations to use.</summary>
@@ -63,7 +69,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             return this;
         }
 
-        /// <summary>Set the current locale and precache translations.</summary>
+        /// <summary>Set the current locale and pre-cache translations.</summary>
         /// <param name="locale">The current locale.</param>
         /// <param name="localeEnum">The game's current language code.</param>
         internal void SetLocale(string locale, LocalizedContentManager.LanguageCode localeEnum)

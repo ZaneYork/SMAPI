@@ -14,5 +14,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ConsoleWriting\ConsoleLogLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConsoleWriting\IConsoleWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConsoleWriting\MonitorColorScheme.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExceptionHelper.cs" />
   </ItemGroup>
 </Project>

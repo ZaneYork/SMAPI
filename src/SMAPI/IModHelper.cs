@@ -1,3 +1,6 @@
+#if SMAPI_DEPRECATED
+using System;
+#endif
 using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI
@@ -17,13 +20,24 @@ namespace StardewModdingAPI
         /// <summary>An API for managing console commands.</summary>
         ICommandHelper ConsoleCommands { get; }
 
+        /// <summary>An API for loading content assets from the game's <c>Content</c> folder or using the <see cref="IModEvents.Content"/> events.</summary>
+        IGameContentHelper GameContent { get; }
+
+        /// <summary>An API for loading content assets from your mod's files.</summary>
+        /// <remarks>This API is intended for reading content assets from the mod files (like game data, images, etc); see also <see cref="Data"/> which is intended for persisting internal mod data.</remarks>
+        IModContentHelper ModContent { get; }
+
+#if SMAPI_DEPRECATED
         /// <summary>An API for loading content assets.</summary>
+        [Obsolete($"Use {nameof(IGameContentHelper)} or {nameof(IModContentHelper)} instead.")]
         IContentHelper Content { get; }
+#endif
 
         /// <summary>An API for managing content packs.</summary>
         IContentPackHelper ContentPacks { get; }
 
         /// <summary>An API for reading and writing persistent mod data.</summary>
+        /// <remarks>This API is intended for persisting internal mod data; see also <see cref="ModContent"/> which is intended for reading content assets (like game data, images, etc).</remarks>
         IDataHelper Data { get; }
 
         /// <summary>An API for checking and changing input state.</summary>

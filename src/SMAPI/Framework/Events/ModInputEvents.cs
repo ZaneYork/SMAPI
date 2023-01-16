@@ -3,34 +3,41 @@ using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI.Framework.Events
 {
-    /// <summary>Events raised when the player provides input using a controller, keyboard, or mouse.</summary>
+    /// <inheritdoc cref="IInputEvents" />
     internal class ModInputEvents : ModEventsBase, IInputEvents
     {
         /*********
         ** Accessors
         *********/
-        /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
+        /// <inheritdoc />
+        public event EventHandler<ButtonsChangedEventArgs> ButtonsChanged
+        {
+            add => this.EventManager.ButtonsChanged.Add(value, this.Mod);
+            remove => this.EventManager.ButtonsChanged.Remove(value);
+        }
+
+        /// <inheritdoc />
         public event EventHandler<ButtonPressedEventArgs> ButtonPressed
         {
             add => this.EventManager.ButtonPressed.Add(value, this.Mod);
             remove => this.EventManager.ButtonPressed.Remove(value);
         }
 
-        /// <summary>Raised after the player releases a button on the keyboard, controller, or mouse.</summary>
+        /// <inheritdoc />
         public event EventHandler<ButtonReleasedEventArgs> ButtonReleased
         {
             add => this.EventManager.ButtonReleased.Add(value, this.Mod);
             remove => this.EventManager.ButtonReleased.Remove(value);
         }
 
-        /// <summary>Raised after the player moves the in-game cursor.</summary>
+        /// <inheritdoc />
         public event EventHandler<CursorMovedEventArgs> CursorMoved
         {
             add => this.EventManager.CursorMoved.Add(value, this.Mod);
             remove => this.EventManager.CursorMoved.Remove(value);
         }
 
-        /// <summary>Raised after the player scrolls the mouse wheel.</summary>
+        /// <inheritdoc />
         public event EventHandler<MouseWheelScrolledEventArgs> MouseWheelScrolled
         {
             add => this.EventManager.MouseWheelScrolled.Add(value, this.Mod);

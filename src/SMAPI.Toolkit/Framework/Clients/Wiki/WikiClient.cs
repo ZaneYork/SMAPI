@@ -7,6 +7,7 @@ using System.Net;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Pathoschild.Http.Client;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 {
@@ -51,30 +52,49 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             doc.LoadHtml(html);
 
             // fetch game versions
-            string stableVersion = doc.DocumentNode.SelectSingleNode("div[@class='game-stable-version']")?.InnerText;
-            string betaVersion = doc.DocumentNode.SelectSingleNode("div[@class='game-beta-version']")?.InnerText;
+            string? stableVersion = doc.DocumentNode.SelectSingleNode("//div[@class='game-stable-version']")?.InnerText;
+            string? betaVersion = doc.DocumentNode.SelectSingleNode("//div[@class='game-beta-version']")?.InnerText;
             if (betaVersion == stableVersion)
                 betaVersion = null;
 
-            // find mod entries
-            HtmlNodeCollection modNodes = doc.DocumentNode.SelectNodes("table[@id='mod-list']//tr[@class='mod']");
-            if (modNodes == null)
-                throw new InvalidOperationException("Can't parse wiki compatibility list, no mods found.");
-
-            // parse
-            WikiModEntry[] mods = this.ParseEntries(modNodes).ToArray();
-            return new WikiModList
+            // parse mod data overrides
+            Dictionary<string, WikiDataOverrideEntry> overrides = new Dictionary<string, WikiDataOverrideEntry>(StringComparer.OrdinalIgnoreCase);
             {
-                StableVersion = stableVersion,
-                BetaVersion = betaVersion,
-                Mods = mods
-            };
+                HtmlNodeCollection modNodes = doc.DocumentNode.SelectNodes("//table[@id='mod-overrides-list']//tr[@class='mod']");
+                if (modNodes == null)
+                    throw new InvalidOperationException("Can't parse wiki compatibility list, no mod data overrides section found.");
+
+                foreach (WikiDataOverrideEntry entry in this.ParseOverrideEntries(modNodes))
+                {
+                    if (entry.Ids.Any() != true || !entry.HasChanges)
+                        continue;
+
+                    foreach (string id in entry.Ids)
+                        overrides[id] = entry;
+                }
+            }
+
+            // parse mod entries
+            WikiModEntry[] mods;
+            {
+                HtmlNodeCollection modNodes = doc.DocumentNode.SelectNodes("//table[@id='mod-list']//tr[@class='mod']");
+                if (modNodes == null)
+                    throw new InvalidOperationException("Can't parse wiki compatibility list, no mods found.");
+                mods = this.ParseModEntries(modNodes, overrides).ToArray();
+            }
+
+            // build model
+            return new WikiModList(
+                stableVersion: stableVersion,
+                betaVersion: betaVersion,
+                mods: mods
+            );
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
-            this.Client?.Dispose();
+            this.Client.Dispose();
         }
 
 
@@ -83,7 +103,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         *********/
         /// <summary>Parse valid mod compatibility entries.</summary>
         /// <param name="nodes">The HTML compatibility entries.</param>
-        private IEnumerable<WikiModEntry> ParseEntries(IEnumerable<HtmlNode> nodes)
+        /// <param name="overridesById">The mod data overrides to apply, if any.</param>
+        private IEnumerable<WikiModEntry> ParseModEntries(IEnumerable<HtmlNode> nodes, IDictionary<string, WikiDataOverrideEntry> overridesById)
         {
             foreach (HtmlNode node in nodes)
             {
@@ -95,70 +116,90 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 int? nexusID = this.GetAttributeAsNullableInt(node, "data-nexus-id");
                 int? chucklefishID = this.GetAttributeAsNullableInt(node, "data-cf-id");
                 int? curseForgeID = this.GetAttributeAsNullableInt(node, "data-curseforge-id");
-                string curseForgeKey = this.GetAttribute(node, "data-curseforge-key");
+                string? curseForgeKey = this.GetAttribute(node, "data-curseforge-key");
                 int? modDropID = this.GetAttributeAsNullableInt(node, "data-moddrop-id");
-                string githubRepo = this.GetAttribute(node, "data-github");
-                string customSourceUrl = this.GetAttribute(node, "data-custom-source");
-                string customUrl = this.GetAttribute(node, "data-url");
-                string anchor = this.GetAttribute(node, "id");
-                string contentPackFor = this.GetAttribute(node, "data-content-pack-for");
-                string devNote = this.GetAttribute(node, "data-dev-note");
-                string pullRequestUrl = this.GetAttribute(node, "data-pr");
-                IDictionary<string, string> mapLocalVersions = this.GetAttributeAsVersionMapping(node, "data-map-local-versions");
-                IDictionary<string, string> mapRemoteVersions = this.GetAttributeAsVersionMapping(node, "data-map-remote-versions");
-                string[] changeUpdateKeys = this.GetAttributeAsCsv(node, "data-change-update-keys");
+                string? githubRepo = this.GetAttribute(node, "data-github");
+                string? customSourceUrl = this.GetAttribute(node, "data-custom-source");
+                string? customUrl = this.GetAttribute(node, "data-url");
+                string? anchor = this.GetAttribute(node, "id");
+                string? contentPackFor = this.GetAttribute(node, "data-content-pack-for");
+                string? devNote = this.GetAttribute(node, "data-dev-note");
+                string? pullRequestUrl = this.GetAttribute(node, "data-pr");
 
                 // parse stable compatibility
-                WikiCompatibilityInfo compatibility = new WikiCompatibilityInfo
-                {
-                    Status = this.GetAttributeAsEnum<WikiCompatibilityStatus>(node, "data-status") ?? WikiCompatibilityStatus.Ok,
-                    BrokeIn = this.GetAttribute(node, "data-broke-in"),
-                    UnofficialVersion = this.GetAttributeAsSemanticVersion(node, "data-unofficial-version"),
-                    UnofficialUrl = this.GetAttribute(node, "data-unofficial-url"),
-                    Summary = this.GetInnerHtml(node, "mod-summary")?.Trim()
-                };
+                WikiCompatibilityInfo compatibility = new(
+                    status: this.GetAttributeAsEnum<WikiCompatibilityStatus>(node, "data-status") ?? WikiCompatibilityStatus.Ok,
+                    brokeIn: this.GetAttribute(node, "data-broke-in"),
+                    unofficialVersion: this.GetAttributeAsSemanticVersion(node, "data-unofficial-version"),
+                    unofficialUrl: this.GetAttribute(node, "data-unofficial-url"),
+                    summary: this.GetInnerHtml(node, "mod-summary")?.Trim()
+                );
 
                 // parse beta compatibility
-                WikiCompatibilityInfo betaCompatibility = null;
+                WikiCompatibilityInfo? betaCompatibility = null;
                 {
                     WikiCompatibilityStatus? betaStatus = this.GetAttributeAsEnum<WikiCompatibilityStatus>(node, "data-beta-status");
                     if (betaStatus.HasValue)
                     {
-                        betaCompatibility = new WikiCompatibilityInfo
-                        {
-                            Status = betaStatus.Value,
-                            BrokeIn = this.GetAttribute(node, "data-beta-broke-in"),
-                            UnofficialVersion = this.GetAttributeAsSemanticVersion(node, "data-beta-unofficial-version"),
-                            UnofficialUrl = this.GetAttribute(node, "data-beta-unofficial-url"),
-                            Summary = this.GetInnerHtml(node, "mod-beta-summary")
-                        };
+                        betaCompatibility = new WikiCompatibilityInfo(
+                            status: betaStatus.Value,
+                            brokeIn: this.GetAttribute(node, "data-beta-broke-in"),
+                            unofficialVersion: this.GetAttributeAsSemanticVersion(node, "data-beta-unofficial-version"),
+                            unofficialUrl: this.GetAttribute(node, "data-beta-unofficial-url"),
+                            summary: this.GetInnerHtml(node, "mod-beta-summary")
+                        );
                     }
                 }
 
+                // find data overrides
+                WikiDataOverrideEntry? overrides = ids
+                    .Select(id => overridesById.TryGetValue(id, out overrides) ? overrides : null)
+                    .FirstOrDefault(p => p != null);
+
                 // yield model
-                yield return new WikiModEntry
+                yield return new WikiModEntry(
+                    id: ids,
+                    name: names,
+                    author: authors,
+                    nexusId: nexusID,
+                    chucklefishId: chucklefishID,
+                    curseForgeId: curseForgeID,
+                    curseForgeKey: curseForgeKey,
+                    modDropId: modDropID,
+                    githubRepo: githubRepo,
+                    customSourceUrl: customSourceUrl,
+                    customUrl: customUrl,
+                    contentPackFor: contentPackFor,
+                    compatibility: compatibility,
+                    betaCompatibility: betaCompatibility,
+                    warnings: warnings,
+                    pullRequestUrl: pullRequestUrl,
+                    devNote: devNote,
+                    overrides: overrides,
+                    anchor: anchor
+                );
+            }
+        }
+
+        /// <summary>Parse valid mod data override entries.</summary>
+        /// <param name="nodes">The HTML mod data override entries.</param>
+        private IEnumerable<WikiDataOverrideEntry> ParseOverrideEntries(IEnumerable<HtmlNode> nodes)
+        {
+            foreach (HtmlNode node in nodes)
+            {
+                yield return new WikiDataOverrideEntry
                 {
-                    ID = ids,
-                    Name = names,
-                    Author = authors,
-                    NexusID = nexusID,
-                    ChucklefishID = chucklefishID,
-                    CurseForgeID = curseForgeID,
-                    CurseForgeKey = curseForgeKey,
-                    ModDropID = modDropID,
-                    GitHubRepo = githubRepo,
-                    CustomSourceUrl = customSourceUrl,
-                    CustomUrl = customUrl,
-                    ContentPackFor = contentPackFor,
-                    Compatibility = compatibility,
-                    BetaCompatibility = betaCompatibility,
-                    Warnings = warnings,
-                    PullRequestUrl = pullRequestUrl,
-                    DevNote = devNote,
-                    ChangeUpdateKeys = changeUpdateKeys,
-                    MapLocalVersions = mapLocalVersions,
-                    MapRemoteVersions = mapRemoteVersions,
-                    Anchor = anchor
+                    Ids = this.GetAttributeAsCsv(node, "data-id"),
+                    ChangeLocalVersions = this.GetAttributeAsChangeDescriptor(node, "data-local-version",
+                        raw => SemanticVersion.TryParse(raw, out ISemanticVersion? version) ? version.ToString() : raw
+                    ),
+                    ChangeRemoteVersions = this.GetAttributeAsChangeDescriptor(node, "data-remote-version",
+                        raw => SemanticVersion.TryParse(raw, out ISemanticVersion? version) ? version.ToString() : raw
+                    ),
+
+                    ChangeUpdateKeys = this.GetAttributeAsChangeDescriptor(node, "data-update-keys",
+                        raw => UpdateKey.TryParse(raw, out UpdateKey key) ? key.ToString() : raw
+                    )
                 };
             }
         }
@@ -166,7 +207,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <summary>Get an attribute value.</summary>
         /// <param name="element">The element whose attributes to read.</param>
         /// <param name="name">The attribute name.</param>
-        private string GetAttribute(HtmlNode element, string name)
+        private string? GetAttribute(HtmlNode element, string name)
         {
             string value = element.GetAttributeValue(name, null);
             if (string.IsNullOrWhiteSpace(value))
@@ -175,15 +216,27 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             return WebUtility.HtmlDecode(value);
         }
 
+        /// <summary>Get an attribute value and parse it as a change descriptor.</summary>
+        /// <param name="element">The element whose attributes to read.</param>
+        /// <param name="name">The attribute name.</param>
+        /// <param name="formatValue">Format an raw entry value when applying changes.</param>
+        private ChangeDescriptor? GetAttributeAsChangeDescriptor(HtmlNode element, string name, Func<string, string> formatValue)
+        {
+            string? raw = this.GetAttribute(element, name);
+            return raw != null
+                ? ChangeDescriptor.Parse(raw, out _, formatValue)
+                : null;
+        }
+
         /// <summary>Get an attribute value and parse it as a comma-delimited list of strings.</summary>
         /// <param name="element">The element whose attributes to read.</param>
         /// <param name="name">The attribute name.</param>
         private string[] GetAttributeAsCsv(HtmlNode element, string name)
         {
-            string raw = this.GetAttribute(element, name);
+            string? raw = this.GetAttribute(element, name);
             return !string.IsNullOrWhiteSpace(raw)
                 ? raw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray()
-                : new string[0];
+                : Array.Empty<string>();
         }
 
         /// <summary>Get an attribute value and parse it as an enum value.</summary>
@@ -192,7 +245,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <param name="name">The attribute name.</param>
         private TEnum? GetAttributeAsEnum<TEnum>(HtmlNode element, string name) where TEnum : struct
         {
-            string raw = this.GetAttribute(element, name);
+            string? raw = this.GetAttribute(element, name);
             if (raw == null)
                 return null;
             if (!Enum.TryParse(raw, true, out TEnum value) && Enum.IsDefined(typeof(TEnum), value))
@@ -203,10 +256,10 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <summary>Get an attribute value and parse it as a semantic version.</summary>
         /// <param name="element">The element whose attributes to read.</param>
         /// <param name="name">The attribute name.</param>
-        private ISemanticVersion GetAttributeAsSemanticVersion(HtmlNode element, string name)
+        private ISemanticVersion? GetAttributeAsSemanticVersion(HtmlNode element, string name)
         {
-            string raw = this.GetAttribute(element, name);
-            return SemanticVersion.TryParse(raw, out ISemanticVersion version)
+            string? raw = this.GetAttribute(element, name);
+            return SemanticVersion.TryParse(raw, out ISemanticVersion? version)
                 ? version
                 : null;
         }
@@ -216,59 +269,54 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <param name="name">The attribute name.</param>
         private int? GetAttributeAsNullableInt(HtmlNode element, string name)
         {
-            string raw = this.GetAttribute(element, name);
+            string? raw = this.GetAttribute(element, name);
             if (raw != null && int.TryParse(raw, out int value))
                 return value;
             return null;
         }
 
-        /// <summary>Get an attribute value and parse it as a version mapping.</summary>
-        /// <param name="element">The element whose attributes to read.</param>
-        /// <param name="name">The attribute name.</param>
-        private IDictionary<string, string> GetAttributeAsVersionMapping(HtmlNode element, string name)
-        {
-            // get raw value
-            string raw = this.GetAttribute(element, name);
-            if (raw?.Contains("→") != true)
-                return null;
-
-            // parse
-            // Specified on the wiki in the form "remote version → mapped version; another remote version → mapped version"
-            IDictionary<string, string> map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (string pair in raw.Split(';'))
-            {
-                string[] versions = pair.Split('→');
-                if (versions.Length == 2 && !string.IsNullOrWhiteSpace(versions[0]) && !string.IsNullOrWhiteSpace(versions[1]))
-                    map[versions[0].Trim()] = versions[1].Trim();
-            }
-            return map;
-        }
-
         /// <summary>Get the text of an element with the given class name.</summary>
         /// <param name="container">The metadata container.</param>
         /// <param name="className">The field name.</param>
-        private string GetInnerHtml(HtmlNode container, string className)
+        private string? GetInnerHtml(HtmlNode container, string className)
         {
             return container.Descendants().FirstOrDefault(p => p.HasClass(className))?.InnerHtml;
         }
 
         /// <summary>The response model for the MediaWiki parse API.</summary>
-        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local", Justification = "Used via JSON deserialization.")]
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Used via JSON deserialization.")]
         private class ResponseModel
         {
+            /*********
+            ** Accessors
+            *********/
             /// <summary>The parse API results.</summary>
-            public ResponseParseModel Parse { get; set; }
+            public ResponseParseModel Parse { get; }
+
+
+            /*********
+            ** Public methods
+            *********/
+            /// <summary>Construct an instance.</summary>
+            /// <param name="parse">The parse API results.</param>
+            public ResponseModel(ResponseParseModel parse)
+            {
+                this.Parse = parse;
+            }
         }
 
         /// <summary>The inner response model for the MediaWiki parse API.</summary>
-        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-        [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local", Justification = "Used via JSON deserialization.")]
+        [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local", Justification = "Used via JSON deserialization.")]
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Used via JSON deserialization.")]
         private class ResponseParseModel
         {
+            /*********
+            ** Accessors
+            *********/
             /// <summary>The parsed text.</summary>
-            public IDictionary<string, string> Text { get; set; }
+            public IDictionary<string, string> Text { get; } = new Dictionary<string, string>();
         }
     }
 }

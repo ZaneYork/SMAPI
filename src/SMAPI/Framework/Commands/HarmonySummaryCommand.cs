@@ -3,25 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-#if HARMONY_2
 using HarmonyLib;
-#else
-using Harmony;
-#endif
 
 namespace StardewModdingAPI.Framework.Commands
 {
     /// <summary>The 'harmony_summary' SMAPI console command.</summary>
     internal class HarmonySummaryCommand : IInternalCommand
     {
-#if !HARMONY_2
-        /*********
-        ** Fields
-        *********/
-        /// <summary>The Harmony instance through which to fetch patch info.</summary>
-        private readonly HarmonyInstance HarmonyInstance = HarmonyInstance.Create($"SMAPI.{nameof(HarmonySummaryCommand)}");
-#endif
-
         /*********
         ** Accessors
         *********/
@@ -42,7 +30,7 @@ namespace StardewModdingAPI.Framework.Commands
         {
             SearchResult[] matches = this.FilterPatches(args).OrderBy(p => p.MethodName).ToArray();
 
-            StringBuilder result = new StringBuilder();
+            StringBuilder result = new();
 
             if (!matches.Any())
                 result.AppendLine("No current patches match your search.");
@@ -60,9 +48,7 @@ namespace StardewModdingAPI.Framework.Commands
                             {
                                 PatchType.Prefix => 0,
                                 PatchType.Postfix => 1,
-#if HARMONY_2
                                 PatchType.Finalizer => 2,
-#endif
                                 PatchType.Transpiler => 3,
                                 _ => 4
                             });
@@ -85,9 +71,9 @@ namespace StardewModdingAPI.Framework.Commands
         private IEnumerable<SearchResult> FilterPatches(string[] searchTerms)
         {
             bool hasSearch = searchTerms.Any();
-            bool IsMatch(string target) => !hasSearch || searchTerms.Any(search => target != null && target.IndexOf(search, StringComparison.OrdinalIgnoreCase) > -1);
+            bool IsMatch(string? target) => !hasSearch || searchTerms.Any(search => target != null && target.IndexOf(search, StringComparison.OrdinalIgnoreCase) > -1);
 
-            foreach (var patch in this.GetAllPatches())
+            foreach (SearchResult patch in this.GetAllPatches())
             {
                 // matches entire patch
                 if (IsMatch(patch.MethodDescription))
@@ -97,10 +83,10 @@ namespace StardewModdingAPI.Framework.Commands
                 }
 
                 // matches individual patchers
-                foreach (var pair in patch.PatchTypesByOwner.ToArray())
+                foreach ((string patcherId, ISet<PatchType> patchTypes) in patch.PatchTypesByOwner.ToArray())
                 {
-                    if (!IsMatch(pair.Key) && !pair.Value.Any(type => IsMatch(type.ToString())))
-                        patch.PatchTypesByOwner.Remove(pair.Key);
+                    if (!IsMatch(patcherId) && !patchTypes.Any(type => IsMatch(type.ToString())))
+                        patch.PatchTypesByOwner.Remove(patcherId);
                 }
 
                 if (patch.PatchTypesByOwner.Any())
@@ -111,38 +97,28 @@ namespace StardewModdingAPI.Framework.Commands
         /// <summary>Get all current Harmony patches.</summary>
         private IEnumerable<SearchResult> GetAllPatches()
         {
-#if HARMONY_2
             foreach (MethodBase method in Harmony.GetAllPatchedMethods().ToArray())
-#else
-            foreach (MethodBase method in this.HarmonyInstance.GetPatchedMethods().ToArray())
-#endif
             {
                 // get metadata for method
-#if HARMONY_2
                 HarmonyLib.Patches patchInfo = Harmony.GetPatchInfo(method);
-#else
-                Harmony.Patches patchInfo = this.HarmonyInstance.GetPatchInfo(method);
-#endif
 
                 IDictionary<PatchType, IReadOnlyCollection<Patch>> patchGroups = new Dictionary<PatchType, IReadOnlyCollection<Patch>>
                 {
                     [PatchType.Prefix] = patchInfo.Prefixes,
                     [PatchType.Postfix] = patchInfo.Postfixes,
-#if HARMONY_2
                     [PatchType.Finalizer] = patchInfo.Finalizers,
-#endif
                     [PatchType.Transpiler] = patchInfo.Transpilers
                 };
 
                 // get patch types by owner
                 var typesByOwner = new Dictionary<string, ISet<PatchType>>();
-                foreach (var group in patchGroups)
+                foreach ((PatchType type, IReadOnlyCollection<Patch> patches) in patchGroups)
                 {
-                    foreach (var patch in group.Value)
+                    foreach (Patch patch in patches)
                     {
-                        if (!typesByOwner.TryGetValue(patch.owner, out ISet<PatchType> patchTypes))
+                        if (!typesByOwner.TryGetValue(patch.owner, out ISet<PatchType>? patchTypes))
                             typesByOwner[patch.owner] = patchTypes = new HashSet<PatchType>();
-                        patchTypes.Add(group.Key);
+                        patchTypes.Add(type);
                     }
                 }
 
@@ -160,10 +136,8 @@ namespace StardewModdingAPI.Framework.Commands
             /// <summary>A postfix patch.</summary>
             Postfix,
 
-#if HARMONY_2
             /// <summary>A finalizer patch.</summary>
             Finalizer,
-#endif
 
             /// <summary>A transpiler patch.</summary>
             Transpiler

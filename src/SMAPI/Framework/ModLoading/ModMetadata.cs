@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using StardewModdingAPI.Framework.ModHelpers;
@@ -13,6 +14,16 @@ namespace StardewModdingAPI.Framework.ModLoading
     /// <summary>Metadata for a mod.</summary>
     internal class ModMetadata : IModMetadata
     {
+        /*********
+        ** Fields
+        *********/
+        /// <summary>The non-error issues with the mod, including warnings suppressed by the data record.</summary>
+        private ModWarning ActualWarnings = ModWarning.None;
+
+        /// <summary>The mod IDs which are listed as a requirement by this mod. The value for each pair indicates whether the dependency is required (i.e. not an optional dependency).</summary>
+        private readonly Lazy<IDictionary<string, bool>> Dependencies;
+
+
         /*********
         ** Accessors
         *********/
@@ -32,7 +43,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public IManifest Manifest { get; }
 
         /// <inheritdoc />
-        public ModDataRecordVersionedFields DataRecord { get; }
+        public ModDataRecordVersionedFields? DataRecord { get; }
 
         /// <inheritdoc />
         public ModMetadataStatus Status { get; private set; }
@@ -41,37 +52,42 @@ namespace StardewModdingAPI.Framework.ModLoading
         public ModFailReason? FailReason { get; private set; }
 
         /// <inheritdoc />
-        public ModWarning Warnings { get; private set; }
+        public ModWarning Warnings => this.ActualWarnings & ~(this.DataRecord?.DataRecord.SuppressWarnings ?? ModWarning.None);
 
         /// <inheritdoc />
-        public string Error { get; private set; }
+        public string? Error { get; private set; }
 
         /// <inheritdoc />
-        public string ErrorDetails { get; private set; }
+        public string? ErrorDetails { get; private set; }
 
         /// <inheritdoc />
         public bool IsIgnored { get; }
 
         /// <inheritdoc />
-        public IMod Mod { get; private set; }
+        public IMod? Mod { get; private set; }
 
         /// <inheritdoc />
-        public IContentPack ContentPack { get; private set; }
+        public IContentPack? ContentPack { get; private set; }
 
         /// <inheritdoc />
-        public TranslationHelper Translations { get; private set; }
+        public TranslationHelper? Translations { get; private set; }
 
         /// <inheritdoc />
-        public IMonitor Monitor { get; private set; }
+        public IMonitor? Monitor { get; private set; }
 
         /// <inheritdoc />
-        public object Api { get; private set; }
+        public object? Api { get; private set; }
 
         /// <inheritdoc />
-        public ModEntryModel UpdateCheckData { get; private set; }
+        public ModEntryModel? UpdateCheckData { get; private set; }
 
         /// <inheritdoc />
+        [MemberNotNullWhen(true, nameof(ModMetadata.ContentPack))]
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "The manifest may be null for broken mods while loading.")]
         public bool IsContentPack => this.Manifest?.ContentPackFor != null;
+
+        /// <summary>The fake content packs created by this mod, if any.</summary>
+        public ISet<WeakReference<ContentPack>> FakeContentPacks { get; } = new HashSet<WeakReference<ContentPack>>();
 
 
         /*********
@@ -84,15 +100,17 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="dataRecord">Metadata about the mod from SMAPI's internal data (if any).</param>
         /// <param name="isIgnored">Whether the mod folder should be ignored. This should be <c>true</c> if it was found within a folder whose name starts with a dot.</param>
-        public ModMetadata(string displayName, string directoryPath, string rootPath, IManifest manifest, ModDataRecordVersionedFields dataRecord, bool isIgnored)
+        public ModMetadata(string displayName, string directoryPath, string rootPath, IManifest? manifest, ModDataRecordVersionedFields? dataRecord, bool isIgnored)
         {
             this.DisplayName = displayName;
             this.DirectoryPath = directoryPath;
             this.RootPath = rootPath;
             this.RelativeDirectoryPath = PathUtilities.GetRelativePath(this.RootPath, this.DirectoryPath);
-            this.Manifest = manifest;
+            this.Manifest = manifest!; // manifest may be null in low-level SMAPI code, but won't be null once it's received by mods via IModInfo
             this.DataRecord = dataRecord;
             this.IsIgnored = isIgnored;
+
+            this.Dependencies = new Lazy<IDictionary<string, bool>>(this.ExtractDependencies);
         }
 
         /// <inheritdoc />
@@ -104,7 +122,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
-        public IModMetadata SetStatus(ModMetadataStatus status, ModFailReason reason, string error, string errorDetails = null)
+        public IModMetadata SetStatus(ModMetadataStatus status, ModFailReason reason, string? error, string? errorDetails = null)
         {
             this.Status = status;
             this.FailReason = reason;
@@ -116,7 +134,14 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <inheritdoc />
         public IModMetadata SetWarning(ModWarning warning)
         {
-            this.Warnings |= warning;
+            this.ActualWarnings |= warning;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IModMetadata RemoveWarning(ModWarning warning)
+        {
+            this.ActualWarnings &= ~warning;
             return this;
         }
 
@@ -145,7 +170,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
-        public IModMetadata SetApi(object api)
+        public IModMetadata SetApi(object? api)
         {
             this.Api = api;
             return this;
@@ -159,6 +184,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
+        [MemberNotNullWhen(true, nameof(IModInfo.Manifest))]
         public bool HasManifest()
         {
             return this.Manifest != null;
@@ -173,7 +199,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
-        public bool HasID(string id)
+        public bool HasID(string? id)
         {
             return
                 this.HasID()
@@ -183,7 +209,10 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <inheritdoc />
         public IEnumerable<UpdateKey> GetUpdateKeys(bool validOnly = false)
         {
-            foreach (string rawKey in this.Manifest?.UpdateKeys ?? new string[0])
+            if (!this.HasManifest())
+                yield break;
+
+            foreach (string rawKey in this.Manifest.UpdateKeys)
             {
                 UpdateKey updateKey = UpdateKey.Parse(rawKey);
                 if (updateKey.LooksValid || !validOnly)
@@ -192,23 +221,21 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
+        public bool HasRequiredModId(string modId, bool includeOptional)
+        {
+            return
+                this.Dependencies.Value.TryGetValue(modId, out bool isRequired)
+                && (includeOptional || isRequired);
+        }
+
+        /// <inheritdoc />
         public IEnumerable<string> GetRequiredModIds(bool includeOptional = false)
         {
-            HashSet<string> required = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            // yield dependencies
-            if (this.Manifest?.Dependencies != null)
+            foreach (var pair in this.Dependencies.Value)
             {
-                foreach (var entry in this.Manifest?.Dependencies)
-                {
-                    if ((entry.IsRequired || includeOptional) && required.Add(entry.UniqueID))
-                        yield return entry.UniqueID;
-                }
+                if (includeOptional || pair.Value)
+                    yield return pair.Key;
             }
-
-            // yield content pack parent
-            if (this.Manifest?.ContentPackFor?.UniqueID != null && required.Add(this.Manifest.ContentPackFor.UniqueID))
-                yield return this.Manifest.ContentPackFor.UniqueID;
         }
 
         /// <inheritdoc />
@@ -218,19 +245,59 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
-        public bool HasUnsuppressedWarnings(params ModWarning[] warnings)
+        public bool HasWarnings(params ModWarning[] warnings)
         {
-            return warnings.Any(warning =>
-                this.Warnings.HasFlag(warning)
-                && (this.DataRecord?.DataRecord == null || !this.DataRecord.DataRecord.SuppressWarnings.HasFlag(warning))
-            );
+            ModWarning curWarnings = this.Warnings;
+            return warnings.Any(warning => curWarnings.HasFlag(warning));
         }
 
         /// <inheritdoc />
         public string GetRelativePathWithRoot()
         {
-            string rootFolderName = Path.GetFileName(this.RootPath) ?? "";
+            string rootFolderName = Path.GetFileName(this.RootPath);
             return Path.Combine(rootFolderName, this.RelativeDirectoryPath);
+        }
+
+        /// <summary>Get the currently live fake content packs created by this mod.</summary>
+        public IEnumerable<ContentPack> GetFakeContentPacks()
+        {
+            foreach (var reference in this.FakeContentPacks.ToArray())
+            {
+                if (!reference.TryGetTarget(out ContentPack? pack))
+                {
+                    this.FakeContentPacks.Remove(reference);
+                    continue;
+                }
+
+                yield return pack;
+            }
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Extract mod IDs from the manifest that must be installed to load this mod.</summary>
+        /// <returns>Returns a dictionary of mod ID => is required (i.e. not an optional dependency).</returns>
+        public IDictionary<string, bool> ExtractDependencies()
+        {
+            var ids = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+            if (this.HasManifest())
+            {
+                // yield dependencies
+                foreach (IManifestDependency entry in this.Manifest.Dependencies)
+                {
+                    if (!string.IsNullOrWhiteSpace(entry.UniqueID))
+                        ids[entry.UniqueID] = entry.IsRequired;
+                }
+
+                // yield content pack parent
+                if (!string.IsNullOrWhiteSpace(this.Manifest.ContentPackFor?.UniqueID))
+                    ids[this.Manifest.ContentPackFor.UniqueID] = true;
+            }
+
+            return ids;
         }
     }
 }
