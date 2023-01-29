@@ -3,8 +3,9 @@
     <RootNamespace>StardewModdingAPI</RootNamespace>
     <Description>Provides toolkit interfaces which are available to SMAPI mods.</Description>
     <TargetFrameworks>net5.0; netstandard2.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <Import Project="..\..\build\common.targets" />
+  <Import Project="..\..\build\define-constant.targets" />
 </Project>

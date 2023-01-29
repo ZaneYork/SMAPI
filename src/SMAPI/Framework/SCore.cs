@@ -51,6 +51,7 @@ using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using StardewValley.Menus;
 #if SMAPI_FOR_MOBILE
 using StardewValley.Mobile;
 #endif
@@ -111,10 +112,7 @@ namespace StardewModdingAPI.Framework
         private SGameRunner Game = null!; // initialized very early
 #endif
         /// <summary>Manages input visible to the game.</summary>
-        private SInputState Input => SGame.Input;
-
-        /// <summary>The game's core multiplayer utility.</summary>
-        private SMultiplayer Multiplayer => SGame.Multiplayer;
+        private SInputState Input => Instance.Input;
 
         /// <summary>SMAPI's content manager.</summary>
         private ContentCoordinator ContentCore = null!; // initialized very early
@@ -166,8 +164,11 @@ namespace StardewModdingAPI.Framework
 #endif
 
         /// <summary>A list of queued commands to parse and execute.</summary>
+#if SMAPI_FOR_MOBILE
+        internal readonly CommandQueue RawCommandQueue = new();
+#else
         private readonly CommandQueue RawCommandQueue = new();
-
+#endif
         /// <summary>A list of commands to execute on each screen.</summary>
         private readonly PerScreen<List<QueuedCommand>> ScreenCommandQueue = new(() => new List<QueuedCommand>());
 
@@ -314,14 +315,14 @@ namespace StardewModdingAPI.Framework
 //                     new ScheduleErrorPatch(this.LogManager.MonitorForGame)
 //                 );
                 // add exit handler
-                this.CancellationToken.Token.Register(() =>
-                {
-                    if (this.IsGameRunning)
-                    {
-                        this.LogManager.WriteCrashLog();
-                        this.Game.Exit();
-                    }
-                });
+                // this.CancellationToken.Token.Register(() =>
+                // {
+                //     if (this.IsGameRunning)
+                //     {
+                //         this.LogManager.WriteCrashLog();
+                //         this.Game.Exit();
+                //     }
+                // });
 
                 // set window titles
                 this.UpdateWindowTitles();
@@ -1677,6 +1678,7 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log("Checking for updates...");
 
 #if !SMAPI_FOR_MOBILE
+
                 // check SMAPI version
                 {
                     ISemanticVersion? updateFound = null;

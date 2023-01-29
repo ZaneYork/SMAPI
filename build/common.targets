@@ -20,7 +20,7 @@ repo. It imports the other MSBuild files as needed.
 
     <!--set platform-->
     <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
-    <CopyToGameFolder>true</CopyToGameFolder>
+    <CopyToGameFolder>false</CopyToGameFolder>
 
     <!-- allow mods to be compiled as AnyCPU for compatibility with older platforms -->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
@@ -50,10 +50,10 @@ repo. It imports the other MSBuild files as needed.
 
   <!--find game folder-->
   <Import Project="find-game-folder.targets" />
-  <Target Name="ValidateInstallPath" AfterTargets="BeforeBuild">
-    <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->
-    <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path automatically. You can specify where to find it; see https://smapi.io/package/custom-game-path." />
-  </Target>
+<!--  <Target Name="ValidateInstallPath" AfterTargets="BeforeBuild">-->
+<!--    &lt;!&ndash; if game path is invalid, show one user-friendly error instead of a slew of reference errors &ndash;&gt;-->
+<!--    <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path automatically. You can specify where to find it; see https://smapi.io/package/custom-game-path." />-->
+<!--  </Target>-->
 
   <!-- common build settings -->
   <PropertyGroup>

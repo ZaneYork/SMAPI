@@ -13,11 +13,7 @@ using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit.Framework;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
-#if HARMONY_2
 using HarmonyLib;
-#else
-using Harmony;
-#endif
 namespace StardewModdingAPI
 {
     /// <summary>Contains constants that are accessed before the game itself has been loaded.</summary>
@@ -44,6 +40,9 @@ namespace StardewModdingAPI
         public static string StardewValleyBasePath { get; } = Path.Combine(EarlyConstants.StorageBasePath, "StardewValley");
         /// <summary>The path to the internal folder.</summary>
         public static string ExecutionPath { get; } = Path.Combine(EarlyConstants.StardewValleyBasePath, "smapi-internal");
+
+        /// <summary>The path to the game folder.</summary>
+        public static string GamePath { get; } = ExecutionPath;
 #else
         /// <summary>The path to the game folder.</summary>
         public static string GamePath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;

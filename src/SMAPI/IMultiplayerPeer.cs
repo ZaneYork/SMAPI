@@ -19,7 +19,7 @@ namespace StardewModdingAPI
         bool IsSplitScreen { get; }
 
         /// <summary>Whether the player has SMAPI installed.</summary>
-        [MemberNotNullWhen(true, nameof(IMultiplayerPeer.Platform), nameof(IMultiplayerPeer.GameVersion), nameof(IMultiplayerPeer.ApiVersion), nameof(IMultiplayerPeer.Mods))]
+        // [MemberNotNullWhen(true, nameof(IMultiplayerPeer.Platform), nameof(IMultiplayerPeer.GameVersion), nameof(IMultiplayerPeer.ApiVersion), nameof(IMultiplayerPeer.Mods))]
         bool HasSmapi { get; }
 
         /// <summary>The player's screen ID, if applicable.</summary>

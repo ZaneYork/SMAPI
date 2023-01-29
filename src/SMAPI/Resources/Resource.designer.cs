@@ -14,7 +14,7 @@ namespace StardewModdingAPI
 {
 	
 	
-	[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Android.Build.Tasks", "1.0.0.0")]
+	[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Android.Build.Tasks", "13.1.0.5")]
 	public partial class Resource
 	{
 		
@@ -244,97 +244,73 @@ namespace StardewModdingAPI
 			public static int action_text = 2131034115;
 			
 			// aapt resource value: 0x7F050005
-			public static int appIcon = 2131034117;
+			public static int async = 2131034117;
 			
 			// aapt resource value: 0x7F050006
-			public static int async = 2131034118;
+			public static int blocking = 2131034118;
 			
 			// aapt resource value: 0x7F050007
-			public static int blocking = 2131034119;
+			public static int chronometer = 2131034119;
 			
 			// aapt resource value: 0x7F050008
-			public static int chronometer = 2131034120;
+			public static int forever = 2131034120;
 			
 			// aapt resource value: 0x7F050009
-			public static int description = 2131034121;
+			public static int icon = 2131034121;
 			
 			// aapt resource value: 0x7F05000A
-			public static int forever = 2131034122;
+			public static int icon_group = 2131034122;
 			
 			// aapt resource value: 0x7F05000B
-			public static int icon = 2131034123;
+			public static int info = 2131034123;
 			
 			// aapt resource value: 0x7F05000C
-			public static int icon_group = 2131034124;
+			public static int italic = 2131034124;
 			
 			// aapt resource value: 0x7F05000D
-			public static int info = 2131034125;
+			public static int line1 = 2131034125;
 			
 			// aapt resource value: 0x7F05000E
-			public static int italic = 2131034126;
+			public static int line3 = 2131034126;
 			
 			// aapt resource value: 0x7F05000F
-			public static int line1 = 2131034127;
+			public static int normal = 2131034127;
 			
 			// aapt resource value: 0x7F050010
-			public static int line3 = 2131034128;
+			public static int notification_background = 2131034128;
 			
 			// aapt resource value: 0x7F050011
-			public static int normal = 2131034129;
+			public static int notification_main_column = 2131034129;
 			
 			// aapt resource value: 0x7F050012
-			public static int notificationLayout = 2131034130;
+			public static int notification_main_column_container = 2131034130;
 			
 			// aapt resource value: 0x7F050013
-			public static int notification_background = 2131034131;
+			public static int right_icon = 2131034131;
 			
 			// aapt resource value: 0x7F050014
-			public static int notification_main_column = 2131034132;
+			public static int right_side = 2131034132;
 			
 			// aapt resource value: 0x7F050015
-			public static int notification_main_column_container = 2131034133;
+			public static int tag_transition_group = 2131034133;
 			
 			// aapt resource value: 0x7F050016
-			public static int progress_bar = 2131034134;
+			public static int tag_unhandled_key_event_manager = 2131034134;
 			
 			// aapt resource value: 0x7F050017
-			public static int progress_bar_frame = 2131034135;
+			public static int tag_unhandled_key_listeners = 2131034135;
 			
 			// aapt resource value: 0x7F050018
-			public static int progress_text = 2131034136;
+			public static int text = 2131034136;
 			
 			// aapt resource value: 0x7F050019
-			public static int right_icon = 2131034137;
+			public static int text2 = 2131034137;
 			
 			// aapt resource value: 0x7F05001A
-			public static int right_side = 2131034138;
+			public static int time = 2131034138;
 			
 			// aapt resource value: 0x7F05001B
-			public static int spacer = 2131034139;
-			
-			// aapt resource value: 0x7F05001C
-			public static int tag_transition_group = 2131034140;
-			
-			// aapt resource value: 0x7F05001D
-			public static int tag_unhandled_key_event_manager = 2131034141;
-			
-			// aapt resource value: 0x7F05001E
-			public static int tag_unhandled_key_listeners = 2131034142;
-			
-			// aapt resource value: 0x7F05001F
-			public static int text = 2131034143;
-			
-			// aapt resource value: 0x7F050020
-			public static int text2 = 2131034144;
-			
-			// aapt resource value: 0x7F050021
-			public static int time = 2131034145;
-			
-			// aapt resource value: 0x7F050022
-			public static int time_remaining = 2131034146;
-			
-			// aapt resource value: 0x7F050023
-			public static int title = 2131034147;
+			public static int title = 2131034139;
 			
 			static Id()
 			{
@@ -383,9 +359,6 @@ namespace StardewModdingAPI
 			// aapt resource value: 0x7F070005
 			public static int notification_template_part_time = 2131165189;
 			
-			// aapt resource value: 0x7F070006
-			public static int status_bar_ongoing_event_progress_bar = 2131165190;
-			
 			static Layout()
 			{
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
@@ -406,76 +379,7 @@ namespace StardewModdingAPI
 			public static int hello = 2131230721;
 			
 			// aapt resource value: 0x7F080002
-			public static int kilobytes_per_second = 2131230722;
-			
-			// aapt resource value: 0x7F080003
-			public static int notification_download_complete = 2131230723;
-			
-			// aapt resource value: 0x7F080004
-			public static int notification_download_failed = 2131230724;
-			
-			// aapt resource value: 0x7F080005
-			public static int state_completed = 2131230725;
-			
-			// aapt resource value: 0x7F080006
-			public static int state_connecting = 2131230726;
-			
-			// aapt resource value: 0x7F080007
-			public static int state_downloading = 2131230727;
-			
-			// aapt resource value: 0x7F080008
-			public static int state_failed = 2131230728;
-			
-			// aapt resource value: 0x7F080009
-			public static int state_failed_cancelled = 2131230729;
-			
-			// aapt resource value: 0x7F08000A
-			public static int state_failed_fetching_url = 2131230730;
-			
-			// aapt resource value: 0x7F08000B
-			public static int state_failed_sdcard_full = 2131230731;
-			
-			// aapt resource value: 0x7F08000C
-			public static int state_failed_unlicensed = 2131230732;
-			
-			// aapt resource value: 0x7F08000D
-			public static int state_fetching_url = 2131230733;
-			
-			// aapt resource value: 0x7F08000E
-			public static int state_idle = 2131230734;
-			
-			// aapt resource value: 0x7F08000F
-			public static int state_paused_by_request = 2131230735;
-			
-			// aapt resource value: 0x7F080010
-			public static int state_paused_network_setup_failure = 2131230736;
-			
-			// aapt resource value: 0x7F080011
-			public static int state_paused_network_unavailable = 2131230737;
-			
-			// aapt resource value: 0x7F080012
-			public static int state_paused_roaming = 2131230738;
-			
-			// aapt resource value: 0x7F080013
-			public static int state_paused_sdcard_unavailable = 2131230739;
-			
-			// aapt resource value: 0x7F080014
-			public static int state_paused_wifi_disabled = 2131230740;
-			
-			// aapt resource value: 0x7F080015
-			public static int state_paused_wifi_unavailable = 2131230741;
-			
-			// aapt resource value: 0x7F080016
-			public static int state_unknown = 2131230742;
-			
-			// aapt resource value: 0x7F080017
-			public static int status_bar_notification_info_overflow = 2131230743;
-			
-			// aapt resource value: 0x7F080018
-			public static int time_remaining = 2131230744;
-			
-			// aapt resource value: 0x7F080019
-			public static int time_remaining_notification = 2131230745;
+			public static int status_bar_notification_info_overflow = 2131230722;
 			
 			static String()
 			{
@@ -491,40 +395,25 @@ namespace StardewModdingAPI
 		{
 			
 			// aapt resource value: 0x7F090000
-			public static int ButtonBackground = 2131296256;
+			public static int TextAppearance_Compat_Notification = 2131296256;
 			
 			// aapt resource value: 0x7F090001
-			public static int NotificationText = 2131296257;
+			public static int TextAppearance_Compat_Notification_Info = 2131296257;
 			
 			// aapt resource value: 0x7F090002
-			public static int NotificationTextSecondary = 2131296258;
+			public static int TextAppearance_Compat_Notification_Line2 = 2131296258;
 			
 			// aapt resource value: 0x7F090003
-			public static int NotificationTextShadow = 2131296259;
+			public static int TextAppearance_Compat_Notification_Time = 2131296259;
 			
 			// aapt resource value: 0x7F090004
-			public static int NotificationTitle = 2131296260;
+			public static int TextAppearance_Compat_Notification_Title = 2131296260;
 			
 			// aapt resource value: 0x7F090005
-			public static int TextAppearance_Compat_Notification = 2131296261;
+			public static int Widget_Compat_NotificationActionContainer = 2131296261;
 			
 			// aapt resource value: 0x7F090006
-			public static int TextAppearance_Compat_Notification_Info = 2131296262;
-			
-			// aapt resource value: 0x7F090007
-			public static int TextAppearance_Compat_Notification_Line2 = 2131296263;
-			
-			// aapt resource value: 0x7F090008
-			public static int TextAppearance_Compat_Notification_Time = 2131296264;
-			
-			// aapt resource value: 0x7F090009
-			public static int TextAppearance_Compat_Notification_Title = 2131296265;
-			
-			// aapt resource value: 0x7F09000A
-			public static int Widget_Compat_NotificationActionContainer = 2131296266;
-			
-			// aapt resource value: 0x7F09000B
-			public static int Widget_Compat_NotificationActionText = 2131296267;
+			public static int Widget_Compat_NotificationActionText = 2131296262;
 			
 			static Style()
 			{

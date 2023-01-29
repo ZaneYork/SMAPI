@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-#if HARMONY_2
 using HarmonyLib;
-#else
-using Harmony;
-#endif
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
@@ -27,10 +23,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="rewriteReferencesToAssemblies">The assembly names to which to rewrite broken references.</param>
-        public HeuristicFieldAccessibilityRewriter(string[] rewriteReferencesToAssemblies)
+        public HeuristicFieldAccessibilityRewriter(HashSet<string> rewriteReferencesToAssemblies)
             : base(defaultPhrase: "field visibility changed to private") // ignored since we specify phrases
         {
-            this.RewriteReferencesToAssemblies = new HashSet<string>(rewriteReferencesToAssemblies);
+            this.RewriteReferencesToAssemblies = rewriteReferencesToAssemblies;
         }
 
         /// <inheritdoc />

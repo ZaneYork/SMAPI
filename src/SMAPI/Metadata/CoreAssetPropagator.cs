@@ -444,56 +444,13 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
 #if SMAPI_FOR_MOBILE
-                case "loosesprites\\mobileatlas_manually_made": // Game1.LoadContent
+                case "loosesprites/mobileatlas_manually_made": // Game1.LoadContent
                     Game1.mobileSpriteSheet = content.Load<Texture2D>(key);
                     Game1.dayTimeMoneyBox.questButton.texture = Game1.mobileSpriteSheet;
                     Game1.dayTimeMoneyBox.buttonF8.texture = Game1.mobileSpriteSheet;
                     Game1.dayTimeMoneyBox.buttonGameMenu.texture = Game1.mobileSpriteSheet;
                     return true;
 #endif
-
-                /****
-                ** Content\TileSheets
-                ****/
-                case "tilesheets\\critters": // Critter constructor
-                    this.ReloadCritterTextures(content, key);
-                    return true;
-
-                case "tilesheets\\crops": // Game1.LoadContent
-                    Game1.cropSpriteSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\debris": // Game1.LoadContent
-                    Game1.debrisSpriteSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\emotes": // Game1.LoadContent
-                    Game1.emoteSpriteSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\furniture": // Game1.LoadContent
-                    Furniture.furnitureTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\projectiles": // Game1.LoadContent
-                    Projectile.projectileSheet = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\rain": // Game1.LoadContent
-                    Game1.rainTexture = content.Load<Texture2D>(key);
-                    return true;
-
-                case "tilesheets\\tools": // Game1.ResetToolSpriteSheet
-#if SMAPI_FOR_MOBILE
-                    Game1.toolSpriteSheet = content.Load<Texture2D>(key);
-#else
-                    Game1.ResetToolSpriteSheet();
-#endif
-                    return true;
-
-                case "tilesheets\\weapons": // Game1.LoadContent
-                    Tool.weaponsTexture = content.Load<Texture2D>(key);
-                    return true;
 
                 case "loosesprites/suspensionbridge": // SuspensionBridge constructor
                     return changed | (!ignoreWorld && this.UpdateSuspensionBridges(content, assetName));

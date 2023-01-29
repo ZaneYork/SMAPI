@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Construct an instance.</summary>
         /// <param name="inputState">Manages input visible to the game.</param>
         /// <param name="gameLocations">The observable list of game locations.</param>
-        public WatcherCore(SInputState inputState, ObservableCollection<GameLocation> gameLocations)
+        public WatcherCore(SInputState inputState, IList<GameLocation> gameLocations)
         {
             // init watchers
             this.CursorWatcher = WatcherFactory.ForEquatable(nameof(inputState.CursorPosition), () => inputState.CursorPosition);

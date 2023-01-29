@@ -73,7 +73,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             return
                 fieldRef != null
                 && fieldRef.DeclaringType.FullName == this.FullTypeName
-                && fieldRef.Name == this.FieldName;
+                && this.FieldNames.Contains(fieldRef.Name);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Internal.ConsoleWriting
         private readonly IDictionary<ConsoleLogLevel, ConsoleColor>? Colors;
 
         /// <summary>Whether the current console supports color formatting.</summary>
-        [MemberNotNullWhen(true, nameof(ColorfulConsoleWriter.Colors))]
+        // [MemberNotNullWhen(true, nameof(ColorfulConsoleWriter.Colors))]
         private bool SupportsColor { get; }
 
 

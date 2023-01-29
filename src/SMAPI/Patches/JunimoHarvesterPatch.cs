@@ -4,13 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-#if HARMONY_2
 using HarmonyLib;
-#else
-using Harmony;
-#endif
 using Microsoft.Xna.Framework;
-using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Internal.Patching;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Characters;
@@ -21,7 +17,7 @@ namespace StardewModdingAPI.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class JunimoHarvesterPatch : IHarmonyPatch
+    internal class JunimoHarvesterPatch : BasePatcher
     {
         /*********
         ** Fields
@@ -43,28 +39,22 @@ namespace StardewModdingAPI.Patches
         /*********
         ** Public methods
         *********/
-        /// <summary>Construct an instance.</summary>
-        /// <param name="monitorForGame">Writes messages to the console and log file on behalf of the game.</param>
-        public JunimoHarvesterPatch(IMonitor monitor)
-        {
-            Monitor = monitor;
-        }
-
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        public void Apply(
-#if HARMONY_2
-            Harmony harmony
-#else
-            HarmonyInstance harmony
-#endif
-            )
+        public override void Apply(Harmony harmony, IMonitor monitor)
         {
             harmony.Patch(
                 original: AccessTools.DeclaredConstructor(typeof(JunimoHarvester), new System.Type[] { typeof(Vector2), typeof(JunimoHut), typeof(int), typeof(Color?)}),
                 prefix: new HarmonyMethod(this.GetType(), nameof(JunimoHarvesterPatch.Before_JunimoHarvester_create)),
                 transpiler: new HarmonyMethod(this.GetType(), nameof(JunimoHarvesterPatch.Modify_JunimoHarvester_create))
             );
+        }
+
+        /// <summary>Construct an instance.</summary>
+        /// <param name="monitorForGame">Writes messages to the console and log file on behalf of the game.</param>
+        public JunimoHarvesterPatch(IMonitor monitor)
+        {
+            Monitor = monitor;
         }
 
 

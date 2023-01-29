@@ -3,9 +3,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-#if SMAPI_FOR_WINDOWS
-using System.Management;
-#endif
 using System.Runtime.InteropServices;
 using StardewModdingAPI.Toolkit.Utilities;
 

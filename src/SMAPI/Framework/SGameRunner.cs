@@ -53,6 +53,12 @@ namespace StardewModdingAPI.Framework
         /// <summary>The singleton instance.</summary>
         public static SGameRunner Instance => (SGameRunner)GameRunner.instance;
 
+#if SMAPI_FOR_MOBILE
+        public bool IsGameSuspended;
+
+        public bool IsAfterInitialize = false;
+#endif
+
 
         /*********
         ** Public methods

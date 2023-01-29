@@ -82,7 +82,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public ModEntryModel? UpdateCheckData { get; private set; }
 
         /// <inheritdoc />
-        [MemberNotNullWhen(true, nameof(ModMetadata.ContentPack))]
+        // [MemberNotNullWhen(true, nameof(ModMetadata.ContentPack))]
         [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "The manifest may be null for broken mods while loading.")]
         public bool IsContentPack => this.Manifest?.ContentPackFor != null;
 
@@ -184,7 +184,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
-        [MemberNotNullWhen(true, nameof(IModInfo.Manifest))]
+        // [MemberNotNullWhen(true, nameof(IModInfo.Manifest))]
         public bool HasManifest()
         {
             return this.Manifest != null;

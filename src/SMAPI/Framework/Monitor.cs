@@ -25,10 +25,18 @@ namespace StardewModdingAPI.Framework
         private readonly LogFileManager LogFile;
 
         /// <summary>The maximum length of the <see cref="LogLevel"/> values.</summary>
+#if SMAPI_FOR_MOBILE
+        private static readonly int MaxLevelLength = ((LogLevel[]) Enum.GetValues(typeof (LogLevel))).Max(level => level.ToString().Length);
+#else
         private static readonly int MaxLevelLength = Enum.GetValues<LogLevel>().Max(level => level.ToString().Length);
+#endif
 
         /// <summary>The cached representation for each level when added to a log header.</summary>
+#if SMAPI_FOR_MOBILE
+        private static readonly Dictionary<ConsoleLogLevel, string> LogStrings = ((ConsoleLogLevel[]) Enum.GetValues(typeof (ConsoleLogLevel))).ToDictionary(level => level, level => level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength));
+#else
         private static readonly Dictionary<ConsoleLogLevel, string> LogStrings = Enum.GetValues<ConsoleLogLevel>().ToDictionary(level => level, level => level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength));
+#endif
 
         /// <summary>A cache of messages that should only be logged once.</summary>
         private readonly HashSet<LogOnceCacheKey> LogOnceCache = new();

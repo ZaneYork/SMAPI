@@ -91,8 +91,11 @@ namespace StardewModdingAPI
         public static bool HasRemotePlayers => Context.IsMultiplayer && !Game1.hasLocalClientsOnly;
 
         /// <summary>Whether the current player is the main player. This is always true in single-player, and true when hosting in multiplayer.</summary>
+#if SMAPI_FOR_MOBILE
+        public static bool IsMainPlayer => Game1.IsMasterGame && Context.ScreenId == 0;// && TitleMenu.subMenu is not FarmhandMenu;
+#else
         public static bool IsMainPlayer => Game1.IsMasterGame && Context.ScreenId == 0 && TitleMenu.subMenu is not FarmhandMenu;
-
+#endif
 
         /*********
         ** Public methods

@@ -3,19 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Microsoft.AppCenter.Crashes;
-#if HARMONY_2
+// using Microsoft.AppCenter.Crashes;
 using HarmonyLib;
-#else
-using Harmony;
-#endif
 using StardewModdingAPI.Framework;
-using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Internal.Patching;
 using StardewValley;
 
 namespace StardewModdingAPI.Patches
 {
-    internal class MusicBankPatch : IHarmonyPatch
+    internal class MusicBankPatch : BasePatcher
     {
         /*********
         ** Accessors
@@ -37,7 +33,7 @@ namespace StardewModdingAPI.Patches
 
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        public void Apply(HarmonyInstance harmony)
+        public override void Apply(Harmony harmony, IMonitor monitor)
         {
             harmony.Patch(AccessTools.Method(typeof(Game1), "FetchMusicXWBPath"),
                 new HarmonyMethod(AccessTools.Method(this.GetType(), nameof(MusicBankPatch.Game_FetchMusicXWBPathPrefix))));
@@ -68,7 +64,7 @@ namespace StardewModdingAPI.Patches
                 }
                 catch (System.Exception ex)
                 {
-                    Microsoft.AppCenter.Crashes.Crashes.TrackError(ex, (IDictionary<string, string>) null, Array.Empty<ErrorAttachmentLog>());
+                    // Microsoft.AppCenter.Crashes.Crashes.TrackError(ex, (IDictionary<string, string>) null, Array.Empty<ErrorAttachmentLog>());
                     return true;
                 }
                 __result = str;

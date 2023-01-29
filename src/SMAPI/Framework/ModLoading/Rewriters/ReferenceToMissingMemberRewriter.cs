@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Harmony;
+using HarmonyLib;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         ** Fields
         *********/
         /// <summary>The assembly names to which to heuristically detect broken references.</summary>
-        private readonly HashSet<string> ValidateReferencesToAssemblies;
+        private readonly ISet<string> ValidateReferencesToAssemblies;
 
 
         /*********
@@ -23,10 +23,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="validateReferencesToAssemblies">The assembly names to which to heuristically detect broken references.</param>
-        public ReferenceToMissingMemberRewriter(string[] validateReferencesToAssemblies)
+        public ReferenceToMissingMemberRewriter(ISet<string> validateReferencesToAssemblies)
             : base(defaultPhrase: "")
         {
-            this.ValidateReferencesToAssemblies = new HashSet<string>(validateReferencesToAssemblies);
+            this.ValidateReferencesToAssemblies = validateReferencesToAssemblies;
         }
 
         /// <inheritdoc />

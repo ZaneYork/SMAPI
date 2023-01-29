@@ -41,7 +41,7 @@ namespace StardewModdingAPI.Framework.Input
         ** Accessors
         *********/
         /// <summary>Whether the gamepad is currently connected.</summary>
-        [MemberNotNullWhen(true, nameof(GamePadStateBuilder.ButtonStates))]
+        // [MemberNotNullWhen(true, nameof(GamePadStateBuilder.ButtonStates))]
         public bool IsConnected { get; }
 
 

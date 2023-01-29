@@ -1,12 +1,8 @@
 #if SMAPI_FOR_MOBILE
 using System.Diagnostics.CodeAnalysis;
-#if HARMONY_2
 using HarmonyLib;
-#else
-using Harmony;
-#endif
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Internal.Patching;
 using StardewValley.Characters;
 
 namespace StardewModdingAPI.Patches
@@ -15,7 +11,7 @@ namespace StardewModdingAPI.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class SpriteFontPatch : IHarmonyPatch
+    internal class SpriteFontPatch : BasePatcher
     {
         /*********
         ** Fields
@@ -46,13 +42,7 @@ namespace StardewModdingAPI.Patches
 
         /// <summary>Apply the Harmony patch.</summary>
         /// <param name="harmony">The Harmony instance.</param>
-        public void Apply(
-#if HARMONY_2
-            Harmony harmony
-#else
-            HarmonyInstance harmony
-#endif
-            )
+        public override void Apply(Harmony harmony, IMonitor monitor)
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(SpriteFont), "MeasureString", new System.Type[] { typeof(string)}),

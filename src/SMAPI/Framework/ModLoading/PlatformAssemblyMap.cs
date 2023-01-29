@@ -55,7 +55,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             this.Targets = targetAssemblies;
             this.TargetReferences = this.Targets.ToDictionary(assembly => assembly, assembly => AssemblyNameReference.Parse(assembly.FullName));
 #if SMAPI_FOR_MOBILE
-            this.TargetModules = this.Targets.ToDictionary(assembly => assembly, assembly => ModuleDefinition.ReadModule(Path.Combine(Constants.ExecutionPath, assembly.Modules.Single().FullyQualifiedName), new ReaderParameters { InMemory = true }));
+            this.TargetModules = this.Targets.ToDictionary(assembly => assembly, assembly => ModuleDefinition.ReadModule(Path.Combine(Constants.GamePath, assembly.Modules.Single().FullyQualifiedName), new ReaderParameters { InMemory = true }));
 #else
             this.TargetModules = this.Targets.ToDictionary(assembly => assembly, assembly => ModuleDefinition.ReadModule(assembly.Modules.Single().FullyQualifiedName, new ReaderParameters { InMemory = true }));
 #endif

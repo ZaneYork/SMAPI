@@ -11,6 +11,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
     public class Game1Methods : Game1
     {
+#if SMAPI_LEGACY_PATCH
         public static RainDrop[] RainDropsProp => (typeof(RainManager).GetField("_rainDropList", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RainManager.Instance) as List<RainDrop>).ToArray();
 
         public static bool IsRainingProp
@@ -45,6 +46,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
         {
             RainManager.Instance.Update(Game1.currentGameTime);
         }
+#endif
 
         [SuppressMessage("ReSharper", "CS0109", Justification = "The 'new' modifier applies when compiled on Windows.")]
         public static new void warpFarmer(string locationName, int tileX, int tileY, bool flip)
@@ -54,7 +56,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 
         public static void removeSquareDebrisFromTile(int tileX, int tileY)
         {
-            Game1.currentLocation.debris.debrisNetCollection.Filter(debris => {
+            Game1.currentLocation.debris.Filter(debris => {
                 if ((debris.debrisType == 2) && (((int)(debris.Chunks[0].position.X / 64f)) == tileX))
                 {
                     return (debris.chunkFinalYLevel / 0x40) != tileY;

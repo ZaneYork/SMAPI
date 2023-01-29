@@ -88,8 +88,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
 #if SMAPI_FOR_MOBILE
             this.Reflector = reflection;
 #endif
-        }
-
             this.TryLocalizeKeys = false;
         }
 
@@ -140,16 +138,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     ".json" => this.LoadDataFile<T>(assetName, file),
                     ".png" => this.LoadImageFile<T>(assetName, file),
                     ".tbin" or ".tmx" => this.LoadMapFile<T>(assetName, file),
-                    ".xnb" => {
-                        asset = this.RawLoad<T>(assetName, useCache: false);
-                        if (asset is Map map)
-                        {
-                            this.NormalizeTilesheetPaths(map);
-                            this.FixCustomTilesheetPaths(map, relativeMapPath: assetName);
-                        }
-                        this.ModedLoad<T>(assetName, language)
-                        // this.LoadXnbFile<T>(assetName)
-                    },
+                    ".xnb" => this.LoadXnbFile<T>(assetName),
                     _ => this.HandleUnknownFileType<T>(assetName, file)
                 };
             }
@@ -290,7 +279,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // convert to XNA pixel format
+#if SMAPI_FOR_MOBILE
+            var pixels = new Color[rawPixels.Length];
+#else
             var pixels = GC.AllocateUninitializedArray<Color>(rawPixels.Length);
+#endif
             for (int i = 0; i < pixels.Length; i++)
             {
                 SKPMColor pixel = rawPixels[i];
@@ -322,6 +315,16 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="assetName">The asset name relative to the loader root directory.</param>
         private T LoadXnbFile<T>(IAssetName assetName)
         {
+// #if SMAPI_FOR_MOBILE
+//             T asset = this.RawLoad<T>(assetName, useCache: false);
+//             if (asset is Map map)
+//             {
+//                 this.NormalizeTilesheetPaths(map);
+//                 this.FixCustomTilesheetPaths(map, relativeMapPath: assetName);
+//             }
+//
+//             return this.ModedLoad<T>(assetName.Name, language);
+// #else
             if (typeof(IRawTextureData).IsAssignableFrom(typeof(T)))
                 this.ThrowLoadError(assetName, ContentLoadErrorType.Other, $"can't read XNB file as type {typeof(IRawTextureData)}; that type can only be read from a PNG file.");
 
@@ -340,6 +343,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             return asset;
+// #endif
         }
 
         /// <summary>Handle a request to load a file type that isn't supported by SMAPI.</summary>

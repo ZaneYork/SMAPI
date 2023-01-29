@@ -7,7 +7,6 @@ using Android.Runtime;
 using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using Android.Views;
-using Google.Android.Vending.Licensing;
 using System;
 using System.Collections.Generic;
 using StardewModdingAPI.Framework;
@@ -16,9 +15,7 @@ using System.Reflection;
 using Java.Interop;
 using System.Linq;
 using File = Java.IO.File;
-using Microsoft.AppCenter;
 using Newtonsoft.Json;
-using Microsoft.AppCenter.Crashes;
 using Android.Content;
 using Android.Util;
 using Java.Lang;
@@ -29,17 +26,9 @@ using Thread = System.Threading.Thread;
 namespace StardewModdingAPI
 {
     [Activity(Label = "SMAPI Stardew Valley", Icon = "@mipmap/ic_launcher", Theme = "@style/Theme.Splash", MainLauncher = true, AlwaysRetainTaskState = true, LaunchMode = LaunchMode.SingleInstance, ScreenOrientation = ScreenOrientation.SensorLandscape, ConfigurationChanges = (ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.Orientation | ConfigChanges.ScreenLayout | ConfigChanges.ScreenSize | ConfigChanges.UiMode))]
-#if !ANDROID_TARGET_GOOGLE
     public class SMainActivity: MainActivity
-#else
-    public class SMainActivity : MainActivity, ILicenseCheckerCallback, IJavaObject, IDisposable, IJavaPeerable
-#endif
     {
         internal SCore core;
-        private LicenseChecker _licenseChecker;
-#if ANDROID_TARGET_GOOGLE
-        private ServerManagedPolicyExtended _serverManagedPolicyExtended;
-#endif
 
         public static SMainActivity Instance;
 
@@ -124,10 +113,6 @@ namespace StardewModdingAPI
                     }
                     catch (Exception) { }
                 }
-                Type[] services = {typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes)};
-                AppCenter.Start(Constants.MicrosoftAppSecret, services);
-                AppCenter.SetUserId(Constants.ApiVersion.ToString());
-
             }
             catch
             {
@@ -164,7 +149,7 @@ namespace StardewModdingAPI
                     modPath = "StardewValley/Mods";
                 }
 
-                this.core = new SCore(System.IO.Path.Combine(EarlyConstants.StorageBasePath, modPath), false);
+                this.core = new SCore(System.IO.Path.Combine(EarlyConstants.StorageBasePath, modPath), false, false);
                 this.core.RunInteractively();
                 typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.Game);
 
@@ -187,7 +172,6 @@ namespace StardewModdingAPI
                 SAlertDialogUtil.AlertMessage($"SMAPI failed to initialize: {ex}",
                     callback: type =>
                     {
-                        Crashes.TrackError(ex);
                         this.Finish();
                     });
             }
@@ -223,49 +207,8 @@ namespace StardewModdingAPI
 
         private void CheckUsingServerManagedPolicy()
         {
-#if ANDROID_TARGET_GOOGLE
-            this._serverManagedPolicyExtended = new ServerManagedPolicyExtended(this, new AESObfuscator(new byte[15]
-            {
-                46,
-                65,
-                30,
-                128,
-                103,
-                57,
-                74,
-                64,
-                51,
-                88,
-                95,
-                45,
-                77,
-                117,
-                36
-            }, this.PackageName, Settings.Secure.GetString(this.ContentResolver, "android_id")));
-            this._licenseChecker = new LicenseChecker(this, this._serverManagedPolicyExtended, "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAry4fecehDpCohQk4XhiIZX9ylIGUThWZxfN9qwvQyTh53hvnpQl/lCrjfflKoPz6gz5jJn6JI1PTnoBy/iXVx1+kbO99qBgJE2V8PS5pq+Usbeqqmqqzx4lEzhiYQ2um92v4qkldNYZFwbTODYPIMbSbaLm7eK9ZyemaRbg9ssAl4QYs0EVxzDK1DjuXilRk28WxiK3lNJTz4cT38bfs4q6Zvuk1vWUvnMqcxiugox6c/9j4zZS5C4+k+WY6mHjUMuwssjCY3G+aImWDSwnU3w9G41q8EoPvJ1049PIi7GJXErusTYZITmqfonyejmSFLPt8LHtux9AmJgFSrC3UhwIDAQAB");
-            this._licenseChecker.CheckAccess(this);
-#endif
         }
 
-#if ANDROID_TARGET_GOOGLE
-        public new void Allow(PolicyResponse response)
-        {
-            typeof(MainActivity).GetMethod("CheckToDownloadExpansion", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(this, null);
-        }
-
-        public new void DontAllow(PolicyResponse response)
-        {
-            switch (response)
-            {
-                case PolicyResponse.Retry:
-                    typeof(MainActivity).GetMethod("WaitThenCheckForValidLicence")?.Invoke(this, null);
-                    break;
-                case PolicyResponse.Licensed:
-                    typeof(MainActivity).GetMethod("CheckToDownloadExpansion", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(this, null);
-                    break;
-            }
-        }
-#endif
     }
 }
 #endif

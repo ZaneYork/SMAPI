@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public AssemblyLoadStatus Status;
 
         /// <summary>Whether the <see cref="Definition"/> is loaded and ready (i.e. the <see cref="Status"/> is not <see cref="AssemblyLoadStatus.AlreadyLoaded"/> or <see cref="AssemblyLoadStatus.Failed"/>).</summary>
-        [MemberNotNullWhen(true, nameof(AssemblyParseResult.Definition))]
+        // [MemberNotNullWhen(true, nameof(AssemblyParseResult.Definition))]
         public bool HasDefinition => this.Status == AssemblyLoadStatus.Okay;
 
 

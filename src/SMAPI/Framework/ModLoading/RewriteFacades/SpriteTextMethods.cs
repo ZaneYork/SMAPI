@@ -25,10 +25,12 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             SpriteText.drawString(b, s, x, y, 999999, -1, 999999, alpha, 0.088f, false, 0, placeHolderWidthText, color, scroll_text_alignment);
         }
 
+#if SMAPI_LEGACY_PATCH
         public static void drawStringWithScrollBackground(SpriteBatch b, string s, int x, int y, string placeHolderWidthText, float alpha, int color)
         {
             SpriteText.drawStringWithScrollBackground(b, s, x, y, placeHolderWidthText, alpha, color, 0.088f);
         }
+#endif
     }
 }
 #endif

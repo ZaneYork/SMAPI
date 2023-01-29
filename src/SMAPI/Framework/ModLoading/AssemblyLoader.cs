@@ -405,7 +405,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
 
             // find or rewrite code
-            InstructionMetadata instructionMetadata = new InstructionMetadata();
+            InstructionMetadata instructionMetadata = new InstructionMetadata(this.Monitor);
             IInstructionHandler[] handlers = instructionMetadata.GetHandlers(this.ParanoidMode, platformChanged, this.RewriteMods).ToArray();
             RecursiveRewriter rewriter = new RecursiveRewriter(
                 module: module,

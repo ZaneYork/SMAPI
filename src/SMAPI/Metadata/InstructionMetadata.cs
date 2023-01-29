@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
-#if HARMONY_2
 using HarmonyLib;
-#else
-using Harmony;
-#endif
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
@@ -29,7 +25,7 @@ namespace StardewModdingAPI.Metadata
         *********/
         /// <summary>The assembly names to which to heuristically detect broken references.</summary>
         /// <remarks>The current implementation only works correctly with assemblies that should always be present.</remarks>
-        private readonly ISet<string> ValidateReferencesToAssemblies = new HashSet<string> { "StardewModdingAPI", "Stardew Valley", "StardewValley", "Netcode" };
+        private readonly HashSet<string> ValidateReferencesToAssemblies = new() { "StardewModdingAPI", "Stardew Valley", "StardewValley", "Netcode" };
 
         private readonly IMonitor Monitor;
 
@@ -57,9 +53,13 @@ namespace StardewModdingAPI.Metadata
                 yield return new FieldReplaceRewriter()
                     .AddField(typeof(DecoratableLocation), "furniture", typeof(GameLocation), nameof(GameLocation.furniture))
                     .AddField(typeof(Farm), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps))
+#if SMAPI_FOR_MOBILE
+                    .AddField(typeof(ItemGrabMenu), "context", typeof(ItemGrabMenu), "specialObject")
+#endif
                     .AddField(typeof(MineShaft), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps));
 
 #if SMAPI_FOR_MOBILE
+#if SMAPI_LEGACY_PATCH
             // Redirect reference
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isRaining", nameof(Game1Methods.IsRainingProp));
 #if !ANDROID_TARGET_MOBILE_LEGACY
@@ -67,10 +67,12 @@ namespace StardewModdingAPI.Metadata
 #endif
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isDebrisWeather", nameof(Game1Methods.IsDebrisWeatherProp));
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "rainDrops", nameof(Game1Methods.RainDropsProp));
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(WeatherDebrisManager), "debrisWeather","weatherDebrisList", "Instance");
+
+            // yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(WeatherDebrisManager), "debrisWeather","weatherDebrisList", "Instance");
+#endif
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "onScreenMenus", "onScreenMenus");
             yield return new PropertyToFieldRewriter(typeof(Game1), "toolSpriteSheet", "toolSpriteSheet");
-            yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(GameLocation), typeof(DebrisManager), "debris", this.Monitor, "debrisNetCollection");
+            // yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(GameLocation), typeof(DebrisManager), "debris", this.Monitor, "debrisNetCollection");
 
             // Menu fix
             yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods), "trashCan", nameof(MenuWithInventoryMethods.TrashCanProp));
@@ -89,21 +91,15 @@ namespace StardewModdingAPI.Metadata
             yield return new MethodParentRewriter(typeof(Game1), typeof(Game1Methods));
             yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods));
             yield return new MethodParentRewriter(typeof(SpriteText), typeof(SpriteTextMethods));
-            yield return new MethodParentRewriter(typeof(NPC), typeof(NPCMethods));
             yield return new MethodParentRewriter(typeof(Utility), typeof(UtilityMethods));
 
             //Constructor Rewrites
             yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));
             yield return new MethodParentRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods));
-            yield return new MethodParentRewriter(typeof(WeatherDebris), typeof(WeatherDebrisMethods));
-            yield return new MethodParentRewriter(typeof(Debris), typeof(DebrisMethods));
             yield return new MethodParentRewriter(typeof(InventoryMenu), typeof(InventoryMenuMethods));
             yield return new MethodParentRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods));
             yield return new MethodParentRewriter(typeof(GameMenu), typeof(GameMenuMethods));
             yield return new MethodParentRewriter(typeof(CraftingPageMobile), typeof(CraftingPageMobileMethods));
-
-            //Field Rewriters
-            yield return new FieldReplaceRewriter(typeof(ItemGrabMenu), "context", "specialObject");
 
 #endif
 
@@ -129,15 +125,9 @@ namespace StardewModdingAPI.Metadata
             // MonoMod fix
             if (!Constants.HarmonyEnabled)
             {
-#if HARMONY_2
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "Patch", typeof(HarmonyInstanceMethods), "Patch");
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "PatchAll" && method.Parameters.Count == 0, typeof(HarmonyInstanceMethods), "PatchAll");
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "PatchAll" && method.Parameters.Count == 1, typeof(HarmonyInstanceMethods), "PatchAllToAssembly");
-#else
-                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "Patch", typeof(HarmonyInstanceMethods), "Patch");
-                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "PatchAll" && method.Parameters.Count == 0, typeof(HarmonyInstanceMethods), "PatchAll");
-                yield return new MethodToAnotherStaticMethodRewriter(typeof(HarmonyInstance), (method) => method.Name == "PatchAll" && method.Parameters.Count == 1, typeof(HarmonyInstanceMethods), "PatchAllToAssembly");
-#endif
             }
 
             if(Constants.RewriteMissing)

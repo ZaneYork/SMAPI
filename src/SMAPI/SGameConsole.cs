@@ -108,10 +108,10 @@ namespace StardewModdingAPI
                     this.isVisible = false;
                     Game1.activeClickableMenu = null;
                     Game1.playSound("bigDeSelect");
-                    SMainActivity.Instance.core.CommandQueue.Enqueue(command);
+                    SMainActivity.Instance.core.RawCommandQueue.Add(command);
                     return;
                 }
-                SMainActivity.Instance.core.CommandQueue.Enqueue(command);
+                SMainActivity.Instance.core.RawCommandQueue.Add(command);
             }
         }
 
