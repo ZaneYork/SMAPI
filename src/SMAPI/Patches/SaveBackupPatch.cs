@@ -7,6 +7,7 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Internal.Patching;
 using StardewValley;
+using Monitor = StardewModdingAPI.Framework.Monitor;
 
 namespace StardewModdingAPI.Patches
 {

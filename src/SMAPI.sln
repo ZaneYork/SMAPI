@@ -110,7 +110,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Tests.ModApiProvider"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Tests.ModApiConsumer", "SMAPI.Tests.ModApiConsumer\SMAPI.Tests.ModApiConsumer.csproj", "{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMAPI", "SMAPI\SMAPI.csproj", "{EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI", "SMAPI\SMAPI.csproj", "{EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -212,5 +212,7 @@ Global
 		SMAPI.Internal.Patching\SMAPI.Internal.Patching.projitems*{6c16e948-3e5c-47a7-bf4b-07a7469a87a5}*SharedItemsImports = 13
 		SMAPI.Internal\SMAPI.Internal.projitems*{85208f8d-6fd1-4531-be05-7142490f59fe}*SharedItemsImports = 13
 		SMAPI.Internal\SMAPI.Internal.projitems*{cd53ad6f-97f4-4872-a212-50c2a0fd3601}*SharedItemsImports = 5
+		SMAPI.Internal.Patching\SMAPI.Internal.Patching.projitems*{ebd13eab-e70b-4d9f-92c2-c34a21e1fa32}*SharedItemsImports = 5
+		SMAPI.Internal\SMAPI.Internal.projitems*{ebd13eab-e70b-4d9f-92c2-c34a21e1fa32}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

@@ -6,6 +6,7 @@ using HarmonyLib;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Internal.Patching;
 using StardewValley;
+using Monitor = StardewModdingAPI.Framework.Monitor;
 
 namespace StardewModdingAPI.Patches
 {

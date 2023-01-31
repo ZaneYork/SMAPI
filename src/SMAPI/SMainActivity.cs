@@ -4,8 +4,6 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Provider;
 using Android.Runtime;
-using Android.Support.V4.App;
-using Android.Support.V4.Content;
 using Android.Views;
 using System;
 using System.Collections.Generic;
@@ -68,10 +66,10 @@ namespace StardewModdingAPI
                 List<string> list = new List<string>();
                 for (int i = 0; i < this.requiredPermissions.Length; i++)
                 {
-                    if (ContextCompat.CheckSelfPermission(this, this.requiredPermissions[i]) != 0)
-                    {
-                        list.Add(this.requiredPermissions[i]);
-                    }
+                    // if (ContextCompat.CheckSelfPermission(this, this.requiredPermissions[i]) != 0)
+                    // {
+                    //     list.Add(this.requiredPermissions[i]);
+                    // }
                 }
 
                 return list.ToArray();
@@ -187,7 +185,7 @@ namespace StardewModdingAPI
 
         public new void PromptForPermissions()
         {
-            ActivityCompat.RequestPermissions(this, this.DeniedPermissionsArray, 0);
+            // ActivityCompat.RequestPermissions(this, this.DeniedPermissionsArray, 0);
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)

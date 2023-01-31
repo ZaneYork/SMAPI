@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\define-constant.targets" />
   <PropertyGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -18,8 +18,10 @@
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
-    <TargetFrameworkVersion>v12.0</TargetFrameworkVersion>
-    <TargetFramework>net5.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFramework>net6.0-android</TargetFramework>
+    <TargetFrameworkVersion>12.0</TargetFrameworkVersion>
     <AndroidUseAapt2>true</AndroidUseAapt2>
     <DefineConstants>$(DefineConstants)</DefineConstants>
   </PropertyGroup>
@@ -133,16 +135,16 @@
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\MonoGame.Framework.dll</HintPath>
     </Reference>
 
-    <Reference Include="mscorlib" />
-    <Reference Include="Mono.Android" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
+<!--    <Reference Include="mscorlib" />-->
+<!--    <Reference Include="Mono.Android" />-->
+<!--    <Reference Include="System" />-->
+<!--    <Reference Include="System.Core" />-->
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="0Harmony">
       <HintPath>..\..\build\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CSharp" />
+<!--    <Reference Include="Microsoft.CSharp" />-->
     <Reference Include="SMAPI.Toolkit">
       <HintPath>..\SMAPI.Toolkit\bin\Debug\netstandard2.0\SMAPI.Toolkit.dll</HintPath>
     </Reference>
@@ -155,12 +157,12 @@
     <PackageReference Include="SkiaSharp">
       <Version>2.88.3</Version>
     </PackageReference>
-    <PackageReference Include="Xamarin.Android.Support.Compat">
-      <Version>28.0.0.3</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.Android.Support.DocumentFile">
-      <Version>28.0.0.3</Version>
-    </PackageReference>
+<!--    <PackageReference Include="Xamarin.Android.Support.Compat">-->
+<!--      <Version>28.0.0.3</Version>-->
+<!--    </PackageReference>-->
+<!--    <PackageReference Include="Xamarin.Android.Support.DocumentFile">-->
+<!--      <Version>28.0.0.3</Version>-->
+<!--    </PackageReference>-->
     <PackageReference Include="Mono.Cecil" Version="0.11.4" />
     <PackageReference Include="MonoMod.Common" Version="22.3.5.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
@@ -175,9 +177,6 @@
 
     <!-- legacy package; remove in SMAPI 4.0.0 -->
     <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
-    <Compile Include="**\*.cs" Exclude="**/.vshistory/**;obj/**" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
@@ -195,7 +194,10 @@
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
   </ItemGroup>
 
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" Condition="'$(BUILD_FOR_MOBILE)' != ''" />
+  <ItemGroup>
+    <Folder Include="Mobile" />
+  </ItemGroup>
+
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
   <Import Project="..\SMAPI.Internal.Patching\SMAPI.Internal.Patching.projitems" Label="Shared" />
 </Project>

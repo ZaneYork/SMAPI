@@ -4,6 +4,7 @@ using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
+using Object = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework.StateTracking.Snapshots
 {

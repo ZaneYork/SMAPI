@@ -11,6 +11,7 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Internal.Patching;
 using StardewValley;
 using StardewValley.Menus;
+using Monitor = StardewModdingAPI.Framework.Monitor;
 
 namespace StardewModdingAPI.Patches
 {
