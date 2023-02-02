@@ -107,7 +107,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>The underlying game instance.</summary>
 #if SMAPI_FOR_MOBILE
         internal SGameRunner Game = null!; // initialized very early
-        // internal SGame Game;
 #else
         private SGameRunner Game = null!; // initialized very early
 #endif
@@ -356,12 +355,12 @@ namespace StardewModdingAPI.Framework
                 this.LogManager.PressAnyKeyToExit();
                 this.Dispose(isError: true);
             }
+#if !SMAPI_FOR_MOBILE
             finally
             {
-#if !SMAPI_FOR_MOBILE
                 this.Dispose();
-#endif
             }
+#endif
         }
 
         /// <summary>Get the core logger and monitor on behalf of the game.</summary>
@@ -1664,6 +1663,7 @@ namespace StardewModdingAPI.Framework
             }
 #endif
         }
+
         /// <summary>Asynchronously check for a new version of SMAPI and any installed mods, and print alerts to the console if an update is available.</summary>
         /// <param name="mods">The mods to include in the update check (if eligible).</param>
         private async Task CheckForUpdatesAsync(IModMetadata[] mods)
@@ -2367,8 +2367,8 @@ namespace StardewModdingAPI.Framework
                             errors.Add($"{file.Name} file couldn't be read"); // mainly happens when the file is corrupted or empty
                             continue;
                         }
-                        if(data != null)
-                            translations[locale] = data;
+
+                        translations[locale] = data;
                     }
                     catch (Exception ex)
                     {

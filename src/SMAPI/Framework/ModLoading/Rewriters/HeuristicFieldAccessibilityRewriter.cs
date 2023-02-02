@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         ** Fields
         *********/
         /// <summary>The assembly names to which to rewrite broken references.</summary>
-        private readonly HashSet<string> RewriteReferencesToAssemblies;
+        private readonly ISet<string> RewriteReferencesToAssemblies;
 
 
         /*********
@@ -23,7 +23,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="rewriteReferencesToAssemblies">The assembly names to which to rewrite broken references.</param>
-        public HeuristicFieldAccessibilityRewriter(HashSet<string> rewriteReferencesToAssemblies)
+        public HeuristicFieldAccessibilityRewriter(ISet<string> rewriteReferencesToAssemblies)
             : base(defaultPhrase: "field visibility changed to private") // ignored since we specify phrases
         {
             this.RewriteReferencesToAssemblies = rewriteReferencesToAssemblies;

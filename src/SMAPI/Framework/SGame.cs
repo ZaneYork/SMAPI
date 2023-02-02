@@ -14,7 +14,6 @@ using StardewModdingAPI.Internal;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
-using StardewValley.Events;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Tools;
@@ -22,6 +21,7 @@ using xTile.Dimensions;
 using xTile.Layers;
 using xTile.Tiles;
 #if SMAPI_FOR_MOBILE
+using StardewValley.Events;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StardewValley.Minigames;
@@ -102,7 +102,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Construct a content manager to read game content files.</summary>
         /// <remarks>This must be static because the game accesses it before the <see cref="SGame"/> constructor is called.</remarks>
-        [NonInstancedStatic] public static Func<IServiceProvider, string, LocalizedContentManager>? CreateContentManagerImpl;
+        [NonInstancedStatic]
+        public static Func<IServiceProvider, string, LocalizedContentManager>? CreateContentManagerImpl;
+
 
         /*********
         ** Public methods
@@ -129,7 +131,9 @@ namespace StardewModdingAPI.Framework
             Game1.input = this.InitialInput = input;
             Game1.multiplayer = this.InitialMultiplayer = multiplayer;
             Game1.hooks = modHooks;
-            // this._locations = new ObservableCollection<GameLocation>();
+#if !SMAPI_FOR_MOBILE
+            this._locations = new ObservableCollection<GameLocation>();
+#endif
 
             // init SMAPI
             this.Monitor = monitor;
@@ -204,7 +208,11 @@ namespace StardewModdingAPI.Framework
             if (this.IsFirstTick)
             {
                 this.Input.TrueUpdate();
+#if SMAPI_FOR_MOBILE
                 this.Watchers = new WatcherCore(this.Input, this._locations);
+#else
+                this.Watchers = new WatcherCore(this.Input, (ObservableCollection<GameLocation>)this._locations);
+#endif
             }
 
             // update
@@ -360,6 +368,7 @@ namespace StardewModdingAPI.Framework
         [SuppressMessage("ReSharper", "MergeIntoPattern", Justification = "copied from game code as-is")]
         [SuppressMessage("SMAPI.CommonErrors", "AvoidImplicitNetFieldCast", Justification = "copied from game code as-is")]
         [SuppressMessage("SMAPI.CommonErrors", "AvoidNetField", Justification = "copied from game code as-is")]
+
         [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "Deliberate to minimize chance of errors when copying event calls into new versions of this code.")]
 #if SMAPI_FOR_MOBILE
         private void DrawImpl(GameTime gameTime, RenderTarget2D target_screen)

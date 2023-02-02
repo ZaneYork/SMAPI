@@ -396,21 +396,12 @@ namespace StardewModdingAPI.Metadata
 
                 case "loosesprites/cursors": // Game1.LoadContent
                     Game1.mouseCursors = content.Load<Texture2D>(key);
-#if !SMAPI_FOR_MOBILE
-                    // Game1.onScreenMenus is a List<T> instead of an IList<T>
-                    foreach (DayTimeMoneyBox menu in Game1.onScreenMenus)
+                    foreach (DayTimeMoneyBox menu in Game1.onScreenMenus.OfType<DayTimeMoneyBox>())
                     {
                         foreach (ClickableTextureComponent button in new[] { menu.questButton, menu.zoomInButton, menu.zoomOutButton })
                             button.texture = Game1.mouseCursors;
                     }
-#else
-                    // Game1.onScreenMenus is a List<T> instead of an IList<T>
-                    foreach (DayTimeMoneyBox menu in Game1.onScreenMenus)
-                    {
-                        foreach (ClickableTextureComponent button in new[] { menu.questButton, menu.zoomInButton, menu.zoomOutButton })
-                            button.texture = Game1.mouseCursors;
-                    }
-#endif
+
                     if (!ignoreWorld)
                         this.UpdateDoorSprites(content, assetName);
                     return true;

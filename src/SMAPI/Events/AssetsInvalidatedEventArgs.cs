@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+#if SMAPI_FOR_MOBILE
+using ReadOnlyCollectionsExtensions;
+#endif
 
 namespace StardewModdingAPI.Events
 {
@@ -11,18 +14,10 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The asset names that were invalidated.</summary>
-#if SMAPI_FOR_MOBILE
-        public IImmutableSet<IAssetName> Names { get; }
-#else
         public IReadOnlySet<IAssetName> Names { get; }
-#endif
         /// <summary>The <see cref="Names"/> with any locale codes stripped.</summary>
         /// <remarks>For example, if <see cref="Names"/> contains a locale like <c>Data/Bundles.fr-FR</c>, this will have the name without locale like <c>Data/Bundles</c>. If the name has no locale, this field is equivalent.</remarks>
-#if SMAPI_FOR_MOBILE
-        public IImmutableSet<IAssetName> NamesWithoutLocale { get; }
-#else
         public IReadOnlySet<IAssetName> NamesWithoutLocale { get; }
-#endif
 
 
         /*********
@@ -33,8 +28,13 @@ namespace StardewModdingAPI.Events
         /// <param name="namesWithoutLocale">The <paramref name="names"/> with any locale codes stripped.</param>
         internal AssetsInvalidatedEventArgs(IEnumerable<IAssetName> names, IEnumerable<IAssetName> namesWithoutLocale)
         {
+#if SMAPI_FOR_MOBILE
+            this.Names = names.ToReadOnlySet();
+            this.NamesWithoutLocale = namesWithoutLocale.ToReadOnlySet();
+#else
             this.Names = names.ToImmutableHashSet();
             this.NamesWithoutLocale = namesWithoutLocale.ToImmutableHashSet();
+#endif
         }
     }
 }

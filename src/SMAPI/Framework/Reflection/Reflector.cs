@@ -1,10 +1,5 @@
 using System;
 using System.Reflection;
-#if SMAPI_FOR_MOBILE
-using System.Collections.Generic;
-#else
-using System.Runtime.Caching;
-#endif
 using StardewModdingAPI.Framework.Utilities;
 
 namespace StardewModdingAPI.Framework.Reflection
@@ -17,15 +12,7 @@ namespace StardewModdingAPI.Framework.Reflection
         ** Fields
         *********/
         /// <summary>The cached fields and methods found via reflection.</summary>
-#if SMAPI_FOR_MOBILE
-        // private readonly Dictionary<string, CacheEntry> Cache = new Dictionary<string, CacheEntry>();
         private readonly IntervalMemoryCache<string, MemberInfo?> Cache = new();
-#else
-        private readonly IntervalMemoryCache<string, MemberInfo?> Cache = new();
-#endif
-
-        /// <summary>The sliding cache expiration time.</summary>
-        private readonly TimeSpan SlidingCacheExpiry = TimeSpan.FromMinutes(5);
 
 
         /*********
@@ -264,29 +251,8 @@ namespace StardewModdingAPI.Framework.Reflection
         private TMemberInfo? GetCached<TMemberInfo>(char memberType, Type type, string memberName, bool isStatic, Func<TMemberInfo?> fetch)
             where TMemberInfo : MemberInfo
         {
-            // get from cache
-// #if SMAPI_FOR_MOBILE
-//             if (this.Cache.ContainsKey(key))
-// #else
-//             if (this.Cache.Contains(key))
-// #endif
-//             {
-//                 CacheEntry entry = (CacheEntry)this.Cache[key];
-//                 return entry.IsValid
-//                     ? (TMemberInfo)entry.MemberInfo
-//                     : default;
-//             }
-//
-//             // fetch & cache new value
-//             TMemberInfo result = fetch();
-//             CacheEntry cacheEntry = new CacheEntry(result != null, result);
-#if SMAPI_FOR_MOBILE
             string key = $"{memberType}{(isStatic ? 's' : 'i')}{type.FullName}:{memberName}";
             return (TMemberInfo?)this.Cache.GetOrSet(key, fetch);
-#else
-            string key = $"{memberType}{(isStatic ? 's' : 'i')}{type.FullName}:{memberName}";
-            return (TMemberInfo?)this.Cache.GetOrSet(key, fetch);
-#endif
         }
     }
 }

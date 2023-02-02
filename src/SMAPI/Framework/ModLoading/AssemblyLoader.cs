@@ -405,9 +405,12 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
 
             // find or rewrite code
-            InstructionMetadata instructionMetadata = new InstructionMetadata(this.Monitor);
-            IInstructionHandler[] handlers = instructionMetadata.GetHandlers(this.ParanoidMode, platformChanged, this.RewriteMods).ToArray();
-            RecursiveRewriter rewriter = new RecursiveRewriter(
+#if SMAPI_FOR_MOBILE
+            IInstructionHandler[] handlers = new InstructionMetadata(this.Monitor).GetHandlers(this.ParanoidMode, platformChanged, this.RewriteMods).ToArray();
+#else
+            IInstructionHandler[] handlers = new InstructionMetadata().GetHandlers(this.ParanoidMode, platformChanged, this.RewriteMods).ToArray();
+#endif
+            RecursiveRewriter rewriter = new(
                 module: module,
                 rewriteModule: curModule =>
                 {

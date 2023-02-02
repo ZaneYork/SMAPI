@@ -41,7 +41,9 @@ namespace StardewModdingAPI.Framework.Input
         ** Accessors
         *********/
         /// <summary>Whether the gamepad is currently connected.</summary>
-        // [MemberNotNullWhen(true, nameof(GamePadStateBuilder.ButtonStates))]
+#if !SMAPI_FOR_MOBILE
+        [MemberNotNullWhen(true, nameof(GamePadStateBuilder.ButtonStates))]
+#endif
         public bool IsConnected { get; }
 
 
@@ -201,11 +203,6 @@ namespace StardewModdingAPI.Framework.Input
                 leftTrigger: this.LeftTrigger,
                 rightTrigger: this.RightTrigger,
                 buttons: this.GetPressedGamePadButtons().ToArray()
-// #if MonoAndroid10_
-//                 buttons: new[] {this.GetButtonBitmask()}
-// #else
-//                 buttons: this.GetButtonBitmask() // MonoGame requires one bitmask here; don't specify multiple values
-// #endif
             );
 
             return this.State.Value;

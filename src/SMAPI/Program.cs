@@ -36,7 +36,9 @@ namespace StardewModdingAPI
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
+#if !SMAPI_FOR_MOBILE
             Console.Title = $"SMAPI {EarlyConstants.RawApiVersion}";
+#endif
 
             try
             {

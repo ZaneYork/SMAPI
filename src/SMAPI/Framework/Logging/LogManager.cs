@@ -305,6 +305,7 @@ namespace StardewModdingAPI.Framework.Logging
             // developer mode
             if (settings.DeveloperMode)
                 this.Monitor.Log("You enabled developer mode, so the console will be much more verbose. You can disable it by installing the non-developer version of SMAPI.", LogLevel.Info);
+
             // warnings
             if (!settings.CheckForUpdates)
                 this.Monitor.Log("You disabled update checks, so you won't be notified of new SMAPI or mod updates. Running an old version of SMAPI is not recommended. You can undo this by reinstalling SMAPI.", LogLevel.Warn);

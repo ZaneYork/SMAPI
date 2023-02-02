@@ -41,7 +41,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Set the current locale and pre-cache translations.</summary>
         /// <param name="locale">The current locale.</param>
         /// <param name="localeEnum">The game's current language code.</param>
-        // [MemberNotNull(nameof(Translator.ForLocale), nameof(Translator.Locale))]
+#if !SMAPI_FOR_MOBILE
+        [MemberNotNull(nameof(Translator.ForLocale), nameof(Translator.Locale))]
+#endif
         public void SetLocale(string locale, LocalizedContentManager.LanguageCode localeEnum)
         {
             this.Locale = locale.ToLower().Trim();

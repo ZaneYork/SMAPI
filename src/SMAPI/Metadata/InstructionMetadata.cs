@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using HarmonyLib;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.ModLoading;
@@ -10,6 +7,7 @@ using StardewModdingAPI.Framework.ModLoading.RewriteFacades;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewValley;
 #if SMAPI_FOR_MOBILE
+using HarmonyLib;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Menus;
 #endif
@@ -25,14 +23,16 @@ namespace StardewModdingAPI.Metadata
         *********/
         /// <summary>The assembly names to which to heuristically detect broken references.</summary>
         /// <remarks>The current implementation only works correctly with assemblies that should always be present.</remarks>
-        private readonly HashSet<string> ValidateReferencesToAssemblies = new() { "StardewModdingAPI", "Stardew Valley", "StardewValley", "Netcode" };
+        private readonly ISet<string> ValidateReferencesToAssemblies = new HashSet<string> { "StardewModdingAPI", "Stardew Valley", "StardewValley", "Netcode" };
 
+#if SMAPI_FOR_MOBILE
         private readonly IMonitor Monitor;
 
         public InstructionMetadata(IMonitor monitor)
         {
             this.Monitor = monitor;
         }
+#endif
 
         /*********
         ** Public methods
@@ -106,7 +106,9 @@ namespace StardewModdingAPI.Metadata
             // heuristic rewrites
             yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
             yield return new HeuristicMethodRewriter(this.ValidateReferencesToAssemblies);
-            yield return new HeuristicFieldAccessibilityRewriter(this.ValidateReferencesToAssemblies);
+#if SMAPI_FOR_MOBILE
+                yield return new HeuristicFieldAccessibilityRewriter(this.ValidateReferencesToAssemblies);
+#endif
 
                 // rewrite for Stardew Valley 1.5.5
                 if (platformChanged)

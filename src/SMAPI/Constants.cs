@@ -13,7 +13,7 @@ using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit.Framework;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
-using HarmonyLib;
+
 namespace StardewModdingAPI
 {
     /// <summary>Contains constants that are accessed before the game itself has been loaded.</summary>
@@ -339,7 +339,6 @@ namespace StardewModdingAPI
 
             return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences.ToArray(), targetAssemblies.ToArray());
         }
-
 
 
         /*********

@@ -62,6 +62,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             return false;
         }
 
+#if SMAPI_FOR_MOBILE
         /*********
         ** Protected methods
         *********/
@@ -75,5 +76,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
                 && fieldRef.DeclaringType.FullName == this.FullTypeName
                 && this.FieldNames.Contains(fieldRef.Name);
         }
+#endif
     }
 }

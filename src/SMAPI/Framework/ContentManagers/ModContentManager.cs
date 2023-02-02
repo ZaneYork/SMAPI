@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Buffers;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using BmFont;
 using Microsoft.Xna.Framework;
@@ -23,6 +21,10 @@ using StardewValley;
 using xTile;
 using xTile.Format;
 using xTile.Tiles;
+#if SMAPI_FOR_MOBILE
+using System.Collections.Generic;
+using System.Reflection;
+#endif
 
 namespace StardewModdingAPI.Framework.ContentManagers
 {

@@ -172,6 +172,12 @@
     <Reference Include="TMXTile">
       <HintPath>..\..\build\TMXTile.dll</HintPath>
     </Reference>
+    <Reference Include="ReadOnlyCollectionsInterfaces">
+      <HintPath>..\..\build\ReadOnlyCollectionsInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ReadOnlyCollectionsExtensions">
+      <HintPath>..\..\build\ReadOnlyCollectionsExtensions.dll</HintPath>
+    </Reference>
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 
     <!-- legacy package; remove in SMAPI 4.0.0 -->

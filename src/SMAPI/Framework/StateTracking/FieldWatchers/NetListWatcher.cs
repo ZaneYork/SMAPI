@@ -65,6 +65,8 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             field.OnArrayReplaced += this.OnArrayReplaced;
 #endif
         }
+
+#if SMAPI_FOR_MOBILE
         private void hookField(int index, NetRef<TValue> field)
         {
             if (field == default)
@@ -81,6 +83,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
                 this.hookField(index, array.Fields[index]);
             //this.innerArray.OnFieldCreate += new NetArray<TValue, NetRef<TValue>>.FieldCreateEvent(this.hookField);
         }
+#endif
 
         /// <inheritdoc />
         public void Reset()

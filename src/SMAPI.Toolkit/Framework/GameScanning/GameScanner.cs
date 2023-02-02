@@ -232,6 +232,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                 yield return element.Value.Trim();
 #endif
         }
+
 #if SMAPI_FOR_WINDOWS
         /// <summary>Get the value of a key in the Windows HKLM registry.</summary>
         /// <param name="key">The full path of the registry key relative to HKLM.</param>
