@@ -201,6 +201,9 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
         /// <summary>Get the custom install path from the <c>stardewvalley.targets</c> file in the home directory, if any.</summary>
         private IEnumerable<string> GetCustomInstallPaths()
         {
+#if SMAPI_FOR_MOBILE
+            yield break;
+#else
             // get home path
             string homePath = Environment.GetEnvironmentVariable(this.Platform == Platform.Windows ? "USERPROFILE" : "HOME")!;
             if (string.IsNullOrWhiteSpace(homePath))
@@ -227,8 +230,8 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
             XElement? element = root.XPathSelectElement("//*[local-name() = 'GamePath']"); // can't use '//GamePath' due to the default namespace
             if (!string.IsNullOrWhiteSpace(element?.Value))
                 yield return element.Value.Trim();
+#endif
         }
-
 #if SMAPI_FOR_WINDOWS
         /// <summary>Get the value of a key in the Windows HKLM registry.</summary>
         /// <param name="key">The full path of the registry key relative to HKLM.</param>
