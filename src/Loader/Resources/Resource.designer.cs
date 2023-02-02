@@ -14,7 +14,7 @@ namespace Loader
 {
 	
 	
-	[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Android.Build.Tasks", "1.0.0.0")]
+	[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Android.Build.Tasks", "13.1.0.5")]
 	public partial class Resource
 	{
 		
@@ -80,11 +80,9 @@ namespace Loader
 			global::StardewModdingAPI.Resource.Id.action_divider = global::Loader.Resource.Id.action_divider;
 			global::StardewModdingAPI.Resource.Id.action_image = global::Loader.Resource.Id.action_image;
 			global::StardewModdingAPI.Resource.Id.action_text = global::Loader.Resource.Id.action_text;
-			global::StardewModdingAPI.Resource.Id.appIcon = global::Loader.Resource.Id.appIcon;
 			global::StardewModdingAPI.Resource.Id.async = global::Loader.Resource.Id.async;
 			global::StardewModdingAPI.Resource.Id.blocking = global::Loader.Resource.Id.blocking;
 			global::StardewModdingAPI.Resource.Id.chronometer = global::Loader.Resource.Id.chronometer;
-			global::StardewModdingAPI.Resource.Id.description = global::Loader.Resource.Id.description;
 			global::StardewModdingAPI.Resource.Id.forever = global::Loader.Resource.Id.forever;
 			global::StardewModdingAPI.Resource.Id.icon = global::Loader.Resource.Id.icon;
 			global::StardewModdingAPI.Resource.Id.icon_group = global::Loader.Resource.Id.icon_group;
@@ -93,23 +91,17 @@ namespace Loader
 			global::StardewModdingAPI.Resource.Id.line1 = global::Loader.Resource.Id.line1;
 			global::StardewModdingAPI.Resource.Id.line3 = global::Loader.Resource.Id.line3;
 			global::StardewModdingAPI.Resource.Id.normal = global::Loader.Resource.Id.normal;
-			global::StardewModdingAPI.Resource.Id.notificationLayout = global::Loader.Resource.Id.notificationLayout;
 			global::StardewModdingAPI.Resource.Id.notification_background = global::Loader.Resource.Id.notification_background;
 			global::StardewModdingAPI.Resource.Id.notification_main_column = global::Loader.Resource.Id.notification_main_column;
 			global::StardewModdingAPI.Resource.Id.notification_main_column_container = global::Loader.Resource.Id.notification_main_column_container;
-			global::StardewModdingAPI.Resource.Id.progress_bar = global::Loader.Resource.Id.progress_bar;
-			global::StardewModdingAPI.Resource.Id.progress_bar_frame = global::Loader.Resource.Id.progress_bar_frame;
-			global::StardewModdingAPI.Resource.Id.progress_text = global::Loader.Resource.Id.progress_text;
 			global::StardewModdingAPI.Resource.Id.right_icon = global::Loader.Resource.Id.right_icon;
 			global::StardewModdingAPI.Resource.Id.right_side = global::Loader.Resource.Id.right_side;
-			global::StardewModdingAPI.Resource.Id.spacer = global::Loader.Resource.Id.spacer;
 			global::StardewModdingAPI.Resource.Id.tag_transition_group = global::Loader.Resource.Id.tag_transition_group;
 			global::StardewModdingAPI.Resource.Id.tag_unhandled_key_event_manager = global::Loader.Resource.Id.tag_unhandled_key_event_manager;
 			global::StardewModdingAPI.Resource.Id.tag_unhandled_key_listeners = global::Loader.Resource.Id.tag_unhandled_key_listeners;
 			global::StardewModdingAPI.Resource.Id.text = global::Loader.Resource.Id.text;
 			global::StardewModdingAPI.Resource.Id.text2 = global::Loader.Resource.Id.text2;
 			global::StardewModdingAPI.Resource.Id.time = global::Loader.Resource.Id.time;
-			global::StardewModdingAPI.Resource.Id.time_remaining = global::Loader.Resource.Id.time_remaining;
 			global::StardewModdingAPI.Resource.Id.title = global::Loader.Resource.Id.title;
 			global::StardewModdingAPI.Resource.Integer.status_bar_notification_info_maxnum = global::Loader.Resource.Integer.status_bar_notification_info_maxnum;
 			global::StardewModdingAPI.Resource.Layout.notification_action = global::Loader.Resource.Layout.notification_action;
@@ -118,38 +110,9 @@ namespace Loader
 			global::StardewModdingAPI.Resource.Layout.notification_template_icon_group = global::Loader.Resource.Layout.notification_template_icon_group;
 			global::StardewModdingAPI.Resource.Layout.notification_template_part_chronometer = global::Loader.Resource.Layout.notification_template_part_chronometer;
 			global::StardewModdingAPI.Resource.Layout.notification_template_part_time = global::Loader.Resource.Layout.notification_template_part_time;
-			global::StardewModdingAPI.Resource.Layout.status_bar_ongoing_event_progress_bar = global::Loader.Resource.Layout.status_bar_ongoing_event_progress_bar;
 			global::StardewModdingAPI.Resource.String.app_name = global::Loader.Resource.String.app_name;
 			global::StardewModdingAPI.Resource.String.hello = global::Loader.Resource.String.hello;
-			global::StardewModdingAPI.Resource.String.kilobytes_per_second = global::Loader.Resource.String.kilobytes_per_second;
-			global::StardewModdingAPI.Resource.String.notification_download_complete = global::Loader.Resource.String.notification_download_complete;
-			global::StardewModdingAPI.Resource.String.notification_download_failed = global::Loader.Resource.String.notification_download_failed;
-			global::StardewModdingAPI.Resource.String.state_completed = global::Loader.Resource.String.state_completed;
-			global::StardewModdingAPI.Resource.String.state_connecting = global::Loader.Resource.String.state_connecting;
-			global::StardewModdingAPI.Resource.String.state_downloading = global::Loader.Resource.String.state_downloading;
-			global::StardewModdingAPI.Resource.String.state_failed = global::Loader.Resource.String.state_failed;
-			global::StardewModdingAPI.Resource.String.state_failed_cancelled = global::Loader.Resource.String.state_failed_cancelled;
-			global::StardewModdingAPI.Resource.String.state_failed_fetching_url = global::Loader.Resource.String.state_failed_fetching_url;
-			global::StardewModdingAPI.Resource.String.state_failed_sdcard_full = global::Loader.Resource.String.state_failed_sdcard_full;
-			global::StardewModdingAPI.Resource.String.state_failed_unlicensed = global::Loader.Resource.String.state_failed_unlicensed;
-			global::StardewModdingAPI.Resource.String.state_fetching_url = global::Loader.Resource.String.state_fetching_url;
-			global::StardewModdingAPI.Resource.String.state_idle = global::Loader.Resource.String.state_idle;
-			global::StardewModdingAPI.Resource.String.state_paused_by_request = global::Loader.Resource.String.state_paused_by_request;
-			global::StardewModdingAPI.Resource.String.state_paused_network_setup_failure = global::Loader.Resource.String.state_paused_network_setup_failure;
-			global::StardewModdingAPI.Resource.String.state_paused_network_unavailable = global::Loader.Resource.String.state_paused_network_unavailable;
-			global::StardewModdingAPI.Resource.String.state_paused_roaming = global::Loader.Resource.String.state_paused_roaming;
-			global::StardewModdingAPI.Resource.String.state_paused_sdcard_unavailable = global::Loader.Resource.String.state_paused_sdcard_unavailable;
-			global::StardewModdingAPI.Resource.String.state_paused_wifi_disabled = global::Loader.Resource.String.state_paused_wifi_disabled;
-			global::StardewModdingAPI.Resource.String.state_paused_wifi_unavailable = global::Loader.Resource.String.state_paused_wifi_unavailable;
-			global::StardewModdingAPI.Resource.String.state_unknown = global::Loader.Resource.String.state_unknown;
 			global::StardewModdingAPI.Resource.String.status_bar_notification_info_overflow = global::Loader.Resource.String.status_bar_notification_info_overflow;
-			global::StardewModdingAPI.Resource.String.time_remaining = global::Loader.Resource.String.time_remaining;
-			global::StardewModdingAPI.Resource.String.time_remaining_notification = global::Loader.Resource.String.time_remaining_notification;
-			global::StardewModdingAPI.Resource.Style.ButtonBackground = global::Loader.Resource.Style.ButtonBackground;
-			global::StardewModdingAPI.Resource.Style.NotificationText = global::Loader.Resource.Style.NotificationText;
-			global::StardewModdingAPI.Resource.Style.NotificationTextSecondary = global::Loader.Resource.Style.NotificationTextSecondary;
-			global::StardewModdingAPI.Resource.Style.NotificationTextShadow = global::Loader.Resource.Style.NotificationTextShadow;
-			global::StardewModdingAPI.Resource.Style.NotificationTitle = global::Loader.Resource.Style.NotificationTitle;
 			global::StardewModdingAPI.Resource.Style.TextAppearance_Compat_Notification = global::Loader.Resource.Style.TextAppearance_Compat_Notification;
 			global::StardewModdingAPI.Resource.Style.TextAppearance_Compat_Notification_Info = global::Loader.Resource.Style.TextAppearance_Compat_Notification_Info;
 			global::StardewModdingAPI.Resource.Style.TextAppearance_Compat_Notification_Line2 = global::Loader.Resource.Style.TextAppearance_Compat_Notification_Line2;
@@ -441,9 +404,6 @@ namespace Loader
 			// aapt resource value: 0x7f0a001a
 			public const int actions = 2131361818;
 			
-			// aapt resource value: 0x7f0a001d
-			public const int appIcon = 2131361821;
-			
 			// aapt resource value: 0x7f0a0008
 			public const int async = 2131361800;
 			
@@ -452,9 +412,6 @@ namespace Loader
 			
 			// aapt resource value: 0x7f0a0018
 			public const int chronometer = 2131361816;
-			
-			// aapt resource value: 0x7f0a0022
-			public const int description = 2131361826;
 			
 			// aapt resource value: 0x7f0a000a
 			public const int forever = 2131361802;
@@ -480,9 +437,6 @@ namespace Loader
 			// aapt resource value: 0x7f0a000c
 			public const int normal = 2131361804;
 			
-			// aapt resource value: 0x7f0a001c
-			public const int notificationLayout = 2131361820;
-			
 			// aapt resource value: 0x7f0a0016
 			public const int notification_background = 2131361814;
 			
@@ -492,23 +446,11 @@ namespace Loader
 			// aapt resource value: 0x7f0a0010
 			public const int notification_main_column_container = 2131361808;
 			
-			// aapt resource value: 0x7f0a0021
-			public const int progress_bar = 2131361825;
-			
-			// aapt resource value: 0x7f0a0020
-			public const int progress_bar_frame = 2131361824;
-			
-			// aapt resource value: 0x7f0a001e
-			public const int progress_text = 2131361822;
-			
 			// aapt resource value: 0x7f0a0015
 			public const int right_icon = 2131361813;
 			
 			// aapt resource value: 0x7f0a0013
 			public const int right_side = 2131361811;
-			
-			// aapt resource value: 0x7f0a0023
-			public const int spacer = 2131361827;
 			
 			// aapt resource value: 0x7f0a0002
 			public const int tag_transition_group = 2131361794;
@@ -527,9 +469,6 @@ namespace Loader
 			
 			// aapt resource value: 0x7f0a0017
 			public const int time = 2131361815;
-			
-			// aapt resource value: 0x7f0a001f
-			public const int time_remaining = 2131361823;
 			
 			// aapt resource value: 0x7f0a0007
 			public const int title = 2131361799;
@@ -581,9 +520,6 @@ namespace Loader
 			// aapt resource value: 0x7f040005
 			public const int notification_template_part_time = 2130968581;
 			
-			// aapt resource value: 0x7f040006
-			public const int status_bar_ongoing_event_progress_bar = 2130968582;
-			
 			static Layout()
 			{
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
@@ -622,86 +558,17 @@ namespace Loader
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7f06001a
-			public const int action_settings = 2131099674;
-			
-			// aapt resource value: 0x7f060002
-			public const int app_name = 2131099650;
+			// aapt resource value: 0x7f060003
+			public const int action_settings = 2131099651;
 			
 			// aapt resource value: 0x7f060001
-			public const int hello = 2131099649;
-			
-			// aapt resource value: 0x7f060003
-			public const int kilobytes_per_second = 2131099651;
-			
-			// aapt resource value: 0x7f060004
-			public const int notification_download_complete = 2131099652;
-			
-			// aapt resource value: 0x7f060005
-			public const int notification_download_failed = 2131099653;
-			
-			// aapt resource value: 0x7f060006
-			public const int state_completed = 2131099654;
-			
-			// aapt resource value: 0x7f060007
-			public const int state_connecting = 2131099655;
-			
-			// aapt resource value: 0x7f060008
-			public const int state_downloading = 2131099656;
-			
-			// aapt resource value: 0x7f060009
-			public const int state_failed = 2131099657;
-			
-			// aapt resource value: 0x7f06000a
-			public const int state_failed_cancelled = 2131099658;
-			
-			// aapt resource value: 0x7f06000b
-			public const int state_failed_fetching_url = 2131099659;
-			
-			// aapt resource value: 0x7f06000c
-			public const int state_failed_sdcard_full = 2131099660;
-			
-			// aapt resource value: 0x7f06000d
-			public const int state_failed_unlicensed = 2131099661;
-			
-			// aapt resource value: 0x7f06000e
-			public const int state_fetching_url = 2131099662;
-			
-			// aapt resource value: 0x7f06000f
-			public const int state_idle = 2131099663;
-			
-			// aapt resource value: 0x7f060010
-			public const int state_paused_by_request = 2131099664;
-			
-			// aapt resource value: 0x7f060011
-			public const int state_paused_network_setup_failure = 2131099665;
-			
-			// aapt resource value: 0x7f060012
-			public const int state_paused_network_unavailable = 2131099666;
-			
-			// aapt resource value: 0x7f060013
-			public const int state_paused_roaming = 2131099667;
-			
-			// aapt resource value: 0x7f060014
-			public const int state_paused_sdcard_unavailable = 2131099668;
-			
-			// aapt resource value: 0x7f060015
-			public const int state_paused_wifi_disabled = 2131099669;
-			
-			// aapt resource value: 0x7f060016
-			public const int state_paused_wifi_unavailable = 2131099670;
-			
-			// aapt resource value: 0x7f060017
-			public const int state_unknown = 2131099671;
+			public const int app_name = 2131099649;
 			
 			// aapt resource value: 0x7f060000
-			public const int status_bar_notification_info_overflow = 2131099648;
+			public const int hello = 2131099648;
 			
-			// aapt resource value: 0x7f060018
-			public const int time_remaining = 2131099672;
-			
-			// aapt resource value: 0x7f060019
-			public const int time_remaining_notification = 2131099673;
+			// aapt resource value: 0x7f060002
+			public const int status_bar_notification_info_overflow = 2131099650;
 			
 			static String()
 			{
@@ -715,21 +582,6 @@ namespace Loader
 		
 		public partial class Style
 		{
-			
-			// aapt resource value: 0x7f09000a
-			public const int ButtonBackground = 2131296266;
-			
-			// aapt resource value: 0x7f090008
-			public const int NotificationText = 2131296264;
-			
-			// aapt resource value: 0x7f090007
-			public const int NotificationTextSecondary = 2131296263;
-			
-			// aapt resource value: 0x7f09000b
-			public const int NotificationTextShadow = 2131296267;
-			
-			// aapt resource value: 0x7f090009
-			public const int NotificationTitle = 2131296265;
 			
 			// aapt resource value: 0x7f090000
 			public const int TextAppearance_Compat_Notification = 2131296256;
@@ -746,8 +598,8 @@ namespace Loader
 			// aapt resource value: 0x7f090003
 			public const int TextAppearance_Compat_Notification_Title = 2131296259;
 			
-			// aapt resource value: 0x7f09000c
-			public const int Theme_Splash = 2131296268;
+			// aapt resource value: 0x7f090007
+			public const int Theme_Splash = 2131296263;
 			
 			// aapt resource value: 0x7f090004
 			public const int Widget_Compat_NotificationActionContainer = 2131296260;

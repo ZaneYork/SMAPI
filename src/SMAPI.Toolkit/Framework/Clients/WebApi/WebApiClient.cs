@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+#if !SMAPI_FOR_MOBILE
 using Pathoschild.Http.Client;
+#endif
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 
@@ -17,8 +19,10 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <summary>The API version number.</summary>
         private readonly ISemanticVersion Version;
 
+#if !SMAPI_FOR_MOBILE
         /// <summary>The underlying HTTP client.</summary>
         private readonly IClient Client;
+#endif
 
 
         /*********
@@ -30,10 +34,12 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         public WebApiClient(string baseUrl, ISemanticVersion version)
         {
             this.Version = version;
+#if !SMAPI_FOR_MOBILE
             this.Client = new FluentClient(baseUrl)
                 .SetUserAgent($"SMAPI/{version}");
 
             this.Client.Formatters.JsonFormatter.SerializerSettings = JsonHelper.CreateDefaultSettings();
+#endif
         }
 
         /// <summary>Get metadata about a set of mods from the web API.</summary>
@@ -44,6 +50,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <param name="includeExtendedMetadata">Whether to include extended metadata for each mod.</param>
         public async Task<IDictionary<string, ModEntryModel>> GetModInfoAsync(ModSearchEntryModel[] mods, ISemanticVersion apiVersion, ISemanticVersion gameVersion, Platform platform, bool includeExtendedMetadata = false)
         {
+#if !SMAPI_FOR_MOBILE
             ModEntryModel[] result = await this.Client
                 .PostAsync(
                     $"v{this.Version}/mods",
@@ -52,12 +59,16 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
                 .As<ModEntryModel[]>();
 
             return result.ToDictionary(p => p.ID);
+#endif
+            return new Dictionary<string, ModEntryModel>();
         }
 
         /// <inheritdoc />
         public void Dispose()
         {
+#if !SMAPI_FOR_MOBILE
             this.Client.Dispose();
+#endif
         }
     }
 }

@@ -16,12 +16,14 @@
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
+    <AndroidUseLatestPlatformSdk>true</AndroidUseLatestPlatformSdk>
     <TargetFrameworkVersion>v12.0</TargetFrameworkVersion>
+    <TargetFramework>net5.0-android</TargetFramework>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -32,12 +34,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
-    <AndroidLinkMode>None</AndroidLinkMode>
+    <AndroidLinkMode>Full</AndroidLinkMode>
     <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
     <AndroidManagedSymbols>false</AndroidManagedSymbols>
     <AndroidUseAapt2>false</AndroidUseAapt2>
     <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
-    <AndroidDexTool>dx</AndroidDexTool>
+    <AndroidDexTool>d8</AndroidDexTool>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -51,9 +53,9 @@
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <AndroidLinkMode>None</AndroidLinkMode>
     <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
-    <AndroidUseAapt2>false</AndroidUseAapt2>
+    <AndroidUseAapt2>true</AndroidUseAapt2>
     <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
-    <AndroidDexTool>dx</AndroidDexTool>
+    <AndroidDexTool>d8</AndroidDexTool>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Resources\Resource.designer.cs" />
@@ -77,43 +79,29 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SMAPI\SMAPI.csproj" />
-    <Reference Include="Microsoft.AppCenter, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Microsoft.AppCenter.2.6.4\lib\MonoAndroid403\Microsoft.AppCenter.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="StardewValley">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\StardewValley.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AppCenter.Analytics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Microsoft.AppCenter.Analytics.2.6.4\lib\MonoAndroid403\Microsoft.AppCenter.Analytics.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="StardewValley.GameData">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\StardewValley.GameData.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AppCenter.Analytics.Android.Bindings, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Microsoft.AppCenter.Analytics.2.6.4\lib\MonoAndroid403\Microsoft.AppCenter.Analytics.Android.Bindings.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="xTile">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\xTile.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AppCenter.Android.Bindings, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Microsoft.AppCenter.2.6.4\lib\MonoAndroid403\Microsoft.AppCenter.Android.Bindings.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="BmFont">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\BmFont.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AppCenter.Crashes, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Microsoft.AppCenter.Crashes.2.6.4\lib\MonoAndroid403\Microsoft.AppCenter.Crashes.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.AppCenter.Crashes.Android.Bindings, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Microsoft.AppCenter.Crashes.2.6.4\lib\MonoAndroid403\Microsoft.AppCenter.Crashes.Android.Bindings.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <PackageReference Include="MonoGame.Framework.Android">
-      <Version>3.6.0.862</Version>
-    </PackageReference>
-    <Reference Include="MonoGame.Framework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoGame.Framework.Content.Pipeline">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.4.5.145\assemblies\MonoGame.Framework.Content.Pipeline.dll</HintPath>
+<!--    <PackageReference Include="MonoGame.Framework.Android">-->
+<!--      <Version>3.6.0.862</Version>-->
+<!--    </PackageReference>-->
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Mono.Android" />
+    <Reference Include="Mono.Security" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\mipmap\ic_launcher.png" />

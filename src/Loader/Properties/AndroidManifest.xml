@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="151" android:versionName="1.4.5.151" android:installLocation="auto" package="com.zane.stardewvalley2" platformBuildVersionCode="29" platformBuildVersionName="9">
-	<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="29" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="156" android:versionName="1.5.6.31" android:installLocation="auto" package="com.zane.stardewvalley2" platformBuildVersionCode="31" platformBuildVersionName="9">
+	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="31" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />

@@ -10,12 +10,14 @@
 
 <!--  <Import Project="..\..\build\common.targets" />-->
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.2.0" />
+  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\build\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
+    <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.2.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.28" />
     <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.2.0" />
     <PackageReference Include="System.Management" Version="5.0.0" Condition="'$(OS)' == 'Windows_NT'" />

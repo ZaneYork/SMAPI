@@ -12,14 +12,14 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>The asset names that were invalidated.</summary>
 #if SMAPI_FOR_MOBILE
-        public IReadOnlyCollection<IAssetName> Names { get; }
+        public IImmutableSet<IAssetName> Names { get; }
 #else
         public IReadOnlySet<IAssetName> Names { get; }
 #endif
         /// <summary>The <see cref="Names"/> with any locale codes stripped.</summary>
         /// <remarks>For example, if <see cref="Names"/> contains a locale like <c>Data/Bundles.fr-FR</c>, this will have the name without locale like <c>Data/Bundles</c>. If the name has no locale, this field is equivalent.</remarks>
 #if SMAPI_FOR_MOBILE
-        public IReadOnlyCollection<IAssetName> NamesWithoutLocale { get; }
+        public IImmutableSet<IAssetName> NamesWithoutLocale { get; }
 #else
         public IReadOnlySet<IAssetName> NamesWithoutLocale { get; }
 #endif

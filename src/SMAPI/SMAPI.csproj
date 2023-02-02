@@ -17,7 +17,7 @@
     <Deterministic>True</Deterministic>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
+    <AndroidUseLatestPlatformSdk>True</AndroidUseLatestPlatformSdk>
     <TargetFrameworkVersion>v12.0</TargetFrameworkVersion>
     <TargetFramework>net5.0-android</TargetFramework>
     <AndroidUseAapt2>true</AndroidUseAapt2>
@@ -142,6 +142,9 @@
     <Reference Include="0Harmony">
       <HintPath>..\..\build\0Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\build\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="SMAPI.Toolkit">
       <HintPath>..\SMAPI.Toolkit\bin\Debug\netstandard2.0\SMAPI.Toolkit.dll</HintPath>
@@ -163,8 +166,6 @@
     </PackageReference>
     <PackageReference Include="Mono.Cecil" Version="0.11.4" />
     <PackageReference Include="MonoMod.Common" Version="22.3.5.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.2.0" />
     <Reference Include="Pintail">
       <HintPath>..\..\build\Pintail.dll</HintPath>
     </Reference>
@@ -175,6 +176,9 @@
 
     <!-- legacy package; remove in SMAPI 4.0.0 -->
     <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
+
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    <ProjectReference Include="..\MobilePatch\MobilePatch.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
     <Compile Include="**\*.cs" Exclude="**/.vshistory/**;obj/**" />
@@ -189,10 +193,6 @@
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
     <AndroidResource Include="Resources\values\strings.xml" />
     <Folder Include="Resources\drawable\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
   </ItemGroup>
 
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" Condition="'$(BUILD_FOR_MOBILE)' != ''" />
