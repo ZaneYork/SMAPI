@@ -346,8 +346,10 @@ namespace StardewModdingAPI.Framework
             {
                 this.IsGameRunning = true;
                 StardewValley.Program.releaseBuild = true; // game's debug logic interferes with SMAPI opening the game window
+#if !SMAPI_FOR_MOBILE
                 this.Game.Run();
                 this.Dispose(isError: false);
+#endif
             }
             catch (Exception ex)
             {

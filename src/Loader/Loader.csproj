@@ -34,23 +34,24 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
-    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+    <AndroidLinkMode>None</AndroidLinkMode>
     <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
     <AndroidManagedSymbols>false</AndroidManagedSymbols>
     <AndroidUseAapt2>true</AndroidUseAapt2>
     <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
     <AndroidDexTool>d8</AndroidDexTool>
-    <AndroidLinkSkip>BmFont;MonoGame.Framework;mscorlib;System.Core;System;System.Drawing.Common;System.Numerics;System.Runtime.Serialization;System.Xml;System.Xml.Linq</AndroidLinkSkip>
+<!--    <AndroidLinkSkip>Mono.Android;MonoGame.Framework;mscorlib;System.Core;System;System.Drawing.Common;System.Numerics;System.Runtime.Serialization;System.Xml;System.Xml.Linq</AndroidLinkSkip>-->
+    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
+    <DebugSymbols>False</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AndroidManagedSymbols>true</AndroidManagedSymbols>
+    <AndroidManagedSymbols>false</AndroidManagedSymbols>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <AndroidLinkMode>None</AndroidLinkMode>
     <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
@@ -79,6 +80,8 @@
     <AndroidResource Include="Resources\values\styles.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Mono.Android" />
+    <Reference Include="Mono.Security" />
     <ProjectReference Include="..\SMAPI\SMAPI.csproj" />
     <Reference Include="StardewValley">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\StardewValley.dll</HintPath>
@@ -92,17 +95,12 @@
     <Reference Include="BmFont">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\BmFont.dll</HintPath>
     </Reference>
-<!--    <PackageReference Include="MonoGame.Framework.Android">-->
-<!--      <Version>3.6.0.862</Version>-->
-<!--    </PackageReference>-->
     <Reference Include="MonoGame.Framework">
       <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-    <Reference Include="Mono.Android" />
-    <Reference Include="Mono.Security" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\mipmap\ic_launcher.png" />

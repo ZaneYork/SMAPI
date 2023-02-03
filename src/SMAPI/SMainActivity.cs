@@ -21,12 +21,13 @@ using Android.Util;
 using Java.Lang;
 using Java.Util;
 using Exception = System.Exception;
+using Object = Java.Lang.Object;
 using Thread = System.Threading.Thread;
 
 namespace StardewModdingAPI
 {
     [Activity(Label = "SMAPI Stardew Valley", Icon = "@mipmap/ic_launcher", Theme = "@style/Theme.Splash", MainLauncher = true, AlwaysRetainTaskState = true, LaunchMode = LaunchMode.SingleInstance, ScreenOrientation = ScreenOrientation.SensorLandscape, ConfigurationChanges = (ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.Orientation | ConfigChanges.ScreenLayout | ConfigChanges.ScreenSize | ConfigChanges.UiMode))]
-    public class SMainActivity: MainActivity
+    public class SMainActivity : MainActivity
     {
         internal SCore core;
 
@@ -108,16 +109,22 @@ namespace StardewModdingAPI
                         {
                             Looper.Prepare();
                         }
-                        catch (Exception) { }
+                        catch (Exception)
+                        {
+                        }
+
                         Looper.Loop();
                     }
-                    catch (Exception) { }
+                    catch (Exception)
+                    {
+                    }
                 }
             }
             catch
             {
                 // ignored
             }
+
             base.OnCreate(bundle);
             this.CheckAppPermissions();
         }
@@ -126,7 +133,7 @@ namespace StardewModdingAPI
         {
             try
             {
-                Game1 game1 = (Game1) typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(this);
+                Game1 game1 = (Game1)typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(this);
                 if (game1 != null)
                 {
                     // game1.Exit();
@@ -146,16 +153,17 @@ namespace StardewModdingAPI
 
                 if (string.IsNullOrWhiteSpace(modPath))
                 {
-                    modPath = "StardewValley/Mods";
+                    modPath = "Mods";
                 }
 
-                this.core = new SCore(System.IO.Path.Combine(EarlyConstants.StorageBasePath, modPath), false, false);
+                this.core = new SCore(System.IO.Path.Combine(EarlyConstants.StardewValleyBasePath, modPath), false, false);
                 this.core.RunInteractively();
-                typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.Game);
+                typeof(MainActivity).GetMethod("SetZoomScaleAndMenuButtonScale", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(this, Array.Empty<object>());
+                this.SetPaddingForMenus();
+                typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.Game.gamePtr);
 
-                this.SetContentView((View) this.core.Game.Services.GetService(typeof(View)));
-
-                this.CheckUsingServerManagedPolicy();
+                this.SetContentView((View)this.core.Game.Services.GetService(typeof(View)));
+                this.core.Game.Run();
             }
             catch when (retry < 3)
             {
@@ -170,10 +178,7 @@ namespace StardewModdingAPI
             catch (Exception ex)
             {
                 SAlertDialogUtil.AlertMessage($"SMAPI failed to initialize: {ex}",
-                    callback: type =>
-                    {
-                        this.Finish();
-                    });
+                    callback: type => { this.Finish(); });
             }
         }
 
@@ -208,7 +213,6 @@ namespace StardewModdingAPI
         private void CheckUsingServerManagedPolicy()
         {
         }
-
     }
 }
 #endif
