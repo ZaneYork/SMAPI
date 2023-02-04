@@ -48,6 +48,7 @@
         <Compile Include="Mobile\EnumerableExtension.cs" />
         <Compile Include="Mobile\MobileMemoryExtension.cs" />
         <Compile Include="Mobile\MobileTypeExtension.cs" />
+        <Compile Include="Mobile\ReferenceEqualityComparer.cs" />
         <Compile Include="Resources\Resource.Designer.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>

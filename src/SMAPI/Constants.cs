@@ -289,6 +289,7 @@ namespace StardewModdingAPI
         {
             // add search paths
             resolver.TryAddSearchDirectory(Constants.GamePath);
+#if !SMAPI_FOR_MOBILE
             resolver.TryAddSearchDirectory(Constants.InternalFilesPath);
 
             // add SMAPI explicitly
@@ -303,6 +304,7 @@ namespace StardewModdingAPI
             //   - 'Stardew Valley': assembly name on Windows;
             //   - 'Netcode': an assembly that was separate on Windows only before Stardew Valley 1.5.5.
             resolver.AddWithExplicitNames(AssemblyDefinition.ReadAssembly(typeof(Game1).Assembly.Location), "StardewValley", "Stardew Valley", "Netcode");
+#endif
         }
 
         /// <summary>Get metadata for mapping assemblies to the current platform.</summary>
