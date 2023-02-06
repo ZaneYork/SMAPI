@@ -16,11 +16,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             HarmonyMethod finalizer = null)
         {
             if (Constants.HarmonyEnabled)
-#if HARMONY_2
                 return instance.Patch(original, prefix, postfix, transpiler, finalizer);
-#else
-                return instance.Patch(original, prefix, postfix, transpiler);
-#endif
             else
                 return null;
         }

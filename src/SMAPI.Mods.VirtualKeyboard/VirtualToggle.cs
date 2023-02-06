@@ -10,105 +10,105 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
 {
     class VirtualToggle
     {
-        private readonly IModHelper helper;
+        private readonly IModHelper Helper;
         private readonly IMonitor Monitor;
 
-        private int enabledStage = 0;
-        private bool autoHidden = true;
-        private bool isDefault = true;
-        private ClickableTextureComponent virtualToggleButton;
+        private int EnabledStage = 0;
+        private bool AutoHidden = true;
+        private bool IsDefault = true;
+        private ClickableTextureComponent VirtualToggleButton;
 
-        private List<KeyButton> keyboard = new List<KeyButton>();
-        private List<KeyButton> keyboardExtend = new List<KeyButton>();
-        private ModConfig modConfig;
-        private Texture2D texture;
-        private int lastPressTick = 0;
+        private List<KeyButton> Keyboard = new();
+        private List<KeyButton> KeyboardExtend = new();
+        private ModConfig ModConfig;
+        private Texture2D Texture;
+        private int LastPressTick = 0;
 
         public VirtualToggle(IModHelper helper, IMonitor monitor)
         {
             this.Monitor = monitor;
-            this.helper = helper;
-            this.texture = this.helper.Content.Load<Texture2D>("assets/togglebutton.png", ContentSource.ModFolder);
+            this.Helper = helper;
+            this.Texture = this.Helper.ModContent.Load<Texture2D>("assets/togglebutton.png");
 
-            this.modConfig = helper.ReadConfig<ModConfig>();
-            for (int i = 0; i < this.modConfig.buttons.Length; i++)
-                this.keyboard.Add(new KeyButton(helper, this.modConfig.buttons[i], this.Monitor));
-            for (int i = 0; i < this.modConfig.buttonsExtend.Length; i++)
-                this.keyboardExtend.Add(new KeyButton(helper, this.modConfig.buttonsExtend[i], this.Monitor));
+            this.ModConfig = helper.ReadConfig<ModConfig>();
+            for (int i = 0; i < this.ModConfig.buttons.Length; i++)
+                this.Keyboard.Add(new KeyButton(helper, this.ModConfig.buttons[i], this.Monitor));
+            for (int i = 0; i < this.ModConfig.buttonsExtend.Length; i++)
+                this.KeyboardExtend.Add(new KeyButton(helper, this.ModConfig.buttonsExtend[i], this.Monitor));
 
-            if (this.modConfig.vToggle.rectangle.X != 36 || this.modConfig.vToggle.rectangle.Y != 12)
-                this.isDefault = false;
-            this.autoHidden = this.modConfig.vToggle.autoHidden;
+            if (this.ModConfig.vToggle.rectangle.X != 36 || this.ModConfig.vToggle.rectangle.Y != 12)
+                this.IsDefault = false;
+            this.AutoHidden = this.ModConfig.vToggle.autoHidden;
 
-            this.virtualToggleButton = new ClickableTextureComponent(new Rectangle(Game1.toolbarPaddingX + 64, 12, 128, 128), this.texture, new Rectangle(0, 0, 16, 16), 5.75f, false);
-            helper.WriteConfig(this.modConfig);
+            this.VirtualToggleButton = new ClickableTextureComponent(new Rectangle(Game1.toolbarPaddingX + 64, 12, 128, 128), this.Texture, new Rectangle(0, 0, 16, 16), 5.75f, false);
+            helper.WriteConfig(this.ModConfig);
 
-            this.helper.Events.Display.Rendered += this.OnRendered;
-            this.helper.Events.Display.MenuChanged += this.OnMenuChanged;
-            this.helper.Events.Input.ButtonPressed += this.VirtualToggleButtonPressed;
+            this.Helper.Events.Display.Rendered += this.OnRendered;
+            this.Helper.Events.Display.MenuChanged += this.OnMenuChanged;
+            this.Helper.Events.Input.ButtonPressed += this.VirtualToggleButtonPressed;
         }
 
         private void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
-            if(this.autoHidden && e.NewMenu != null) {
-                foreach (var keys in this.keyboard)
+            if(this.AutoHidden && e.NewMenu != null) {
+                foreach (var keys in this.Keyboard)
                 {
-                    keys.hidden = true;
+                    keys.Hidden = true;
                 }
-                foreach (var keys in this.keyboardExtend)
+                foreach (var keys in this.KeyboardExtend)
                 {
-                    keys.hidden = true;
+                    keys.Hidden = true;
                 }
-                this.enabledStage = 0;
+                this.EnabledStage = 0;
             }
         }
 
         private void VirtualToggleButtonPressed(object sender, ButtonPressedEventArgs e)
         {
             Vector2 screenPixels = e.Cursor.ScreenPixels;
-            if (this.modConfig.vToggle.key != SButton.None && e.Button == this.modConfig.vToggle.key)
-                this.toggleLogic();
-            else if (e.Button == SButton.MouseLeft && this.shouldTrigger(screenPixels))
-                this.toggleLogic();
+            if (this.ModConfig.vToggle.key != SButton.None && e.Button == this.ModConfig.vToggle.key)
+                this.ToggleLogic();
+            else if (e.Button == SButton.MouseLeft && this.ShouldTrigger(screenPixels))
+                this.ToggleLogic();
         }
 
-        private void toggleLogic()
+        private void ToggleLogic()
         {
-            switch (this.enabledStage)
+            switch (this.EnabledStage)
             {
                 case 0:
-                    foreach (var keys in this.keyboard)
+                    foreach (var keys in this.Keyboard)
                     {
-                        keys.hidden = false;
+                        keys.Hidden = false;
                     }
 
-                    foreach (var keys in this.keyboardExtend)
+                    foreach (var keys in this.KeyboardExtend)
                     {
-                        keys.hidden = true;
+                        keys.Hidden = true;
                     }
 
-                    this.enabledStage = 1;
+                    this.EnabledStage = 1;
                     break;
-                case 1 when this.keyboardExtend.Count > 0:
-                    foreach (var keys in this.keyboardExtend)
+                case 1 when this.KeyboardExtend.Count > 0:
+                    foreach (var keys in this.KeyboardExtend)
                     {
-                        keys.hidden = false;
+                        keys.Hidden = false;
                     }
 
-                    this.enabledStage = 2;
+                    this.EnabledStage = 2;
                     break;
                 default:
-                    foreach (var keys in this.keyboard)
+                    foreach (var keys in this.Keyboard)
                     {
-                        keys.hidden = true;
+                        keys.Hidden = true;
                     }
 
-                    foreach (var keys in this.keyboardExtend)
+                    foreach (var keys in this.KeyboardExtend)
                     {
-                        keys.hidden = true;
+                        keys.Hidden = true;
                     }
 
-                    this.enabledStage = 0;
+                    this.EnabledStage = 0;
                     if (Game1.activeClickableMenu is IClickableMenu menu && !(Game1.activeClickableMenu is DialogueBox))
                     {
                         menu.exitThisMenu();
@@ -119,16 +119,16 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
             }
         }
 
-        private bool shouldTrigger(Vector2 screenPixels)
+        private bool ShouldTrigger(Vector2 screenPixels)
         {
             int tick = Game1.ticks;
-            if(tick - this.lastPressTick <= 6)
+            if(tick - this.LastPressTick <= 6)
             {
                 return false;
             }
-            if (this.virtualToggleButton.containsPoint((int)(screenPixels.X * Game1.options.zoomLevel), (int)(screenPixels.Y * Game1.options.zoomLevel)))
+            if (this.VirtualToggleButton.containsPoint((int)(screenPixels.X * Game1.options.zoomLevel), (int)(screenPixels.Y * Game1.options.zoomLevel)))
             {
-                this.lastPressTick = tick;
+                this.LastPressTick = tick;
                 Toolbar.toolbarPressed = true;
                 return true;
             }
@@ -137,42 +137,43 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
 
         private void OnRendered(object sender, EventArgs e)
         {
-            if (this.isDefault)
+            if (this.IsDefault)
             {
                 if (Game1.options.verticalToolbar)
-                    this.virtualToggleButton.bounds.X = Game1.toolbarPaddingX + Game1.toolbar.itemSlotSize + 200;
+                    this.VirtualToggleButton.bounds.X = Game1.toolbarPaddingX + Game1.toolbar.itemSlotSize + 200;
                 else
-                    this.virtualToggleButton.bounds.X = Game1.toolbarPaddingX + Game1.toolbar.itemSlotSize + 50;
+                    this.VirtualToggleButton.bounds.X = Game1.toolbarPaddingX + Game1.toolbar.itemSlotSize + 50;
 
                 if (Game1.toolbar.alignTop == true && !Game1.options.verticalToolbar)
                 {
-                    object toolbarHeight = this.helper.Reflection.GetField<int>(Game1.toolbar, "toolbarHeight").GetValue();
-                    this.virtualToggleButton.bounds.Y = (int)toolbarHeight + 50;
+                    object toolbarHeight = this.Helper.Reflection.GetField<int>(Game1.toolbar, "toolbarHeight").GetValue();
+                    this.VirtualToggleButton.bounds.Y = (int)toolbarHeight + 50;
                 }
                 else
                 {
-                    this.virtualToggleButton.bounds.Y = 12;
+                    this.VirtualToggleButton.bounds.Y = 12;
                 }
             }
             else
             {
-                this.virtualToggleButton.bounds.X = this.modConfig.vToggle.rectangle.X;
-                this.virtualToggleButton.bounds.Y = this.modConfig.vToggle.rectangle.Y;
+                this.VirtualToggleButton.bounds.X = this.ModConfig.vToggle.rectangle.X;
+                this.VirtualToggleButton.bounds.Y = this.ModConfig.vToggle.rectangle.Y;
             }
 
             float scale = 1f;
-            if (this.enabledStage == 0)
+            if (this.EnabledStage == 0)
             {
                 scale = 0.5f;
             }
             if (!Game1.eventUp && Game1.activeClickableMenu is GameMenu == false && Game1.activeClickableMenu is ShopMenu == false)
                 scale = 0.25f;
 
-            System.Reflection.FieldInfo matrixField = Game1.spriteBatch.GetType().GetField("_matrix", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            object originMatrix = matrixField.GetValue(Game1.spriteBatch);
+            System.Reflection.FieldInfo spriteEffectField = Game1.spriteBatch.GetType().GetField("_spriteEffect", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            SpriteEffect originSpriteEffect = spriteEffectField?.GetValue(Game1.spriteBatch) as SpriteEffect;
+            var originMatrix = originSpriteEffect?.TransformMatrix;
             Game1.spriteBatch.End();
             Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Microsoft.Xna.Framework.Matrix.CreateScale(1f));
-            this.virtualToggleButton.draw(Game1.spriteBatch, Color.White * scale, 0.000001f);
+            this.VirtualToggleButton.draw(Game1.spriteBatch, Color.White * scale, 0.000001f);
             Game1.spriteBatch.End();
             if (originMatrix != null)
             {

@@ -53,59 +53,47 @@ namespace StardewModdingAPI.Metadata
                 yield return new FieldReplaceRewriter()
                     .AddField(typeof(DecoratableLocation), "furniture", typeof(GameLocation), nameof(GameLocation.furniture))
                     .AddField(typeof(Farm), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps))
-#if SMAPI_FOR_MOBILE
-                    .AddField(typeof(ItemGrabMenu), "context", typeof(ItemGrabMenu), "specialObject")
-#endif
                     .AddField(typeof(MineShaft), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps));
 
 #if SMAPI_FOR_MOBILE
-#if SMAPI_LEGACY_PATCH
-            // Redirect reference
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isRaining", nameof(Game1Methods.IsRainingProp));
-#if !ANDROID_TARGET_MOBILE_LEGACY
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isSnowing", nameof(Game1Methods.IsSnowingProp));
-#endif
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "isDebrisWeather", nameof(Game1Methods.IsDebrisWeatherProp));
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "rainDrops", nameof(Game1Methods.RainDropsProp));
+                // module rewrite for .Net 5 runtime assemblies
+                yield return new ModuleReferenceRewriter("System.Collections", "System.Collections", typeof(System.Collections.CollectionBase).Assembly);
+                yield return new ModuleReferenceRewriter("System.Runtime", "System.Runtime", typeof(System.Collections.CollectionBase).Assembly);
 
-            // yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(WeatherDebrisManager), "debrisWeather","weatherDebrisList", "Instance");
-#endif
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "onScreenMenus", "onScreenMenus");
-            yield return new PropertyToFieldRewriter(typeof(Game1), "toolSpriteSheet", "toolSpriteSheet");
-            // yield return new TypeFieldToAnotherTypeFieldRewriter(typeof(GameLocation), typeof(DebrisManager), "debris", this.Monitor, "debrisNetCollection");
+                yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "onScreenMenus", "onScreenMenus");
 
-            // Menu fix
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods), "trashCan", nameof(MenuWithInventoryMethods.TrashCanProp));
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods), "fillStacksButton", nameof(ItemGrabMenuMethods.FillStacksButtonProp));
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "allowReproductionButton", nameof(AnimalQueryMenuMethods.AllowReproductionButtonProp));
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "sellButton", nameof(AnimalQueryMenuMethods.SellButtonProp));
-            yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "moveHomeButton", nameof(AnimalQueryMenuMethods.MoveHomeButtonProp));
-            // TextBox fix
-            yield return new TypePropertyToAnotherTypeMethodRewriter(typeof(TextBox), typeof(TextBoxMethods), "Selected", null, "SelectedSetter");
+                // Menu fix
+                yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods), "trashCan", nameof(MenuWithInventoryMethods.TrashCanProp));
+                yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods), "fillStacksButton", nameof(ItemGrabMenuMethods.FillStacksButtonProp));
+                yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "allowReproductionButton", nameof(AnimalQueryMenuMethods.AllowReproductionButtonProp));
+                yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "sellButton", nameof(AnimalQueryMenuMethods.SellButtonProp));
+                yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "moveHomeButton", nameof(AnimalQueryMenuMethods.MoveHomeButtonProp));
+                // TextBox fix
+                yield return new TypePropertyToAnotherTypeMethodRewriter(typeof(TextBox), typeof(TextBoxMethods), "Selected", null, "SelectedSetter");
 
-            // Rewrite Missing Type
-            yield return new TypeReferenceRewriter("StardewValley.Menus.CraftingPage", typeof(CraftingPageMobile));
-            yield return new TypeReferenceRewriter("StardewValley.Menus.InventoryMenu/BorderSide", typeof(InventoryMenuMethods.BorderSide));
+                // Rewrite Missing Type
+                yield return new TypeReferenceRewriter("StardewValley.Menus.CraftingPage", typeof(CraftingPageMobile));
+                yield return new TypeReferenceRewriter("StardewValley.Menus.InventoryMenu/BorderSide", typeof(InventoryMenuMethods.BorderSide));
 
-            //Method Rewrites
-            yield return new MethodParentRewriter(typeof(Game1), typeof(Game1Methods));
-            yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods));
-            yield return new MethodParentRewriter(typeof(SpriteText), typeof(SpriteTextMethods));
-            yield return new MethodParentRewriter(typeof(Utility), typeof(UtilityMethods));
+                //Method Rewrites
+                yield return new MethodParentRewriter(typeof(Game1), typeof(Game1Methods));
+                yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods));
+                yield return new MethodParentRewriter(typeof(SpriteText), typeof(SpriteTextMethods));
+                yield return new MethodParentRewriter(typeof(Utility), typeof(UtilityMethods));
 
-            //Constructor Rewrites
-            yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));
-            yield return new MethodParentRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods));
-            yield return new MethodParentRewriter(typeof(InventoryMenu), typeof(InventoryMenuMethods));
-            yield return new MethodParentRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods));
-            yield return new MethodParentRewriter(typeof(GameMenu), typeof(GameMenuMethods));
-            yield return new MethodParentRewriter(typeof(CraftingPageMobile), typeof(CraftingPageMobileMethods));
+                //Constructor Rewrites
+                yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));
+                yield return new MethodParentRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods));
+                yield return new MethodParentRewriter(typeof(InventoryMenu), typeof(InventoryMenuMethods));
+                yield return new MethodParentRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods));
+                yield return new MethodParentRewriter(typeof(GameMenu), typeof(GameMenuMethods));
+                yield return new MethodParentRewriter(typeof(CraftingPageMobile), typeof(CraftingPageMobileMethods));
 
 #endif
 
-            // heuristic rewrites
-            yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
-            yield return new HeuristicMethodRewriter(this.ValidateReferencesToAssemblies);
+                // heuristic rewrites
+                yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
+                yield return new HeuristicMethodRewriter(this.ValidateReferencesToAssemblies);
 #if SMAPI_FOR_MOBILE
                 yield return new HeuristicFieldAccessibilityRewriter(this.ValidateReferencesToAssemblies);
 #endif
@@ -124,16 +112,16 @@ namespace StardewModdingAPI.Metadata
 #endif
 
 #if SMAPI_FOR_MOBILE
-            // MonoMod fix
-            if (!Constants.HarmonyEnabled)
-            {
-                yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "Patch", typeof(HarmonyInstanceMethods), "Patch");
-                yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "PatchAll" && method.Parameters.Count == 0, typeof(HarmonyInstanceMethods), "PatchAll");
-                yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "PatchAll" && method.Parameters.Count == 1, typeof(HarmonyInstanceMethods), "PatchAllToAssembly");
-            }
+                // MonoMod fix
+                if (!Constants.HarmonyEnabled)
+                {
+                    yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "Patch", typeof(HarmonyInstanceMethods), "Patch");
+                    yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "PatchAll" && method.Parameters.Count == 0, typeof(HarmonyInstanceMethods), "PatchAll");
+                    yield return new MethodToAnotherStaticMethodRewriter(typeof(Harmony), (method) => method.Name == "PatchAll" && method.Parameters.Count == 1, typeof(HarmonyInstanceMethods), "PatchAllToAssembly");
+                }
 
-            if(Constants.RewriteMissing)
-                yield return new ReferenceToMissingMemberRewriter(this.ValidateReferencesToAssemblies);
+                if(Constants.RewriteMissing)
+                    yield return new ReferenceToMissingMemberRewriter(this.ValidateReferencesToAssemblies);
 #endif
             }
             else
