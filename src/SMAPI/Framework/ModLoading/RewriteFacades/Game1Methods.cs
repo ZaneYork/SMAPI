@@ -11,6 +11,14 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
     public class Game1Methods : Game1
     {
+
+        public static new IList<IClickableMenu> onScreenMenus => Game1.onScreenMenus;
+
+        public static new IList<GameLocation> LocationsGetter(Game1 game1)
+        {
+            return game1._locations;
+        }
+
 #if SMAPI_LEGACY_PATCH
         public static RainDrop[] RainDropsProp => (typeof(RainManager).GetField("_rainDropList", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(RainManager.Instance) as List<RainDrop>).ToArray();
 
@@ -34,8 +42,6 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             set => WeatherDebrisManager.Instance.isDebrisWeather = value;
         }
 
-
-        public static new IList<IClickableMenu> onScreenMenus => Game1.onScreenMenus;
 
         public static void updateDebrisWeatherForMovement(List<WeatherDebris> debris)
         {

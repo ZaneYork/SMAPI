@@ -336,7 +336,11 @@ namespace StardewModdingAPI
             );
 
             // Stardew Valley reference
+#if SMAPI_FOR_MOBILE
+            removeAssemblyReferences.Add("Stardew Valley");
+#else
             removeAssemblyReferences.Add("StardewValley");
+#endif
             targetAssemblies.Add(typeof(StardewValley.Game1).Assembly);
 
             return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences.ToArray(), targetAssemblies.ToArray());

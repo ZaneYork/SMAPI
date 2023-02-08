@@ -164,9 +164,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             instruction.Operand = fieldRef.DeclaringType;
 
             this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} (field ref => reflection ref)");
-// #if SMAPI_FOR_MOBILE
-//             this.Phrases.Add($"{cil.Body.Method.FullName} => {cil.Body.Instructions.Select(ins => ins.ToString()).Join(null, ";")}");
-// #endif
+#if SMAPI_FOR_MOBILE
+            // this.Phrases.Add($"{cil.Body.Method.FullName} => {cil.Body.Instructions.Select(ins => ins.ToString()).Join(null, ";")}");
+#endif
             cil.Body.MaxStackSize += 5;
             return this.MarkRewritten();
         }

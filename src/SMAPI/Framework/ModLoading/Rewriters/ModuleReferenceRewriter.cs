@@ -24,31 +24,77 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
         private readonly string AssemblyName;
 
-        private readonly AssemblyNameReference Target;
+        private readonly Version Version;
+
+        private readonly Dictionary<string, AssemblyNameReference> TargetMap = new();
 
 
-        public ModuleReferenceRewriter(string phrase, string assemblyName, Assembly target)
+        public ModuleReferenceRewriter(string phrase, string assemblyName, Version version, Assembly[] assemblies)
         {
             this.DefaultPhrase = $"{phrase} assembly ref";
             this.AssemblyName = assemblyName;
-            this.Target = AssemblyNameReference.Parse(target.FullName);
+            this.Version = version;
+            foreach (var assembly in assemblies)
+            {
+                AssemblyNameReference target = AssemblyNameReference.Parse(assembly.FullName);
+                var map = assembly.GetTypes().ToDictionary(p => p.FullName, p => target);
+                foreach (KeyValuePair<string,AssemblyNameReference> pair in map)
+                {
+                    this.TargetMap.TryAdd(pair.Key, pair.Value);
+                }
+            }
+        }
+
+        private bool IsMatch(AssemblyNameReference reference)
+        {
+            if (this.AssemblyName.EndsWith('.'))
+            {
+                if (reference.Name.Equals(this.AssemblyName) || reference.Name.StartsWith(this.AssemblyName))
+                    return reference.Version.CompareTo(this.Version) >= 0;
+            }
+            else
+            {
+                if (reference.Name.Equals(this.AssemblyName))
+                    return reference.Version.CompareTo(this.Version) >= 0;
+            }
+
+            return false;
+        }
+
+        private bool IsMatch(TypeReference reference)
+        {
+            if (this.AssemblyName.EndsWith('.')) {
+                if(reference.Scope.Name.Equals(this.AssemblyName) || reference.Scope.Name.StartsWith(this.AssemblyName))
+                {
+                    return this.TargetMap.ContainsKey(reference.FullName.Split('/')[0]);
+                }
+            }
+            return reference.Scope.Name.Equals(this.AssemblyName) && this.TargetMap.ContainsKey(reference.FullName.Split('/')[0]);
         }
 
         public bool Handle(ModuleDefinition module)
         {
-            if (!module.AssemblyReferences.Any(assembly => assembly.Name.Equals(this.AssemblyName)))
+            if (!module.AssemblyReferences.Any(this.IsMatch))
             {
                 return false;
             }
-            // add target assembly references
-            module.AssemblyReferences.Add(this.Target);
 
             // rewrite type scopes to use target assemblies
             IEnumerable<TypeReference> typeReferences = module.GetTypeReferences()
-                .Where(p => p.Scope.Name.Equals(this.AssemblyName))
+                .Where(this.IsMatch)
                 .OrderBy(p => p.FullName);
+            HashSet<string> assembliesAdded = new();
             foreach (TypeReference type in typeReferences)
-                type.Scope = this.Target;
+            {
+                AssemblyNameReference target = this.TargetMap[type.FullName.Split('/')[0]];
+                // add target assembly references
+                if (!module.AssemblyReferences.Contains(target) && !assembliesAdded.Contains(target.FullName))
+                {
+                    module.AssemblyReferences.Add(target);
+                    assembliesAdded.Add(target.FullName);
+                }
+                type.Scope = target;
+            }
 
             // rewrite types using custom attributes
             foreach (TypeDefinition type in module.GetTypes())
@@ -58,14 +104,24 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                     foreach (CustomAttributeArgument conField in attr.ConstructorArguments)
                     {
                         if (conField.Value is TypeReference typeRef)
-                            typeRef.Scope = this.Target;
+                            if (this.TargetMap.ContainsKey(typeRef.FullName))
+                            {
+                                AssemblyNameReference target = this.TargetMap[type.FullName.Split('/')[0]];
+                                // add target assembly references
+                                if (!module.AssemblyReferences.Contains(target) && !assembliesAdded.Contains(target.FullName))
+                                {
+                                    module.AssemblyReferences.Add(target);
+                                    assembliesAdded.Add(target.FullName);
+                                }
+                                type.Scope = target;
+                            }
                     }
                 }
             }
 
             for (int i = module.AssemblyReferences.Count - 1; i >= 0; i--)
             {
-                if(module.AssemblyReferences[i].Name.Equals(this.AssemblyName))
+                if(this.IsMatch(module.AssemblyReferences[i]))
                 {
                     module.AssemblyReferences.RemoveAt(i);
                 }

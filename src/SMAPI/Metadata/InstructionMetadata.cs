@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
@@ -57,8 +58,43 @@ namespace StardewModdingAPI.Metadata
 
 #if SMAPI_FOR_MOBILE
                 // module rewrite for .Net 5 runtime assemblies
-                yield return new ModuleReferenceRewriter("System.Collections", "System.Collections", typeof(System.Collections.CollectionBase).Assembly);
-                yield return new ModuleReferenceRewriter("System.Runtime", "System.Runtime", typeof(System.Collections.CollectionBase).Assembly);
+                // yield return new TypeModuleReferenceRewriter("System",
+                //     new []
+                //     {
+                //         "System.Runtime"
+                //     },
+                //     new []
+                //     {
+                //         "System.Collections.Generic.ISet`1"
+                //     }, typeof(System.Collections.Generic.ISet<>).Assembly);
+                // yield return new TypeModuleReferenceRewriter("System",
+                //     new []
+                //     {
+                //         "System.Runtime"
+                //     },
+                //     new []
+                //     {
+                //         "System.Collections.Generic.HashSet`1"
+                //     }, typeof(System.Collections.Generic.HashSet<>).Assembly);
+                // yield return new TypeModuleReferenceRewriter("System.Runtime",
+                //     new []
+                //     {
+                //         "System.Runtime"
+                //     },
+                //     new []
+                //     {
+                //         "System.Collections.Generic.IReadOnlySet`1"
+                //     }, typeof(System.Collections.Generic.IReadOnlySet<>).Assembly);
+
+                yield return new ModuleReferenceRewriter("System.*", "System.", new Version(5,0), new[]
+                {
+                    typeof(System.Collections.CollectionBase).Assembly,
+                    typeof(System.Collections.Generic.ISet<>).Assembly,
+                    typeof(System.Collections.Generic.HashSet<>).Assembly,
+                    typeof(System.Xml.XmlDocument).Assembly,
+                    typeof(System.Xml.Linq.XComment).Assembly,
+                    typeof(System.Collections.Generic.IReadOnlySet<>).Assembly,
+                });
 
                 yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "onScreenMenus", "onScreenMenus");
 
@@ -70,6 +106,9 @@ namespace StardewModdingAPI.Metadata
                 yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(AnimalQueryMenu), typeof(AnimalQueryMenuMethods), "moveHomeButton", nameof(AnimalQueryMenuMethods.MoveHomeButtonProp));
                 // TextBox fix
                 yield return new TypePropertyToAnotherTypeMethodRewriter(typeof(TextBox), typeof(TextBoxMethods), "Selected", null, "SelectedSetter");
+
+                // Game1.location fix
+                yield return new TypePropertyToAnotherTypeMethodRewriter(typeof(Game1), typeof(Game1Methods), "locations", "LocationsGetter", null);
 
                 // Rewrite Missing Type
                 yield return new TypeReferenceRewriter("StardewValley.Menus.CraftingPage", typeof(CraftingPageMobile));
