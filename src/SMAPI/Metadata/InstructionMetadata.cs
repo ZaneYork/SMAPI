@@ -58,34 +58,6 @@ namespace StardewModdingAPI.Metadata
 
 #if SMAPI_FOR_MOBILE
                 // module rewrite for .Net 5 runtime assemblies
-                // yield return new TypeModuleReferenceRewriter("System",
-                //     new []
-                //     {
-                //         "System.Runtime"
-                //     },
-                //     new []
-                //     {
-                //         "System.Collections.Generic.ISet`1"
-                //     }, typeof(System.Collections.Generic.ISet<>).Assembly);
-                // yield return new TypeModuleReferenceRewriter("System",
-                //     new []
-                //     {
-                //         "System.Runtime"
-                //     },
-                //     new []
-                //     {
-                //         "System.Collections.Generic.HashSet`1"
-                //     }, typeof(System.Collections.Generic.HashSet<>).Assembly);
-                // yield return new TypeModuleReferenceRewriter("System.Runtime",
-                //     new []
-                //     {
-                //         "System.Runtime"
-                //     },
-                //     new []
-                //     {
-                //         "System.Collections.Generic.IReadOnlySet`1"
-                //     }, typeof(System.Collections.Generic.IReadOnlySet<>).Assembly);
-
                 yield return new ModuleReferenceRewriter("System.*", "System.", new Version(5,0), new[]
                 {
                     typeof(System.Collections.CollectionBase).Assembly,
@@ -94,6 +66,7 @@ namespace StardewModdingAPI.Metadata
                     typeof(System.Xml.XmlDocument).Assembly,
                     typeof(System.Xml.Linq.XComment).Assembly,
                     typeof(System.Collections.Generic.IReadOnlySet<>).Assembly,
+                    typeof(System.Data.DataTable).Assembly,
                 });
 
                 yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "onScreenMenus", "onScreenMenus");
@@ -119,6 +92,8 @@ namespace StardewModdingAPI.Metadata
                 yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods));
                 yield return new MethodParentRewriter(typeof(SpriteText), typeof(SpriteTextMethods));
                 yield return new MethodParentRewriter(typeof(Utility), typeof(UtilityMethods));
+                yield return new MethodParentRewriter(typeof(OptionsElement), typeof(OptionsElementMethods));
+                yield return new MethodParentRewriter(typeof(ISoundBank), typeof(ISoundBankMethods));
 
                 //Constructor Rewrites
                 yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));

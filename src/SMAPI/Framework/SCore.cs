@@ -293,6 +293,10 @@ namespace StardewModdingAPI.Framework
                 MiniMonoModHotfix.Apply();
                 HarmonyPatcher.Apply("SMAPI", this.Monitor,
                     new Game1Patcher(this.Reflection, this.OnLoadStageChanged),
+#if SMAPI_FOR_MOBILE
+                    new StringPatcher(this.Reflection),
+                    new ThreadSilenceExitPatch(this.Monitor),
+#endif
                     new TitleMenuPatcher(this.OnLoadStageChanged)
                 );
 //                 new GamePatcher(this.Monitor).Apply(
