@@ -25,179 +25,12 @@ namespace Loader
 		
 		public static void UpdateIdValues()
 		{
-			global::StardewModdingAPI.Resource.Attribute.alpha = global::Loader.Resource.Attribute.alpha;
-			global::StardewModdingAPI.Resource.Attribute.font = global::Loader.Resource.Attribute.font;
-			global::StardewModdingAPI.Resource.Attribute.fontProviderAuthority = global::Loader.Resource.Attribute.fontProviderAuthority;
-			global::StardewModdingAPI.Resource.Attribute.fontProviderCerts = global::Loader.Resource.Attribute.fontProviderCerts;
-			global::StardewModdingAPI.Resource.Attribute.fontProviderFetchStrategy = global::Loader.Resource.Attribute.fontProviderFetchStrategy;
-			global::StardewModdingAPI.Resource.Attribute.fontProviderFetchTimeout = global::Loader.Resource.Attribute.fontProviderFetchTimeout;
-			global::StardewModdingAPI.Resource.Attribute.fontProviderPackage = global::Loader.Resource.Attribute.fontProviderPackage;
-			global::StardewModdingAPI.Resource.Attribute.fontProviderQuery = global::Loader.Resource.Attribute.fontProviderQuery;
-			global::StardewModdingAPI.Resource.Attribute.fontStyle = global::Loader.Resource.Attribute.fontStyle;
-			global::StardewModdingAPI.Resource.Attribute.fontVariationSettings = global::Loader.Resource.Attribute.fontVariationSettings;
-			global::StardewModdingAPI.Resource.Attribute.fontWeight = global::Loader.Resource.Attribute.fontWeight;
-			global::StardewModdingAPI.Resource.Attribute.ttcIndex = global::Loader.Resource.Attribute.ttcIndex;
-			global::StardewModdingAPI.Resource.Color.notification_action_color_filter = global::Loader.Resource.Color.notification_action_color_filter;
-			global::StardewModdingAPI.Resource.Color.notification_icon_bg_color = global::Loader.Resource.Color.notification_icon_bg_color;
-			global::StardewModdingAPI.Resource.Color.ripple_material_light = global::Loader.Resource.Color.ripple_material_light;
-			global::StardewModdingAPI.Resource.Color.secondary_text_default_material_light = global::Loader.Resource.Color.secondary_text_default_material_light;
-			global::StardewModdingAPI.Resource.Dimension.compat_button_inset_horizontal_material = global::Loader.Resource.Dimension.compat_button_inset_horizontal_material;
-			global::StardewModdingAPI.Resource.Dimension.compat_button_inset_vertical_material = global::Loader.Resource.Dimension.compat_button_inset_vertical_material;
-			global::StardewModdingAPI.Resource.Dimension.compat_button_padding_horizontal_material = global::Loader.Resource.Dimension.compat_button_padding_horizontal_material;
-			global::StardewModdingAPI.Resource.Dimension.compat_button_padding_vertical_material = global::Loader.Resource.Dimension.compat_button_padding_vertical_material;
-			global::StardewModdingAPI.Resource.Dimension.compat_control_corner_material = global::Loader.Resource.Dimension.compat_control_corner_material;
-			global::StardewModdingAPI.Resource.Dimension.compat_notification_large_icon_max_height = global::Loader.Resource.Dimension.compat_notification_large_icon_max_height;
-			global::StardewModdingAPI.Resource.Dimension.compat_notification_large_icon_max_width = global::Loader.Resource.Dimension.compat_notification_large_icon_max_width;
-			global::StardewModdingAPI.Resource.Dimension.notification_action_icon_size = global::Loader.Resource.Dimension.notification_action_icon_size;
-			global::StardewModdingAPI.Resource.Dimension.notification_action_text_size = global::Loader.Resource.Dimension.notification_action_text_size;
-			global::StardewModdingAPI.Resource.Dimension.notification_big_circle_margin = global::Loader.Resource.Dimension.notification_big_circle_margin;
-			global::StardewModdingAPI.Resource.Dimension.notification_content_margin_start = global::Loader.Resource.Dimension.notification_content_margin_start;
-			global::StardewModdingAPI.Resource.Dimension.notification_large_icon_height = global::Loader.Resource.Dimension.notification_large_icon_height;
-			global::StardewModdingAPI.Resource.Dimension.notification_large_icon_width = global::Loader.Resource.Dimension.notification_large_icon_width;
-			global::StardewModdingAPI.Resource.Dimension.notification_main_column_padding_top = global::Loader.Resource.Dimension.notification_main_column_padding_top;
-			global::StardewModdingAPI.Resource.Dimension.notification_media_narrow_margin = global::Loader.Resource.Dimension.notification_media_narrow_margin;
-			global::StardewModdingAPI.Resource.Dimension.notification_right_icon_size = global::Loader.Resource.Dimension.notification_right_icon_size;
-			global::StardewModdingAPI.Resource.Dimension.notification_right_side_padding_top = global::Loader.Resource.Dimension.notification_right_side_padding_top;
-			global::StardewModdingAPI.Resource.Dimension.notification_small_icon_background_padding = global::Loader.Resource.Dimension.notification_small_icon_background_padding;
-			global::StardewModdingAPI.Resource.Dimension.notification_small_icon_size_as_large = global::Loader.Resource.Dimension.notification_small_icon_size_as_large;
-			global::StardewModdingAPI.Resource.Dimension.notification_subtext_size = global::Loader.Resource.Dimension.notification_subtext_size;
-			global::StardewModdingAPI.Resource.Dimension.notification_top_pad = global::Loader.Resource.Dimension.notification_top_pad;
-			global::StardewModdingAPI.Resource.Dimension.notification_top_pad_large_text = global::Loader.Resource.Dimension.notification_top_pad_large_text;
-			global::StardewModdingAPI.Resource.Drawable.notification_action_background = global::Loader.Resource.Drawable.notification_action_background;
-			global::StardewModdingAPI.Resource.Drawable.notification_bg = global::Loader.Resource.Drawable.notification_bg;
-			global::StardewModdingAPI.Resource.Drawable.notification_bg_low = global::Loader.Resource.Drawable.notification_bg_low;
-			global::StardewModdingAPI.Resource.Drawable.notification_bg_low_normal = global::Loader.Resource.Drawable.notification_bg_low_normal;
-			global::StardewModdingAPI.Resource.Drawable.notification_bg_low_pressed = global::Loader.Resource.Drawable.notification_bg_low_pressed;
-			global::StardewModdingAPI.Resource.Drawable.notification_bg_normal = global::Loader.Resource.Drawable.notification_bg_normal;
-			global::StardewModdingAPI.Resource.Drawable.notification_bg_normal_pressed = global::Loader.Resource.Drawable.notification_bg_normal_pressed;
-			global::StardewModdingAPI.Resource.Drawable.notification_icon_background = global::Loader.Resource.Drawable.notification_icon_background;
-			global::StardewModdingAPI.Resource.Drawable.notification_template_icon_bg = global::Loader.Resource.Drawable.notification_template_icon_bg;
-			global::StardewModdingAPI.Resource.Drawable.notification_template_icon_low_bg = global::Loader.Resource.Drawable.notification_template_icon_low_bg;
-			global::StardewModdingAPI.Resource.Drawable.notification_tile_bg = global::Loader.Resource.Drawable.notification_tile_bg;
-			global::StardewModdingAPI.Resource.Drawable.notify_panel_notification_icon_bg = global::Loader.Resource.Drawable.notify_panel_notification_icon_bg;
-			global::StardewModdingAPI.Resource.Id.actions = global::Loader.Resource.Id.actions;
-			global::StardewModdingAPI.Resource.Id.action_container = global::Loader.Resource.Id.action_container;
-			global::StardewModdingAPI.Resource.Id.action_divider = global::Loader.Resource.Id.action_divider;
-			global::StardewModdingAPI.Resource.Id.action_image = global::Loader.Resource.Id.action_image;
-			global::StardewModdingAPI.Resource.Id.action_text = global::Loader.Resource.Id.action_text;
-			global::StardewModdingAPI.Resource.Id.async = global::Loader.Resource.Id.async;
-			global::StardewModdingAPI.Resource.Id.blocking = global::Loader.Resource.Id.blocking;
-			global::StardewModdingAPI.Resource.Id.chronometer = global::Loader.Resource.Id.chronometer;
-			global::StardewModdingAPI.Resource.Id.forever = global::Loader.Resource.Id.forever;
-			global::StardewModdingAPI.Resource.Id.icon = global::Loader.Resource.Id.icon;
-			global::StardewModdingAPI.Resource.Id.icon_group = global::Loader.Resource.Id.icon_group;
-			global::StardewModdingAPI.Resource.Id.info = global::Loader.Resource.Id.info;
-			global::StardewModdingAPI.Resource.Id.italic = global::Loader.Resource.Id.italic;
-			global::StardewModdingAPI.Resource.Id.line1 = global::Loader.Resource.Id.line1;
-			global::StardewModdingAPI.Resource.Id.line3 = global::Loader.Resource.Id.line3;
-			global::StardewModdingAPI.Resource.Id.normal = global::Loader.Resource.Id.normal;
-			global::StardewModdingAPI.Resource.Id.notification_background = global::Loader.Resource.Id.notification_background;
-			global::StardewModdingAPI.Resource.Id.notification_main_column = global::Loader.Resource.Id.notification_main_column;
-			global::StardewModdingAPI.Resource.Id.notification_main_column_container = global::Loader.Resource.Id.notification_main_column_container;
-			global::StardewModdingAPI.Resource.Id.right_icon = global::Loader.Resource.Id.right_icon;
-			global::StardewModdingAPI.Resource.Id.right_side = global::Loader.Resource.Id.right_side;
-			global::StardewModdingAPI.Resource.Id.tag_transition_group = global::Loader.Resource.Id.tag_transition_group;
-			global::StardewModdingAPI.Resource.Id.tag_unhandled_key_event_manager = global::Loader.Resource.Id.tag_unhandled_key_event_manager;
-			global::StardewModdingAPI.Resource.Id.tag_unhandled_key_listeners = global::Loader.Resource.Id.tag_unhandled_key_listeners;
-			global::StardewModdingAPI.Resource.Id.text = global::Loader.Resource.Id.text;
-			global::StardewModdingAPI.Resource.Id.text2 = global::Loader.Resource.Id.text2;
-			global::StardewModdingAPI.Resource.Id.time = global::Loader.Resource.Id.time;
-			global::StardewModdingAPI.Resource.Id.title = global::Loader.Resource.Id.title;
-			global::StardewModdingAPI.Resource.Integer.status_bar_notification_info_maxnum = global::Loader.Resource.Integer.status_bar_notification_info_maxnum;
-			global::StardewModdingAPI.Resource.Layout.notification_action = global::Loader.Resource.Layout.notification_action;
-			global::StardewModdingAPI.Resource.Layout.notification_action_tombstone = global::Loader.Resource.Layout.notification_action_tombstone;
-			global::StardewModdingAPI.Resource.Layout.notification_template_custom_big = global::Loader.Resource.Layout.notification_template_custom_big;
-			global::StardewModdingAPI.Resource.Layout.notification_template_icon_group = global::Loader.Resource.Layout.notification_template_icon_group;
-			global::StardewModdingAPI.Resource.Layout.notification_template_part_chronometer = global::Loader.Resource.Layout.notification_template_part_chronometer;
-			global::StardewModdingAPI.Resource.Layout.notification_template_part_time = global::Loader.Resource.Layout.notification_template_part_time;
 			global::StardewModdingAPI.Resource.String.app_name = global::Loader.Resource.String.app_name;
 			global::StardewModdingAPI.Resource.String.hello = global::Loader.Resource.String.hello;
-			global::StardewModdingAPI.Resource.String.status_bar_notification_info_overflow = global::Loader.Resource.String.status_bar_notification_info_overflow;
-			global::StardewModdingAPI.Resource.Style.TextAppearance_Compat_Notification = global::Loader.Resource.Style.TextAppearance_Compat_Notification;
-			global::StardewModdingAPI.Resource.Style.TextAppearance_Compat_Notification_Info = global::Loader.Resource.Style.TextAppearance_Compat_Notification_Info;
-			global::StardewModdingAPI.Resource.Style.TextAppearance_Compat_Notification_Line2 = global::Loader.Resource.Style.TextAppearance_Compat_Notification_Line2;
-			global::StardewModdingAPI.Resource.Style.TextAppearance_Compat_Notification_Time = global::Loader.Resource.Style.TextAppearance_Compat_Notification_Time;
-			global::StardewModdingAPI.Resource.Style.TextAppearance_Compat_Notification_Title = global::Loader.Resource.Style.TextAppearance_Compat_Notification_Title;
-			global::StardewModdingAPI.Resource.Style.Widget_Compat_NotificationActionContainer = global::Loader.Resource.Style.Widget_Compat_NotificationActionContainer;
-			global::StardewModdingAPI.Resource.Style.Widget_Compat_NotificationActionText = global::Loader.Resource.Style.Widget_Compat_NotificationActionText;
-			global::StardewModdingAPI.Resource.Styleable.ColorStateListItem = global::Loader.Resource.Styleable.ColorStateListItem;
-			global::StardewModdingAPI.Resource.Styleable.ColorStateListItem_alpha = global::Loader.Resource.Styleable.ColorStateListItem_alpha;
-			global::StardewModdingAPI.Resource.Styleable.ColorStateListItem_android_alpha = global::Loader.Resource.Styleable.ColorStateListItem_android_alpha;
-			global::StardewModdingAPI.Resource.Styleable.ColorStateListItem_android_color = global::Loader.Resource.Styleable.ColorStateListItem_android_color;
-			global::StardewModdingAPI.Resource.Styleable.FontFamily = global::Loader.Resource.Styleable.FontFamily;
-			global::StardewModdingAPI.Resource.Styleable.FontFamilyFont = global::Loader.Resource.Styleable.FontFamilyFont;
-			global::StardewModdingAPI.Resource.Styleable.FontFamilyFont_android_font = global::Loader.Resource.Styleable.FontFamilyFont_android_font;
-			global::StardewModdingAPI.Resource.Styleable.FontFamilyFont_android_fontStyle = global::Loader.Resource.Styleable.FontFamilyFont_android_fontStyle;
-			global::StardewModdingAPI.Resource.Styleable.FontFamilyFont_android_fontVariationSettings = global::Loader.Resource.Styleable.FontFamilyFont_android_fontVariationSettings;
-			global::StardewModdingAPI.Resource.Styleable.FontFamilyFont_android_fontWeight = global::Loader.Resource.Styleable.FontFamilyFont_android_fontWeight;
-			global::StardewModdingAPI.Resource.Styleable.FontFamilyFont_android_ttcIndex = global::Loader.Resource.Styleable.FontFamilyFont_android_ttcIndex;
-			global::StardewModdingAPI.Resource.Styleable.FontFamilyFont_font = global::Loader.Resource.Styleable.FontFamilyFont_font;
-			global::StardewModdingAPI.Resource.Styleable.FontFamilyFont_fontStyle = global::Loader.Resource.Styleable.FontFamilyFont_fontStyle;
-			global::StardewModdingAPI.Resource.Styleable.FontFamilyFont_fontVariationSettings = global::Loader.Resource.Styleable.FontFamilyFont_fontVariationSettings;
-			global::StardewModdingAPI.Resource.Styleable.FontFamilyFont_fontWeight = global::Loader.Resource.Styleable.FontFamilyFont_fontWeight;
-			global::StardewModdingAPI.Resource.Styleable.FontFamilyFont_ttcIndex = global::Loader.Resource.Styleable.FontFamilyFont_ttcIndex;
-			global::StardewModdingAPI.Resource.Styleable.FontFamily_fontProviderAuthority = global::Loader.Resource.Styleable.FontFamily_fontProviderAuthority;
-			global::StardewModdingAPI.Resource.Styleable.FontFamily_fontProviderCerts = global::Loader.Resource.Styleable.FontFamily_fontProviderCerts;
-			global::StardewModdingAPI.Resource.Styleable.FontFamily_fontProviderFetchStrategy = global::Loader.Resource.Styleable.FontFamily_fontProviderFetchStrategy;
-			global::StardewModdingAPI.Resource.Styleable.FontFamily_fontProviderFetchTimeout = global::Loader.Resource.Styleable.FontFamily_fontProviderFetchTimeout;
-			global::StardewModdingAPI.Resource.Styleable.FontFamily_fontProviderPackage = global::Loader.Resource.Styleable.FontFamily_fontProviderPackage;
-			global::StardewModdingAPI.Resource.Styleable.FontFamily_fontProviderQuery = global::Loader.Resource.Styleable.FontFamily_fontProviderQuery;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor = global::Loader.Resource.Styleable.GradientColor;
-			global::StardewModdingAPI.Resource.Styleable.GradientColorItem = global::Loader.Resource.Styleable.GradientColorItem;
-			global::StardewModdingAPI.Resource.Styleable.GradientColorItem_android_color = global::Loader.Resource.Styleable.GradientColorItem_android_color;
-			global::StardewModdingAPI.Resource.Styleable.GradientColorItem_android_offset = global::Loader.Resource.Styleable.GradientColorItem_android_offset;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_centerColor = global::Loader.Resource.Styleable.GradientColor_android_centerColor;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_centerX = global::Loader.Resource.Styleable.GradientColor_android_centerX;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_centerY = global::Loader.Resource.Styleable.GradientColor_android_centerY;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_endColor = global::Loader.Resource.Styleable.GradientColor_android_endColor;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_endX = global::Loader.Resource.Styleable.GradientColor_android_endX;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_endY = global::Loader.Resource.Styleable.GradientColor_android_endY;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_gradientRadius = global::Loader.Resource.Styleable.GradientColor_android_gradientRadius;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_startColor = global::Loader.Resource.Styleable.GradientColor_android_startColor;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_startX = global::Loader.Resource.Styleable.GradientColor_android_startX;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_startY = global::Loader.Resource.Styleable.GradientColor_android_startY;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_tileMode = global::Loader.Resource.Styleable.GradientColor_android_tileMode;
-			global::StardewModdingAPI.Resource.Styleable.GradientColor_android_type = global::Loader.Resource.Styleable.GradientColor_android_type;
 		}
 		
 		public partial class Attribute
 		{
-			
-			// aapt resource value: 0x7F010000
-			public const int alpha = 2130771968;
-			
-			// aapt resource value: 0x7F010001
-			public const int font = 2130771969;
-			
-			// aapt resource value: 0x7F010002
-			public const int fontProviderAuthority = 2130771970;
-			
-			// aapt resource value: 0x7F010003
-			public const int fontProviderCerts = 2130771971;
-			
-			// aapt resource value: 0x7F010004
-			public const int fontProviderFetchStrategy = 2130771972;
-			
-			// aapt resource value: 0x7F010005
-			public const int fontProviderFetchTimeout = 2130771973;
-			
-			// aapt resource value: 0x7F010006
-			public const int fontProviderPackage = 2130771974;
-			
-			// aapt resource value: 0x7F010007
-			public const int fontProviderQuery = 2130771975;
-			
-			// aapt resource value: 0x7F010008
-			public const int fontStyle = 2130771976;
-			
-			// aapt resource value: 0x7F010009
-			public const int fontVariationSettings = 2130771977;
-			
-			// aapt resource value: 0x7F01000A
-			public const int fontWeight = 2130771978;
-			
-			// aapt resource value: 0x7F01000B
-			public const int ttcIndex = 2130771979;
 			
 			static Attribute()
 			{
@@ -212,29 +45,17 @@ namespace Loader
 		public partial class Color
 		{
 			
-			// aapt resource value: 0x7F020000
-			public const int colorAccent = 2130837504;
+			// aapt resource value: 0x7F010000
+			public const int colorAccent = 2130771968;
 			
-			// aapt resource value: 0x7F020001
-			public const int colorPrimary = 2130837505;
+			// aapt resource value: 0x7F010001
+			public const int colorPrimary = 2130771969;
 			
-			// aapt resource value: 0x7F020002
-			public const int colorPrimaryDark = 2130837506;
+			// aapt resource value: 0x7F010002
+			public const int colorPrimaryDark = 2130771970;
 			
-			// aapt resource value: 0x7F020003
-			public const int ic_launcher_background = 2130837507;
-			
-			// aapt resource value: 0x7F020004
-			public const int notification_action_color_filter = 2130837508;
-			
-			// aapt resource value: 0x7F020005
-			public const int notification_icon_bg_color = 2130837509;
-			
-			// aapt resource value: 0x7F020006
-			public const int ripple_material_light = 2130837510;
-			
-			// aapt resource value: 0x7F020007
-			public const int secondary_text_default_material_light = 2130837511;
+			// aapt resource value: 0x7F010003
+			public const int ic_launcher_background = 2130771971;
 			
 			static Color()
 			{
@@ -246,135 +67,20 @@ namespace Loader
 			}
 		}
 		
-		public partial class Dimension
-		{
-			
-			// aapt resource value: 0x7F030000
-			public const int compat_button_inset_horizontal_material = 2130903040;
-			
-			// aapt resource value: 0x7F030001
-			public const int compat_button_inset_vertical_material = 2130903041;
-			
-			// aapt resource value: 0x7F030002
-			public const int compat_button_padding_horizontal_material = 2130903042;
-			
-			// aapt resource value: 0x7F030003
-			public const int compat_button_padding_vertical_material = 2130903043;
-			
-			// aapt resource value: 0x7F030004
-			public const int compat_control_corner_material = 2130903044;
-			
-			// aapt resource value: 0x7F030005
-			public const int compat_notification_large_icon_max_height = 2130903045;
-			
-			// aapt resource value: 0x7F030006
-			public const int compat_notification_large_icon_max_width = 2130903046;
-			
-			// aapt resource value: 0x7F030007
-			public const int notification_action_icon_size = 2130903047;
-			
-			// aapt resource value: 0x7F030008
-			public const int notification_action_text_size = 2130903048;
-			
-			// aapt resource value: 0x7F030009
-			public const int notification_big_circle_margin = 2130903049;
-			
-			// aapt resource value: 0x7F03000A
-			public const int notification_content_margin_start = 2130903050;
-			
-			// aapt resource value: 0x7F03000B
-			public const int notification_large_icon_height = 2130903051;
-			
-			// aapt resource value: 0x7F03000C
-			public const int notification_large_icon_width = 2130903052;
-			
-			// aapt resource value: 0x7F03000D
-			public const int notification_main_column_padding_top = 2130903053;
-			
-			// aapt resource value: 0x7F03000E
-			public const int notification_media_narrow_margin = 2130903054;
-			
-			// aapt resource value: 0x7F03000F
-			public const int notification_right_icon_size = 2130903055;
-			
-			// aapt resource value: 0x7F030010
-			public const int notification_right_side_padding_top = 2130903056;
-			
-			// aapt resource value: 0x7F030011
-			public const int notification_small_icon_background_padding = 2130903057;
-			
-			// aapt resource value: 0x7F030012
-			public const int notification_small_icon_size_as_large = 2130903058;
-			
-			// aapt resource value: 0x7F030013
-			public const int notification_subtext_size = 2130903059;
-			
-			// aapt resource value: 0x7F030014
-			public const int notification_top_pad = 2130903060;
-			
-			// aapt resource value: 0x7F030015
-			public const int notification_top_pad_large_text = 2130903061;
-			
-			static Dimension()
-			{
-				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
-			}
-			
-			private Dimension()
-			{
-			}
-		}
-		
 		public partial class Drawable
 		{
 			
-			// aapt resource value: 0x7F040000
-			public const int icon = 2130968576;
+			// aapt resource value: 0x7F020000
+			public const int icon = 2130837504;
 			
-			// aapt resource value: 0x7F040001
-			public const int notification_action_background = 2130968577;
+			// aapt resource value: 0x7F020001
+			public const int splash = 2130837505;
 			
-			// aapt resource value: 0x7F040002
-			public const int notification_bg = 2130968578;
+			// aapt resource value: 0x7F020002
+			public const int splash_logos_crop = 2130837506;
 			
-			// aapt resource value: 0x7F040003
-			public const int notification_bg_low = 2130968579;
-			
-			// aapt resource value: 0x7F040004
-			public const int notification_bg_low_normal = 2130968580;
-			
-			// aapt resource value: 0x7F040005
-			public const int notification_bg_low_pressed = 2130968581;
-			
-			// aapt resource value: 0x7F040006
-			public const int notification_bg_normal = 2130968582;
-			
-			// aapt resource value: 0x7F040007
-			public const int notification_bg_normal_pressed = 2130968583;
-			
-			// aapt resource value: 0x7F040008
-			public const int notification_icon_background = 2130968584;
-			
-			// aapt resource value: 0x7F040009
-			public const int notification_template_icon_bg = 2130968585;
-			
-			// aapt resource value: 0x7F04000A
-			public const int notification_template_icon_low_bg = 2130968586;
-			
-			// aapt resource value: 0x7F04000B
-			public const int notification_tile_bg = 2130968587;
-			
-			// aapt resource value: 0x7F04000C
-			public const int notify_panel_notification_icon_bg = 2130968588;
-			
-			// aapt resource value: 0x7F04000D
-			public const int splash = 2130968589;
-			
-			// aapt resource value: 0x7F04000E
-			public const int splash_logos_crop = 2130968590;
-			
-			// aapt resource value: 0x7F04000F
-			public const int splash_screen = 2130968591;
+			// aapt resource value: 0x7F020003
+			public const int splash_screen = 2130837507;
 			
 			static Drawable()
 			{
@@ -386,164 +92,20 @@ namespace Loader
 			}
 		}
 		
-		public partial class Id
-		{
-			
-			// aapt resource value: 0x7F050004
-			public const int actions = 2131034116;
-			
-			// aapt resource value: 0x7F050000
-			public const int action_container = 2131034112;
-			
-			// aapt resource value: 0x7F050001
-			public const int action_divider = 2131034113;
-			
-			// aapt resource value: 0x7F050002
-			public const int action_image = 2131034114;
-			
-			// aapt resource value: 0x7F050003
-			public const int action_text = 2131034115;
-			
-			// aapt resource value: 0x7F050005
-			public const int async = 2131034117;
-			
-			// aapt resource value: 0x7F050006
-			public const int blocking = 2131034118;
-			
-			// aapt resource value: 0x7F050007
-			public const int chronometer = 2131034119;
-			
-			// aapt resource value: 0x7F050008
-			public const int forever = 2131034120;
-			
-			// aapt resource value: 0x7F050009
-			public const int icon = 2131034121;
-			
-			// aapt resource value: 0x7F05000A
-			public const int icon_group = 2131034122;
-			
-			// aapt resource value: 0x7F05000B
-			public const int info = 2131034123;
-			
-			// aapt resource value: 0x7F05000C
-			public const int italic = 2131034124;
-			
-			// aapt resource value: 0x7F05000D
-			public const int line1 = 2131034125;
-			
-			// aapt resource value: 0x7F05000E
-			public const int line3 = 2131034126;
-			
-			// aapt resource value: 0x7F05000F
-			public const int normal = 2131034127;
-			
-			// aapt resource value: 0x7F050010
-			public const int notification_background = 2131034128;
-			
-			// aapt resource value: 0x7F050011
-			public const int notification_main_column = 2131034129;
-			
-			// aapt resource value: 0x7F050012
-			public const int notification_main_column_container = 2131034130;
-			
-			// aapt resource value: 0x7F050013
-			public const int right_icon = 2131034131;
-			
-			// aapt resource value: 0x7F050014
-			public const int right_side = 2131034132;
-			
-			// aapt resource value: 0x7F050015
-			public const int tag_transition_group = 2131034133;
-			
-			// aapt resource value: 0x7F050016
-			public const int tag_unhandled_key_event_manager = 2131034134;
-			
-			// aapt resource value: 0x7F050017
-			public const int tag_unhandled_key_listeners = 2131034135;
-			
-			// aapt resource value: 0x7F050018
-			public const int text = 2131034136;
-			
-			// aapt resource value: 0x7F050019
-			public const int text2 = 2131034137;
-			
-			// aapt resource value: 0x7F05001A
-			public const int time = 2131034138;
-			
-			// aapt resource value: 0x7F05001B
-			public const int title = 2131034139;
-			
-			static Id()
-			{
-				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
-			}
-			
-			private Id()
-			{
-			}
-		}
-		
-		public partial class Integer
-		{
-			
-			// aapt resource value: 0x7F060000
-			public const int status_bar_notification_info_maxnum = 2131099648;
-			
-			static Integer()
-			{
-				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
-			}
-			
-			private Integer()
-			{
-			}
-		}
-		
-		public partial class Layout
-		{
-			
-			// aapt resource value: 0x7F070000
-			public const int notification_action = 2131165184;
-			
-			// aapt resource value: 0x7F070001
-			public const int notification_action_tombstone = 2131165185;
-			
-			// aapt resource value: 0x7F070002
-			public const int notification_template_custom_big = 2131165186;
-			
-			// aapt resource value: 0x7F070003
-			public const int notification_template_icon_group = 2131165187;
-			
-			// aapt resource value: 0x7F070004
-			public const int notification_template_part_chronometer = 2131165188;
-			
-			// aapt resource value: 0x7F070005
-			public const int notification_template_part_time = 2131165189;
-			
-			static Layout()
-			{
-				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
-			}
-			
-			private Layout()
-			{
-			}
-		}
-		
 		public partial class Mipmap
 		{
 			
-			// aapt resource value: 0x7F080000
-			public const int ic_launcher = 2131230720;
+			// aapt resource value: 0x7F030000
+			public const int ic_launcher = 2130903040;
 			
-			// aapt resource value: 0x7F080001
-			public const int ic_launcher_background = 2131230721;
+			// aapt resource value: 0x7F030001
+			public const int ic_launcher_background = 2130903041;
 			
-			// aapt resource value: 0x7F080002
-			public const int ic_launcher_foreground = 2131230722;
+			// aapt resource value: 0x7F030002
+			public const int ic_launcher_foreground = 2130903042;
 			
-			// aapt resource value: 0x7F080003
-			public const int ic_launcher_round = 2131230723;
+			// aapt resource value: 0x7F030003
+			public const int ic_launcher_round = 2130903043;
 			
 			static Mipmap()
 			{
@@ -558,17 +120,14 @@ namespace Loader
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7F090000
-			public const int action_settings = 2131296256;
+			// aapt resource value: 0x7F040000
+			public const int action_settings = 2130968576;
 			
-			// aapt resource value: 0x7F090001
-			public const int app_name = 2131296257;
+			// aapt resource value: 0x7F040001
+			public const int app_name = 2130968577;
 			
-			// aapt resource value: 0x7F090002
-			public const int hello = 2131296258;
-			
-			// aapt resource value: 0x7F090003
-			public const int status_bar_notification_info_overflow = 2131296259;
+			// aapt resource value: 0x7F040002
+			public const int hello = 2130968578;
 			
 			static String()
 			{
@@ -583,29 +142,8 @@ namespace Loader
 		public partial class Style
 		{
 			
-			// aapt resource value: 0x7F0A0000
-			public const int TextAppearance_Compat_Notification = 2131361792;
-			
-			// aapt resource value: 0x7F0A0001
-			public const int TextAppearance_Compat_Notification_Info = 2131361793;
-			
-			// aapt resource value: 0x7F0A0002
-			public const int TextAppearance_Compat_Notification_Line2 = 2131361794;
-			
-			// aapt resource value: 0x7F0A0003
-			public const int TextAppearance_Compat_Notification_Time = 2131361795;
-			
-			// aapt resource value: 0x7F0A0004
-			public const int TextAppearance_Compat_Notification_Title = 2131361796;
-			
-			// aapt resource value: 0x7F0A0005
-			public const int Theme_Splash = 2131361797;
-			
-			// aapt resource value: 0x7F0A0006
-			public const int Widget_Compat_NotificationActionContainer = 2131361798;
-			
-			// aapt resource value: 0x7F0A0007
-			public const int Widget_Compat_NotificationActionText = 2131361799;
+			// aapt resource value: 0x7F050000
+			public const int Theme_Splash = 2131034112;
 			
 			static Style()
 			{
@@ -617,171 +155,11 @@ namespace Loader
 			}
 		}
 		
-		public partial class Styleable
-		{
-			
-			// aapt resource value: { 0x10101A5,0x101031F,0x7F010000 }
-			public static int[] ColorStateListItem = new int[] {
-					16843173,
-					16843551,
-					2130771968};
-			
-			// aapt resource value: 2
-			public const int ColorStateListItem_alpha = 2;
-			
-			// aapt resource value: 1
-			public const int ColorStateListItem_android_alpha = 1;
-			
-			// aapt resource value: 0
-			public const int ColorStateListItem_android_color = 0;
-			
-			// aapt resource value: { 0x7F010002,0x7F010003,0x7F010004,0x7F010005,0x7F010006,0x7F010007 }
-			public static int[] FontFamily = new int[] {
-					2130771970,
-					2130771971,
-					2130771972,
-					2130771973,
-					2130771974,
-					2130771975};
-			
-			// aapt resource value: { 0x1010532,0x1010533,0x101053F,0x101056F,0x1010570,0x7F010001,0x7F010008,0x7F010009,0x7F01000A,0x7F01000B }
-			public static int[] FontFamilyFont = new int[] {
-					16844082,
-					16844083,
-					16844095,
-					16844143,
-					16844144,
-					2130771969,
-					2130771976,
-					2130771977,
-					2130771978,
-					2130771979};
-			
-			// aapt resource value: 0
-			public const int FontFamilyFont_android_font = 0;
-			
-			// aapt resource value: 2
-			public const int FontFamilyFont_android_fontStyle = 2;
-			
-			// aapt resource value: 4
-			public const int FontFamilyFont_android_fontVariationSettings = 4;
-			
-			// aapt resource value: 1
-			public const int FontFamilyFont_android_fontWeight = 1;
-			
-			// aapt resource value: 3
-			public const int FontFamilyFont_android_ttcIndex = 3;
-			
-			// aapt resource value: 5
-			public const int FontFamilyFont_font = 5;
-			
-			// aapt resource value: 6
-			public const int FontFamilyFont_fontStyle = 6;
-			
-			// aapt resource value: 7
-			public const int FontFamilyFont_fontVariationSettings = 7;
-			
-			// aapt resource value: 8
-			public const int FontFamilyFont_fontWeight = 8;
-			
-			// aapt resource value: 9
-			public const int FontFamilyFont_ttcIndex = 9;
-			
-			// aapt resource value: 0
-			public const int FontFamily_fontProviderAuthority = 0;
-			
-			// aapt resource value: 1
-			public const int FontFamily_fontProviderCerts = 1;
-			
-			// aapt resource value: 2
-			public const int FontFamily_fontProviderFetchStrategy = 2;
-			
-			// aapt resource value: 3
-			public const int FontFamily_fontProviderFetchTimeout = 3;
-			
-			// aapt resource value: 4
-			public const int FontFamily_fontProviderPackage = 4;
-			
-			// aapt resource value: 5
-			public const int FontFamily_fontProviderQuery = 5;
-			
-			// aapt resource value: { 0x101019D,0x101019E,0x10101A1,0x10101A2,0x10101A3,0x10101A4,0x1010201,0x101020B,0x1010510,0x1010511,0x1010512,0x1010513 }
-			public static int[] GradientColor = new int[] {
-					16843165,
-					16843166,
-					16843169,
-					16843170,
-					16843171,
-					16843172,
-					16843265,
-					16843275,
-					16844048,
-					16844049,
-					16844050,
-					16844051};
-			
-			// aapt resource value: { 0x10101A5,0x1010514 }
-			public static int[] GradientColorItem = new int[] {
-					16843173,
-					16844052};
-			
-			// aapt resource value: 0
-			public const int GradientColorItem_android_color = 0;
-			
-			// aapt resource value: 1
-			public const int GradientColorItem_android_offset = 1;
-			
-			// aapt resource value: 7
-			public const int GradientColor_android_centerColor = 7;
-			
-			// aapt resource value: 3
-			public const int GradientColor_android_centerX = 3;
-			
-			// aapt resource value: 4
-			public const int GradientColor_android_centerY = 4;
-			
-			// aapt resource value: 1
-			public const int GradientColor_android_endColor = 1;
-			
-			// aapt resource value: 10
-			public const int GradientColor_android_endX = 10;
-			
-			// aapt resource value: 11
-			public const int GradientColor_android_endY = 11;
-			
-			// aapt resource value: 5
-			public const int GradientColor_android_gradientRadius = 5;
-			
-			// aapt resource value: 0
-			public const int GradientColor_android_startColor = 0;
-			
-			// aapt resource value: 8
-			public const int GradientColor_android_startX = 8;
-			
-			// aapt resource value: 9
-			public const int GradientColor_android_startY = 9;
-			
-			// aapt resource value: 6
-			public const int GradientColor_android_tileMode = 6;
-			
-			// aapt resource value: 2
-			public const int GradientColor_android_type = 2;
-			
-			static Styleable()
-			{
-				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
-			}
-			
-			private Styleable()
-			{
-			}
-		}
-		
 		public partial class Xml
 		{
 			
-			// aapt resource value: 0x7F0C0000
-			public const int provider_paths = 2131492864;
+			// aapt resource value: 0x7F060000
+			public const int provider_paths = 2131099648;
 			
 			static Xml()
 			{

@@ -11,10 +11,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-#if SMAPI_FOR_MOBILE
-using System.Threading.Tasks;
-using Android.Widget;
-#endif
 #if SMAPI_FOR_WINDOWS
 using Microsoft.Win32;
 #endif

@@ -2,26 +2,18 @@
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using Android.Provider;
-using Android.Runtime;
-using Android.Support.V4.App;
-using Android.Support.V4.Content;
 using Android.Views;
 using System;
 using System.Collections.Generic;
 using StardewModdingAPI.Framework;
 using StardewValley;
 using System.Reflection;
-using Java.Interop;
 using System.Linq;
 using File = Java.IO.File;
 using Newtonsoft.Json;
-using Android.Content;
-using Android.Util;
 using Java.Lang;
 using Java.Util;
 using Exception = System.Exception;
-using Object = Java.Lang.Object;
 using Thread = System.Threading.Thread;
 
 namespace StardewModdingAPI
@@ -33,51 +25,9 @@ namespace StardewModdingAPI
 
         public static SMainActivity Instance;
 
+        private System.Action _callback;
+
         private static bool ErrorDetected;
-
-        public new bool HasPermissions
-        {
-            get
-            {
-                return this.PackageManager.CheckPermission("android.permission.ACCESS_NETWORK_STATE", this.PackageName) == Permission.Granted
-                       && this.PackageManager.CheckPermission("android.permission.ACCESS_WIFI_STATE", this.PackageName) == Permission.Granted
-                       && this.PackageManager.CheckPermission("android.permission.INTERNET", this.PackageName) == Permission.Granted
-                       && this.PackageManager.CheckPermission("android.permission.READ_EXTERNAL_STORAGE", this.PackageName) == Permission.Granted
-                       && this.PackageManager.CheckPermission("android.permission.VIBRATE", this.PackageName) == Permission.Granted
-                       && this.PackageManager.CheckPermission("android.permission.WAKE_LOCK", this.PackageName) == Permission.Granted
-                       && this.PackageManager.CheckPermission("android.permission.WRITE_EXTERNAL_STORAGE", this.PackageName) == Permission.Granted
-                       && this.PackageManager.CheckPermission("com.android.vending.CHECK_LICENSE", this.PackageName) == Permission.Granted;
-            }
-        }
-
-        private string[] requiredPermissions => new string[8]
-        {
-            "android.permission.ACCESS_NETWORK_STATE",
-            "android.permission.ACCESS_WIFI_STATE",
-            "android.permission.INTERNET",
-            "android.permission.READ_EXTERNAL_STORAGE",
-            "android.permission.VIBRATE",
-            "android.permission.WAKE_LOCK",
-            "android.permission.WRITE_EXTERNAL_STORAGE",
-            "com.android.vending.CHECK_LICENSE"
-        };
-
-        private string[] DeniedPermissionsArray
-        {
-            get
-            {
-                List<string> list = new List<string>();
-                for (int i = 0; i < this.requiredPermissions.Length; i++)
-                {
-                    if (ContextCompat.CheckSelfPermission(this, this.requiredPermissions[i]) != 0)
-                    {
-                        list.Add(this.requiredPermissions[i]);
-                    }
-                }
-
-                return list.ToArray();
-            }
-        }
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -182,36 +132,106 @@ namespace StardewModdingAPI
             }
         }
 
-        public new void CheckAppPermissions()
+        public void PromptForPermissionsIfNecessary(System.Action callback = null)
         {
-            if (!this.HasPermissions)
-                this.PromptForPermissions();
-            else
-                this.OnCreatePartTwo();
-        }
-
-        public new void PromptForPermissions()
-        {
-            ActivityCompat.RequestPermissions(this, this.DeniedPermissionsArray, 0);
-        }
-
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
-        {
-            try
-            {
-                base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-            }
-            catch (ActivityNotFoundException)
-            {
-            }
-
             if (this.HasPermissions)
-                this.OnCreatePartTwo();
+            {
+                if (callback == null)
+                    return;
+                callback();
+            }
+            else
+            {
+                this._callback = callback;
+                this.PromptForPermissionsWithReasonFirst();
+            }
         }
 
+        private void PromptForPermissionsWithReasonFirst() => this.PromptForPermissions();
 
-        private void CheckUsingServerManagedPolicy()
+        public void CheckAppPermissions()
         {
+            this.LogPermissions();
+            if (this.HasPermissions)
+            {
+                this.OnCreatePartTwo();
+            }
+            else
+            {
+                this.PromptForPermissionsWithReasonFirst();
+            }
+        }
+
+        private string[] requiredPermissions => new string[4]
+        {
+            "android.permission.ACCESS_NETWORK_STATE",
+            "android.permission.ACCESS_WIFI_STATE",
+            "android.permission.INTERNET",
+            "android.permission.VIBRATE"
+        };
+
+        private string[] deniedPermissionsArray
+        {
+            get
+            {
+                List<string> stringList = new List<string>();
+                string[] requiredPermissions = this.requiredPermissions;
+                for (int index = 0; index < requiredPermissions.Length; ++index)
+                {
+                    if (this.PackageManager.CheckPermission(requiredPermissions[index], this.PackageName) != Permission.Granted)
+                        stringList.Add(requiredPermissions[index]);
+                }
+
+                return stringList.ToArray();
+            }
+        }
+
+        public void PromptForPermissions()
+        {
+            string[] permissionsArray = this.deniedPermissionsArray;
+            if (permissionsArray.Length == 0)
+                return;
+            this.RequestPermissions(permissionsArray, 0);
+        }
+
+        public override void OnRequestPermissionsResult(
+            int requestCode,
+            string[] permissions,
+            Permission[] grantResults)
+        {
+            if (permissions.Length == 0)
+            {
+            }
+            else
+            {
+                string languageCode = Locale.Default.Language.Substring(0, 2);
+                int num = 0;
+                if (requestCode == 0)
+                {
+                    for (int index = 0; index < grantResults.Length; ++index)
+                    {
+                        if (grantResults[index] == Permission.Granted)
+                            ++num;
+                        else if (grantResults[index] == Permission.Denied)
+                        {
+                            this.PromptForPermissions();
+                            return;
+                        }
+                    }
+                }
+
+                if (num != permissions.Length)
+                    return;
+                if (this._callback != null)
+                {
+                    this._callback();
+                    this._callback = (System.Action)null;
+                }
+                else
+                {
+                    this.OnCreatePartTwo();
+                }
+            }
         }
     }
 }

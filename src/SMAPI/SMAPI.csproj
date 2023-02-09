@@ -163,9 +163,6 @@
     <PackageReference Include="SkiaSharp">
       <Version>2.88.3</Version>
     </PackageReference>
-    <PackageReference Include="Xamarin.Android.Support.Compat">
-      <Version>28.0.0.3</Version>
-    </PackageReference>
     <PackageReference Include="Xamarin.Android.Support.DocumentFile">
       <Version>28.0.0.3</Version>
     </PackageReference>
@@ -197,13 +194,11 @@
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
     <None Include="i18n\*.json" />
-    <None Include="Resources\AboutResources.txt" />
     <None Include="SMAPI.config.json" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
-    <AndroidResource Include="Resources\values\strings.xml" />
-    <Folder Include="Resources\drawable\" />
+  <ItemGroup>
+    <Folder Include="Resources" />
   </ItemGroup>
 
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" Condition="'$(BUILD_FOR_MOBILE)' != ''" />
