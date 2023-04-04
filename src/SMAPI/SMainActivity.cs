@@ -83,12 +83,6 @@ namespace StardewModdingAPI
         {
             try
             {
-                Game1 game1 = (Game1)typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(this);
-                if (game1 != null)
-                {
-                    // game1.Exit();
-                }
-
                 new SGameConsole();
 
                 Program.Main(null);
@@ -108,11 +102,14 @@ namespace StardewModdingAPI
 
                 this.core = new SCore(System.IO.Path.Combine(EarlyConstants.StardewValleyBasePath, modPath), false, false);
                 this.core.RunInteractively();
-                typeof(MainActivity).GetMethod("SetZoomScaleAndMenuButtonScale", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(this, Array.Empty<object>());
+
+                Type.GetType("StardewValley.Mobile.MobileDisplay")?.GetMethod("SetupDisplaySettings", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)?.Invoke(null, Array.Empty<object>());
+                typeof(MainActivity).GetMethod("SetZoomScaleAndMenuButtonScale", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(this, Array.Empty<object>());
                 this.SetPaddingForMenus();
-                typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.Game.gamePtr);
 
                 this.SetContentView((View)this.core.Game.Services.GetService(typeof(View)));
+                GameRunner.instance = this.core.Game;
+                typeof(MainActivity).GetField("_game1", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(this, this.core.Game.gamePtr);
                 this.core.Game.Run();
             }
             catch when (retry < 3)
@@ -149,7 +146,7 @@ namespace StardewModdingAPI
 
         private void PromptForPermissionsWithReasonFirst() => this.PromptForPermissions();
 
-        public void CheckAppPermissions()
+        public new void CheckAppPermissions()
         {
             this.LogPermissions();
             if (this.HasPermissions)
@@ -186,7 +183,7 @@ namespace StardewModdingAPI
             }
         }
 
-        public void PromptForPermissions()
+        public new void PromptForPermissions()
         {
             string[] permissionsArray = this.deniedPermissionsArray;
             if (permissionsArray.Length == 0)
