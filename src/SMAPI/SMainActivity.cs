@@ -5,14 +5,20 @@ using Android.OS;
 using Android.Views;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using StardewModdingAPI.Framework;
 using StardewValley;
 using System.Reflection;
 using System.Linq;
+using System.Threading.Tasks;
+using Android.Content;
+using Android.Support.V4.Provider;
+using Java.IO;
 using File = Java.IO.File;
 using Newtonsoft.Json;
 using Java.Lang;
 using Java.Util;
+using Bundle = Android.OS.Bundle;
 using Exception = System.Exception;
 using Thread = System.Threading.Thread;
 
@@ -28,15 +34,13 @@ namespace StardewModdingAPI
         private System.Action _callback;
 
         private static bool ErrorDetected;
+        private static bool Migrating = false;
 
         protected override void OnCreate(Bundle bundle)
         {
             MainActivity.instance = this;
             base.RequestWindowFeature(WindowFeatures.NoTitle);
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.P)
-            {
-                this.Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
-            }
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.P) this.Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
 
             this.Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
             this.Window.SetFlags(WindowManagerFlags.KeepScreenOn, WindowManagerFlags.KeepScreenOn);
@@ -46,7 +50,6 @@ namespace StardewModdingAPI
             {
                 File errorLog = this.FilesDir.ListFiles().FirstOrDefault(f => f.IsDirectory && f.Name == "error")?.ListFiles().FirstOrDefault(f => f.Name.EndsWith(".dat"));
                 if (errorLog != null)
-                {
                     try
                     {
                         Handler handler = new Handler((msg) => throw new RuntimeException());
@@ -68,7 +71,6 @@ namespace StardewModdingAPI
                     catch (Exception)
                     {
                     }
-                }
             }
             catch
             {
@@ -83,6 +85,8 @@ namespace StardewModdingAPI
         {
             try
             {
+                if (!this.CheckSMAPIMigration()) return;
+
                 new SGameConsole();
 
                 Program.Main(null);
@@ -95,10 +99,7 @@ namespace StardewModdingAPI
                     Constants.RewriteMissing = settings.RewriteMissing;
                 }
 
-                if (string.IsNullOrWhiteSpace(modPath))
-                {
-                    modPath = "Mods";
-                }
+                if (string.IsNullOrWhiteSpace(modPath)) modPath = "Mods";
 
                 this.core = new SCore(System.IO.Path.Combine(EarlyConstants.StardewValleyBasePath, modPath), false, false);
                 this.core.RunInteractively();
@@ -129,7 +130,120 @@ namespace StardewModdingAPI
             }
         }
 
-        public void PromptForPermissionsIfNecessary(System.Action callback = null)
+        private void ShowMigrationPicker()
+        {
+            Intent intent = new Intent("android.intent.action.OPEN_DOCUMENT_TREE");
+            intent.AddFlags(ActivityFlags.GrantReadUriPermission);
+            this.StartActivityForResult(intent, 1235);
+        }
+
+        public bool CheckSMAPIMigration()
+        {
+            string storagePath = this.GetExternalFilesDir(null).AbsolutePath;
+            if (Migrating) return false;
+
+            if (Directory.Exists(storagePath + "/smapi-internal"))
+                return true;
+            Migrating = true;
+            SAlertDialogUtil.AlertMessage($"SMAPI needs to locate StardewValley folder's content to continue", "Confirm",
+                callback: type => { this.ShowMigrationPicker(); });
+            return false;
+        }
+
+        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+        {
+            base.OnActivityResult(requestCode, resultCode, data);
+            if (requestCode != 1235)
+                return;
+            this.RunOnUiThread((System.Action)(() =>
+            {
+                if (resultCode == Result.Ok)
+                    this.CopySMAPIData(data.Data);
+                else
+                    this.CheckSMAPIMigration();
+            }));
+        }
+
+        private void CopySMAPIData(Android.Net.Uri folderUri)
+        {
+            if (!folderUri.LastPathSegment.EndsWith(":StardewValley"))
+                this.CheckSMAPIMigration();
+            else
+            {
+                Android.Content.Context context = Application.Context;
+                string storagePath = context.GetExternalFilesDir(null).AbsolutePath;
+                this.Window.SetFlags(WindowManagerFlags.NotTouchable, WindowManagerFlags.NotTouchable);
+                System.Action ContinueGame = () =>
+                {
+                    this.Window.ClearFlags(WindowManagerFlags.NotTouchable);
+                    this.IsDoingStorageMigration = false;
+                    this.OnCreatePartTwo();
+                };
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        DocumentFile source = DocumentFile.FromTreeUri(context, folderUri);
+                        if (!source.Exists())
+                            return;
+                        if (source.IsDirectory)
+                        {
+                            if (!Directory.Exists(storagePath))
+                                Directory.CreateDirectory(storagePath);
+                            foreach (DocumentFile listFile in source.ListFiles())
+                            {
+                                string destPath;
+                                if (listFile.IsDirectory)
+                                {
+                                    if (listFile.Name.StartsWith("smapi-internal") || listFile.Name.StartsWith("ErrorLogs") || listFile.Name.StartsWith("Mods"))
+                                        destPath = Path.Combine(storagePath, listFile.Name);
+                                    else
+                                        destPath = Path.Combine(storagePath, "/Saves", listFile.Name);
+
+                                    if (!System.IO.File.Exists(destPath)) SMainActivity.DirectoryCopy(listFile, destPath);
+                                }
+                            }
+                        }
+                    }
+                    catch (System.Exception ex)
+                    {
+                        string exMessage = ex.Message;
+                    }
+
+                    this.RunOnUiThread(ContinueGame);
+                });
+            }
+        }
+
+        private static void DirectoryCopy(DocumentFile source, string dest)
+        {
+            if (!source.Exists())
+                return;
+            if (source.IsDirectory)
+            {
+                if (!Directory.Exists(dest))
+                    Directory.CreateDirectory(dest);
+                foreach (DocumentFile listFile in source.ListFiles())
+                {
+                    string str = Path.Combine(dest, listFile.Name);
+                    if (!System.IO.File.Exists(str))
+                        DirectoryCopy(listFile, str);
+                }
+            }
+            else
+            {
+                Stream stream = MainActivity.instance.ContentResolver.OpenInputStream(source.Uri);
+                FileOutputStream fileOutputStream = new FileOutputStream(dest);
+                byte[] numArray = new byte[1024];
+                int len;
+                while ((len = stream.Read((Span<byte>)numArray)) > 0)
+                    fileOutputStream.Write(numArray, 0, len);
+                stream.Close();
+                fileOutputStream.Close();
+            }
+        }
+
+        public new void PromptForPermissionsIfNecessary(System.Action callback = null)
         {
             if (this.HasPermissions)
             {
@@ -150,13 +264,9 @@ namespace StardewModdingAPI
         {
             this.LogPermissions();
             if (this.HasPermissions)
-            {
                 this.OnCreatePartTwo();
-            }
             else
-            {
                 this.PromptForPermissionsWithReasonFirst();
-            }
         }
 
         private string[] requiredPermissions => new string[4]
@@ -174,10 +284,8 @@ namespace StardewModdingAPI
                 List<string> stringList = new List<string>();
                 string[] requiredPermissions = this.requiredPermissions;
                 for (int index = 0; index < requiredPermissions.Length; ++index)
-                {
                     if (this.PackageManager.CheckPermission(requiredPermissions[index], this.PackageName) != Permission.Granted)
                         stringList.Add(requiredPermissions[index]);
-                }
 
                 return stringList.ToArray();
             }
@@ -204,9 +312,7 @@ namespace StardewModdingAPI
                 string languageCode = Locale.Default.Language.Substring(0, 2);
                 int num = 0;
                 if (requestCode == 0)
-                {
                     for (int index = 0; index < grantResults.Length; ++index)
-                    {
                         if (grantResults[index] == Permission.Granted)
                             ++num;
                         else if (grantResults[index] == Permission.Denied)
@@ -214,20 +320,16 @@ namespace StardewModdingAPI
                             this.PromptForPermissions();
                             return;
                         }
-                    }
-                }
 
                 if (num != permissions.Length)
                     return;
                 if (this._callback != null)
                 {
                     this._callback();
-                    this._callback = (System.Action)null;
+                    this._callback = null;
                 }
                 else
-                {
                     this.OnCreatePartTwo();
-                }
             }
         }
     }

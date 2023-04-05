@@ -34,7 +34,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
-    <AndroidLinkMode>None</AndroidLinkMode>
+    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
     <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
     <AndroidManagedSymbols>false</AndroidManagedSymbols>
     <AndroidUseAapt2>true</AndroidUseAapt2>
@@ -84,19 +84,19 @@
     <Reference Include="Mono.Security" />
     <ProjectReference Include="..\SMAPI\SMAPI.csproj" />
     <Reference Include="StardewValley">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\StardewValley.dll</HintPath>
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\StardewValley.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley.GameData">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\StardewValley.GameData.dll</HintPath>
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\StardewValley.GameData.dll</HintPath>
     </Reference>
     <Reference Include="xTile">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\xTile.dll</HintPath>
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\xTile.dll</HintPath>
     </Reference>
     <Reference Include="BmFont">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\BmFont.dll</HintPath>
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\BmFont.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.31\assemblies\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
