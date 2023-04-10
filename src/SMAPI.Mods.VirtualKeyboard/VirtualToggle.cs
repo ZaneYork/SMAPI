@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
                 this.IsDefault = false;
             this.AutoHidden = this.ModConfig.vToggle.autoHidden;
 
-            this.VirtualToggleButton = new ClickableTextureComponent(new Rectangle(Game1.toolbarPaddingX + 64, 12, 128, 128), this.Texture, new Rectangle(0, 0, 16, 16), 5.75f, false);
+            this.VirtualToggleButton = new ClickableTextureComponent(new Rectangle(Game1.toolbarPaddingX + 64, 12, 128, 128), this.Texture, new Rectangle(0, 0, 16, 16), 4f, false);
             helper.WriteConfig(this.ModConfig);
 
             this.Helper.Events.Display.Rendered += this.OnRendered;
@@ -126,7 +126,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
             {
                 return false;
             }
-            if (this.VirtualToggleButton.containsPoint((int)(screenPixels.X * Game1.options.zoomLevel), (int)(screenPixels.Y * Game1.options.zoomLevel)))
+            if (this.VirtualToggleButton.containsPoint((int)screenPixels.X, (int)screenPixels.Y))
             {
                 this.LastPressTick = tick;
                 Toolbar.toolbarPressed = true;

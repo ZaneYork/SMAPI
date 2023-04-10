@@ -18,6 +18,7 @@ using File = Java.IO.File;
 using Newtonsoft.Json;
 using Java.Lang;
 using Java.Util;
+using StardewModdingAPI.Mobile;
 using Bundle = Android.OS.Bundle;
 using Exception = System.Exception;
 using Thread = System.Threading.Thread;
@@ -31,7 +32,7 @@ namespace StardewModdingAPI
 
         public static SMainActivity Instance;
 
-        private System.Action _callback;
+        private Action _callback;
 
         private static bool ErrorDetected;
         private static bool Migrating = false;
@@ -39,11 +40,13 @@ namespace StardewModdingAPI
         protected override void OnCreate(Bundle bundle)
         {
             MainActivity.instance = this;
-            base.RequestWindowFeature(WindowFeatures.NoTitle);
+            this.RequestWindowFeature(WindowFeatures.NoTitle);
             if (Build.VERSION.SdkInt >= BuildVersionCodes.P) this.Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
 
             this.Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
             this.Window.SetFlags(WindowManagerFlags.KeepScreenOn, WindowManagerFlags.KeepScreenOn);
+
+            // FarmMigrationPatch.Apply();
 
             SMainActivity.Instance = this;
             try
@@ -101,10 +104,10 @@ namespace StardewModdingAPI
 
                 if (string.IsNullOrWhiteSpace(modPath)) modPath = "Mods";
 
-                this.core = new SCore(System.IO.Path.Combine(EarlyConstants.StardewValleyBasePath, modPath), false, false);
+                this.core = new SCore(Path.Combine(EarlyConstants.StardewValleyBasePath, modPath), false, false);
                 this.core.RunInteractively();
 
-                Type.GetType("StardewValley.Mobile.MobileDisplay")?.GetMethod("SetupDisplaySettings", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)?.Invoke(null, Array.Empty<object>());
+                typeof(MailActivity).Assembly.GetType("StardewValley.Mobile.MobileDisplay")?.GetMethod("SetupDisplaySettings", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)?.Invoke(null, Array.Empty<object>());
                 typeof(MainActivity).GetMethod("SetZoomScaleAndMenuButtonScale", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(this, Array.Empty<object>());
                 this.SetPaddingForMenus();
 
@@ -140,11 +143,11 @@ namespace StardewModdingAPI
         public bool CheckSMAPIMigration()
         {
             string storagePath = this.GetExternalFilesDir(null).AbsolutePath;
-            if (Migrating) return false;
+            if (SMainActivity.Migrating) return false;
 
             if (Directory.Exists(storagePath + "/smapi-internal"))
                 return true;
-            Migrating = true;
+            SMainActivity.Migrating = true;
             SAlertDialogUtil.AlertMessage($"SMAPI needs to locate StardewValley folder's content to continue", "Confirm",
                 callback: type => { this.ShowMigrationPicker(); });
             return false;
@@ -155,7 +158,7 @@ namespace StardewModdingAPI
             base.OnActivityResult(requestCode, resultCode, data);
             if (requestCode != 1235)
                 return;
-            this.RunOnUiThread((System.Action)(() =>
+            this.RunOnUiThread((Action)(() =>
             {
                 if (resultCode == Result.Ok)
                     this.CopySMAPIData(data.Data);
@@ -173,7 +176,7 @@ namespace StardewModdingAPI
                 Android.Content.Context context = Application.Context;
                 string storagePath = context.GetExternalFilesDir(null).AbsolutePath;
                 this.Window.SetFlags(WindowManagerFlags.NotTouchable, WindowManagerFlags.NotTouchable);
-                System.Action ContinueGame = () =>
+                Action ContinueGame = () =>
                 {
                     this.Window.ClearFlags(WindowManagerFlags.NotTouchable);
                     this.IsDoingStorageMigration = false;
@@ -205,7 +208,7 @@ namespace StardewModdingAPI
                             }
                         }
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
                         string exMessage = ex.Message;
                     }
@@ -227,7 +230,7 @@ namespace StardewModdingAPI
                 {
                     string str = Path.Combine(dest, listFile.Name);
                     if (!System.IO.File.Exists(str))
-                        DirectoryCopy(listFile, str);
+                        SMainActivity.DirectoryCopy(listFile, str);
                 }
             }
             else
@@ -243,7 +246,7 @@ namespace StardewModdingAPI
             }
         }
 
-        public new void PromptForPermissionsIfNecessary(System.Action callback = null)
+        public new void PromptForPermissionsIfNecessary(Action callback = null)
         {
             if (this.HasPermissions)
             {

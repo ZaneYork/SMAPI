@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
 
         private bool ShouldTrigger(Vector2 screenPixels, SButton button)
         {
-            if (this.ButtonRectangle.Contains(screenPixels.X * Game1.options.zoomLevel, screenPixels.Y * Game1.options.zoomLevel) && !this.Hidden && button == SButton.MouseLeft)
+            if (this.ButtonRectangle.Contains(screenPixels.X, screenPixels.Y) && !this.Hidden && button == SButton.MouseLeft)
             {
                 if (!this.Hidden)
                     Toolbar.toolbarPressed = true;
