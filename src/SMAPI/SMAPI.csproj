@@ -118,22 +118,22 @@
 
   <ItemGroup Condition="$(DefineConstants.Contains('ANDROID_TARGET_GOOGLE'))">
     <Reference Include="StardewValley">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\StardewValley.dll</HintPath>
+      <HintPath>..\..\build\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\StardewValley.dll</HintPath>
     </Reference>
     <Reference Include="StardewValley.GameData">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\StardewValley.GameData.dll</HintPath>
+      <HintPath>..\..\build\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\StardewValley.GameData.dll</HintPath>
     </Reference>
     <Reference Include="xTile">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\xTile.dll</HintPath>
+      <HintPath>..\..\build\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\xTile.dll</HintPath>
     </Reference>
     <Reference Include="BmFont">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\BmFont.dll</HintPath>
+      <HintPath>..\..\build\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\BmFont.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\..\build\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\MonoGame.Framework.dll</HintPath>
     </Reference>
 
     <Reference Include="mscorlib" />

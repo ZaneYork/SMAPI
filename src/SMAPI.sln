@@ -84,9 +84,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Web", "SMAPI.Web\SMAP
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Android", "Android", "{6BBCA4D1-213F-4843-B910-DF2D66E3D8CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMAPI.Mods.VirtualKeyboard", "SMAPI.Mods.VirtualKeyboard\SMAPI.Mods.VirtualKeyboard.csproj", "{29CCE9C9-6811-415D-A681-A6D47073924D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Mods.VirtualKeyboard", "SMAPI.Mods.VirtualKeyboard\SMAPI.Mods.VirtualKeyboard.csproj", "{29CCE9C9-6811-415D-A681-A6D47073924D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loader", "Loader\Loader.csproj", "{45D7D2FB-6B70-45D1-A595-6E289D6A3468}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Loader", "Loader\Loader.csproj", "{45D7D2FB-6B70-45D1-A595-6E289D6A3468}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "windows", "windows", "{4D661178-38FB-43E4-AA5F-9B0406919344}"
 	ProjectSection(SolutionItems) = preProject
@@ -110,9 +110,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Tests.ModApiProvider"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Tests.ModApiConsumer", "SMAPI.Tests.ModApiConsumer\SMAPI.Tests.ModApiConsumer.csproj", "{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMAPI", "SMAPI\SMAPI.csproj", "{EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI", "SMAPI\SMAPI.csproj", "{EBD13EAB-E70B-4D9F-92C2-C34A21E1FA32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobilePatch", "MobilePatch\MobilePatch.csproj", "{E5FE4C97-1A7C-4A97-9904-7351CA020C7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MobilePatch", "MobilePatch\MobilePatch.csproj", "{E5FE4C97-1A7C-4A97-9904-7351CA020C7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -215,9 +215,9 @@ Global
 		SolutionGuid = {70143042-A862-47A8-A677-7C819DDC90DC}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		SMAPI.Internal\SMAPI.Internal.projitems*{0634ea4c-3b8f-42db-aea6-ca9e4ef6e92f}*SharedItemsImports = 5
 		SMAPI.Internal.Patching\SMAPI.Internal.Patching.projitems*{6c16e948-3e5c-47a7-bf4b-07a7469a87a5}*SharedItemsImports = 13
 		SMAPI.Internal\SMAPI.Internal.projitems*{85208f8d-6fd1-4531-be05-7142490f59fe}*SharedItemsImports = 13
-		SMAPI.Internal\SMAPI.Internal.projitems*{cd53ad6f-97f4-4872-a212-50c2a0fd3601}*SharedItemsImports = 5
+		SMAPI.Internal.Patching\SMAPI.Internal.Patching.projitems*{ebd13eab-e70b-4d9f-92c2-c34a21e1fa32}*SharedItemsImports = 5
+		SMAPI.Internal\SMAPI.Internal.projitems*{ebd13eab-e70b-4d9f-92c2-c34a21e1fa32}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

@@ -14,7 +14,7 @@ namespace Loader
 {
 	
 	
-	[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Android.Build.Tasks", "13.1.0.5")]
+	[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Android.Build.Tasks", "13.2.0.99")]
 	public partial class Resource
 	{
 		
@@ -26,7 +26,6 @@ namespace Loader
 		public static void UpdateIdValues()
 		{
 			global::StardewModdingAPI.Resource.String.app_name = global::Loader.Resource.String.app_name;
-			global::StardewModdingAPI.Resource.String.hello = global::Loader.Resource.String.hello;
 		}
 		
 		public partial class Attribute
@@ -125,9 +124,6 @@ namespace Loader
 			
 			// aapt resource value: 0x7F040001
 			public const int app_name = 2130968577;
-			
-			// aapt resource value: 0x7F040002
-			public const int hello = 2130968578;
 			
 			static String()
 			{

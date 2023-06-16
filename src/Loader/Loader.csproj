@@ -83,21 +83,6 @@
     <Reference Include="Mono.Android" />
     <Reference Include="Mono.Security" />
     <ProjectReference Include="..\SMAPI\SMAPI.csproj" />
-    <Reference Include="StardewValley">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\StardewValley.dll</HintPath>
-    </Reference>
-    <Reference Include="StardewValley.GameData">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\StardewValley.GameData.dll</HintPath>
-    </Reference>
-    <Reference Include="xTile">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\xTile.dll</HintPath>
-    </Reference>
-    <Reference Include="BmFont">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\BmFont.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\..\..\Downloads\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\MonoGame.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />

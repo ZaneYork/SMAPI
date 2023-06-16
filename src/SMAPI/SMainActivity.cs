@@ -18,7 +18,6 @@ using File = Java.IO.File;
 using Newtonsoft.Json;
 using Java.Lang;
 using Java.Util;
-using StardewModdingAPI.Mobile;
 using Bundle = Android.OS.Bundle;
 using Exception = System.Exception;
 using Thread = System.Threading.Thread;
