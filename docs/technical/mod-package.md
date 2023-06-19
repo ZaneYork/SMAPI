@@ -99,6 +99,10 @@ There are two places you can put them:
   2. Open the `.csproj` file in a text editor (Notepad is fine).
   3. Add the properties between the first `<PropertyGroup>` and `</PropertyGroup>` tags you find.
 
+**Note:** you can't use a property before it's defined. That mainly means that when setting
+`GameModsPath`, you'll need to either specify `GamePath` manually or put the full path in
+`GameModsPath`.
+
 ### Available properties
 These are the options you can set:
 

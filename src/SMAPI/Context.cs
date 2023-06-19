@@ -60,7 +60,7 @@ namespace StardewModdingAPI
         public static bool IsWorldReady
         {
             get => Context.IsWorldReadyForScreen.Value;
-            set => Context.IsWorldReadyForScreen.Value = value;
+            internal set => Context.IsWorldReadyForScreen.Value = value;
         }
 
         /// <summary>Whether <see cref="IsWorldReady"/> is true and the player is free to act in the world (no menu is displayed, no cutscene is in progress, etc).</summary>

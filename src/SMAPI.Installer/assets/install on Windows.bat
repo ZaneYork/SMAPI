@@ -4,7 +4,9 @@ setlocal enabledelayedexpansion
 SET installerDir="%~dp0"
 
 REM make sure we're not running within a zip folder
-echo %installerDir% | findstr /C:"%TEMP%" 1>nul
+REM The error level is usually 0 (install dir contains temp path), 1 (it doesn't), or 9009 (findstr doesn't exist due to a Windows issue).
+REM If the command doesn't exist, just skip this check.
+echo %installerDir% | findstr /C:"%TEMP%" 1>nul 2>null
 if %ERRORLEVEL% EQU 0 (
     echo Oops! It looks like you're running the installer from inside a zip file. Make sure you unzip the download first.
     echo.

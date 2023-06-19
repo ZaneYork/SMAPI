@@ -141,7 +141,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     ".png" => this.LoadImageFile<T>(assetName, file),
                     ".tbin" or ".tmx" => this.LoadMapFile<T>(assetName, file),
                     ".xnb" => this.LoadXnbFile<T>(assetName),
-                    _ => this.HandleUnknownFileType<T>(assetName, file)
+                    _ => (T)this.HandleUnknownFileType(assetName, file, typeof(T))
                 };
             }
             catch (Exception ex)
@@ -349,13 +349,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <summary>Handle a request to load a file type that isn't supported by SMAPI.</summary>
-        /// <typeparam name="T">The expected file type.</typeparam>
         /// <param name="assetName">The asset name relative to the loader root directory.</param>
         /// <param name="file">The file to load.</param>
-        private T HandleUnknownFileType<T>(IAssetName assetName, FileInfo file)
+        /// <param name="assetType">The expected file type.</param>
+        private object HandleUnknownFileType(IAssetName assetName, FileInfo file, Type assetType)
         {
             this.ThrowLoadError(assetName, ContentLoadErrorType.InvalidName, $"unknown file extension '{file.Extension}'; must be one of '.fnt', '.json', '.png', '.tbin', '.tmx', or '.xnb'.");
-            return default;
+            return assetType.IsValueType
+                ? Activator.CreateInstance(assetType)
+                : null;
         }
 
         /// <summary>Assert that the asset type is compatible with one of the allowed types.</summary>

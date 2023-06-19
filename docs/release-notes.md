@@ -7,6 +7,25 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## 3.18.3
+Released 09 April 2023 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Fixed `findstr` installer error for some players.
+  * Fixed installer error for some Linux players due to a non-portable shebang (thanks to freyacoded!).
+  * Fixed error using load order overrides when there are broken mods installed (thanks to atravita!).
+  * Removed `LargeAddressAware` flag on SMAPI (no longer needed since it's 64-bit now).
+  * Improved translations. Thganks to stylemate (updated Korean)!
+
+* For mod authors:
+  * Added `IsActiveForScreen()` method to `PerScreen<T>`.
+  * Updated to [FluentHttpClient](https://github.com/Pathoschild/FluentHttpClient#readme) 4.3.0 (see [changes](https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#430)).
+  * Adjusted `ModContentManager.HandleUnknownFileType` to let mods patch it.
+  * Fixed `Context.IsWorldReady` being editable by mods.
+
+* For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.29.0.
+
 ## 3.18.2
 Released 09 January 2023 for Stardew Valley 1.5.6 or later.
 

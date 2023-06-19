@@ -8,7 +8,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
-<!--  <Import Project="..\..\build\common.targets" />-->
+  <!--  <Import Project="..\..\build\common.targets" />-->
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
     <Reference Include="Newtonsoft.Json">
@@ -17,9 +17,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
-    <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.2.0" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.28" />
-    <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.2.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.3.0" />
     <PackageReference Include="System.Management" Version="5.0.0" Condition="'$(OS)' == 'Windows_NT'" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" Condition="'$(OS)' == 'Windows_NT'" />
     <PackageReference Include="VdfConverter" Version="1.0.3" Condition="'$(OS)' == 'Windows_NT'" Private="False" />

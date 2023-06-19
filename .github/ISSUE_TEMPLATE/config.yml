@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Troubleshooting guide for players
+    url: https://smapi.io/troubleshoot
+    about: See if your question is already answered first!
+  - name: Get help or discuss
+    url: https://smapi.io/help
+    about: Ask for help from the community, or join the Stardew Valley Discord to ask questions, report issues, or discuss with the SMAPI developer, players, and mod authors. The SMAPI developer is @Pathoschild#0001 on Discord.

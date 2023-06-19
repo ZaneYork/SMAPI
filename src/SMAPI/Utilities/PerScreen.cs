@@ -101,6 +101,12 @@ namespace StardewModdingAPI.Utilities
             this.RemoveScreens(_ => true);
         }
 
+        /// <summary>Get whether the current screen has a value created yet.</summary>
+        public bool IsActiveForScreen()
+        {
+            return this.States.ContainsKey(Context.ScreenId);
+        }
+
 
         /*********
         ** Private methods
