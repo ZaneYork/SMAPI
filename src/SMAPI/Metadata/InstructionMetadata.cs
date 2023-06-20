@@ -58,7 +58,7 @@ namespace StardewModdingAPI.Metadata
 
 #if SMAPI_FOR_MOBILE
                 // module rewrite for .Net 5 runtime assemblies
-                yield return new ModuleReferenceRewriter("System.*", "System.", new Version(5,0), new[]
+                yield return new ModuleReferenceRewriter("System.*", "System.", new Version(4,0), new[]
                 {
                     typeof(System.Collections.CollectionBase).Assembly,
                     typeof(System.Collections.Generic.ISet<>).Assembly,
@@ -66,7 +66,7 @@ namespace StardewModdingAPI.Metadata
                     typeof(System.Xml.XmlDocument).Assembly,
                     typeof(System.Xml.Linq.XComment).Assembly,
                     typeof(System.Collections.Generic.IReadOnlySet<>).Assembly,
-                    typeof(System.Data.DataTable).Assembly,
+                    typeof(System.Data.DataTable).Assembly
                 });
 
                 yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "onScreenMenus", "onScreenMenus");
@@ -82,6 +82,7 @@ namespace StardewModdingAPI.Metadata
 
                 // Game1.location fix
                 yield return new TypePropertyToAnotherTypeMethodRewriter(typeof(Game1), typeof(Game1Methods), "locations", "LocationsGetter", null);
+                yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "rainDrops", "RainDropsProp");
 
                 // Rewrite Missing Type
                 yield return new TypeReferenceRewriter("StardewValley.Menus.CraftingPage", typeof(CraftingPageMobile));

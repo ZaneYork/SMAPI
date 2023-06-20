@@ -13,10 +13,11 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
     {
 
         public static new IList<IClickableMenu> onScreenMenus => Game1.onScreenMenus;
+        public static new RainDrop[] RainDropsProp => Game1.rainDrops.ToArray();
 
-        public static new IList<GameLocation> LocationsGetter(Game1 game1)
+        public static new IList<GameLocation> LocationsGetter()
         {
-            return game1._locations;
+            return Game1.game1._locations;
         }
 
 #if SMAPI_LEGACY_PATCH

@@ -15,6 +15,7 @@
         android:allowBackup="true"
         android:resizeableActivity="false"
         android:debuggable="true"
-        android:requestLegacyExternalStorage="true"></application>
+        android:requestLegacyExternalStorage="true">
+    </application>
 	<uses-permission android:name="com.android.vending.CHECK_LICENSE" />
 </manifest>

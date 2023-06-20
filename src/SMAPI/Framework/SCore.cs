@@ -292,6 +292,7 @@ namespace StardewModdingAPI.Framework
 #if SMAPI_FOR_MOBILE
                     new StringPatcher(this.Reflection),
                     new ThreadSilenceExitPatch(this.Monitor),
+                    new UIThreadPatch(this.Monitor),
 #endif
                     new TitleMenuPatcher(this.OnLoadStageChanged)
                 );
