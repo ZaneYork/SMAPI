@@ -10,6 +10,7 @@ using StardewModdingAPI.Framework;
 using StardewValley;
 using System.Reflection;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.Support.V4.Provider;
@@ -45,7 +46,7 @@ namespace StardewModdingAPI
             this.Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
             this.Window.SetFlags(WindowManagerFlags.KeepScreenOn, WindowManagerFlags.KeepScreenOn);
 
-            // FarmMigrationPatch.Apply();
+            FarmMigrationPatch.Apply();
 
             SMainActivity.Instance = this;
             try
@@ -178,8 +179,9 @@ namespace StardewModdingAPI
                 Action ContinueGame = () =>
                 {
                     this.Window.ClearFlags(WindowManagerFlags.NotTouchable);
-                    this.IsDoingStorageMigration = false;
-                    this.OnCreatePartTwo();
+                    SAlertDialogUtil.AlertMessage($"SMAPI migration is finished, please restart game to continue", "Confirm",
+                        callback: type => { this.Finish(); });
+
                 };
                 Task.Run(() =>
                 {
