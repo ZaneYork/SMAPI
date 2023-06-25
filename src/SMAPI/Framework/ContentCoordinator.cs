@@ -412,17 +412,28 @@ namespace StardewModdingAPI.Framework
                 // cached assets
                 foreach (IContentManager contentManager in this.ContentManagers)
                 {
+#if SMAPI_FOR_MOBILE
+                    HashSet<IAssetName> removingAssets = new HashSet<IAssetName>();
+#endif
                     foreach ((string key, object asset) in contentManager.GetCachedAssets())
                     {
                         if (!predicate(contentManager, key, asset.GetType()))
                             continue;
 
                         AssetName assetName = this.ParseAssetName(key, allowLocales: true);
+#if !SMAPI_FOR_MOBILE
                         contentManager.InvalidateCache(assetName, dispose);
+#else
+                        removingAssets.Add(assetName);
+#endif
 
                         if (!invalidatedAssets.ContainsKey(assetName))
                             invalidatedAssets[assetName] = asset.GetType();
                     }
+#if SMAPI_FOR_MOBILE
+                    foreach (IAssetName assetName in removingAssets)
+                        contentManager.InvalidateCache(assetName, dispose);
+#endif
                 }
 
                 // forget localized flags

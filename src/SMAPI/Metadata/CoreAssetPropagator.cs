@@ -654,25 +654,19 @@ namespace StardewModdingAPI.Metadata
             {
                 Texture2D texture = content.Load<Texture2D>(assetName.BaseName);
 
-#if SMAPI_FOR_MOBILE
-                this.Reflection.GetField<Texture2D>(titleMenu, "titleButtonsTexture").SetValue(texture);
-                titleMenu.backButton.texture = texture;
-                titleMenu.aboutButton.texture = texture;
-                this.Reflection.GetField<Texture2D>(titleMenu, "languageButton").SetValue(texture);
-                foreach (ClickableTextureComponent button in titleMenu.buttons)
-                    button.texture = texture;
-                foreach (TemporaryAnimatedSprite bird in this.Reflection.GetField<List<TemporaryAnimatedSprite>>(titleMenu, "birds").GetValue())
-                    bird.texture = texture;
-#else
                 titleMenu.titleButtonsTexture = texture;
+#if SMAPI_FOR_MOBILE
+                if (titleMenu.backButton != null)
+                    titleMenu.backButton.texture = texture;
+#else
                 titleMenu.backButton.texture = texture;
+#endif
                 titleMenu.aboutButton.texture = texture;
                 titleMenu.languageButton.texture = texture;
                 foreach (ClickableTextureComponent button in titleMenu.buttons)
                     button.texture = texture;
                 foreach (TemporaryAnimatedSprite bird in titleMenu.birds)
                     bird.texture = texture;
-#endif
 
                 return true;
             }
