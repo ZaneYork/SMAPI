@@ -94,7 +94,9 @@ namespace StardewModdingAPI.Metadata
                 yield return new MethodParentRewriter(typeof(SpriteText), typeof(SpriteTextMethods));
                 yield return new MethodParentRewriter(typeof(Utility), typeof(UtilityMethods));
                 yield return new MethodParentRewriter(typeof(OptionsElement), typeof(OptionsElementMethods));
-                yield return new MethodParentRewriter(typeof(ISoundBank), typeof(ISoundBankMethods));
+
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(ISoundBank), (method) => method.Name == nameof(SoundBankMethods.AddCue), typeof(SoundBankMethods), "AddCue");
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(ISoundBank), (method) => method.Name == nameof(SoundBankMethods.GetCueDefinition), typeof(SoundBankMethods), "GetCueDefinition");
 
                 //Constructor Rewrites
                 yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));
