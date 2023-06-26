@@ -248,6 +248,7 @@ namespace StardewModdingAPI.Framework
                         null,
                         null,
                         null);
+                    Game1.PushUIMode();
                     SGameConsole.Instance.draw(Game1.spriteBatch);
                     Game1.spriteBatch.End();
                     Game1.game1.GraphicsDevice.SetRenderTarget(null);
@@ -267,6 +268,7 @@ namespace StardewModdingAPI.Framework
                         Game1.options.zoomLevel,
                         SpriteEffects.None,
                         1f);
+                    Game1.PopUIMode();
                     Game1.spriteBatch.End();
                     return;
                 }

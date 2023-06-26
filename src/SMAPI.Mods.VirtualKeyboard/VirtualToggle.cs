@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
 
         private void VirtualToggleButtonPressed(object sender, ButtonPressedEventArgs e)
         {
-            Vector2 screenPixels = e.Cursor.ScreenPixels;
+            Vector2 screenPixels = Utility.ModifyCoordinatesForUIScale(e.Cursor.ScreenPixels);
             if (this.ModConfig.vToggle.key != SButton.None && e.Button == this.ModConfig.vToggle.key)
                 this.ToggleLogic();
             else if (e.Button == SButton.MouseLeft && this.ShouldTrigger(screenPixels))

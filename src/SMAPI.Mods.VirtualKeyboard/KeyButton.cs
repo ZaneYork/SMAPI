@@ -66,7 +66,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
                 return;
             }
 
-            Vector2 screenPixels = e.Cursor.ScreenPixels;
+            Vector2 screenPixels = Utility.ModifyCoordinatesForUIScale(e.Cursor.ScreenPixels);
             if (this.ButtonKey != SButton.None && this.ShouldTrigger(screenPixels, e.Button))
             {
                 this.RaisingPressed = true;
@@ -83,7 +83,7 @@ namespace StardewModdingAPI.Mods.VirtualKeyboard
                 return;
             }
 
-            Vector2 screenPixels = e.Cursor.ScreenPixels;
+            Vector2 screenPixels = Utility.ModifyCoordinatesForUIScale(e.Cursor.ScreenPixels);
             if (this.ShouldTrigger(screenPixels, e.Button))
             {
                 if (this.ButtonKey == SButton.RightWindows)
