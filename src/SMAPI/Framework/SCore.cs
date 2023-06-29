@@ -293,6 +293,7 @@ namespace StardewModdingAPI.Framework
                     new StringPatcher(this.Reflection),
                     new ThreadSilenceExitPatch(this.Monitor),
                     new UIThreadPatch(this.Monitor),
+                    new SaveGamePatch(this.Translator, this.Monitor),
 #endif
                     new TitleMenuPatcher(this.OnLoadStageChanged)
                 );

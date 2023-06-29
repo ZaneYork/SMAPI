@@ -98,6 +98,8 @@ namespace StardewModdingAPI.Metadata
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(ISoundBank), (method) => method.Name == nameof(SoundBankMethods.AddCue), typeof(SoundBankMethods), "AddCue");
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(ISoundBank), (method) => method.Name == nameof(SoundBankMethods.GetCueDefinition), typeof(SoundBankMethods), "GetCueDefinition");
 
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(Enum), (method) => method.Name == nameof(EnumMethods.IsDefined) && method.Parameters.Count == 1, typeof(EnumMethods), "IsDefined");
+
                 //Constructor Rewrites
                 yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));
                 yield return new MethodParentRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods));

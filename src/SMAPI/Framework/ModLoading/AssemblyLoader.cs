@@ -178,7 +178,14 @@ namespace StardewModdingAPI.Framework.ModLoading
                     using MemoryStream outSymbolStream = new();
                     assembly.Definition.Write(outAssemblyStream, new WriterParameters { WriteSymbols = true, SymbolStream = outSymbolStream, SymbolWriterProvider = this.SymbolWriterProvider });
                     byte[] bytes = outAssemblyStream.ToArray();
-                    lastAssembly = Assembly.Load(bytes, outSymbolStream.ToArray());
+                    if (assembly.File.Name != "MoonSharp.Interpreter.dll" && assembly.File.Name != "PyTK.dll" )
+                    {
+                        lastAssembly = Assembly.Load(bytes, outSymbolStream.ToArray());
+                    }
+                    else
+                    {
+                        lastAssembly = Assembly.Load(bytes);
+                    }
                 }
                 else
                 {

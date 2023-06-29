@@ -1,6 +1,8 @@
 using System;
+using HarmonyLib;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using MonoMod.Utils;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
@@ -31,7 +33,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="toType">The type with methods to map to.</param>
         /// <param name="onlyIfPlatformChanged">Whether to only rewrite references if loading the assembly on a different platform than it was compiled on.</param>
         public MethodToAnotherStaticMethodRewriter(Type fromType, Predicate<MethodReference> fromMethodSelector, Type toType, string toMethod)
-            : base( $"{fromType.Name} methods")
+            : base($"{fromType.Name} methods")
         {
             this.FromType = fromType;
             this.FromMethodSelector = fromMethodSelector;
@@ -49,7 +51,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             if (!this.IsMatch(instruction))
                 return false;
 
-            instruction.Operand = module.ImportReference(this.ToType.GetMethod(this.ToMethod));
+            MethodReference newReference = module.ImportReference(this.ToType.GetMethod(this.ToMethod));
+            if (instruction.Operand is GenericInstanceMethod instructionOperand)
+            {
+                GenericInstanceMethod genericInstance = new(newReference);
+                genericInstance.GenericArguments.AddRange(instructionOperand.GenericArguments);
+                newReference = genericInstance;
+            }
+            instruction.Operand = newReference;
             return this.MarkRewritten();
         }
 

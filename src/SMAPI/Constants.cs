@@ -65,8 +65,11 @@ namespace StardewModdingAPI
         internal static GameFramework GameFramework { get; } = GameFramework.MonoGame;
 
         /// <summary>The game's assembly name.</summary>
+#if SMAPI_FOR_MOBILE
+        internal static string GameAssemblyName { get; } = "StardewValley";
+#else
         internal static string GameAssemblyName { get; } = "Stardew Valley";
-
+#endif
         /// <summary>The <see cref="Context.ScreenId"/> value which should appear in the SMAPI log, if any.</summary>
         internal static int? LogScreenId { get; set; }
 
@@ -139,11 +142,7 @@ namespace StardewModdingAPI
         /// <summary>The directory path in which error logs should be stored.</summary>
         public static string LogDir { get; } = Path.Combine(Constants.DataPath, "ErrorLogs");
         /// <summary>The directory path where all saves are stored.</summary>
-#if SMAPI_FOR_MOBILE
-        public static string SavesPath { get; } = Constants.DataPath;
-#else
         public static string SavesPath { get; } = Path.Combine(Constants.DataPath, "Saves");
-#endif
 
         /// <summary>The name of the current save folder (if save info is available, regardless of whether the save file exists yet).</summary>
         public static string? SaveFolderName => Constants.GetSaveFolderName();
