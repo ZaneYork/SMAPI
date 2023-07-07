@@ -399,7 +399,8 @@ namespace StardewModdingAPI.Metadata
                     foreach (DayTimeMoneyBox menu in Game1.onScreenMenus.OfType<DayTimeMoneyBox>())
                     {
                         foreach (ClickableTextureComponent button in new[] { menu.questButton, menu.zoomInButton, menu.zoomOutButton })
-                            button.texture = Game1.mouseCursors;
+                            if(button != null)
+                                button.texture = Game1.mouseCursors;
                     }
 
                     if (!ignoreWorld)

@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 
         public static new IList<GameLocation> LocationsGetter()
         {
-            return Game1.game1._locations;
+            return Game1.locations;
         }
 
 #if SMAPI_LEGACY_PATCH

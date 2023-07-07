@@ -22,23 +22,20 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <inheritdoc />
         public ISet<string> Phrases { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        private readonly string AssemblyName;
-
-        private readonly Version Version;
+        private readonly Dictionary<string, Version> AssemblyRules;
 
         private readonly Dictionary<string, AssemblyNameReference> TargetMap = new();
 
 
-        public ModuleReferenceRewriter(string phrase, string assemblyName, Version version, Assembly[] assemblies)
+        public ModuleReferenceRewriter(string phrase, Dictionary<string, Version> assemblyRules, Assembly[] assemblies)
         {
             this.DefaultPhrase = $"{phrase} assembly ref";
-            this.AssemblyName = assemblyName;
-            this.Version = version;
+            this.AssemblyRules = assemblyRules;
             foreach (var assembly in assemblies)
             {
                 AssemblyNameReference target = AssemblyNameReference.Parse(assembly.FullName);
                 var map = assembly.GetTypes().ToDictionary(p => p.FullName, p => target);
-                foreach (KeyValuePair<string,AssemblyNameReference> pair in map)
+                foreach (KeyValuePair<string, AssemblyNameReference> pair in map)
                 {
                     this.TargetMap.TryAdd(pair.Key, pair.Value);
                 }
@@ -47,15 +44,18 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
         private bool IsMatch(AssemblyNameReference reference)
         {
-            if (this.AssemblyName.EndsWith('.'))
+            foreach ((string assemblyName, Version version) in this.AssemblyRules)
             {
-                if (reference.Name.Equals(this.AssemblyName) || reference.Name.StartsWith(this.AssemblyName))
-                    return reference.Version.CompareTo(this.Version) >= 0;
-            }
-            else
-            {
-                if (reference.Name.Equals(this.AssemblyName))
-                    return reference.Version.CompareTo(this.Version) >= 0;
+                if (assemblyName.EndsWith('.'))
+                {
+                    if (reference.Name.Equals(assemblyName) || reference.Name.StartsWith(assemblyName))
+                        return reference.Version.CompareTo(version) >= 0;
+                }
+                else
+                {
+                    if (reference.Name.Equals(assemblyName))
+                        return reference.Version.CompareTo(version) >= 0;
+                }
             }
 
             return false;
@@ -63,13 +63,22 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
         private bool IsMatch(TypeReference reference)
         {
-            if (this.AssemblyName.EndsWith('.')) {
-                if(reference.Scope.Name.Equals(this.AssemblyName) || reference.Scope.Name.StartsWith(this.AssemblyName))
+            foreach ((string assemblyName, Version _) in this.AssemblyRules)
+            {
+                if (assemblyName.EndsWith('.'))
+                {
+                    if (reference.Scope.Name.Equals(assemblyName) || reference.Scope.Name.StartsWith(assemblyName))
+                    {
+                        return this.TargetMap.ContainsKey(reference.FullName.Split('/')[0]);
+                    }
+                }
+                else if(reference.Scope.Name.Equals(assemblyName))
                 {
                     return this.TargetMap.ContainsKey(reference.FullName.Split('/')[0]);
                 }
             }
-            return reference.Scope.Name.Equals(this.AssemblyName) && this.TargetMap.ContainsKey(reference.FullName.Split('/')[0]);
+
+            return false;
         }
 
         public bool Handle(ModuleDefinition module)
@@ -93,6 +102,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                     module.AssemblyReferences.Add(target);
                     assembliesAdded.Add(target.FullName);
                 }
+
                 type.Scope = target;
             }
 
@@ -113,6 +123,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                                     module.AssemblyReferences.Add(target);
                                     assembliesAdded.Add(target.FullName);
                                 }
+
                                 type.Scope = target;
                             }
                     }
@@ -121,7 +132,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
             for (int i = module.AssemblyReferences.Count - 1; i >= 0; i--)
             {
-                if(this.IsMatch(module.AssemblyReferences[i]))
+                if (this.IsMatch(module.AssemblyReferences[i]))
                 {
                     module.AssemblyReferences.RemoveAt(i);
                 }

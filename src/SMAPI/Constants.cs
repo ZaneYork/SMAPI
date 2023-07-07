@@ -431,7 +431,9 @@ namespace StardewModdingAPI
                     // ignore invalid path
                 }
             }
-
+#if SMAPI_FOR_MOBILE
+            if (folder != null && rawSaveName.Length > 0) folder.Create();
+#endif
             // if save doesn't exist yet, return the default one we expect to be created
             return folder;
         }
