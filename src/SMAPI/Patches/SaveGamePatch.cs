@@ -2,7 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
+using System.Reflection;
+using System.Xml;
 using System.Xml.Serialization;
 using HarmonyLib;
 // using Microsoft.AppCenter.Crashes;
@@ -56,6 +59,7 @@ namespace StardewModdingAPI.Patches
                 original: AccessTools.Method(typeof(XmlSerializer).Assembly.GetType("System.Xml.Serialization.XmlSerializationReaderInterpreter"), "GetValueFromXmlString"),
                 prefix: new HarmonyMethod(this.GetType(), nameof(SaveGamePatch.XmlSerializationReaderInterpreter_PrefixGetValueFromXmlString))
             );
+
             harmony.Patch(
                 original: AccessTools.Method(typeof(XmlSerializer).Assembly.GetType("System.Xml.Serialization.XmlSerializationReaderInterpreter"), "AddListValue"),
                 prefix: new HarmonyMethod(this.GetType(), nameof(SaveGamePatch.XmlSerializationReaderInterpreter_PrefixAddListValue))
@@ -63,6 +67,16 @@ namespace StardewModdingAPI.Patches
             harmony.Patch(
                 original: AccessTools.Method(typeof(XmlSerializer).Assembly.GetType("System.Xml.Serialization.XmlSerializationWriterInterpreter"), "GetEnumXmlValue"),
                 prefix: new HarmonyMethod(this.GetType(), nameof(SaveGamePatch.XmlSerializationWriterInterpreter_PrefixGetEnumXmlValue))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(XmlSerializer).Assembly.GetType("System.Xml.Serialization.XmlReflectionImporter"), "GetReflectionMembers"),
+                postfix: new HarmonyMethod(this.GetType(), nameof(SaveGamePatch.XmlReflectionImporter_PostfixGetReflectionMembers))
+            );
+
+            harmony.Patch(
+                original: AccessTools.PropertyGetter(typeof(XmlSerializer).Assembly.GetType("System.Xml.Serialization.TypeData"), "ListItemType"),
+                prefix: new HarmonyMethod(this.GetType(), nameof(SaveGamePatch.TypeData_PrefixListItemType))
             );
         }
 
@@ -165,11 +179,17 @@ namespace StardewModdingAPI.Patches
             return null;
         }
 
-        private static bool XmlSerializationReaderInterpreter_PrefixGetValueFromXmlString(string value, ref object __result)
+        private static bool XmlSerializationReaderInterpreter_PrefixGetValueFromXmlString(string value, object typeData, ref object __result)
         {
-            if (value?.Length > 0) return true;
-            __result = null;
-            return false;
+            object schemaType = AccessTools.Property(typeData.GetType(), "SchemaType").GetValue(typeData);
+            if (schemaType.ToString() == "Enum")
+            {
+                if (value?.Length > 0) return true;
+                __result = null;
+                return false;
+            }
+
+            return true;
         }
 
         private static bool XmlSerializationReaderInterpreter_PrefixAddListValue(object listType, ref object list, int index, object value, bool canCreateInstance)
@@ -185,10 +205,17 @@ namespace StardewModdingAPI.Patches
             }
 
             Type listItemType = (Type)AccessTools.Property(listType.GetType(), "ListItemType").GetValue(listType);
-            if (listItemType.IsEnum && value != null)
-                type.GetMethod("Add", new[] { typeof(string) }).Invoke(list, new[] { value.ToString() });
-            else
-                type.GetMethod("Add", new[] { listItemType }).Invoke(list, new[] { value });
+            try
+            {
+                if (listItemType.IsEnum && value != null)
+                    type.GetMethod("Add", new[] { typeof(string) }).Invoke(list, new[] { value.ToString() });
+                else
+                    type.GetMethod("Add", new[] { listItemType }).Invoke(list, new[] { value });
+            }
+            catch (Exception e)
+            {
+                e.GetType();
+            }
 
             return false;
         }
@@ -218,6 +245,81 @@ namespace StardewModdingAPI.Patches
             else
                 __result = (string)AccessTools.Method(objectMap.GetType(), "GetXmlName").Invoke(objectMap, new[] { typeMap.TypeFullName, ob });
 
+            return false;
+        }
+
+        private static void XmlReflectionImporter_PostfixGetReflectionMembers(Type type, ref List<XmlReflectionMember> __result)
+        {
+            if (type.FullName.StartsWith("StardewValley."))
+                foreach (XmlReflectionMember member in __result)
+                    if (member.MemberType.FullName.StartsWith("Netcode.NetEvent"))
+                        member.XmlAttributes.XmlIgnore = true;
+        }
+
+        private static bool TypeData_PrefixListItemType(object __instance, ref Type __result)
+        {
+            string name = (string)AccessTools.Property(__instance.GetType(), "CSharpFullName").GetValue(__instance);
+            bool isRewrite = name == "StardewValley.Network.NetIntDictionary<System.Int32,Netcode.NetInt>" ||
+                             name == "StardewValley.Network.NetStringDictionary<System.String,Netcode.NetString>";
+
+            Type runtimeType = (Type)AccessTools.Field(__instance.GetType(), "type").GetValue(__instance);
+            if (runtimeType == null) throw new InvalidOperationException("Property ListItemType is not supported for custom types");
+            FieldInfo listItemTypeField = AccessTools.Field(__instance.GetType(), "listItemType");
+            Type listItemType = (Type)listItemTypeField.GetValue(__instance);
+            if (listItemType != null)
+            {
+                __result = listItemType;
+                return false;
+            }
+
+            Type type = null;
+            MethodInfo GetGenericListItemType = AccessTools.Method(__instance.GetType(), "GetGenericListItemType", new[] { typeof(Type) });
+            if (runtimeType.IsArray)
+            {
+                listItemType = runtimeType.GetElementType();
+                listItemTypeField.SetValue(__instance, listItemType);
+            }
+            else if (typeof(ICollection<object>).IsAssignableFrom(runtimeType))
+            {
+                if (typeof(IDictionary<object, object>).IsAssignableFrom(runtimeType)) throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The type {0} is not supported because it implements IDictionary.", runtimeType.FullName));
+                PropertyInfo indexerProperty = (PropertyInfo)AccessTools.Method(__instance.GetType(), "GetIndexerProperty", new[] { typeof(Type) }).Invoke(null, new[] { runtimeType });
+                if (indexerProperty == null) throw new InvalidOperationException("You must implement a default accessor on " + runtimeType.FullName + " because it inherits from ICollection");
+                listItemType = indexerProperty.PropertyType;
+                listItemTypeField.SetValue(__instance, listItemType);
+
+                if (runtimeType.GetMethod("Add", new[] { listItemType }) == null)
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                        "To be XML serializable, types which inherit from {0} must have an implementation of Add({1}) at all levels of their inheritance hierarchy. {2} does not implement Add({1}).",
+                        "ICollection", listItemType.FullName, type.FullName));
+            }
+            else if (!isRewrite && (type = (Type)GetGenericListItemType.Invoke(null, new[] { runtimeType })) != null)
+            {
+                if (typeof(IDictionary<object, object>).IsAssignableFrom(runtimeType)) throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The type {0} is not supported because it implements IDictionary.", runtimeType.FullName));
+                listItemType = type;
+                listItemTypeField.SetValue(__instance, listItemType);
+
+                if (runtimeType.GetMethod("Add", new[] { listItemType }) == null)
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                        "To be XML serializable, types which inherit from {0} must have an implementation of Add({1}) at all levels of their inheritance hierarchy. {2} does not implement Add({1}).",
+                        "ICollection", listItemType.FullName, type.FullName));
+            }
+            else
+            {
+                MethodInfo methodInfo = runtimeType.GetMethod("GetEnumerator", Type.EmptyTypes);
+                if (methodInfo == null) methodInfo = runtimeType.GetMethod("System.Collections.IEnumerable.GetEnumerator", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
+                PropertyInfo property = methodInfo.ReturnType.GetProperty("Current");
+                if (property == null)
+                    listItemType = typeof(object);
+                else
+                    listItemType = property.PropertyType;
+                listItemTypeField.SetValue(__instance, listItemType);
+                if (runtimeType.GetMethod("Add", new[] { listItemType }) == null)
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                        "To be XML serializable, types which inherit from {0} must have an implementation of Add({1}) at all levels of their inheritance hierarchy. {2} does not implement Add({1}).",
+                        "IEnumerable", listItemType.FullName, type.FullName));
+            }
+
+            __result = listItemType;
             return false;
         }
     }
