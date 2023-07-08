@@ -113,7 +113,7 @@ namespace StardewModdingAPI.Metadata
                 yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods));
                 yield return new MethodParentRewriter(typeof(SpriteText), typeof(SpriteTextMethods));
                 yield return new MethodParentRewriter(typeof(Utility), typeof(UtilityMethods));
-                yield return new MethodParentRewriter(typeof(OptionsElement), typeof(OptionsElementMethods));
+                yield return new MethodToAnotherStaticMethodRewriter(typeof(OptionsElement), (method) => method.Name == nameof(OptionsElementMethods.draw), typeof(OptionsElementMethods), "draw");
 
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(ISoundBank), (method) => method.Name == nameof(SoundBankMethods.AddCue), typeof(SoundBankMethods), "AddCue");
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(ISoundBank), (method) => method.Name == nameof(SoundBankMethods.GetCueDefinition), typeof(SoundBankMethods), "GetCueDefinition");
