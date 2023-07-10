@@ -1,13 +1,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using HarmonyLib;
-using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Internal.Patching;
 using StardewValley;
-using StardewValley.Menus;
-using StardewValley.Minigames;
 
 namespace StardewModdingAPI.Patches
 {
@@ -38,22 +34,25 @@ namespace StardewModdingAPI.Patches
         /// <inheritdoc />
         public override void Apply(Harmony harmony, IMonitor monitor)
         {
-            // detect CreatedInitialLocations and SaveAddedLocations
             harmony.Patch(
                 original: this.RequireMethod<string>(nameof(string.Split), new []{typeof(char), typeof(StringSplitOptions)}),
-                prefix: this.GetHarmonyMethod(nameof(StringPatcher.Before_Split))
+                prefix: this.GetHarmonyMethod(nameof(StringPatcher.Before_Split)),
+                postfix: this.GetHarmonyMethod(nameof(StringPatcher.After_Split))
             );
             harmony.Patch(
                 original: this.RequireMethod<string>(nameof(string.Split), new []{typeof(string), typeof(StringSplitOptions)}),
-                prefix: this.GetHarmonyMethod(nameof(StringPatcher.Before_Split))
+                prefix: this.GetHarmonyMethod(nameof(StringPatcher.Before_Split)),
+                postfix: this.GetHarmonyMethod(nameof(StringPatcher.After_Split))
             );
             harmony.Patch(
                 original: this.RequireMethod<string>(nameof(string.Split), new []{typeof(char), typeof(int), typeof(StringSplitOptions)}),
-                prefix: this.GetHarmonyMethod(nameof(StringPatcher.Before_Split))
+                prefix: this.GetHarmonyMethod(nameof(StringPatcher.Before_Split)),
+                postfix: this.GetHarmonyMethod(nameof(StringPatcher.After_Split))
             );
             harmony.Patch(
                 original: this.RequireMethod<string>(nameof(string.Split), new []{typeof(string), typeof(int), typeof(StringSplitOptions)}),
-                prefix: this.GetHarmonyMethod(nameof(StringPatcher.Before_Split))
+                prefix: this.GetHarmonyMethod(nameof(StringPatcher.Before_Split)),
+                postfix: this.GetHarmonyMethod(nameof(StringPatcher.After_Split))
             );
         }
 
@@ -64,17 +63,21 @@ namespace StardewModdingAPI.Patches
         /// <summary>The method to call before <see cref="string.Split"/>.</summary>
         /// <returns>Returns whether to execute the original method.</returns>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
-        private static bool Before_Split(string __instance, ref StringSplitOptions options)
+        private static bool Before_Split(ref StringSplitOptions options, out bool __state)
         {
-            if (3 == (uint)options)
+            __state = false;
+            if ((0x02 & (uint)options) != 0)
             {
-                options = StringSplitOptions.RemoveEmptyEntries;
-            }
-            else if(2 == (uint)options)
-            {
-                options = StringSplitOptions.None;
+                options = (StringSplitOptions)(0xfffffffd & (uint)options);
+                __state = true;
             }
             return true;
+        }
+        private static void After_Split(bool __state, ref string[] __result)
+        {
+            if (__state)
+                for (int i = 0; i < __result.Length; i++)
+                    __result[i] = __result[i].Trim();
         }
 
     }
