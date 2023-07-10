@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Xml;
 using System.Xml.Serialization;
 using HarmonyLib;
+using Java.Util;
 // using Microsoft.AppCenter.Crashes;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Internal.Patching;
@@ -30,6 +33,10 @@ namespace StardewModdingAPI.Patches
         /// <summary>An Instance of <see cref="Translator"/>.</summary>
         private static Translator Translator;
 
+        private static PropertyInfo XmlTypeMappingObjectMapProperty = AccessTools.Property(typeof(XmlTypeMapping), "ObjectMap");
+        private static PropertyInfo EnumMapEnumNamesProperty = AccessTools.Property(typeof(XmlSerializer).Assembly.GetType("System.Xml.Serialization.EnumMap"), "EnumNames");
+        private static PropertyInfo EnumMapXmlNamesProperty = AccessTools.Property(typeof(XmlSerializer).Assembly.GetType("System.Xml.Serialization.EnumMap"), "XmlNames");
+        private static MethodInfo EnumMapGetXmlNameMethod = AccessTools.Method(typeof(XmlSerializer).Assembly.GetType("System.Xml.Serialization.EnumMap"), "GetXmlName");
 
         /*********
         ** Public methods
@@ -57,7 +64,7 @@ namespace StardewModdingAPI.Patches
             // );
             harmony.Patch(
                 original: AccessTools.Method(typeof(XmlSerializer).Assembly.GetType("System.Xml.Serialization.XmlSerializationReaderInterpreter"), "GetValueFromXmlString"),
-                prefix: new HarmonyMethod(this.GetType(), nameof(SaveGamePatch.XmlSerializationReaderInterpreter_PrefixGetValueFromXmlString))
+                transpiler: new HarmonyMethod(this.GetType(), nameof(SaveGamePatch.XmlSerializationReaderInterpreter_TranspileGetValueFromXmlString))
             );
 
             harmony.Patch(
@@ -179,17 +186,42 @@ namespace StardewModdingAPI.Patches
             return null;
         }
 
-        private static bool XmlSerializationReaderInterpreter_PrefixGetValueFromXmlString(string value, object typeData, ref object __result)
+        private static IEnumerable<CodeInstruction> XmlSerializationReaderInterpreter_TranspileGetValueFromXmlString(ILGenerator gen, MethodBase original, IEnumerable<CodeInstruction> insns)
         {
-            object schemaType = AccessTools.Property(typeData.GetType(), "SchemaType").GetValue(typeData);
-            if (schemaType.ToString() == "Enum")
+            List<CodeInstruction> newInsns = new();
+            foreach (var insn in insns)
             {
-                if (value?.Length > 0) return true;
-                __result = null;
-                return false;
-            }
+                if (insn.opcode == OpCodes.Bne_Un_S)
+                {
+                    if (newInsns[newInsns.Count - 1].opcode == OpCodes.Ldc_I4_2)
+                    {
+                        var lastIns = newInsns[newInsns.Count - 2];
+                        if (lastIns.opcode == OpCodes.Callvirt && lastIns.operand is MethodInfo minfo && minfo.DeclaringType.FullName == "System.Xml.Serialization.TypeData" && minfo.Name == "get_SchemaType")
+                        {
+                            newInsns.Add(insn);
+                            Label continueLabel = gen.DefineLabel();
+                            Label retLabel = gen.DefineLabel();
+                            newInsns.Add(new CodeInstruction(OpCodes.Ldarg_0));
+                            newInsns.Add(new CodeInstruction(OpCodes.Brfalse_S, retLabel));
+                            newInsns.Add(new CodeInstruction(OpCodes.Ldarg_0));
+                            newInsns.Add(new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(string), nameof(string.Length))));
+                            newInsns.Add(new CodeInstruction(OpCodes.Ldc_I4_0));
+                            newInsns.Add(new CodeInstruction(OpCodes.Cgt));
+                            newInsns.Add(new CodeInstruction(OpCodes.Brfalse_S, retLabel));
+                            newInsns.Add(new CodeInstruction(OpCodes.Br_S, continueLabel));
 
-            return true;
+                            newInsns.Add(new CodeInstruction(OpCodes.Ldnull).WithLabels(retLabel));
+                            newInsns.Add(new CodeInstruction(OpCodes.Ret));
+
+                            CodeInstruction label = new CodeInstruction(OpCodes.Nop).WithLabels(continueLabel);
+                            newInsns.Add(label);
+                            continue;
+                        }
+                    }
+                }
+                newInsns.Add(insn);
+            }
+            return newInsns;
         }
 
         private static bool XmlSerializationReaderInterpreter_PrefixAddListValue(object listType, ref object list, int index, object value, bool canCreateInstance)
@@ -209,12 +241,12 @@ namespace StardewModdingAPI.Patches
             {
                 if (listItemType.IsEnum && value != null)
                     type.GetMethod("Add", new[] { typeof(string) }).Invoke(list, new[] { value.ToString() });
-                else
+                else if(!listItemType.IsEnum)
                     type.GetMethod("Add", new[] { listItemType }).Invoke(list, new[] { value });
             }
             catch (Exception e)
             {
-                e.GetType();
+                SaveGamePatch.Monitor.Log($"AddListValue error: {e}");
             }
 
             return false;
@@ -228,11 +260,11 @@ namespace StardewModdingAPI.Patches
                 return false;
             }
 
-            object objectMap = AccessTools.Property(typeMap.GetType(), "ObjectMap").GetValue(typeMap);
+            object objectMap = SaveGamePatch.XmlTypeMappingObjectMapProperty.GetValue(typeMap);
             if (ob is string enumString)
             {
-                string[] enumNames = (string[])AccessTools.Property(objectMap.GetType(), "EnumNames").GetValue(objectMap);
-                string[] xmlNames = (string[])AccessTools.Property(objectMap.GetType(), "XmlNames").GetValue(objectMap);
+                string[] enumNames = (string[])SaveGamePatch.EnumMapEnumNamesProperty.GetValue(objectMap);
+                string[] xmlNames = (string[])SaveGamePatch.EnumMapXmlNamesProperty.GetValue(objectMap);
                 for (int i = 0; i < enumNames.Length; i++)
                     if (enumString == enumNames[i])
                     {
@@ -243,7 +275,7 @@ namespace StardewModdingAPI.Patches
                 __result = null;
             }
             else
-                __result = (string)AccessTools.Method(objectMap.GetType(), "GetXmlName").Invoke(objectMap, new[] { typeMap.TypeFullName, ob });
+                __result = (string)SaveGamePatch.EnumMapGetXmlNameMethod.Invoke(objectMap, new[] { typeMap.TypeFullName, ob });
 
             return false;
         }
@@ -262,6 +294,8 @@ namespace StardewModdingAPI.Patches
             bool isRewrite = name == "StardewValley.Network.NetIntDictionary<System.Int32,Netcode.NetInt>" ||
                              name == "StardewValley.Network.NetStringDictionary<System.String,Netcode.NetString>";
 
+            if (!isRewrite) return true;
+
             Type runtimeType = (Type)AccessTools.Field(__instance.GetType(), "type").GetValue(__instance);
             if (runtimeType == null) throw new InvalidOperationException("Property ListItemType is not supported for custom types");
             FieldInfo listItemTypeField = AccessTools.Field(__instance.GetType(), "listItemType");
@@ -273,7 +307,6 @@ namespace StardewModdingAPI.Patches
             }
 
             Type type = null;
-            MethodInfo GetGenericListItemType = AccessTools.Method(__instance.GetType(), "GetGenericListItemType", new[] { typeof(Type) });
             if (runtimeType.IsArray)
             {
                 listItemType = runtimeType.GetElementType();
@@ -285,17 +318,6 @@ namespace StardewModdingAPI.Patches
                 PropertyInfo indexerProperty = (PropertyInfo)AccessTools.Method(__instance.GetType(), "GetIndexerProperty", new[] { typeof(Type) }).Invoke(null, new[] { runtimeType });
                 if (indexerProperty == null) throw new InvalidOperationException("You must implement a default accessor on " + runtimeType.FullName + " because it inherits from ICollection");
                 listItemType = indexerProperty.PropertyType;
-                listItemTypeField.SetValue(__instance, listItemType);
-
-                if (runtimeType.GetMethod("Add", new[] { listItemType }) == null)
-                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
-                        "To be XML serializable, types which inherit from {0} must have an implementation of Add({1}) at all levels of their inheritance hierarchy. {2} does not implement Add({1}).",
-                        "ICollection", listItemType.FullName, type.FullName));
-            }
-            else if (!isRewrite && (type = (Type)GetGenericListItemType.Invoke(null, new[] { runtimeType })) != null)
-            {
-                if (typeof(IDictionary<object, object>).IsAssignableFrom(runtimeType)) throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The type {0} is not supported because it implements IDictionary.", runtimeType.FullName));
-                listItemType = type;
                 listItemTypeField.SetValue(__instance, listItemType);
 
                 if (runtimeType.GetMethod("Add", new[] { listItemType }) == null)
