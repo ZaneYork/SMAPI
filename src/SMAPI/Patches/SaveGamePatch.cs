@@ -201,9 +201,9 @@ namespace StardewModdingAPI.Patches
                             newInsns.Add(insn);
                             Label continueLabel = gen.DefineLabel();
                             Label retLabel = gen.DefineLabel();
-                            newInsns.Add(new CodeInstruction(OpCodes.Ldarg_0));
+                            newInsns.Add(new CodeInstruction(OpCodes.Ldarg_1));
                             newInsns.Add(new CodeInstruction(OpCodes.Brfalse_S, retLabel));
-                            newInsns.Add(new CodeInstruction(OpCodes.Ldarg_0));
+                            newInsns.Add(new CodeInstruction(OpCodes.Ldarg_1));
                             newInsns.Add(new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(string), nameof(string.Length))));
                             newInsns.Add(new CodeInstruction(OpCodes.Ldc_I4_0));
                             newInsns.Add(new CodeInstruction(OpCodes.Cgt));

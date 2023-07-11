@@ -56,6 +56,8 @@ namespace StardewModdingAPI.Utilities
             // parse buttons
 #if SMAPI_FOR_MOBILE
             string[] rawButtons = input.Split('+', StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < rawButtons.Length; i++)
+                rawButtons[i] = rawButtons[i].Trim();
 #else
             string[] rawButtons = input.Split('+', StringSplitOptions.TrimEntries);
 #endif
