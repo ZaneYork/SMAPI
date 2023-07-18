@@ -93,7 +93,7 @@ else
     # run in terminal
     if [ "$USE_CURRENT_SHELL" == "false" ]; then
         # select terminal (prefer xterm for best compatibility, then known supported terminals)
-        for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty mate-terminal x-terminal-emulator; do
+        for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty mate-terminal x-terminal-emulator wezterm; do
             if command -v "$terminal" 2>/dev/null; then
                 export TERMINAL_NAME=$terminal
                 break;
@@ -130,6 +130,11 @@ else
                 gnome-terminal)
                     # consumes all arguments after --
                     exec "$TERMINAL_NAME" -- env TERM=xterm $LAUNCH_FILE "$@"
+                    ;;
+
+                wezterm)
+                    # consumes all arguments after start --. does not copy working directory automatically, needs --cwd for that.
+                    exec "$TERMINAL_NAME" start --cwd "$(pwd)" -- env TERM=xterm $LAUNCH_FILE "$@"
                     ;;
 
                 kitty)

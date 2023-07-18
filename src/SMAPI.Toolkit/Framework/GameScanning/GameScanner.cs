@@ -73,7 +73,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                 return GameFolderType.NoGameFound;
 
             // apparently valid
-            if (dir.EnumerateFiles("Stardew Valley.dll").Any())
+            if (File.Exists(Path.Combine(dir.FullName, "Stardew Valley.dll")))
                 return GameFolderType.Valid;
 
             // doesn't contain any version of Stardew Valley

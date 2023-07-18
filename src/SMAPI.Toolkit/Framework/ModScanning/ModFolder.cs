@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewModdingAPI.Toolkit.Utilities;
 
@@ -10,13 +11,24 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
     public class ModFolder
     {
         /*********
+        ** Fields
+        *********/
+        /// <summary>The backing field for <see cref="Directory"/>.</summary>
+        private DirectoryInfo? DirectoryImpl;
+
+
+        /*********
         ** Accessors
         *********/
         /// <summary>A suggested display name for the mod folder.</summary>
         public string DisplayName { get; }
 
+        /// <summary>The folder path containing the mod's manifest.json.</summary>
+        public string DirectoryPath { get; }
+
         /// <summary>The folder containing the mod's manifest.json.</summary>
-        public DirectoryInfo Directory { get; }
+        [JsonIgnore]
+        public DirectoryInfo Directory => this.DirectoryImpl ??= new DirectoryInfo(this.DirectoryPath);
 
         /// <summary>The mod type.</summary>
         public ModType Type { get; }
@@ -52,7 +64,8 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         public ModFolder(DirectoryInfo root, DirectoryInfo directory, ModType type, Manifest? manifest, ModParseError manifestParseError, string? manifestParseErrorText)
         {
             // save info
-            this.Directory = directory;
+            this.DirectoryImpl = directory;
+            this.DirectoryPath = directory.FullName;
             this.Type = type;
             this.Manifest = manifest;
             this.ManifestParseError = manifestParseError;
@@ -62,6 +75,24 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             this.DisplayName = !string.IsNullOrWhiteSpace(manifest?.Name)
                 ? manifest.Name
                 : PathUtilities.GetRelativePath(root.FullName, directory.FullName);
+        }
+
+        /// <summary>Construct an instance.</summary>
+        /// <param name="displayName">A suggested display name for the mod folder.</param>
+        /// <param name="directoryPath">The folder path containing the mod's manifest.json.</param>
+        /// <param name="type">The mod type.</param>
+        /// <param name="manifest">The mod manifest.</param>
+        /// <param name="manifestParseError">The error which occurred parsing the manifest, if any.</param>
+        /// <param name="manifestParseErrorText">A human-readable message for the <paramref name="manifestParseError"/>, if any.</param>
+        [JsonConstructor]
+        public ModFolder(string displayName, string directoryPath, ModType type, Manifest? manifest, ModParseError manifestParseError, string? manifestParseErrorText)
+        {
+            this.DisplayName = displayName;
+            this.DirectoryPath = directoryPath;
+            this.Type = type;
+            this.Manifest = manifest;
+            this.ManifestParseError = manifestParseError;
+            this.ManifestParseErrorText = manifestParseErrorText;
         }
 
         /// <summary>Get the update keys for a mod.</summary>

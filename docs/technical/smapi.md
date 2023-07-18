@@ -32,6 +32,7 @@ argument | purpose
 `--install` | Preselects the install action, skipping the prompt asking what the user wants to do.
 `--uninstall` | Preselects the uninstall action, skipping the prompt asking what the user wants to do.
 `--game-path "path"` | Specifies the full path to the folder containing the Stardew Valley executable, skipping automatic detection and any prompt to choose a path. If the path is not valid, the installer displays an error.
+`--no-prompt` | Don't let the installer wait for user input (e.g. for cases where it's being run by a script). If the installer is unable to continue without user input, it'll fail instead.
 
 SMAPI itself recognises five arguments, but these are meant for internal use or testing, and might
 change without warning. **On Linux/macOS**, command-line arguments won't work; see _environment

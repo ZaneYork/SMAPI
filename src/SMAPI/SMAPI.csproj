@@ -76,9 +76,9 @@
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
     <PackageReference Include="Mono.Cecil" Version="0.11.4" />
     <PackageReference Include="MonoMod.Common" Version="22.3.5.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.3.0" />
-    <PackageReference Include="Pintail" Version="2.2.2" />
+    <PackageReference Include="Pintail" Version="2.3.0" />
     <PackageReference Include="Platonymous.TMXTile" Version="1.5.9" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 

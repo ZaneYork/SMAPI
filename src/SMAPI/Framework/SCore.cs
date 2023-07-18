@@ -968,6 +968,9 @@ namespace StardewModdingAPI.Framework
 
                         this.Monitor.Log(context);
 
+                        // add context to window titles
+                        this.UpdateWindowTitles();
+
                         // raise events
                         this.OnLoadStageChanged(LoadStage.Ready);
                         events.SaveLoaded.RaiseEmpty();
@@ -1355,6 +1358,7 @@ namespace StardewModdingAPI.Framework
 
                 case LoadStage.None:
                     this.JustReturnedToTitle = true;
+                    this.UpdateWindowTitles();
                     break;
 
                 case LoadStage.Loaded:
@@ -1606,15 +1610,14 @@ namespace StardewModdingAPI.Framework
             string consoleTitle = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}";
             string gameTitle = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
 
+            string suffix = "";
             if (this.ModRegistry.AreAllModsLoaded)
-            {
-                int modsLoaded = this.ModRegistry.GetAll().Count();
-                consoleTitle += $" with {modsLoaded} mods";
-                gameTitle += $" with {modsLoaded} mods";
-            }
+                suffix += $" with {this.ModRegistry.GetAll().Count()} mods";
+            if (Context.IsMultiplayer)
+                suffix += $" [{(Context.IsMainPlayer ? "main player" : "farmhand")}]";
 
-            this.Game.Window.Title = gameTitle;
-            this.LogManager.SetConsoleTitle(consoleTitle);
+            this.Game.Window.Title = gameTitle + suffix;
+            this.LogManager.SetConsoleTitle(consoleTitle + suffix);
 #endif
         }
 

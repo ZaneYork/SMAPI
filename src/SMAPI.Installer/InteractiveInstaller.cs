@@ -47,8 +47,8 @@ namespace StardewModdingApi.Installer
             yield return GetInstallPath("StardewModdingAPI.dll");
             yield return GetInstallPath("StardewModdingAPI.exe");
             yield return GetInstallPath("StardewModdingAPI.exe.config");
-            yield return GetInstallPath("StardewModdingAPI.exe.mdb");  // Linux/macOS only
-            yield return GetInstallPath("StardewModdingAPI.pdb");      // Windows only
+            yield return GetInstallPath("StardewModdingAPI.exe.mdb");  // before 3.18.4 (Linux/macOS only)
+            yield return GetInstallPath("StardewModdingAPI.pdb");      // before 3.18.4 (Windows only)
             yield return GetInstallPath("StardewModdingAPI.runtimeconfig.json");
             yield return GetInstallPath("StardewModdingAPI.xml");
             yield return GetInstallPath("smapi-internal");
@@ -136,34 +136,23 @@ namespace StardewModdingApi.Installer
             Console.WriteLine();
 
             /****
-            ** Check if correct installer
-            ****/
-#if SMAPI_FOR_WINDOWS
-            if (context.IsUnix)
-            {
-                this.PrintError($"This is the installer for Windows. Run the 'install on {context.Platform}.{(context.Platform == Platform.Mac ? "command" : "sh")}' file instead.");
-                Console.ReadLine();
-                return;
-            }
-#else
-            if (context.IsWindows)
-            {
-                this.PrintError($"This is the installer for Linux/macOS. Run the 'install on Windows.exe' file instead.");
-                Console.ReadLine();
-                return;
-            }
-#endif
-
-            /****
             ** read command-line arguments
             ****/
-            // get action from CLI
+            // get input mode
+            bool allowUserInput = !args.Contains("--no-prompt");
+
+            // get action
             bool installArg = args.Contains("--install");
             bool uninstallArg = args.Contains("--uninstall");
             if (installArg && uninstallArg)
             {
                 this.PrintError("You can't specify both --install and --uninstall command-line flags.");
-                Console.ReadLine();
+                this.AwaitConfirmation(allowUserInput);
+                return;
+            }
+            if (!allowUserInput && !installArg && !uninstallArg)
+            {
+                this.PrintError("You must specify --install or --uninstall when running with --no-prompt.");
                 return;
             }
 
@@ -175,12 +164,31 @@ namespace StardewModdingApi.Installer
                     gamePathArg = args[pathIndex];
             }
 
+            /****
+            ** Check if correct installer
+            ****/
+#if SMAPI_FOR_WINDOWS
+            if (context.IsUnix)
+            {
+                this.PrintError($"This is the installer for Windows. Run the 'install on {context.Platform}.{(context.Platform == Platform.Mac ? "command" : "sh")}' file instead.");
+                this.AwaitConfirmation(allowUserInput);
+                return;
+            }
+#else
+            if (context.IsWindows)
+            {
+                this.PrintError($"This is the installer for Linux/macOS. Run the 'install on Windows.exe' file instead.");
+                this.AwaitConfirmation(allowUserInput);
+                return;
+            }
+#endif
+
 
             /*********
             ** Step 2: choose a theme (can't auto-detect on Linux/macOS)
             *********/
             MonitorColorScheme scheme = MonitorColorScheme.AutoDetect;
-            if (context.IsUnix)
+            if (context.IsUnix && allowUserInput)
             {
                 /****
                 ** print header
@@ -245,7 +253,7 @@ namespace StardewModdingApi.Installer
                 if (installDir == null)
                 {
                     this.PrintError("Failed finding your game path.");
-                    Console.ReadLine();
+                    this.AwaitConfirmation(allowUserInput);
                     return;
                 }
 
@@ -262,7 +270,7 @@ namespace StardewModdingApi.Installer
             if (!File.Exists(paths.GameDllPath))
             {
                 this.PrintError("The detected game install path doesn't contain a Stardew Valley executable.");
-                Console.ReadLine();
+                this.AwaitConfirmation(allowUserInput);
                 return;
             }
             Console.Clear();
@@ -340,7 +348,7 @@ namespace StardewModdingApi.Installer
                 if (context.IsUnix && File.Exists(paths.BackupLaunchScriptPath))
                 {
                     this.PrintDebug("Removing SMAPI launcher...");
-                    this.InteractivelyDelete(paths.VanillaLaunchScriptPath);
+                    this.InteractivelyDelete(paths.VanillaLaunchScriptPath, allowUserInput);
                     File.Move(paths.BackupLaunchScriptPath, paths.VanillaLaunchScriptPath);
                 }
 
@@ -352,7 +360,7 @@ namespace StardewModdingApi.Installer
                 {
                     this.PrintDebug(action == ScriptAction.Install ? "Removing previous SMAPI files..." : "Removing SMAPI files...");
                     foreach (string path in removePaths)
-                        this.InteractivelyDelete(path);
+                        this.InteractivelyDelete(path, allowUserInput);
                 }
 
                 // move global save data folder (changed in 3.2)
@@ -364,7 +372,7 @@ namespace StardewModdingApi.Installer
                     if (oldDir.Exists)
                     {
                         if (newDir.Exists)
-                            this.InteractivelyDelete(oldDir.FullName);
+                            this.InteractivelyDelete(oldDir.FullName, allowUserInput);
                         else
                             oldDir.MoveTo(newDir.FullName);
                     }
@@ -379,7 +387,7 @@ namespace StardewModdingApi.Installer
                     this.PrintDebug("Adding SMAPI files...");
                     foreach (FileSystemInfo sourceEntry in paths.BundleDir.EnumerateFileSystemInfos().Where(this.ShouldCopy))
                     {
-                        this.InteractivelyDelete(Path.Combine(paths.GameDir.FullName, sourceEntry.Name));
+                        this.InteractivelyDelete(Path.Combine(paths.GameDir.FullName, sourceEntry.Name), allowUserInput);
                         this.RecursiveCopy(sourceEntry, paths.GameDir);
                     }
 
@@ -394,7 +402,7 @@ namespace StardewModdingApi.Installer
                             if (!File.Exists(paths.BackupLaunchScriptPath))
                                 File.Move(paths.VanillaLaunchScriptPath, paths.BackupLaunchScriptPath);
                             else
-                                this.InteractivelyDelete(paths.VanillaLaunchScriptPath);
+                                this.InteractivelyDelete(paths.VanillaLaunchScriptPath, allowUserInput);
                         }
 
                         // add new launcher
@@ -464,7 +472,7 @@ namespace StardewModdingApi.Installer
 
                             // remove existing folder
                             if (targetFolder.Exists)
-                                this.InteractivelyDelete(targetFolder.FullName);
+                                this.InteractivelyDelete(targetFolder.FullName, allowUserInput);
 
                             // copy files
                             this.RecursiveCopy(sourceMod.Directory, paths.ModsDir, filter: this.ShouldCopy);
@@ -482,7 +490,7 @@ namespace StardewModdingApi.Installer
 
 #if SMAPI_DEPRECATED
                     // remove obsolete appdata mods
-                    this.InteractivelyRemoveAppDataMods(paths.ModsDir, bundledModsDir);
+                    this.InteractivelyRemoveAppDataMods(paths.ModsDir, bundledModsDir, allowUserInput);
 #endif
                 }
             }
@@ -513,7 +521,7 @@ namespace StardewModdingApi.Installer
                 );
             }
 
-            Console.ReadKey();
+            this.AwaitConfirmation(allowUserInput);
         }
 
 
@@ -581,7 +589,8 @@ namespace StardewModdingApi.Installer
 
         /// <summary>Interactively delete a file or folder path, and block until deletion completes.</summary>
         /// <param name="path">The file or folder path.</param>
-        private void InteractivelyDelete(string path)
+        /// <param name="allowUserInput">Whether the installer can ask for user input from the terminal.</param>
+        private void InteractivelyDelete(string path, bool allowUserInput)
         {
             while (true)
             {
@@ -594,7 +603,7 @@ namespace StardewModdingApi.Installer
                 {
                     this.PrintError($"Oops! The installer couldn't delete {path}: [{ex.GetType().Name}] {ex.Message}.");
                     this.PrintError("Try rebooting your computer and then run the installer again. If that doesn't work, try deleting it yourself then press any key to retry.");
-                    Console.ReadKey();
+                    this.AwaitConfirmation(allowUserInput);
                 }
             }
         }
@@ -814,7 +823,8 @@ namespace StardewModdingApi.Installer
         /// <summary>Interactively move mods out of the app data directory.</summary>
         /// <param name="properModsDir">The directory which should contain all mods.</param>
         /// <param name="packagedModsDir">The installer directory containing packaged mods.</param>
-        private void InteractivelyRemoveAppDataMods(DirectoryInfo properModsDir, DirectoryInfo packagedModsDir)
+        /// <param name="allowUserInput">Whether the installer can ask for user input from the terminal.</param>
+        private void InteractivelyRemoveAppDataMods(DirectoryInfo properModsDir, DirectoryInfo packagedModsDir, bool allowUserInput)
         {
             // get packaged mods to delete
             string[] packagedModNames = packagedModsDir.GetDirectories().Select(p => p.Name).ToArray();
@@ -841,7 +851,7 @@ namespace StardewModdingApi.Installer
                 if (isDir && packagedModNames.Contains(entry.Name, StringComparer.OrdinalIgnoreCase))
                 {
                     this.PrintDebug($"   Deleting {entry.Name} because it's bundled into SMAPI...");
-                    this.InteractivelyDelete(entry.FullName);
+                    this.InteractivelyDelete(entry.FullName, allowUserInput);
                     continue;
                 }
 
@@ -905,6 +915,14 @@ namespace StardewModdingApi.Installer
                 "Mods" => false, // Mods folder handled separately
                 _ => true
             };
+        }
+
+        /// <summary>Wait until the user presses enter to confirm, if user input is allowed.</summary>
+        /// <param name="allowUserInput">Whether the installer can ask for user input from the terminal.</param>
+        private void AwaitConfirmation(bool allowUserInput)
+        {
+            if (allowUserInput)
+                Console.ReadLine();
         }
     }
 }

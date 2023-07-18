@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
@@ -10,11 +9,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         /*********
         ** Fields
         *********/
-        /// <summary>The number of seconds for which to log input.</summary>
-        private readonly int LogSeconds = 30;
-
-        /// <summary>When the command should stop printing input, or <c>null</c> if currently disabled.</summary>
-        private long? ExpiryTicks;
+        /// <summary>Whether the command should print input.</summary>
+        private bool Enabled;
 
 
         /*********
@@ -30,21 +26,12 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         /// <param name="args">The command arguments.</param>
         public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
-            this.ExpiryTicks = DateTime.UtcNow.Add(TimeSpan.FromSeconds(this.LogSeconds)).Ticks;
-            monitor.Log($"OK, logging all player input for {this.LogSeconds} seconds.", LogLevel.Info);
-        }
+            this.Enabled = !this.Enabled;
 
-        /// <summary>Perform any logic needed on update tick.</summary>
-        /// <param name="monitor">Writes messages to the console and log file.</param>
-        public override void OnUpdated(IMonitor monitor)
-        {
-            // handle expiry
-            if (this.ExpiryTicks != null && this.ExpiryTicks <= DateTime.UtcNow.Ticks)
-            {
-                monitor.Log("No longer logging input.", LogLevel.Info);
-                this.ExpiryTicks = null;
-                return;
-            }
+            monitor.Log(
+                this.Enabled ? "OK, logging all player input until you run this command again." : "OK, no longer logging player input.",
+                LogLevel.Info
+            );
         }
 
         /// <summary>Perform any logic when input is received.</summary>
@@ -52,7 +39,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         /// <param name="button">The button that was pressed.</param>
         public override void OnButtonPressed(IMonitor monitor, SButton button)
         {
-            if (this.ExpiryTicks != null)
+            if (this.Enabled)
                 monitor.Log($"Pressed {button}", LogLevel.Info);
         }
     }

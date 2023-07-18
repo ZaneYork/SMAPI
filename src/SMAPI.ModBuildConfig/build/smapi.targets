@@ -8,8 +8,9 @@
   ** Set build options
   **********************************************-->
   <PropertyGroup>
-    <!-- enable line numbers in stack traces -->
+    <!-- enable line numbers in stack traces (needs to embedded for Linux/macOS: https://github.com/dotnet/runtime/issues/39987) -->
     <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
 
     <!-- don't create the 'refs' folder (which isn't useful for mods) -->
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>

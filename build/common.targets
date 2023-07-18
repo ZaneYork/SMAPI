@@ -7,12 +7,15 @@ repo. It imports the other MSBuild files as needed.
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!--set general build properties -->
-    <Version>3.18.3</Version>
+    <Version>3.18.4</Version>
     <Product>SMAPI</Product>
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
     <DefineConstants Condition="$(OS) == 'Windows_NT' AND '$(BUILD_FOR_MOBILE)' == ''">$(DefineConstants);SMAPI_DEPRECATED;SMAPI_FOR_WINDOWS</DefineConstants>
     <DebugSymbols>true</DebugSymbols>
+
+    <!--embed symbols for error stack trace line numbers on Linux/macOS: https://github.com/dotnet/runtime/issues/39987-->
+    <DebugType>embedded</DebugType>
 
     <!--enable nullable annotations, except in .NET Standard 2.0 where they aren't supported-->
     <Nullable Condition="'$(TargetFramework)' != 'netstandard2.0'">enable</Nullable>

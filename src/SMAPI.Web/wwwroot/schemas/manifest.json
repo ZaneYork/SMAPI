@@ -43,7 +43,7 @@
             "description": "The DLL filename SMAPI should load for this mod. Mutually exclusive with ContentPackFor.",
             "type": "string",
             "pattern": "^[a-zA-Z0-9_.-]+\\.dll$",
-            "examples": "LookupAnything.dll",
+            "examples": ["LookupAnything.dll"],
             "@errorMessages": {
                 "pattern": "Invalid value; must be a filename ending with .dll."
             }

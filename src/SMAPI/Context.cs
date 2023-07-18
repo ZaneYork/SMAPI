@@ -88,7 +88,7 @@ namespace StardewModdingAPI
         public static bool IsSplitScreen => LocalMultiplayer.IsLocalMultiplayer();
 
         /// <summary>Whether there are players connected over the network.</summary>
-        public static bool HasRemotePlayers => Context.IsMultiplayer && !Game1.hasLocalClientsOnly;
+        public static bool HasRemotePlayers => Context.IsMultiplayer && !Game1.hasLocalClientsOnly && Game1.getOnlineFarmers().Count > 1;
 
         /// <summary>Whether the current player is the main player. This is always true in single-player, and true when hosting in multiplayer.</summary>
 #if SMAPI_FOR_MOBILE
@@ -100,8 +100,7 @@ namespace StardewModdingAPI
         /*********
         ** Public methods
         *********/
-        /// <summary>Get whether a screen ID is still active.</summary>
-        /// <param name="id">The screen ID.</param>
+        /// <summary>Get whether a screen ID is still active.</summary> <param name="id">The screen ID.</param>
         public static bool HasScreenId(int id)
         {
             return Context.ActiveScreenIds.Contains(id);

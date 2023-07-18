@@ -44,6 +44,9 @@ namespace StardewModdingAPI.Toolkit.Serialization.Converters
             string path = reader.Path;
             switch (reader.TokenType)
             {
+                case JsonToken.Null:
+                    return null;
+
                 case JsonToken.StartObject:
                     return this.ReadObject(JObject.Load(reader));
 

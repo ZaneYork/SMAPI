@@ -416,28 +416,33 @@ The NuGet package is generated automatically in `StardewModdingAPI.ModBuildConfi
 when you compile it.
 
 ## Release notes
+## 4.1.1
+Released 24 June 2023 for SMAPI 3.13.0 or later.
+
+* Replaced `.pdb` files with embedded symbols by default. This fixes logged errors not having line numbers on Linux/macOS.
+
 ### 4.1.0
-Released 08 January 2023.
+Released 08 January 2023 for SMAPI 3.13.0 or later.
 
 * Added `manifest.json` format validation on build (thanks to tylergibbs2!).
 * Fixed game DLLs not excluded from the release zip when they're referenced explicitly but `BundleExtraAssemblies` isn't set.
 
 ### 4.0.2
-Released 09 October 2022.
+Released 09 October 2022 for SMAPI 3.13.0 or later.
 
 * Switched to the newer crossplatform `portable` debug symbols (thanks to lanturnalis!).
 * Fixed `BundleExtraAssemblies` option being partly case-sensitive.
 * Fixed `BundleExtraAssemblies` not applying `All` value to game assemblies.
 
 ### 4.0.1
-Released 14 April 2022.
+Released 14 April 2022 for SMAPI 3.13.0 or later.
 
 * Added detection for Xbox app game folders.
 * Fixed "_conflicts between different versions of Microsoft.Win32.Registry_" warnings in recent SMAPI versions.
 * Internal refactoring.
 
 ### 4.0.0
-Released 30 November 2021.
+Released 30 November 2021 for SMAPI 3.13.0 or later.
 
 * Updated for Stardew Valley 1.5.5 and SMAPI 3.13.0. (Older versions are no longer supported.)
 * Added `IgnoreModFilePaths` option to ignore literal paths.
@@ -459,7 +464,7 @@ Released 30 November 2021.
      documentation](#configure).
 
 ### 3.3.0
-Released 30 March 2021.
+Released 30 March 2021 for SMAPI 3.0.0 or later.
 
 * Added a build warning when the mod isn't compiled for `Any CPU`.
 * Added a `GameFramework` build property set to `MonoGame` or `Xna` based on the platform. This can
@@ -468,32 +473,32 @@ Released 30 March 2021.
 * The package now suppresses the misleading 'processor architecture mismatch' warnings.
 
 ### 3.2.2
-Released 23 September 2020.
+Released 23 September 2020 for SMAPI 3.0.0 or later.
 
 * Reworked and streamlined how the package is compiled.
 * Added [SMAPI-ModTranslationClassBuilder](https://github.com/Pathoschild/SMAPI-ModTranslationClassBuilder)
   files to the ignore list.
 
 ### 3.2.1
-Released 11 September 2020.
+Released 11 September 2020 for SMAPI 3.0.0 or later.
 
 * Added more detailed logging.
 * Fixed _path's format is not supported_ error when using default `Mods` path in 3.2.
 
 ### 3.2.0
-Released 07 September 2020.
+Released 07 September 2020 for SMAPI 3.0.0 or later.
 
 * Added option to change `Mods` folder path.
 * Rewrote documentation to make it easier to read.
 
 ### 3.1.0
-Released 01 February 2020.
+Released 01 February 2020 for SMAPI 3.0.0 or later.
 
 * Added support for semantic versioning 2.0.
 * `0Harmony.dll` is now ignored if the mod references Harmony directly (it's bundled with SMAPI).
 
 ### 3.0.0
-Released 26 November 2019.
+Released 26 November 2019 for SMAPI 3.0.0 or later.
 
 * Updated for SMAPI 3.0 and Stardew Valley 1.4.
 * Added automatic support for `assets` folders.

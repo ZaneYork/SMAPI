@@ -142,7 +142,7 @@ foreach ($folder in $folders) {
     }
 
     # bundle root files
-    foreach ($name in @("StardewModdingAPI", "StardewModdingAPI.dll", "StardewModdingAPI.pdb", "StardewModdingAPI.xml", "steam_appid.txt")) {
+    foreach ($name in @("StardewModdingAPI", "StardewModdingAPI.dll", "StardewModdingAPI.xml", "steam_appid.txt")) {
         if ($name -eq "StardewModdingAPI" -and $folder -eq "windows") {
             $name = "$name.exe"
         }
@@ -154,7 +154,7 @@ foreach ($folder in $folders) {
     cp -Recurse "$smapiBin/i18n" "$bundlePath/smapi-internal"
 
     # bundle smapi-internal
-    foreach ($name in @("0Harmony.dll", "0Harmony.xml", "Mono.Cecil.dll", "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll", "MonoMod.Common.dll", "Newtonsoft.Json.dll", "Pathoschild.Http.Client.dll", "Pintail.dll", "TMXTile.dll", "SMAPI.Toolkit.dll", "SMAPI.Toolkit.pdb", "SMAPI.Toolkit.xml", "SMAPI.Toolkit.CoreInterfaces.dll", "SMAPI.Toolkit.CoreInterfaces.pdb", "SMAPI.Toolkit.CoreInterfaces.xml", "System.Net.Http.Formatting.dll")) {
+    foreach ($name in @("0Harmony.dll", "0Harmony.xml", "Mono.Cecil.dll", "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll", "MonoMod.Common.dll", "Newtonsoft.Json.dll", "Pathoschild.Http.Client.dll", "Pintail.dll", "TMXTile.dll", "SMAPI.Toolkit.dll", "SMAPI.Toolkit.xml", "SMAPI.Toolkit.CoreInterfaces.dll", "SMAPI.Toolkit.CoreInterfaces.xml", "System.Net.Http.Formatting.dll")) {
         cp "$smapiBin/$name" "$bundlePath/smapi-internal"
     }
 
@@ -189,7 +189,6 @@ foreach ($folder in $folders) {
         mkdir "$targetPath" > $null
 
         cp "$fromPath/$modName.dll" "$targetPath"
-        cp "$fromPath/$modName.pdb" "$targetPath"
         cp "$fromPath/manifest.json" "$targetPath"
         if (Test-Path "$fromPath/i18n" -PathType Container) {
             cp -Recurse "$fromPath/i18n" "$targetPath"

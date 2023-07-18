@@ -462,6 +462,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 tilesheet.ImageSource = this.NormalizePathSeparators(tilesheet.ImageSource);
                 string imageSource = tilesheet.ImageSource;
 
+                // validate image source
+                if (string.IsNullOrWhiteSpace(imageSource))
+                    throw new SContentLoadException(ContentLoadErrorType.InvalidData, $"{this.ModName} loaded map '{relativeMapPath}' with invalid tilesheet '{tilesheet.Id}'. This tilesheet has no image source.");
+
                 // reverse incorrect eager tilesheet path prefixing
                 if (fixEagerPathPrefixes && relativeMapFolder.Length > 0 && imageSource.StartsWith(relativeMapFolder))
                     imageSource = imageSource[(relativeMapFolder.Length + 1)..];
