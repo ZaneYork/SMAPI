@@ -26,9 +26,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{09CF91E5-5BAB-4650-A200-E5EA9A633046}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\common.targets = ..\build\common.targets
-		..\build\define-constant.targets = ..\build\define-constant.targets
 		..\build\deploy-local-smapi.targets = ..\build\deploy-local-smapi.targets
 		..\build\find-game-folder.targets = ..\build\find-game-folder.targets
+		..\build\mobile-common.targets = ..\build\mobile-common.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB}"
@@ -51,8 +51,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mods", "Mods", "{AE9A4D46-E910-4293-8BC4-673F85FFF6A5}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SMAPI.Internal", "SMAPI.Internal\SMAPI.Internal.shproj", "{85208F8D-6FD1-4531-BE05-7142490F59FE}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SMAPI.Internal.Patching", "SMAPI.Internal.Patching\SMAPI.Internal.Patching.shproj", "{6C16E948-3E5C-47A7-BF4B-07A7469A87A5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.ModBuildConfig.Analyzer.Tests", "SMAPI.ModBuildConfig.Analyzer.Tests\SMAPI.ModBuildConfig.Analyzer.Tests.csproj", "{680B2641-81EA-467C-86A5-0E81CDC57ED0}"
 EndProject
@@ -195,7 +193,6 @@ Global
 		{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB} = {86C452BE-D2D8-45B4-B63F-E329EB06CEDA}
 		{5947303D-3512-413A-9009-7AC43F5D3513} = {EB35A917-67B9-4EFA-8DFC-4FB49B3949BB}
 		{85208F8D-6FD1-4531-BE05-7142490F59FE} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
-		{6C16E948-3E5C-47A7-BF4B-07A7469A87A5} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 		{680B2641-81EA-467C-86A5-0E81CDC57ED0} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 		{AA95884B-7097-476E-92C8-D0500DE9D6D1} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 		{0634EA4C-3B8F-42DB-AEA6-CA9E4EF6E92F} = {AE9A4D46-E910-4293-8BC4-673F85FFF6A5}
@@ -214,9 +211,7 @@ Global
 		SolutionGuid = {70143042-A862-47A8-A677-7C819DDC90DC}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		SMAPI.Internal.Patching\SMAPI.Internal.Patching.projitems*{6c16e948-3e5c-47a7-bf4b-07a7469a87a5}*SharedItemsImports = 13
 		SMAPI.Internal\SMAPI.Internal.projitems*{85208f8d-6fd1-4531-be05-7142490f59fe}*SharedItemsImports = 13
-		SMAPI.Internal.Patching\SMAPI.Internal.Patching.projitems*{ebd13eab-e70b-4d9f-92c2-c34a21e1fa32}*SharedItemsImports = 5
 		SMAPI.Internal\SMAPI.Internal.projitems*{ebd13eab-e70b-4d9f-92c2-c34a21e1fa32}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

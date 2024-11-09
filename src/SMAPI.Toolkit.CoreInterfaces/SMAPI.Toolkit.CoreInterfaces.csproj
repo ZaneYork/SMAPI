@@ -2,11 +2,9 @@
   <PropertyGroup>
     <RootNamespace>StardewModdingAPI</RootNamespace>
     <Description>Provides toolkit interfaces which are available to SMAPI mods.</Description>
-    <TargetFrameworks>net6.0; netstandard2.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-
-    <PublishTrimmed Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</PublishTrimmed>
   </PropertyGroup>
 
-  <Import Project="..\..\build\define-constant.targets" />
+  <Import Project="..\..\build\mobile-common.targets" />
 </Project>

@@ -1,0 +1,34 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--set properties -->
+  <PropertyGroup>
+    <Version>4.1.6</Version>
+    <Product>SMAPI</Product>
+    <LangVersion>latest</LangVersion>
+
+    <Nullable Condition="'$(TargetFramework)' != 'netstandard2.0'">enable</Nullable>
+    <NoWarn Condition="'$(TargetFramework)' == 'netstandard2.0'">$(NoWarn);CS8632</NoWarn>
+    <!-- allow mods to be compiled as AnyCPU for compatibility with older platforms -->
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    <!--
+      suppress warnings that don't apply, so it's easier to spot actual issues.
+
+      warning | builds     | summary                                   | rationale
+      ┄┄┄┄┄┄┄ | ┄┄┄┄┄┄┄┄┄┄ | ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄ | ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+      CS0436  | all        | local type conflicts with imported type   | SMAPI needs to use certain low-level code during very early compatibility checks, before it's safe to load any other DLLs.
+      CA1416  | all        | platform code available on all platforms  | Compiler doesn't recognize the #if constants used by SMAPI.
+      CS0809  | all        | obsolete overload for non-obsolete member | This is deliberate to signal to mods that certain APIs are only implemented for the game and shouldn't be called by mods.
+      NU1701  | all        | NuGet package targets older .NET version  | All such packages are carefully tested to make sure they do work.
+    -->
+    <NoWarn>$(NoWarn);CS0436;CA1416;CS0809;NU1701</NoWarn>
+
+    <COMPILE_WITH_PLUGIN>False</COMPILE_WITH_PLUGIN>
+    <DefineConstants>SMAPI_FOR_MOBILE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(COMPILE_WITH_PLUGIN) == 'True'">
+    <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>
