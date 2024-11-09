@@ -1,28 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\define-constant.targets" />
+  <Import Project="..\..\build\define-constant.targets" />
   <PropertyGroup>
     <RootNamespace>StardewModdingAPI.Toolkit</RootNamespace>
     <Description>A library which encapsulates mod-handling logic for mod managers and tools. Not intended for use by mods.</Description>
-    <TargetFrameworks>net5.0; netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net6.0; netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>latest</LangVersion>
+
+    <PublishTrimmed Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</PublishTrimmed>
   </PropertyGroup>
 
-  <!--  <Import Project="..\..\build\common.targets" />-->
+  <Import Project="..\..\build\common.targets" />
 
-  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\build\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.48" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.3.0" />
-    <PackageReference Include="System.Management" Version="5.0.0" Condition="'$(OS)' == 'Windows_NT'" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" Condition="'$(OS)' == 'Windows_NT'" />
-    <PackageReference Include="VdfConverter" Version="1.0.3" Condition="'$(OS)' == 'Windows_NT'" Private="False" />
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Pathoschild.Http.FluentClient" />
+    <PackageReference Include="System.Management" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="Microsoft.Win32.Registry" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="VdfConverter" Condition="'$(OS)' == 'Windows_NT'" Private="False" />
   </ItemGroup>
 
   <ItemGroup>

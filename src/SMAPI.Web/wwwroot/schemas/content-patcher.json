@@ -14,9 +14,9 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features, avoid obsolete behavior, and reduce load times.",
             "type": "string",
-            "pattern": "^1\\.29\\.[0-9]+$",
+            "pattern": "^2\\.4\\.[0-9]+$",
             "@errorMessages": {
-                "pattern": "Incorrect value '@value'. You should always use the latest format version (currently 1.29.0) to enable the latest features, avoid obsolete behavior, and reduce load times."
+                "pattern": "Incorrect value '@value'. You should always use the latest format version (currently 2.4.0) to enable the latest features, avoid obsolete behavior, and reduce load times."
             }
         },
         "ConfigSchema": {
@@ -54,7 +54,7 @@
                     "Section": {
                         "title": "Section",
                         "description": "An optional section key to group related fields on config UIs. This can be the literal text to show, or you can add a translation with the key 'config.section.<section value>.name' and '.description' to add a translated name & tooltip.",
-                        "type": "string" 
+                        "type": "string"
                     },
 
                     "additionalProperties": false
@@ -90,19 +90,15 @@
                         "type": "string",
                         "allOf": [
                             {
-                                "pattern": "^ *Custom_"
+                                "pattern": "._."
                             },
                             {
-                                "pattern": "^ *[a-zA-Z0-9_]+ *$"
-                            },
-                            {
-                                "pattern": "^ *Custom_.+_.+ *$"
+                                "pattern": "^ *[a-zA-Z0-9_\\.]+ *$"
                             }
                         ],
                         "@errorMessages": {
-                            "allOf:indexes: 0": "Custom location names must start with the exact text 'Custom_'.",
-                            "allOf:indexes: 1": "Custom location names can only contain alphanumeric or underscore characters.",
-                            "allOf:indexes: 2": "The location name should have three parts separated by underscores: the exact text 'Custom', a short label or acronym for your mod, and a map name (like 'Custom_YourModName_MapName'). Although not strictly required, this is very strongly recommended due to the consequences if two mods accidentally use the same location name."
+                            "allOf:indexes: 0": "Custom location names must be prefixed with your mod's ID (like 'Example.ModName_LocationName') or the exact text 'Custom_' (deprecated).",
+                            "allOf:indexes: 1": "Custom location names can only contain alphanumeric, period, or underscore characters."
                         }
                     },
                     "FromMapFile": {
@@ -112,7 +108,7 @@
                         "allOf": [
                             {
                                 "not": {
-                                    "pattern": "\b\\.\\.[/\\]"
+                                    "pattern": "\\b\\.\\.[/\\]"
                                 }
                             },
                             {
@@ -195,6 +191,15 @@
                             "not": "Invalid target; it shouldn't include the 'Content/' folder, '.xnb' extension, or locale code."
                         }
                     },
+                    "TargetLocale": {
+                        "title": "Target locale",
+                        "description": "The locale code in the target asset's name to match (like 'fr-FR' to target `Characters/Dialogue/Abigail.fr-FR`), or an empty string to match only the base unlocalized asset, or omit to match all localized or unlocalized variants of the target asset.",
+                        "type": "string",
+                        "pattern": "^ *[a-zA-Z0-9_\\-]+ *$",
+                        "@errorMessages": {
+                            "pattern": "Invalid target locale; it should only contain alphanumeric, underscore, or dash characters."
+                        }
+                    },
                     "LogName": {
                         "title": "Patch log name",
                         "description": "A name for this patch shown in log messages. This is very useful for understanding errors; if not specified, will default to a name like 'entry #14 (EditImage Animals/Dinosaurs)'.",
@@ -216,7 +221,7 @@
                         "allOf": [
                             {
                                 "not": {
-                                    "pattern": "\b\\.\\.[/\\]"
+                                    "pattern": "\\b\\.\\.[/\\]"
                                 }
                             },
                             {
@@ -257,10 +262,7 @@
                     "Entries": {
                         "title": "Entries",
                         "description": "The entries in the data file you want to add, replace, or delete. If you only want to change a few fields, use Fields instead for best compatibility with other mods. To add an entry, just specify a key that doesn't exist; to delete an entry, set the value to null (like \"some key\": null). This field supports tokens in entry keys and values.\nCaution: some XNB files have extra fields at the end for translations; when adding or replacing an entry for all locales, make sure you include the extra fields to avoid errors for non-English players.",
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": [ "object", "string" ]
-                        }
+                        "type": [ "object", "null" ]
                     },
                     "MoveEntries": {
                         "title": "Move entries",
@@ -336,7 +338,7 @@
                         "type": "array",
                         "items": {
                             "type": "string",
-                            "pattern": " *-?\\d+ -?\\d+ [A-Za-z0-9_]+ -?\\d+ -?\\d+ *$",
+                            "pattern": " *-?\\d+ -?\\d+ [A-Za-z0-9_\\.]+ -?\\d+ -?\\d+ *$",
                             "@errorMessages": {
                                 "pattern": "Each warp must match the exact format recognized by the game's Warp map property (i.e. 'fromX fromY targetMap targetX targetY', like '10 10 Town 0 30'."
                             }
@@ -347,7 +349,7 @@
                         "description": "The map properties (not tile properties) to add, replace, or delete. To add an property, just specify a key that doesn't exist; to delete an entry, set the value to null (like \"some key\": null). This field supports tokens in property keys and values.",
                         "type": "object",
                         "additionalProperties": {
-                            "type": "string"
+                            "type": [ "string", "null" ]
                         }
                     },
                     "MapTiles": {
@@ -380,7 +382,7 @@
                                     "description": "The properties to set or remove. This is merged into the existing tile properties, if any. To remove a property, set its value to `null` (not \"null\" in quotes).",
                                     "type": "object",
                                     "additionalProperties": {
-                                        "type": "string"
+                                        "type": [ "string", "null" ]
                                     }
                                 },
                                 "Remove": {
@@ -410,6 +412,13 @@
                         },
                         "then": {
                             "required": [ "FromFile", "Target" ],
+
+                            "properties": {
+                                "Priority": {
+                                    "$ref": "#/definitions/LoadPriority"
+                                }
+                            },
+
                             "propertyNames": {
                                 "enum": [
                                     "Action",
@@ -417,7 +426,9 @@
                                     "LogName",
                                     "Target",
                                     "Update",
-                                    "When"
+                                    "When",
+
+                                    "Priority"
                                 ]
                             }
                         }
@@ -436,6 +447,10 @@
                                     "type": "string",
                                     "enum": [ "Replace", "Overlay" ],
                                     "default": "Replace"
+                                },
+
+                                "Priority": {
+                                    "$ref": "#/definitions/EditPriority"
                                 }
                             },
                             "required": [ "FromFile", "Target" ],
@@ -450,6 +465,7 @@
 
                                     "FromArea",
                                     "PatchMode",
+                                    "Priority",
                                     "ToArea"
                                 ]
                             }
@@ -462,6 +478,12 @@
                             }
                         },
                         "then": {
+                            "properties": {
+                                "Priority": {
+                                    "$ref": "#/definitions/EditPriority"
+                                }
+                            },
+
                             "propertyNames": {
                                 "enum": [
                                     "Action",
@@ -474,6 +496,7 @@
                                     "Entries",
                                     "Fields",
                                     "MoveEntries",
+                                    "Priority",
                                     "TextOperations"
                                 ]
                             }
@@ -502,6 +525,10 @@
                                     "type": "string",
                                     "enum": [ "Overlay", "Replace", "ReplaceByLayer" ],
                                     "default": "ReplaceByLayer"
+                                },
+
+                                "Priority": {
+                                    "$ref": "#/definitions/EditPriority"
                                 }
                             },
                             "propertyNames": {
@@ -518,6 +545,7 @@
                                     "MapProperties",
                                     "MapTiles",
                                     "PatchMode",
+                                    "Priority",
                                     "TextOperations",
                                     "ToArea"
                                 ]
@@ -543,7 +571,11 @@
                             }
                         }
                     }
-                ]
+                ],
+
+                "@errorMessages": {
+                    "allOf": "$transparent"
+                }
             }
         },
         "$schema": {
@@ -557,7 +589,7 @@
         "Condition": {
             "type": "object",
             "additionalProperties": {
-                "type": [ "boolean", "string" ]
+                "type": [ "boolean", "integer", "string" ]
             }
         },
         "Position": {
@@ -611,6 +643,44 @@
 
             "required": [ "X", "Y", "Width", "Height" ],
             "additionalProperties": false
+        },
+
+        "EditPriority": {
+            "title": "Edit priority",
+            "description": "When multiple patches or mods edit the same asset, the order in which they should be applied. Defaults to 'Default'. The patches for an asset are applied in this order: (1) by earliest to latest priority; (2) then by mod load order, e.g. based on dependencies; (3) then by the order of patches in content.json.",
+            "type": "string",
+
+            "oneOf": [
+                {
+                    "enum": [ "Early", "Default", "Late" ]
+                },
+                {
+                    "pattern": "^\\s*(Early|Default|Late)\\s*(?:[\\+\\-]\\s*\\d+)\\s*$"
+                }
+            ],
+
+            "@errorMessages": {
+                "oneOf": "The edit priority must be 'Early', 'Default', 'Late', or a numeric offset like 'Early + 5'."
+            }
+        },
+
+        "LoadPriority": {
+            "title": "Load priority",
+            "description": "When multiple patches or mods load the same asset, the priority which decides which one is applied. Defaults to 'Exclusive'. If set to Low/Medium/High, the highest-priority patch is applied (or the first one by load order + patch order is multiple patches have the highest priority). If set to Exclusive, it's applied if only one patch has that priority, else no exclusive patches are applied. Avoid using Exclusive when possible, since it significantly reduces mod compatibility.",
+            "type": "string",
+
+            "oneOf": [
+                {
+                    "enum": [ "Low", "Medium", "High", "Exclusive" ]
+                },
+                {
+                    "pattern": "^\\s*(Low|Medium|High)\\s*(?:[\\+\\-]\\s*\\d+)\\s*$"
+                }
+            ],
+
+            "@errorMessages": {
+                "oneOf": "The load priority must be 'Low', 'Medium', 'High', 'Exclusive', or a non-exclusive numeric offset like 'Low + 5'."
+            }
         }
     },
 

@@ -20,6 +20,6 @@ cd "$PSScriptRoot/../.."
 # apply changes
 In-Place-Regex -Path "build/common.targets" -Search "<Version>.+</Version>" -Replace "<Version>$version</Version>"
 In-Place-Regex -Path "src/SMAPI/Constants.cs" -Search "RawApiVersion = `".+?`";" -Replace "RawApiVersion = `"$version`";"
-ForEach ($modName in "ConsoleCommands","ErrorHandler","SaveBackup") {
+ForEach ($modName in "ConsoleCommands","SaveBackup") {
     In-Place-Regex -Path "src/SMAPI.Mods.$modName/manifest.json" -Search "`"(Version|MinimumApiVersion)`": `".+?`"" -Replace "`"`$1`": `"$version`""
 }

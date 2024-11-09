@@ -52,74 +52,47 @@
      */
     "ModData": {
         /*********
-        ** Mods bundles with SMAPI
-        *********/
-        "Error Handler": {
-            "ID": "SMAPI.ErrorHandler",
-            "SuppressWarnings": "PatchesGame"
-        },
-
-        /*********
         ** Common dependencies for friendly errors
         *********/
         "Advanced Location Loader": {
             "ID": "Entoarox.AdvancedLocationLoader",
             "Default | UpdateKey": "Nexus:2270"
         },
-
         "Content Patcher": {
             "ID": "Pathoschild.ContentPatcher",
             "Default | UpdateKey": "Nexus:1915"
         },
-
         "Custom Farming Redux": {
             "ID": "Platonymous.CustomFarming",
             "Default | UpdateKey": "Nexus:991"
         },
-
         "Custom Shirts": {
             "ID": "Platonymous.CustomShirts",
             "Default | UpdateKey": "Nexus:2416"
         },
-
         "Entoarox Framework": {
             "ID": "Entoarox.EntoaroxFramework",
             "Default | UpdateKey": "Nexus:2269"
         },
-
-        "JSON Assets": {
-            "ID": "spacechase0.JsonAssets",
-            "Default | UpdateKey": "Nexus:1720"
-        },
-
         "Mail Framework": {
             "ID": "DIGUS.MailFrameworkMod",
             "Default | UpdateKey": "Nexus:1536"
         },
-
         "MTN": {
             "ID": "SgtPickles.MTN",
             "Default | UpdateKey": "Nexus:2256"
         },
-
         "PyTK": {
             "ID": "Platonymous.Toolkit",
             "Default | UpdateKey": "Nexus:1726"
         },
-
         "SpaceCore": {
             "ID": "spacechase0.SpaceCore",
             "Default | UpdateKey": "Nexus:1348"
         },
-
         "Stardust Core": {
             "ID": "Omegasis.StardustCore",
             "Default | UpdateKey": "Nexus:2341"
-        },
-
-        "TMXL Map Toolkit": {
-            "ID": "Platonymous.TMXLoader",
-            "Default | UpdateKey": "Nexus:1820"
         },
 
         /*********
@@ -128,37 +101,480 @@
         "Animal Mood Fix": {
             "ID": "GPeters-AnimalMoodFix",
             "~ | Status": "Obsolete",
-            "~ | StatusReasonPhrase": "the animal mood bugs were fixed in Stardew Valley 1.2."
+            "~ | StatusReasonPhrase": "the animal mood bugs were fixed in Stardew Valley 1.2. You can delete this mod."
         },
-
         "Bee House Flower Range Fix": {
             "ID": "kirbylink.beehousefix",
             "~ | Status": "Obsolete",
-            "~ | StatusReasonPhrase": "the bee house flower range was fixed in Stardew Valley 1.4."
+            "~ | StatusReasonPhrase": "the bee house flower range was fixed in Stardew Valley 1.4. You can delete this mod."
         },
-
         "Colored Chests": {
             "ID": "4befde5c-731c-4853-8e4b-c5cdf946805f",
             "~ | Status": "Obsolete",
-            "~ | StatusReasonPhrase": "colored chests were added in Stardew Valley 1.1."
+            "~ | StatusReasonPhrase": "colored chests were added in Stardew Valley 1.1. You can delete this mod."
         },
-
+        "Error Handler": {
+            "ID": "SMAPI.ErrorHandler",
+            "~ | Status": "Obsolete",
+            "~ | StatusReasonPhrase": "its error handling was integrated into Stardew Valley 1.6. You can delete this mod."
+        },
+        "Extra Map Layers": {
+            "ID": "aedenthorn.ExtraMapLayers",
+            "~0.3.10 | Status": "Obsolete",
+            "~0.3.10 | StatusReasonPhrase": "extra map layer support was added in Stardew Valley 1.6. You can delete this mod.",
+            "IgnoreDependencies": true
+        },
         "Modder Serialization Utility": {
             "ID": "SerializerUtils-0-1",
             "~ | Status": "Obsolete",
-            "~ | StatusReasonPhrase": "it's no longer maintained or used."
+            "~ | StatusReasonPhrase": "it's no longer maintained or used. You can delete this mod."
         },
-
         "No Debug Mode": {
             "ID": "NoDebugMode",
             "~ | Status": "Obsolete",
-            "~ | StatusReasonPhrase": "debug mode was removed in SMAPI 1.0."
+            "~ | StatusReasonPhrase": "debug mode was removed in SMAPI 1.0. You can delete this mod."
         },
-
         "Split Screen": {
             "ID": "Ilyaki.SplitScreen",
             "~ | Status": "Obsolete",
-            "~ | StatusReasonPhrase": "split-screen mode was added in Stardew Valley 1.5"
+            "~ | StatusReasonPhrase": "split-screen mode was added in Stardew Valley 1.5. You can delete this mod."
+        },
+
+        /*********
+        ** Broke in SDV 1.6.9
+        *********/
+        "Catalogue Indicator": {
+            "ID": "com.anthonyhilyard.CatalogueIndicator",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "ItemStockInformation references crash at runtime"
+        },
+        "Heart Event Helper": {
+            "ID": "bungus.HeartEventHelper",
+            "~1.0.6 | Status": "AssumeBroken",
+            "~1.0.6 | StatusReasonDetails": "breaks question dialogues (e.g. Lewis' start-festival-event question)"
+        },
+        "Json Assets": {
+            "ID": "spacechase0.JsonAssets",
+            "~1.1.18 | Status": "AssumeBroken",
+            "~1.1.18 | StatusReasonDetails": "ItemStockInformation references crash at runtime",
+
+            "Default | UpdateKey": "Nexus:1720"
+        },
+        "Shop Tile Framework": {
+            "ID": "Cherry.ShopTileFramework",
+            "~1.0.10-alpha-20240227 | Status": "AssumeBroken",
+            "~1.0.10-alpha-20240227 | StatusReasonDetails": "ItemStockInformation references crash at runtime"
+        },
+        "Swim (FlyingTNT)": {
+            "ID": "FlyingTNT.Swim",
+            "~1.6.4 | Status": "AssumeBroken",
+            "~1.6.4 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "TMXL Map Toolkit": {
+            "ID": "Platonymous.TMXLoader",
+            "~1.24.3-alpha.20240226 | Status": "AssumeBroken",
+            "~1.24.3-alpha.20240226 | StatusReasonDetails": "Harmony patches fail at runtime",
+
+            "Default | UpdateKey": "Nexus:1820"
+        },
+
+        /*********
+        ** Broke in SDV 1.6
+        *********/
+        "24-Hour Clock Harmony": {
+            "ID": "pepoluan.24h",
+            "~0.3.1 | Status": "AssumeBroken",
+            "~0.3.1 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Aimon's Fancy Farmhouse": {
+            "ID": "Aimon111.RedesignedFarmHouseLayoutAlt",
+            "~2.0.0 | Status": "AssumeBroken",
+            "~2.0.0 | StatusReasonDetails": "breaks farmhouse layout and causes runtime crashes"
+        },
+        "All Chests Menu": {
+            "ID": "aedenthorn.AllChestsMenu",
+            "~0.3.1 | Status": "AssumeBroken",
+            "~0.3.1 | StatusReasonDetails": "fails at runtime"
+        },
+        "Animal Dialogue Framework": {
+            "ID": "aedenthorn.AnimalDialogueFramework",
+            "~0.1.1 | Status": "AssumeBroken",
+            "~0.1.1 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "A Quality Mod": {
+            "ID": "spacechase0.AQualityMod",
+            "~1.0.1 | Status": "AssumeBroken",
+            "~1.0.1 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Backstory Questions Framework": {
+            "ID": "spacechase0.BackstoryQuestionsFramework",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Better Elevator": {
+            "ID": "aedenthorn.BetterElevator",
+            "~0.2.4 | Status": "AssumeBroken",
+            "~0.2.4 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Better Crab Pots": {
+            "ID": "EpicBellyFlop45.BetterCrabPots",
+            "~2.1.0 | Status": "AssumeBroken",
+            "~2.1.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Better Horse Flute": {
+            "ID": "AnthonyMaciel.BetterHorseFlute",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Better Quality More Seeds": {
+            "ID": "SpaceBaby.BetterQualityMoreSeeds",
+            "~2.0.0-6 | Status": "AssumeBroken",
+            "~2.0.0-6 | StatusReasonDetails": "asset edits fail at runtime"
+        },
+        "Betwitched": {
+            "ID": "b_wandert.Betwitched",
+            "~0.9.0 | Status": "AssumeBroken",
+            "~0.9.0 | StatusReasonDetails": "breaks loading the Forest location"
+        },
+        "Bulk Animal Purchase": {
+            "ID": "aedenthorn.BulkAnimalPurchase",
+            "~0.2.1 | Status": "AssumeBroken",
+            "~0.2.1 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Build On Any Tile": {
+            "ID": "Esca.BuildOnAnyTile",
+            "~1.1.2 | Status": "AssumeBroken",
+            "~1.1.2 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Carry Chest": {
+            "ID": "spacechase0.CarryChest",
+            "~1.3.6 | Status": "AssumeBroken",
+            "~1.3.6 | StatusReasonDetails": "loses items when chest is placed"
+        },
+        "Categories in Recipes": {
+            "ID": "Traktori.CategoriesInRecipes",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Change Horse Sounds": {
+            "ID": "CF.ChangeHorseSounds",
+            "~1.3.1 | Status": "AssumeBroken",
+            "~1.3.1 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Configure Machine Speed": {
+            "ID": "BayesianBandit.ConfigureMachineSpeed",
+            "~2.0.0-beta.2 | Status": "AssumeBroken",
+            "~2.0.0-beta.2 | StatusReasonDetails": "causes runtime errors"
+        },
+        "Crop Walker": {
+            "ID": "MindMeltMax.CropWalker",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Custom Dungeon Floors": {
+            "ID": "Aedenthorn.CustomMonsterFloors",
+            "~0.7.0 | Status": "AssumeBroken",
+            "~0.7.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Custom Starter Package": {
+            "ID": "aedenthorn.CustomStarterPackage",
+            "~0.2.0 | Status": "AssumeBroken",
+            "~0.2.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Custom Tool Effect": {
+            "ID": "ZaneYork.CustomToolEffect",
+            "~1.1.0 | Status": "AssumeBroken",
+            "~1.1.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Death Tweaks": {
+            "ID": "aedenthorn.DeathTweaks",
+            "~0.1.1 | Status": "AssumeBroken",
+            "~0.1.1 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Enemy Health Bars": {
+            "ID": "Speeder.HealthBars",
+            "~1.9.1-unofficial.2-libraryaddict | Status": "AssumeBroken",
+            "~1.9.1-unofficial.2-libraryaddict | StatusReasonDetails": "causes runtime errors"
+        },
+        "Extreme Weather": {
+            "ID": "BlaDe.ExtremeWeather",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "causes runtime crash"
+        },
+        "Farmageddon": {
+            "ID": "maxvollmer.farmageddon",
+            "~3.0.0 | Status": "AssumeBroken",
+            "~3.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Fast Loads": {
+            "ID": "spajus.fastloads",
+            "~1.0.3 | Status": "AssumeBroken",
+            "~1.0.3 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Fish Exclusions": {
+            "ID": "GZhynko.FishExclusions",
+            "~1.1.5 | Status": "AssumeBroken",
+            "~1.1.5 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Fishing Progression": {
+            "ID": "chadlymasterson.fishingprogression",
+            "~1.0.1 | Status": "AssumeBroken",
+            "~1.0.1 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Fixed Weapons Damage": {
+            "ID": "BlueSight.FixedWeaponsDamage",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches and asset edits fail at runtime"
+        },
+        "Flower Rain": {
+            "ID": "spacechase0.FlowerRain",
+            "~1.1.4 | Status": "AssumeBroken",
+            "~1.1.4 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Friendly Divorce": {
+            "ID": "aedenthorn.FriendlyDivorce",
+            "~0.3.0 | Status": "AssumeBroken",
+            "~0.3.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Furniture Recolor": {
+            "ID": "aedenthorn.FurnitureRecolor",
+            "~0.1.0 | Status": "AssumeBroken",
+            "~0.1.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Hibernation": {
+            "ID": "Shockah.Hibernation",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Hugs and Kisses": {
+            "ID": "aedenthorn.HugsAndKisses",
+            "~0.4.0 | Status": "AssumeBroken",
+            "~0.4.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Mayo Hats": {
+            "ID": "spacechase0.MayoHats",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "affected by breaking changes in the Json Assets mod API"
+        },
+        "Mayo Mart": {
+            "ID": "aedenthorn.MayoMart",
+            "~0.1.0 | Status": "AssumeBroken",
+            "~0.1.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Misophonia Accessibility": {
+            "ID": "TheFluffyRobot.MisophoniaAccessibility",
+            "~3.0.1 | Status": "AssumeBroken",
+            "~3.0.1 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Mod Updater": {
+            "ID": "Platonymous.ModUpdater",
+            "~1.0.6 | Status": "AssumeBroken",
+            "~1.0.6 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "More Giant Crops": {
+            "ID": "spacechase0.MoreGiantCrops",
+            "~1.2.0 | Status": "AssumeBroken",
+            "~1.2.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "More Grass": {
+            "ID": "EpicBellyFlop45.MoreGrass",
+            "~1.2.1 | Status": "AssumeBroken",
+            "~1.2.1 | StatusReasonDetails": "causes runtime crashes"
+        },
+        "More Multiplayer Info": {
+            "ID": "cheesysteak.moremultiplayerinfo",
+            "~3.0.1 | Status": "AssumeBroken",
+            "~3.0.1 | StatusReasonDetails": "causes runtime errors"
+        },
+        "Move Between Buildings": {
+            "ID": "Vilaboa.MoveBetweenBuildings",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "causes runtime errors"
+        },
+        "Movie Theater Tweaks": {
+            "ID": "aedenthorn.MovieTheatreTweaks",
+            "~0.2.0 | Status": "AssumeBroken",
+            "~0.2.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "MultiSave": {
+            "ID": "aedenthorn.MultiSave",
+            "~0.1.8 | Status": "AssumeBroken",
+            "~0.1.8 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Musical Paths": {
+            "ID": "aedenthorn.MusicalPaths",
+            "~0.1.1 | Status": "AssumeBroken",
+            "~0.1.1 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "No Fence Decay": {
+            "ID": "cat.nofencedecay",
+            "~1.5.0 | Status": "AssumeBroken",
+            "~1.5.0 | StatusReasonDetails": "causes runtime errors"
+        },
+        "NPC Clothing": {
+            "ID": "aedenthorn.NPCClothing",
+            "~0.1.0 | Status": "AssumeBroken",
+            "~0.1.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "One Click Shed Reloader": {
+            "ID": "BitwiseJonMods.OneClickShedReloader",
+            "~1.1.1 | Status": "AssumeBroken",
+            "~1.1.1 | StatusReasonDetails": "causes runtime errors"
+        },
+        "One Sprinkler One Scarecrow": {
+            "ID": "mizzion.onesprinkleronescarecrow",
+            "~2.1.0 | Status": "AssumeBroken",
+            "~2.1.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Ore Increaser": {
+            "ID": "crazywig.oreincrease",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Ore Increase V3": {
+            "ID": "OreIncreaseV3",
+            "~3.0.0 | Status": "AssumeBroken",
+            "~3.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Pacifist Valley": {
+            "ID": "Aedenthorn.PacifistValley",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Passable Crops": {
+            "ID": "NCarigon.PassableCrops",
+            "~1.0.9 | Status": "AssumeBroken",
+            "~1.0.9 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Pelican TTS": {
+            "ID": "Platonymous.PelicanTTS",
+            "~1.13.2 | Status": "AssumeBroken",
+            "~1.13.2 | StatusReasonDetails": "asset edits fail at runtime"
+        },
+        "Persistent Mines": {
+            "ID": "spacechase0.PersistentMines",
+            "~1.0.1 | Status": "AssumeBroken",
+            "~1.0.1 | StatusReasonDetails": "affected by breaking changes in the SpaceCore mod API"
+        },
+        "Placeable Mine Shafts": {
+            "ID": "Aedenthorn.PlaceShaft",
+            "~2.0.0 | Status": "AssumeBroken",
+            "~2.0.0 | StatusReasonDetails": "affected by breaking changes in the Json Assets mod API"
+        },
+        "Platonic Partners and Friendships": {
+            "ID": "Amaranthacyan.PPAFSMAPI",
+            "~2.2.3 | Status": "AssumeBroken",
+            "~2.2.3 | StatusReasonDetails": "asset edits fail at runtime"
+        },
+        "Qi Chest": {
+            "ID": "spacechase0.QiChest",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "causes crash during game launch due to Harmony"
+        },
+        "Quest Time Limits": {
+            "ID": "aedenthorn.QuestTimeLimits",
+            "~0.1.3 | Status": "AssumeBroken",
+            "~0.1.3 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Riverland Farm But You Need to Build Bridges": {
+            "ID": "idermailer.riverfarmButBridge",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Screenshot Everywhere": {
+            "ID": "Gaiadin.Stardew-Screenshot-Everywhere",
+            "~1.4.1 | Status": "AssumeBroken",
+            "~1.4.1 | StatusReasonDetails": "causes runtime errors"
+        },
+        "SeaCliff Farm": {
+            "ID": "freethejunimos.seaclifffarm",
+            "~1.0.2 | Status": "AssumeBroken",
+            "~1.0.2 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Seed Maker - Better Quality More Seeds": {
+            "ID": "vabrell.sm_bqms",
+            "~1.3.3 | Status": "AssumeBroken",
+            "~1.3.3 | StatusReasonDetails": "asset edits fail at runtime"
+        },
+        "Seed Maker Tweaks": {
+            "ID": "aedenthorn.SeedMakerTweaks",
+            "~0.2.0 | Status": "AssumeBroken",
+            "~0.2.0 | StatusReasonDetails": "affected by breaking changes in the Json Assets mod API"
+        },
+        "Shut Up": {
+            "ID": "gekox.shutUp",
+            "~1.1.0 | Status": "AssumeBroken",
+            "~1.1.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Sixty-Nine Shirt": {
+            "ID": "aedenthorn.SixtyNine",
+            "~0.2.69 | Status": "AssumeBroken",
+            "~0.2.69 | StatusReasonDetails": "causes runtime errors"
+        },
+        "Skip Intro": {
+            "ID": "Pathoschild.SkipIntro",
+            "~1.9.9-alpha.20220227 | Status": "AssumeBroken",
+            "~1.9.9-alpha.20220227 | StatusReasonDetails": "causes crash during game launch"
+        },
+        "Skull Cavern Drill": {
+            "ID": "S1mmyy.SkullCavernDrill",
+            "~1.0.1 | Status": "AssumeBroken",
+            "~1.0.1 | StatusReasonDetails": "affected by breaking changes in the Json Assets mod API"
+        },
+        "Skull Cavern Drill Redux": {
+            "ID": "NetworkOverflow.SkullCavernDrillRedux",
+            "~1.0.1 | Status": "AssumeBroken",
+            "~1.0.1 | StatusReasonDetails": "affected by breaking changes in the Json Assets mod API"
+        },
+        "Socializing Skill": {
+            "ID": "drbirbdev.SocializingSkill",
+            "~2.0.5 | Status": "AssumeBroken",
+            "~2.0.5 | StatusReasonDetails": "Harmony patches fail at runtime and cause hard game crash"
+        },
+        "Split Screen Manager": {
+            "ID": "RomenH.SplitScreenManager",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Stardew Hack": {
+            "ID": "bcmpinc.StardewHack",
+            "~6.0.0 | Status": "AssumeBroken",
+            "~6.0.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Statue of Generosity": {
+            "ID": "spacechase0.StatueOfGenerosity",
+            "~1.1.3 | Status": "AssumeBroken",
+            "~1.1.3 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Statue Shorts": {
+            "ID": "aedenthorn.StatueShorts",
+            "~0.1.0 | Status": "AssumeBroken",
+            "~0.1.0 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "Swizzy Meads": {
+            "ID": "SwizzyStudios.SwizzyMeads",
+            "~1.0.1-alpha | Status": "AssumeBroken",
+            "~1.0.1-alpha | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "The Adventurer's Life Expanded": {
+            "ID": "HamioDracny.TALE.SMAPI",
+            "~1.2.1 | Status": "AssumeBroken",
+            "~1.2.1 | StatusReasonDetails": "Harmony patches fail at runtime"
+        },
+        "This Mod Is Organic": {
+            "ID": "SweetPanda.Organic",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "affected by breaking changes in the Json Assets mod API"
+        },
+        "TimeSpeed": {
+            "ID": "cantorsdust.TimeSpeed",
+            "~2.7.7-alpha.20240220 | Status": "AssumeBroken",
+            "~2.7.7-alpha.20240220 | StatusReasonDetails": "causes runtime time issues before 2.7.7"
+        },
+        "Wealth is Health": {
+            "ID": "QiTheMysterious.WealthIsHealth",
+            "~0.1.2 | Status": "AssumeBroken",
+            "~0.1.2 | StatusReasonDetails": "causes runtime errors"
         },
 
         /*********
@@ -197,16 +613,6 @@
             "ID": "Becks723.JunimoStudio",
             "~2.0.1 | Status": "AssumeBroken",
             "~2.0.1 | StatusReasonDetails": "requires 'Microsoft.Xna.Framework.Audio.AudioCategory' which doesn't exist in MonoGame"
-        },
-        "Skip Intro": {
-            "ID": "Pathoschild.SkipIntro",
-            "~1.9.1 | Status": "AssumeBroken",
-            "~1.9.1 | StatusReasonDetails": "causes freeze during game launch"
-        },
-        "Stardew Hack": {
-            "ID": "bcmpinc.StardewHack",
-            "~5.1.0 | Status": "AssumeBroken",
-            "~5.1.0 | StatusReasonDetails": "runtime error when initializing due to an API change between .NET Framework and .NET 5"
         },
         "Stardew Valley Expanded": {
             "ID": "FlashShifter.SVECode",
@@ -277,11 +683,6 @@
             "~4.1.0 | Status": "AssumeBroken",
             "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
         },
-        "Tree Spread": {
-            "ID": "bcmpinc.TreeSpread",
-            "~4.2.0 | Status": "AssumeBroken",
-            "~4.2.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
-        },
         "Wear More Rings": {
             "ID": "bcmpinc.WearMoreRings",
             "~4.1.0 | Status": "AssumeBroken",
@@ -305,38 +706,27 @@
             "~1.3.4 | Status": "AssumeBroken",
             "~1.3.4 | StatusReasonDetails": "has no effect due to changes in Stardew Valley 1.5, causes crashes in other mods like Chests Anywhere"
         },
-
         "Custom Furniture": {
             "ID": "Platonymous.CustomFurniture",
             "~0.11.2 | Status": "AssumeBroken",
             "~0.11.2 | StatusReasonDetails": "causes errors and custom furniture no longer work in Stardew Valley 1.5"
         },
-
         "Custom Localization": {
             "ID": "ZaneYork.CustomLocalization",
             "FormerIDs": "SMAPI.CustomLocalization", // changed in 1.0.1
             "~1.1 | Status": "AssumeBroken",
             "~1.1 | StatusReasonDetails": "reflection error due to renamed _localizedAssets field"
         },
-
         "Geode Info Menu": {
             "ID": "cat.geodeinfomenu",
             "~1.5.2 | Status": "AssumeBroken",
             "~1.5.2 | StatusReasonDetails": "shows no info, freezes game if you try to search"
         },
-
         "Mod Settings Tab": {
             "ID": "GilarF.ModSettingsTab",
             "~0.2.1 | Status": "AssumeBroken",
             "~0.2.1 | StatusReasonDetails": "fails extending title menu"
         },
-
-        "More Grass": {
-            "ID": "EpicBellyFlop45.MoreGrass",
-            "~1.0.8 | Status": "AssumeBroken",
-            "~1.0.8 | StatusReasonDetails": "crashes on save load"
-        },
-
         "TreeTransplant": {
             "ID": "TreeTransplant",
             "~1.0.9 | Status": "AssumeBroken",

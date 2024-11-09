@@ -40,11 +40,6 @@ This assumes `find-game-folder.targets` has already been imported and validated.
 
     <!-- .NET dependencies -->
     <Copy SourceFiles="$(TargetDir)\System.Management.dll" DestinationFolder="$(GamePath)\smapi-internal" Condition="$(OS) == 'Windows_NT'" />
-
-    <!-- Legacy .NET dependencies (remove in SMAPI 4.0.0) -->
-    <Copy SourceFiles="$(TargetDir)\System.Configuration.ConfigurationManager.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\System.Runtime.Caching.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\System.Security.Permissions.dll" DestinationFolder="$(GamePath)\smapi-internal" />
   </Target>
 
   <!-- .NET metadata files -->
@@ -55,7 +50,7 @@ This assumes `find-game-folder.targets` has already been imported and validated.
   </Target>
 
   <!-- bundled mods -->
-  <Target Name="CopyDefaultMods" Condition="'$(MSBuildProjectName)' == 'SMAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'SMAPI.Mods.ErrorHandler' OR '$(MSBuildProjectName)' == 'SMAPI.Mods.SaveBackup'">
+  <Target Name="CopyDefaultMods" Condition="'$(MSBuildProjectName)' == 'SMAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'SMAPI.Mods.SaveBackup'">
     <ItemGroup>
       <TranslationFiles Include="$(TargetDir)\i18n\*.json" />
     </ItemGroup>

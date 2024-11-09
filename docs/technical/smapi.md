@@ -42,6 +42,7 @@ argument | purpose
 -------- | -------
 `--developer-mode`<br />`--developer-mode-off` | Enable or disable features intended for mod developers. Currently this only makes `TRACE`-level messages appear in the console.
 `--no-terminal` | SMAPI won't log anything to the console. On Linux/macOS only, this will also prevent the launch script from trying to open a terminal window. (Messages will still be written to the log file.)
+`--prefer-terminal-name` | On Linux/macOS only, the terminal with which to open the SMAPI console. For example, `--prefer-terminal-name=xterm` to use xterm regardless of which terminal is the default one.
 `--use-current-shell` | On Linux/macOS only, the launch script won't try to open a terminal window. All console output will be sent to the shell running the launch script.
 `--mods-path` | The path to search for mods, if not the standard `Mods` folder. This can be a path relative to the game folder (like `--mods-path "Mods (test)"`) or an absolute path.
 
@@ -55,6 +56,7 @@ environment variable | purpose
 `SMAPI_DEVELOPER_MODE` | Equivalent to `--developer-mode` and `--developer-mode-off` above. The value must be `true` or `false`.
 `SMAPI_MODS_PATH` | Equivalent to `--mods-path` above.
 `SMAPI_NO_TERMINAL` | Equivalent to `--no-terminal` above.
+`$SMAPI_PREFER_TERMINAL_NAME` | Equivalent to `--prefer-terminal-name` above.
 `SMAPI_USE_CURRENT_SHELL` | Equivalent to `--use-current-shell` above.
 
 ### Compile flags
@@ -64,7 +66,6 @@ SMAPI uses a small number of conditional compilation constants, which you can se
 flag | purpose
 ---- | -------
 `SMAPI_FOR_WINDOWS` | Whether SMAPI is being compiled for Windows; if not set, the code assumes Linux/macOS. Set automatically in `common.targets`.
-`SMAPI_DEPRECATED`  | Whether to include deprecated code in the build.
 
 ## Compile from source code
 ### Main project
@@ -85,11 +86,9 @@ folder before compiling.
 
 ## Prepare a release
 ### On any platform
-**⚠ Ideally we'd have one set of instructions for all platforms. The instructions in this section
-will produce a fully functional release for all supported platforms, _except_ that the application
-icon for SMAPI on Windows will disappear due to [.NET runtime bug
-3828](https://github.com/dotnet/runtime/issues/3828). Until that's fixed, see the _[on
-Windows](#on-windows)_ section below to create a build that retains the icon.**
+_This is the unified process that works on any platform. However, it needs a few extra steps on
+Windows (e.g. running Steam in WSL); see ['On Windows'](#on-windows) below for an alternative quick
+option._
 
 #### First-time setup
 1. On Windows only:
@@ -135,6 +134,10 @@ Windows](#on-windows)_ section below to create a build that retains the icon.**
    release    | `<version>`              | `4.0.0`
 
 ### On Windows
+_This is the alternative quick process for Windows only. This avoids needing Steam installed on WSL,
+and can be used to create Windows-only builds without using WSL at all. See ['on any platform'](#on-any-platform)
+above for the unified process._
+
 #### First-time setup
 1. Set up Windows Subsystem for Linux (WSL):
    1. [Install WSL](https://docs.microsoft.com/en-us/windows/wsl/install).

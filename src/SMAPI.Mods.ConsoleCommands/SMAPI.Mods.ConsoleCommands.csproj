@@ -1,19 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\build\define-constant.targets" />
   <PropertyGroup>
     <AssemblyName>ConsoleCommands</AssemblyName>
     <RootNamespace>StardewModdingAPI.Mods.ConsoleCommands</RootNamespace>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <Import Project="..\..\build\common.targets" />
 
-  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
+  <ItemGroup>
     <ProjectReference Include="..\SMAPI\SMAPI.csproj" Private="False" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
+  <ItemGroup>
     <Reference Include="MonoGame.Framework" HintPath="$(GamePath)\MonoGame.Framework.dll" Private="False" />
     <Reference Include="Stardew Valley" HintPath="$(GamePath)\Stardew Valley.dll" Private="False" />
     <Reference Include="StardewValley.GameData" HintPath="$(GamePath)\StardewValley.GameData.dll" Private="False" />
@@ -23,25 +22,4 @@
   <ItemGroup>
     <None Update="manifest.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
-  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
-    <ProjectReference Include="..\SMAPI.Toolkit\SMAPI.Toolkit.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' != ''">
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\..\build\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="StardewModdingAPI">
-      <HintPath>..\SMAPI\bin\Debug\StardewModdingAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="StardewValley">
-      <HintPath>..\..\build\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\StardewValley.dll</HintPath>
-    </Reference>
-    <Reference Include="StardewValley.GameData">
-      <HintPath>..\..\build\StardewValleyAndroidStuff\base_1.5.6.39\assemblies\StardewValley.GameData.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
 </Project>

@@ -32,8 +32,8 @@ _ReSharper*/
 appsettings.Development.json
 
 # Azure generated files
-src/SMAPI.Web/Properties/PublishProfiles/*.pubxml
-src/SMAPI.Web/Properties/ServiceDependencies/* - Web Deploy/
+src/SMAPI.Web/Properties/PublishProfiles
+src/SMAPI.Web/Properties/ServiceDependencies
 
 # macOS
 .DS_Store

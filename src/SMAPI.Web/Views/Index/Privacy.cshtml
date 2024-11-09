@@ -1,12 +1,9 @@
-@using Microsoft.Extensions.Options
 @using StardewModdingAPI.Web.Framework
-@using StardewModdingAPI.Web.Framework.ConfigModels
-@inject IOptions<SiteConfig> SiteConfig
 @{
     ViewData["Title"] = "SMAPI privacy notes";
 }
 @section Head {
-    <link rel="stylesheet" href="~/Content/css/privacy.css" />
+    <link rel="stylesheet" href="@Url.ContentWithCacheBust("~/Content/css/privacy.css")" />
 }
 
 &larr; <a href="@Url.PlainAction("Index", "Index")">back to SMAPI page</a>

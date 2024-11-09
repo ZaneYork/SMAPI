@@ -79,3 +79,22 @@ csharp_prefer_braces = false:hint
 ##########
 [*.md]
 guidelines = 100
+
+##########
+## Suppress warnings in rewrite facades
+## See ReSharper docs: https://www.jetbrains.com/help/resharper/Reference__Code_Inspections_CSHARP.html.
+##########
+[src/SMAPI/Framework/ModLoading/Rewriters/**/*Facade.cs]
+dotnet_diagnostic.CS1591.severity = none                  # missing XML doc comment -- not meant to be used directly
+resharper_identifier_typo_highlighting = none             # identifier typo -- matches game code
+resharper_inconsistent_naming_highlighting = none         # inconsistent naming -- matches game code
+resharper_local_variable_hides_member_highlighting = none # local variable hides member -- matches game code
+resharper_parameter_hides_member_highlighting = none      # parameter hides member -- matches game code
+resharper_redundant_base_qualifier_highlighting = none    # redundant base qualifier -- deliberate for clarity, and to avoid accidentally calling a facade method
+resharper_unused_member_global_highlighting = none        # unused member -- used via rewriting
+
+##########
+## Suppress warnings in event interfaces
+##########
+[src/SMAPI/Events/I*Events.cs]
+dotnet_diagnostic.CS1572.severity = none # docblock has 'param' tag for missing parameter -- this is deliberate to let mods use <inheritdoc />

@@ -7,11 +7,10 @@ repo. It imports the other MSBuild files as needed.
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!--set general build properties -->
-    <Version>3.18.4</Version>
+    <Version>4.1.6</Version>
     <Product>SMAPI</Product>
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
-    <DefineConstants Condition="$(OS) == 'Windows_NT' AND '$(BUILD_FOR_MOBILE)' == ''">$(DefineConstants);SMAPI_DEPRECATED;SMAPI_FOR_WINDOWS</DefineConstants>
     <DebugSymbols>true</DebugSymbols>
 
     <!--embed symbols for error stack trace line numbers on Linux/macOS: https://github.com/dotnet/runtime/issues/39987-->
@@ -34,14 +33,11 @@ repo. It imports the other MSBuild files as needed.
       warning | builds     | summary                                   | rationale
       ┄┄┄┄┄┄┄ | ┄┄┄┄┄┄┄┄┄┄ | ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄ | ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
       CS0436  | all        | local type conflicts with imported type   | SMAPI needs to use certain low-level code during very early compatibility checks, before it's safe to load any other DLLs.
-      CS0612  | deprecated | member is obsolete                        | internal references to deprecated code when deprecated code is enabled.
-      CS0618  | deprecated | member is obsolete (with message)         | internal references to deprecated code when deprecated code is enabled.
       CA1416  | all        | platform code available on all platforms  | Compiler doesn't recognize the #if constants used by SMAPI.
       CS0809  | all        | obsolete overload for non-obsolete member | This is deliberate to signal to mods that certain APIs are only implemented for the game and shouldn't be called by mods.
       NU1701  | all        | NuGet package targets older .NET version  | All such packages are carefully tested to make sure they do work.
     -->
-    <NoWarn Condition="$(DefineConstants.Contains(SMAPI_DEPRECATED))">$(NoWarn);CS0612;CS0618</NoWarn>
-    <NoWarn>$(NoWarn);CS0436;CA1416;CS0809;NU1701</NoWarn>
+      <NoWarn>$(NoWarn);CS0436;CA1416;CS0809;NU1701</NoWarn>
   </PropertyGroup>
 
   <ItemGroup Condition="$(COMPILE_WITH_PLUGIN) == 'True'">

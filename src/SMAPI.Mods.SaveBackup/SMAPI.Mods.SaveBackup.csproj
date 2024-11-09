@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>SaveBackup</AssemblyName>
     <RootNamespace>StardewModdingAPI.Mods.SaveBackup</RootNamespace>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 

@@ -19,24 +19,24 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
     <TargetFrameworkVersion>v12.0</TargetFrameworkVersion>
-    <TargetFramework>net5.0-android</TargetFramework>
+    <TargetFramework>net6.0-android</TargetFramework>
     <AndroidUseAapt2>false</AndroidUseAapt2>
     <DefineConstants>$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU' AND '$(BUILD_FOR_MOBILE)' != ''">
-     <DebugSymbols>true</DebugSymbols>
-     <DebugType>portable</DebugType>
-     <Optimize>false</Optimize>
-     <OutputPath>bin\Debug\</OutputPath>
-     <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
-     <ErrorReport>prompt</ErrorReport>
-     <WarningLevel>4</WarningLevel>
-     <LangVersion>latest</LangVersion>
-     <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
-     <AndroidLinkMode>None</AndroidLinkMode>
-     <AndroidUseAapt2>true</AndroidUseAapt2>
-   </PropertyGroup>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
+    <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
+    <AndroidLinkMode>None</AndroidLinkMode>
+    <AndroidUseAapt2>true</AndroidUseAapt2>
+  </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU' AND '$(BUILD_FOR_MOBILE)' != ''">
     <DebugType>portable</DebugType>
@@ -71,7 +71,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
-<!--  <Import Project="..\..\build\common.targets" />-->
+  <!--  <Import Project="..\..\build\common.targets" />-->
 
   <ItemGroup Condition="'$(BUILD_FOR_MOBILE)' == ''">
     <PackageReference Include="Mono.Cecil" Version="0.11.4" />

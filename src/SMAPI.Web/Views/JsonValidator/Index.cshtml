@@ -5,7 +5,7 @@
 
 @{
     // get view data
-    string curPageUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model!.SchemaName, id = Model.PasteID }, absoluteUrl: true)!;
+    string curPageUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName, id = Model.PasteID }, absoluteUrl: true)!;
     string newUploadUrl = this.Url.PlainAction("Index", "JsonValidator", new { schemaName = Model.SchemaName })!;
     string? schemaDisplayName = null;
     bool isValidSchema = Model.SchemaName != null && Model.SchemaFormats.TryGetValue(Model.SchemaName, out schemaDisplayName) && schemaDisplayName.ToLower() != "none";
@@ -27,16 +27,16 @@
     {
         <meta name="robots" content="noindex" />
     }
-    <link rel="stylesheet" href="~/Content/css/file-upload.css?r=202002" />
-    <link rel="stylesheet" href="~/Content/css/json-validator.css?r=202002" />
+    <link rel="stylesheet" href="@Url.ContentWithCacheBust("~/Content/css/file-upload.css")" />
+    <link rel="stylesheet" href="@Url.ContentWithCacheBust("~/Content/css/json-validator.css")" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tmont/sunlight@1.22.0/src/themes/sunlight.default.min.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/tmont/sunlight@1.22.0/src/sunlight.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/tmont/sunlight@1.22.0/src/plugins/sunlight-plugin.linenumbers.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/tmont/sunlight@1.22.0/src/lang/sunlight.javascript.min.js" crossorigin="anonymous"></script>
-    <script src="~/Content/js/file-upload.js?r=202002"></script>
-    <script src="~/Content/js/json-validator.js?r=202002"></script>
+    <script src="@Url.ContentWithCacheBust("~/Content/js/file-upload.js")"></script>
+    <script src="@Url.ContentWithCacheBust("~/Content/js/json-validator.js")"></script>
     <script>
         $(function() {
             smapi.jsonValidator(@this.ForJson(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = "$schemaName", id = "$id" })), @this.ForJson(Model.PasteID));
@@ -71,12 +71,24 @@ else if (!Model.IsEditView && Model.PasteID != null)
 }
 
 @* save warnings *@
-@if (Model.UploadWarning != null || Model.Expiry != null)
+@if (Model.UploadWarning != null || Model.NewExpiry.HasValue)
 {
     <div class="save-metadata" v-pre>
-        @if (Model.Expiry != null)
+        @if (Model.NewExpiry != null)
         {
-            <text>This JSON file will expire in @((DateTime.UtcNow - Model.Expiry.Value).Humanize()) (<a href="@(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = this.Model.SchemaName, id = this.Model.PasteID, operation = "renew" }))">renew</a>).</text>
+            string? oldExpiryText = Model.OldExpiry.HasValue
+                ? (DateTime.UtcNow - Model.OldExpiry.Value).Humanize()
+                : null;
+            string? newExpiryText = Model.NewExpiry.HasValue
+                ? (DateTime.UtcNow - Model.NewExpiry.Value).Humanize()
+                : null;
+
+            <text>This JSON file will expire in </text>
+            @if (oldExpiryText != null && oldExpiryText != newExpiryText)
+            {
+                <text><s>@(oldExpiryText)</s> </text>
+            }
+            <text>@(newExpiryText) (<a href="@(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = this.Model.SchemaName, id = this.Model.PasteID, operation = "renew" }))">renew</a>).</text>
         }
         <!--@Model.UploadWarning-->
     </div>

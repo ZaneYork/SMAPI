@@ -13,6 +13,8 @@ SKIP_TERMINAL=false
 # Whether to avoid opening a separate terminal, but still send the usual log output to the console.
 USE_CURRENT_SHELL=false
 
+# Specify terminal name to open and output logs
+PREFER_TERMINAL_NAME=""
 
 ##########
 ## Read environment variables
@@ -23,6 +25,9 @@ fi
 if [ "$SMAPI_USE_CURRENT_SHELL" == "true" ]; then
     USE_CURRENT_SHELL=true
 fi
+if [ "$SMAPI_PREFER_TERMINAL_NAME" != "" ]; then
+    PREFER_TERMINAL_NAME=$SMAPI_PREFER_TERMINAL_NAME
+fi
 
 
 ##########
@@ -32,6 +37,7 @@ while [ "$#" -gt 0 ]; do
     case "$1" in
         --skip-terminal ) SKIP_TERMINAL=true; shift ;;
         --use-current-shell ) USE_CURRENT_SHELL=true; shift ;;
+        --prefer-terminal-name=* ) PREFER_TERMINAL_NAME="${1#*=}"; shift ;; # ${1#*=} removes everything up to the equals sign from $1
         -- ) shift; break ;;
         * ) shift ;;
     esac
@@ -53,13 +59,22 @@ if [ "$(uname)" == "Darwin" ]; then
         # reopen in Terminal if needed
         # https://stackoverflow.com/a/29511052/262123
         if [ "$USE_CURRENT_SHELL" == "false" ]; then
-            echo "Reopening in the Terminal app..."
             echo '#!/bin/sh' > /tmp/open-smapi-terminal.command
             echo "\"$0\" $@ --use-current-shell" >> /tmp/open-smapi-terminal.command
             chmod +x /tmp/open-smapi-terminal.command
             cat /tmp/open-smapi-terminal.command
-            open -W /tmp/open-smapi-terminal.command
-            rm /tmp/open-smapi-terminal.command
+
+            # open in ITerm2 if installed, else the default Terminal
+            if [ -d "/Applications/iTerm.app" ]; then
+                echo "Reopening in iTerm2..."
+                open -a "/Applications/iTerm.app" /tmp/open-smapi-terminal.command
+            else
+                echo "Reopening in the Terminal app..."
+                open -W /tmp/open-smapi-terminal.command
+            fi
+
+            # remove temporary script after a delay
+            (sleep 10; rm /tmp/open-smapi-terminal.command)
             exit 0
         fi
     fi
@@ -86,19 +101,31 @@ if [ "$(uname)" == "Darwin" ]; then
 
 # Linux
 else
-    # choose binary file to launch
-    LAUNCH_FILE="./StardewModdingAPI"
-    export LAUNCH_FILE
+    # check if gamemoderun exists, if that is not the case start SMAPI normally
+    if command -v gamemoderun &> /dev/null
+    then
+        # Run SMAPI with using gamemoderun, which automatically boosts the system for the game
+        LAUNCH_FILE="gamemoderun ./StardewModdingAPI"
+        export LAUNCH_FILE
+    else
+        LAUNCH_FILE="./StardewModdingAPI"
+        export LAUNCH_FILE
+    fi
 
     # run in terminal
     if [ "$USE_CURRENT_SHELL" == "false" ]; then
-        # select terminal (prefer xterm for best compatibility, then known supported terminals)
-        for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty mate-terminal x-terminal-emulator wezterm; do
-            if command -v "$terminal" 2>/dev/null; then
-                export TERMINAL_NAME=$terminal
-                break;
-            fi
-        done
+        # if user said preferred terminal
+        if [ "$PREFER_TERMINAL_NAME" != "" ]; then
+            export TERMINAL_NAME=$PREFER_TERMINAL_NAME
+        else
+            # select terminal (prefer xterm for best compatibility, then known supported terminals)
+            for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty mate-terminal x-terminal-emulator wezterm; do
+                if command -v "$terminal" 2>/dev/null; then
+                    export TERMINAL_NAME=$terminal
+                    break;
+                fi
+            done
+        fi
 
         # find the true shell behind x-terminal-emulator
         if [ "$TERMINAL_NAME" = "x-terminal-emulator" ]; then

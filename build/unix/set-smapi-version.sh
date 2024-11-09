@@ -21,6 +21,6 @@ cd "`dirname "$0"`/../.."
 # apply changes
 sed "s/<Version>.+<\/Version>/<Version>$version<\/Version>/" "build/common.targets" --in-place --regexp-extended
 sed "s/RawApiVersion = \".+?\";/RawApiVersion = \"$version\";/" "src/SMAPI/Constants.cs" --in-place --regexp-extended
-for modName in "ConsoleCommands" "ErrorHandler" "SaveBackup"; do
+for modName in "ConsoleCommands" "SaveBackup"; do
     sed "s/\"(Version|MinimumApiVersion)\": \".+?\"/\"\1\": \"$version\"/g" "src/SMAPI.Mods.$modName/manifest.json" --in-place --regexp-extended
 done

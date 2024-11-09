@@ -1,25 +1,24 @@
 @using Humanizer
 @using Humanizer.Localisation
 @using StardewModdingAPI.Web.Framework
-@using StardewModdingAPI.Web.ViewModels
 @model StardewModdingAPI.Web.ViewModels.ModListModel
 @{
     ViewData["Title"] = "Mod compatibility";
 
-    TimeSpan staleAge = DateTimeOffset.UtcNow - Model!.LastUpdated;
+    TimeSpan staleAge = DateTimeOffset.UtcNow - Model.LastUpdated;
 
     bool hasBeta = Model.BetaVersion != null;
     string betaLabel = $"SDV {Model.BetaVersion} only";
 }
 @section Head {
-    <link rel="stylesheet" href="~/Content/css/mods.css?r=20200218" />
+    <link rel="stylesheet" href="@Url.ContentWithCacheBust("~/Content/css/mods.css")" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/tablesorter@2.31.3" crossorigin="anonymous"></script>
-    <script src="~/Content/js/mods.js?r=20210929"></script>
+    <script src="@Url.ContentWithCacheBust("~/Content/js/mods.js")"></script>
     <script>
         $(function() {
-            var data = @(this.ForJson(Model.Mods ?? Array.Empty<ModModel>()));
+            var data = @(this.ForJson(Model.Mods));
             var enableBeta = @this.ForJson(hasBeta);
             smapi.modList(data, enableBeta);
         });

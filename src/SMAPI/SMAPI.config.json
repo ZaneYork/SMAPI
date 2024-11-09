@@ -2,14 +2,14 @@
 
 
 
-This file contains advanced configuration for SMAPI. You generally shouldn't change this file.
-The default values are mirrored in StardewModdingAPI.Framework.Models.SConfig to log custom changes.
+This file has advanced configuration for SMAPI.
 
+Don't edit this file directly! It will be reset each time you update or reinstall SMAPI.
 
-This file is overwritten each time you update or reinstall SMAPI. To avoid losing custom settings,
-create a 'config.user.json' file in the same folder with *only* the settings you want to change.
-That file won't be overwritten, and any settings in it will override the default options. Don't
-copy all the settings, or you may cause bugs due to overridden changes in future SMAPI versions.
+Instead create a `smapi-internal/config.user.json` or `Mods/SMAPI-config.json` file with *only* the
+settings you want to change. That file won't be overwritten, and any settings in it will override
+the default options. Don't copy all the settings, or you may cause bugs due to overridden changes
+in future SMAPI versions.
 
 
 
@@ -36,6 +36,15 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "CheckForUpdates": true,
 
     /**
+     * Whether SMAPI should check whether the content files are present and unmodified. This should
+     * nearly always be enabled.
+     *
+     * If disabled, SMAPI will log a warning that it's disabled for visibility when someone helps
+     * you troubleshoot game issues.
+     */
+    "CheckContentIntegrity": true,
+
+    /**
      * Whether to enable features intended for mod developers. Currently this only makes TRACE-level
      * messages appear in the console.
      */
@@ -52,6 +61,13 @@ copy all the settings, or you may cause bugs due to overridden changes in future
      * loading, but bypasses a Visual Studio crash when debugging.
      */
     "RewriteMods": true,
+
+    /**
+     * Whether to fix the library mods use to patch game code, so it works with Stardew Valley.
+     *
+     * If you disable this, mods which use Harmony are likely to cause game crashes.
+     */
+    "FixHarmony": true,
 
     /**
      * Whether to make SMAPI file APIs case-insensitive (even if the filesystem is case-sensitive).
@@ -91,6 +107,13 @@ copy all the settings, or you may cause bugs due to overridden changes in future
      * Whether SMAPI should log network traffic (may be very verbose). Best combined with VerboseLogging, which includes network metadata.
      */
     "LogNetworkTraffic": false,
+
+    /**
+     * Whether to include more technical details about broken mods in the TRACE logs. This is
+     * mainly useful for creating compatibility rewriters, it's not useful to most players or mod
+     * authors.
+     */
+    "LogTechnicalDetailsForBrokenMods": false,
 
     /**
      * The colors to use for text written to the SMAPI console.
@@ -145,7 +168,6 @@ copy all the settings, or you may cause bugs due to overridden changes in future
      */
     "SuppressUpdateChecks": [
         "SMAPI.ConsoleCommands",
-        "SMAPI.ErrorHandler",
         "SMAPI.SaveBackup"
     ],
 

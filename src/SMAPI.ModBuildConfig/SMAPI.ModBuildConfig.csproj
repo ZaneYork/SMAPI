@@ -10,12 +10,15 @@
     <!--NuGet package-->
     <PackageId>Pathoschild.Stardew.ModBuildConfig</PackageId>
     <Title>Build package for SMAPI mods</Title>
-    <Version>4.1.1</Version>
+    <Version>4.3.1</Version>
     <Authors>Pathoschild</Authors>
     <Description>Automates the build configuration for crossplatform Stardew Valley SMAPI mods. For SMAPI 3.13.0 or later.</Description>
+    <PackageReadmeFile>mod-package.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>images/icon.png</PackageIcon>
     <PackageProjectUrl>https://smapi.io/package/readme</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/Pathoschild/SMAPI.git</RepositoryUrl>
     <IncludeBuildOutput>false</IncludeBuildOutput>
 
     <!--copy dependency DLLs to bin folder so we can include them in package -->
@@ -23,14 +26,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.10" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-
-    <!--
-      This is imported through Microsoft.Build.Utilities.Core. When installed by a mod, NuGet
-      otherwise imports version 4.3.0 instead of 5.0.0, which conflicts with SMAPI's version.
-    -->
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" />
+    <PackageReference Include="Microsoft.Win32.Registry" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,7 +37,8 @@
 
   <ItemGroup>
     <!--project files-->
-    <None Include="..\..\docs\technical\mod-package.md" Link="mod-package.md" />
+    <None Include="..\..\docs\technical\mod-package.md" Link="mod-package.md" Pack="true" PackagePath="/" />
+    <None Include="..\..\docs\technical\mod-package-release-notes.md" Link="release-notes.md" />
 
     <!--NuGet package files-->
     <None PackagePath="analyzers/dotnet/cs" Include="$(SolutionDir)/SMAPI.ModBuildConfig.Analyzer/bin/netstandard2.0/SMAPI.ModBuildConfig.Analyzer.dll" Pack="true" Visible="false" />

@@ -909,21 +909,7 @@ smapi.logParser = function (state) {
                 if (!state.enableFilters)
                     return;
 
-                const curShown = this.showMods[id];
-
-                // first filter: only show this by default
-                if (stats.modsHidden === 0) {
-                    this.hideAllMods();
-                    this.showMods[id] = true;
-                }
-
-                // unchecked last filter: reset
-                else if (stats.modsShown === 1 && curShown)
-                    this.showAllMods();
-
-                // else toggle
-                else
-                    this.showMods[id] = !this.showMods[id];
+                this.showMods[id] = !this.showMods[id];
 
                 this.updateModFilters();
                 this.updateUrl();

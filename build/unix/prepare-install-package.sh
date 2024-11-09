@@ -13,7 +13,7 @@
 ##########
 # paths
 gamePath="/home/pathoschild/Stardew Valley"
-bundleModNames=("ConsoleCommands" "ErrorHandler" "SaveBackup")
+bundleModNames=("ConsoleCommands" "SaveBackup")
 
 # build configuration
 buildConfig="Release"
@@ -62,14 +62,14 @@ for folder in ${folders[@]}; do
 
     echo "Compiling installer for $folder..."
     echo "-------------------------------------------------"
-    dotnet publish src/SMAPI.Installer --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" -p:PublishTrimmed=True -p:TrimMode=Link --self-contained true
+    dotnet publish src/SMAPI.Installer --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" --self-contained true
     echo ""
     echo ""
 
     for modName in ${bundleModNames[@]}; do
         echo "Compiling $modName for $folder..."
         echo "-------------------------------------------------"
-        dotnet publish src/SMAPI.Mods.$modName --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false"
+        dotnet publish src/SMAPI.Mods.$modName --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" --self-contained false
         echo ""
         echo ""
     done
@@ -150,11 +150,6 @@ for folder in ${folders[@]}; do
     if [ $folder == "windows" ]; then
         cp "$smapiBin/System.Management.dll" "$bundlePath/smapi-internal"
     fi
-
-    # copy legacy .NET dependencies (remove in SMAPI 4.0.0)
-    cp "$smapiBin/System.Configuration.ConfigurationManager.dll" "$bundlePath/smapi-internal"
-    cp "$smapiBin/System.Runtime.Caching.dll" "$bundlePath/smapi-internal"
-    cp "$smapiBin/System.Security.Permissions.dll" "$bundlePath/smapi-internal"
 
     # copy bundled mods
     for modName in ${bundleModNames[@]}; do

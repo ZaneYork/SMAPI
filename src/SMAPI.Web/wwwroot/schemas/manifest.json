@@ -72,6 +72,11 @@
             "description": "The minimum SMAPI version needed to use this mod. If a player tries to use the mod with an older SMAPI version, they'll see a friendly message saying they need to update SMAPI. This also serves as a proxy for the minimum game version, since SMAPI itself enforces a minimum game version.",
             "$ref": "#/definitions/SemanticVersion"
         },
+		"MinimumGameVersion": {
+            "title": "Minimum Game version",
+            "description": "The minimum Stardew Valley version needed to use this mod. If a player tries to use the mod with an older Stardew Valley version, they'll see a friendly message saying they need to update Stardew Valley.",
+            "$ref": "#/definitions/SemanticVersion"
+        },
         "Dependencies": {
             "title": "Mod dependencies",
             "description": "Specifies other mods to load before this mod. If a dependency is required and a player tries to use the mod without the dependency installed, the mod won't be loaded and they'll see a friendly message saying they need to install those.",
@@ -103,7 +108,7 @@
             "type": "array",
             "items": {
                 "type": "string",
-                "pattern": "^(?i)(Chucklefish:\\d+|Nexus:\\d+|GitHub:[A-Za-z0-9_\\-]+/[A-Za-z0-9_\\-]+|ModDrop:\\d+)(?: *@ *[a-zA-Z0-9_]+ *)?$",
+                "pattern": "^(?i)(Chucklefish:\\d+|Nexus:\\d+|GitHub:[A-Za-z0-9_\\-\\.]+/[A-Za-z0-9_\\-]+|ModDrop:\\d+)(?: *@ *[a-zA-Z0-9_]+ *)?$",
                 "@errorMessages": {
                     "pattern": "Invalid update key; see https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Manifest#Update_checks for more info."
                 }

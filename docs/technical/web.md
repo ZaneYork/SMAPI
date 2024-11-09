@@ -189,7 +189,7 @@ may be useful to external tools.
 
 Example request:
 ```js
-POST https://smapi.io/api/v3.0/mods
+POST https://smapi.io/api/v4.0.0/mods
 {
    "mods": [
       {
@@ -199,8 +199,8 @@ POST https://smapi.io/api/v3.0/mods
          "isBroken": false
       }
    ],
-   "apiVersion": "3.0.0",
-   "gameVersion": "1.4.0",
+   "apiVersion": "4.0.0",
+   "gameVersion": "1.6.9",
    "platform": "Windows",
    "includeExtendedMetadata": true
 }
@@ -275,7 +275,6 @@ field | summary
 `brokeIn` | The SMAPI or Stardew Valley version that broke this mod, if any.
 `betaCompatibilityStatus`<br />`betaCompatibilitySummary`<br />`betaBrokeIn` | Equivalent to the preceding fields, but for beta versions of SMAPI or Stardew Valley.
 
-
 </td>
 </tr>
 </table>
@@ -322,6 +321,15 @@ Example response with `includeExtendedMetadata: true`:
       "errors": []
    }
 ]
+```
+
+### `/mods/metrics`
+The `/mods/metrics` endpoint returns a summary of update-check metrics since the server was last
+deployed or restarted.
+
+Example request:
+```js
+GET https://smapi.io/api/v4.0.0/mods/metrics
 ```
 
 ## Short URLs
