@@ -19,7 +19,6 @@ using File = Java.IO.File;
 using Newtonsoft.Json;
 using Java.Lang;
 using Java.Util;
-using Bundle = Android.OS.Bundle;
 using Exception = System.Exception;
 using Thread = System.Threading.Thread;
 
@@ -107,7 +106,7 @@ namespace StardewModdingAPI
                 this.core = new SCore(Path.Combine(EarlyConstants.StardewValleyBasePath, modPath), false, false);
                 this.core.RunInteractively();
 
-                typeof(MailActivity).Assembly.GetType("StardewValley.Mobile.MobileDisplay")?.GetMethod("SetupDisplaySettings", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)?.Invoke(null, Array.Empty<object>());
+                typeof(MainActivity).Assembly.GetType("StardewValley.Mobile.MobileDisplay")?.GetMethod("SetupDisplaySettings", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)?.Invoke(null, Array.Empty<object>());
                 typeof(MainActivity).GetMethod("SetZoomScaleAndMenuButtonScale", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(this, Array.Empty<object>());
                 this.SetPaddingForMenus();
 

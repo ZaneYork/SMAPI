@@ -1,6 +1,7 @@
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewValley;
 using StardewValley.Locations;
+using Object = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
 

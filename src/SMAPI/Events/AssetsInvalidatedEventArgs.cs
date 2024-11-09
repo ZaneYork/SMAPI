@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-#if SMAPI_FOR_MOBILE
-using ReadOnlyCollectionsExtensions;
-#endif
 
 namespace StardewModdingAPI.Events;
 

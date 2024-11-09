@@ -15,6 +15,7 @@ using StardewValley.Locations;
 using StardewValley.Pathfinding;
 using StardewValley.TerrainFeatures;
 using StardewValley.Triggers;
+using StardewValley.Util;
 using StardewValley.WorldMaps;
 using xTile;
 
@@ -179,7 +180,8 @@ internal class CoreAssetPropagator
                             changed = true;
 
                             Texture2D texture = contentManager.LoadLocalized<Texture2D>(name, language, useCache: true);
-                            texture.CopyFromTexture(newTextures[i].Value);
+                            // TODO Texture2D.CopyFromTexture
+                            // texture.CopyFromTexture(newTextures[i].Value);
                         }
                         else
                         {

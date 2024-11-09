@@ -12,7 +12,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>StardewModdingAPI</RootNamespace>
     <AssemblyName>StardewModdingAPI</AssemblyName>
-    <TargetFramework>net8.0-android</TargetFramework>
+    <TargetFramework>net8.0-android34</TargetFramework>
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -69,52 +69,38 @@
       <HintPath>..\..\build\StardewValleyAndroidStuff\base_1.6.13.0\assemblies\MonoGame.Framework.dll</HintPath>
     </Reference>
 
-    <Reference Include="mscorlib" />
-    <Reference Include="Mono.Android" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Xml" />
+<!--    <Reference Include="mscorlib" />-->
+<!--    <Reference Include="Mono.Android" />-->
+<!--    <Reference Include="System" />-->
+<!--    <Reference Include="System.Core" />-->
+<!--    <Reference Include="System.Data" />-->
+<!--    <Reference Include="System.Xml.Linq" />-->
+<!--    <Reference Include="System.Xml" />-->
     <Reference Include="0Harmony">
       <HintPath>..\..\build\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\build\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CSharp" />
+<!--    <Reference Include="Microsoft.CSharp" />-->
     <Reference Include="SMAPI.Toolkit">
       <HintPath>..\SMAPI.Toolkit\bin\Debug\netstandard2.0\SMAPI.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="SMAPI.Toolkit.CoreInterfaces">
       <HintPath>..\SMAPI.Toolkit.CoreInterfaces\bin\Debug\netstandard2.0\SMAPI.Toolkit.CoreInterfaces.dll</HintPath>
     </Reference>
-    <PackageReference Include="MonoGame.Framework.Android">
-      <Version>3.8.2.1105</Version>
-    </PackageReference>
-    <PackageReference Include="SkiaSharp">
-      <Version>2.88.3</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.Android.Support.DocumentFile">
-      <Version>28.0.0.3</Version>
-    </PackageReference>
-    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
-    <PackageReference Include="MonoMod.Common" Version="22.6.3.1" />
+    <PackageReference Include="MonoGame.Framework.Android" />
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="Xamarin.Android.Support.DocumentFile" />
+    <PackageReference Include="Mono.Cecil" />
+    <PackageReference Include="MonoMod.Common" />
     <Reference Include="Pintail">
       <HintPath>..\..\build\Pintail.dll</HintPath>
     </Reference>
     <Reference Include="TMXTile">
       <HintPath>..\..\build\TMXTile.dll</HintPath>
     </Reference>
-    <Reference Include="ReadOnlyCollectionsInterfaces">
-      <HintPath>..\..\build\ReadOnlyCollectionsInterfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="ReadOnlyCollectionsExtensions">
-      <HintPath>..\..\build\ReadOnlyCollectionsExtensions.dll</HintPath>
-    </Reference>
-    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
-
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageReference Include="System.Reflection.Emit" />
   </ItemGroup>
 
   <ItemGroup>
@@ -122,9 +108,6 @@
     <None Include="SMAPI.config.json" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Resources" />
-  </ItemGroup>
 
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
 </Project>

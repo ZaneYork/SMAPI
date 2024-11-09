@@ -35,5 +35,10 @@
         <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10" />
         <PackageVersion Include="Newtonsoft.Json.Schema" Version="4.0.1" />
         <PackageVersion Include="Pathoschild.FluentNexus" Version="1.0.5" />
+
+        <PackageVersion Include="MonoGame.Framework.Android" Version="3.8.2.1105" />
+        <PackageVersion Include="SkiaSharp" Version="2.88.9" />
+        <PackageVersion Include="Xamarin.Android.Support.DocumentFile" Version="28.0.0.3" />
+
     </ItemGroup>
 </Project>

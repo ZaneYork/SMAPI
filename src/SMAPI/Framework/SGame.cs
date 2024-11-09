@@ -18,6 +18,7 @@ using StardewValley.Minigames;
 #if SMAPI_FOR_MOBILE
 using StardewValley.Events;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using StardewValley.Minigames;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;

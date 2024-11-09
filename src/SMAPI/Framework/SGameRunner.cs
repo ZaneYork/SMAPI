@@ -164,7 +164,11 @@ internal class SGameRunner : GameRunner
     /// <param name="sender">The event sender.</param>
     /// <param name="args">The event args.</param>
     /// <remarks>This overrides the logic in <see cref="Game1.exitEvent"/> to let SMAPI clean up before exit.</remarks>
+#if SMAPI_FOR_MOBILE
+    protected void OnExiting(object sender, EventArgs args)
+#else
     protected override void OnExiting(object sender, EventArgs args)
+#endif
     {
         this.OnGameExiting();
     }

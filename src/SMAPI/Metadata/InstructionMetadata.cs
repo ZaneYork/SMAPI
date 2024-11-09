@@ -7,6 +7,7 @@ using Netcode;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.ModLoading.Finders;
+using StardewModdingAPI.Framework.ModLoading.RewriteFacades;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
@@ -54,15 +55,6 @@ internal class InstructionMetadata
     /// <summary>The assembly names to which to heuristically detect broken references.</summary>
     /// <remarks>The current implementation only works correctly with assemblies that should always be present.</remarks>
     private readonly ISet<string> ValidateReferencesToAssemblies = new HashSet<string> { "StardewModdingAPI", "Stardew Valley", "StardewValley", "Netcode" };
-
-#if SMAPI_FOR_MOBILE
-        private readonly IMonitor Monitor;
-
-        public InstructionMetadata(IMonitor monitor)
-        {
-            this.Monitor = monitor;
-        }
-#endif
 
     /*********
     ** Public methods
@@ -353,41 +345,37 @@ internal class InstructionMetadata
                 yield return new TypeFieldToAnotherTypePropertyRewriter(typeof(Game1), typeof(Game1Methods), "rainDrops", nameof(Game1Methods.RainDropsProp));
 
                 // Rewrite Missing Type
-                yield return new TypeReferenceRewriter("StardewValley.Menus.CraftingPage", typeof(CraftingPageMobile));
-                yield return new TypeReferenceRewriter("StardewValley.Menus.InventoryMenu/BorderSide", typeof(InventoryMenuMethods.BorderSide));
+                // yield return new TypeReferenceRewriter("StardewValley.Menus.CraftingPage", typeof(CraftingPageMobile));
+                // yield return new TypeReferenceRewriter("StardewValley.Menus.InventoryMenu/BorderSide", typeof(InventoryMenuMethods.BorderSide));
 
                 //Method Rewrites
-                yield return new MethodParentRewriter(typeof(Game1), typeof(Game1Methods));
-                yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods));
-                yield return new MethodParentRewriter(typeof(SpriteText), typeof(SpriteTextMethods));
-                yield return new MethodParentRewriter(typeof(Utility), typeof(UtilityMethods));
+                // yield return new MethodParentRewriter(typeof(Game1), typeof(Game1Methods));
+                // yield return new MethodParentRewriter(typeof(IClickableMenu), typeof(IClickableMenuMethods));
+                // yield return new MethodParentRewriter(typeof(SpriteText), typeof(SpriteTextMethods));
+                // yield return new MethodParentRewriter(typeof(Utility), typeof(UtilityMethods));
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(OptionsElement), (method) => method.Name == nameof(OptionsElementMethods.draw), typeof(OptionsElementMethods), "draw");
 
-                yield return new MethodToAnotherStaticMethodRewriter(typeof(ISoundBank), (method) => method.Name == nameof(SoundBankMethods.AddCue), typeof(SoundBankMethods), "AddCue");
-                yield return new MethodToAnotherStaticMethodRewriter(typeof(ISoundBank), (method) => method.Name == nameof(SoundBankMethods.GetCueDefinition), typeof(SoundBankMethods), "GetCueDefinition");
+                // yield return new MethodToAnotherStaticMethodRewriter(typeof(ISoundBank), (method) => method.Name == nameof(SoundBankMethods.AddCue), typeof(SoundBankMethods), "AddCue");
+                // yield return new MethodToAnotherStaticMethodRewriter(typeof(ISoundBank), (method) => method.Name == nameof(SoundBankMethods.GetCueDefinition), typeof(SoundBankMethods), "GetCueDefinition");
 
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(Enum), (method) => method.Name == nameof(EnumMethods.IsDefined) && method.Parameters.Count == 1, typeof(EnumMethods), "IsDefined");
                 yield return new MethodToAnotherStaticMethodRewriter(typeof(Enum), (method) => method.Name == nameof(EnumMethods.GetNames) && method.Parameters.Count == 0, typeof(EnumMethods), "GetNames");
 
                 //Constructor Rewrites
-                yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));
-                yield return new MethodParentRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods));
-                yield return new MethodParentRewriter(typeof(InventoryMenu), typeof(InventoryMenuMethods));
-                yield return new MethodParentRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods));
-                yield return new MethodParentRewriter(typeof(GameMenu), typeof(GameMenuMethods));
-                yield return new MethodParentRewriter(typeof(CraftingPageMobile), typeof(CraftingPageMobileMethods));
+                // yield return new MethodParentRewriter(typeof(MapPage), typeof(MapPageMethods));
+                // yield return new MethodParentRewriter(typeof(ItemGrabMenu), typeof(ItemGrabMenuMethods));
+                // yield return new MethodParentRewriter(typeof(InventoryMenu), typeof(InventoryMenuMethods));
+                // yield return new MethodParentRewriter(typeof(MenuWithInventory), typeof(MenuWithInventoryMethods));
+                // yield return new MethodParentRewriter(typeof(GameMenu), typeof(GameMenuMethods));
+                // yield return new MethodParentRewriter(typeof(CraftingPageMobile), typeof(CraftingPageMobileMethods));
 
 #endif
             // heuristic rewrites
             yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
             yield return new HeuristicMethodRewriter(this.ValidateReferencesToAssemblies);
 #if SMAPI_FOR_MOBILE
-                yield return new HeuristicFieldAccessibilityRewriter(this.ValidateReferencesToAssemblies);
+            yield return new HeuristicFieldAccessibilityRewriter(this.ValidateReferencesToAssemblies);
 #endif
-
-            // 32-bit to 64-bit in Stardew Valley 1.5.5
-            if (platformChanged)
-                yield return new MethodParentRewriter(typeof(SpriteBatch), typeof(SpriteBatchFacade));
             yield return new ArchitectureAssemblyRewriter();
         }
 #if SMAPI_FOR_MOBILE
@@ -413,7 +401,7 @@ internal class InstructionMetadata
         yield return new ReferenceToInvalidMemberFinder(this.ValidateReferencesToAssemblies, logTechnicalDetailsForBrokenMods);
 
         // code which may impact game stability
-        yield return new FieldFinder(typeof(SaveGame).FullName!, new[] { nameof(SaveGame.serializer), nameof(SaveGame.farmerSerializer), nameof(SaveGame.locationSerializer) }, InstructionHandleResult.DetectedSaveSerializer);
+        // yield return new FieldFinder(typeof(SaveGame).FullName!, new[] { nameof(SaveGame.serializer), nameof(SaveGame.farmerSerializer), nameof(SaveGame.locationSerializer) }, InstructionHandleResult.DetectedSaveSerializer);
         yield return new EventFinder(typeof(ISpecializedEvents).FullName!, new[] { nameof(ISpecializedEvents.UnvalidatedUpdateTicked), nameof(ISpecializedEvents.UnvalidatedUpdateTicking) }, InstructionHandleResult.DetectedUnvalidatedUpdateTick);
 
         // direct console access

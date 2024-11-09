@@ -13,12 +13,20 @@ public class DiscreteColorPickerFacade : DiscreteColorPicker, IRewriteFacade
     *********/
     public new int getSelectionFromColor(Color c)
     {
+#if SMAPI_FOR_MOBILE
+        return base.getSelectionFromColor(c);
+#else
         return DiscreteColorPicker.getSelectionFromColor(c);
+#endif
     }
 
     public new Color getColorFromSelection(int selection)
     {
+#if SMAPI_FOR_MOBILE
+        return base.getColorFromSelection(selection);
+#else
         return DiscreteColorPicker.getColorFromSelection(selection);
+#endif
     }
 
 

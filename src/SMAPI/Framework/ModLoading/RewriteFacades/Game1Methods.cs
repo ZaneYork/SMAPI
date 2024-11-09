@@ -61,16 +61,16 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             warpFarmer(locationName, tileX, tileY, flip ? ((player.FacingDirection + 2) % 4) : player.FacingDirection);
         }
 
-        public static void removeSquareDebrisFromTile(int tileX, int tileY)
-        {
-            Game1.currentLocation.debris.Filter(debris => {
-                if ((debris.debrisType == 2) && (((int)(debris.Chunks[0].position.X / 64f)) == tileX))
-                {
-                    return (debris.chunkFinalYLevel / 0x40) != tileY;
-                }
-                return true;
-            });
-        }
+        // public static void removeSquareDebrisFromTile(int tileX, int tileY)
+        // {
+        //     Game1.currentLocation.debris.Filter(debris => {
+        //         if ((debris.debrisType == 2) && (((int)(debris.Chunks[0].position.X / 64f)) == tileX))
+        //         {
+        //             return (debris.chunkFinalYLevel / 0x40) != tileY;
+        //         }
+        //         return true;
+        //     });
+        // }
 
 
         public static void randomizeDebrisWeatherPositions(List<WeatherDebris> debris)

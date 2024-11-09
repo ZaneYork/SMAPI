@@ -27,7 +27,7 @@ public class CraftingRecipeFacade : CraftingRecipe, IRewriteFacade
             : index;
     }
 
-    public static bool isThereSpecialIngredientRule(Object potentialIngredient, int requiredIngredient)
+    public static bool isThereSpecialIngredientRule(StardewValley.Object potentialIngredient, int requiredIngredient)
     {
         return CraftingRecipe.isThereSpecialIngredientRule(potentialIngredient, requiredIngredient.ToString());
     }

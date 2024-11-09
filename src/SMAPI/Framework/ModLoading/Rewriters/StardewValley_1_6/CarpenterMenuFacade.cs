@@ -18,7 +18,8 @@ public class CarpenterMenuFacade : CarpenterMenu, IRewriteFacade
 
     public void setNewActiveBlueprint()
     {
-        base.SetNewActiveBlueprint(base.Blueprint);
+        // TODO CarpenterMenu.SetNewActiveBlueprint
+        // base.SetNewActiveBlueprint(base.Blueprint);
     }
 
 

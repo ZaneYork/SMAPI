@@ -56,7 +56,7 @@ public class ObjectFacade : SObject, IRewriteFacade
 
     public new void ConsumeInventoryItem(Farmer who, Item drop_in, int amount)
     {
-        Object.ConsumeInventoryItem(who, drop_in, amount);
+        SObject.ConsumeInventoryItem(who, drop_in, amount);
     }
 
     public void DayUpdate(GameLocation location)

@@ -10,6 +10,7 @@ using StardewValley.Extensions;
 using StardewValley.Objects;
 using xTile;
 using xTile.Dimensions;
+using Object = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
 

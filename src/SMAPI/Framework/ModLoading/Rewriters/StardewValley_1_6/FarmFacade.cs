@@ -1,6 +1,7 @@
 using System.Drawing;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewValley;
+using Object = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
 

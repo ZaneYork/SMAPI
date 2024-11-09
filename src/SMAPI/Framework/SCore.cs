@@ -711,7 +711,8 @@ internal class SCore : IDisposable
                     SCore.ProcessTicksElapsed++;
 #if SMAPI_FOR_MOBILE
                     // raise load stage changed
-                    switch (Game1.currentLoader.Current)
+                    int? step = Game1.currentLoader?.Current;
+                    switch (step)
                     {
                         case 1:
                         case 24:

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Mono.Cecil;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
@@ -44,9 +43,6 @@ internal static class EarlyConstants
     /// <summary>The path to the game folder.</summary>
     public static string GamePath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 #endif
-    /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
-    public static readonly string InternalFilesPath = Path.Combine(EarlyConstants.GamePath, "smapi-internal");
-
     /// <summary>The target game platform.</summary>
 #if SMAPI_FOR_MOBILE
         public static readonly string InternalFilesPath = EarlyConstants.ExecutionPath;
@@ -61,13 +57,7 @@ internal static class EarlyConstants
 
     /// <summary>The game framework running the game.</summary>
     internal static GameFramework GameFramework { get; } = GameFramework.MonoGame;
-
     /// <summary>The game's assembly name.</summary>
-    internal static string GameAssemblyName { get; } = "Stardew Valley";
-
-    /// <summary>The <see cref="Context.ScreenId"/> value which should appear in the SMAPI log, if any.</summary>
-    internal static int? LogScreenId { get; set; }
-        /// <summary>The game's assembly name.</summary>
 #if SMAPI_FOR_MOBILE
     internal static string GameAssemblyName { get; } = "StardewValley";
 #else
@@ -77,12 +67,10 @@ internal static class EarlyConstants
         internal static int? LogScreenId { get; set; }
 
     /// <summary>SMAPI's current raw semantic version.</summary>
-    internal static string RawApiVersion = "4.1.6";
-    /// <summary>SMAPI's current raw semantic version.</summary>
 #if !SMAPI_FOR_MOBILE
-    internal static string RawApiVersion = "3.18.4";
+    internal static string RawApiVersion = "4.1.6";
 #else
-    internal static string RawApiVersion = "3.18.4.1";
+    internal static string RawApiVersion = "4.1.6";
 #endif
 }
 

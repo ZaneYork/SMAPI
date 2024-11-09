@@ -399,9 +399,6 @@ internal class ContentCoordinator : IDisposable
 
                     if (asset is not Texture2D) // will edit in place
                         contentManager.InvalidateCache(assetName, dispose);
-#else
-                        removingAssets.Add(assetName);
-#endif
 
                     if (!invalidatedAssets.ContainsKey(assetName))
                         invalidatedAssets[assetName] = asset.GetType();
