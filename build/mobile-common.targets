@@ -23,6 +23,7 @@
 
     <COMPILE_WITH_PLUGIN>False</COMPILE_WITH_PLUGIN>
     <DefineConstants>SMAPI_FOR_MOBILE</DefineConstants>
+    <AndroidSdkDirectory>C:\Users\ZaneYork\AppData\Local\Android\sdk</AndroidSdkDirectory>
   </PropertyGroup>
 
   <ItemGroup Condition="$(COMPILE_WITH_PLUGIN) == 'True'">

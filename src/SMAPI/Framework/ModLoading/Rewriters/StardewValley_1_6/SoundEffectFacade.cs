@@ -1,3 +1,4 @@
+#if !SMAPI_FOR_MOBILE
 using System.IO;
 using Microsoft.Xna.Framework.Audio;
 using StardewModdingAPI.Framework.ModLoading.Framework;
@@ -26,3 +27,4 @@ public class SoundEffectFacade : SoundEffect, IRewriteFacade
         RewriteHelper.ThrowFakeConstructorCalled();
     }
 }
+#endif

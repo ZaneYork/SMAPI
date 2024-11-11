@@ -1,110 +1,47 @@
-﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\mobile-common.targets" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{45D7D2FB-6B70-45D1-A595-6E289D6A3468}</ProjectGuid>
-    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TemplateGuid>{122416d6-6b49-4ee2-a1e8-b825f31c79fe}</TemplateGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Loader</RootNamespace>
-    <AssemblyName>Loader</AssemblyName>
-    <FileAlignment>512</FileAlignment>
-    <AndroidApplication>True</AndroidApplication>
-    <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
-    <AndroidResgenClass>Resource</AndroidResgenClass>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
-    <TargetFrameworkVersion>v12.0</TargetFrameworkVersion>
-    <TargetFramework>net5.0-android</TargetFramework>
-    <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
-    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
-    <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
+    <TargetFramework>net8.0-android34.0</TargetFramework>
+    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationId>cn.zaneyork.smapi.loader</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <RunAOTCompilation>false</RunAOTCompilation>
     <AndroidLinkMode>None</AndroidLinkMode>
-    <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
-    <AndroidManagedSymbols>false</AndroidManagedSymbols>
-    <AndroidUseAapt2>true</AndroidUseAapt2>
-    <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
-    <AndroidDexTool>d8</AndroidDexTool>
-<!--    <AndroidLinkSkip>Mono.Android;MonoGame.Framework;mscorlib;System.Core;System;System.Drawing.Common;System.Numerics;System.Runtime.Serialization;System.Xml;System.Xml.Linq</AndroidLinkSkip>-->
-    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>False</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AndroidManagedSymbols>false</AndroidManagedSymbols>
-    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
-    <AndroidLinkMode>None</AndroidLinkMode>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
-    <AndroidUseAapt2>true</AndroidUseAapt2>
-    <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
-    <AndroidDexTool>d8</AndroidDexTool>
+    <AndroidUseAapt2>True</AndroidUseAapt2>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AndroidUseAapt2>True</AndroidUseAapt2>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Resources\Resource.designer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-    <None Include="Resources\AboutResources.txt" />
-    <None Include="Properties\AndroidManifest.xml" />
-    <None Include="Assets\AboutAssets.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\icon.png" />
-    <AndroidResource Include="Resources\drawable\splash.png" />
-    <AndroidResource Include="Resources\drawable\splash_logos_crop.png" />
-    <AndroidResource Include="Resources\drawable\splash_screen.xml" />
-    <AndroidResource Include="Resources\values\colors.xml" />
-    <AndroidResource Include="Resources\values\ic_launcher_background.xml" />
-    <AndroidResource Include="Resources\values\strings.xml" />
-    <AndroidResource Include="Resources\values\styles.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Mono.Android" />
-    <Reference Include="Mono.Security" />
     <ProjectReference Include="..\SMAPI\SMAPI.csproj" />
-    <Reference Include="System" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Core" />
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\build\StardewValleyAndroidStuff\base_1.6.13.0\assemblies\MonoGame.Framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\mipmap\ic_launcher.png" />
-    <AndroidResource Include="Resources\mipmap\ic_launcher_background.png" />
-    <AndroidResource Include="Resources\mipmap\ic_launcher_foreground.png" />
-    <AndroidResource Include="Resources\mipmap\ic_launcher_round.png" />
-    <AndroidResource Include="Resources\xml\provider_paths.xml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Remove="Resources\mipmap-xxxhdpi\appicon_background.png" />
+    <AndroidResource Remove="Resources\mipmap-xxhdpi\appicon_foreground.png" />
+    <AndroidResource Remove="Resources\mipmap-xxhdpi\appicon_background.png" />
+    <AndroidResource Remove="Resources\mipmap-xhdpi\appicon_foreground.png" />
+    <AndroidResource Remove="Resources\mipmap-xhdpi\appicon_background.png" />
+    <AndroidResource Remove="Resources\mipmap-mdpi\appicon_foreground.png" />
+    <AndroidResource Remove="Resources\mipmap-mdpi\appicon_background.png" />
+    <AndroidResource Remove="Resources\mipmap-hdpi\appicon_foreground.png" />
+    <AndroidResource Remove="Resources\mipmap-hdpi\appicon_background.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidAsset Include="Assets\Content\**" />
+    <Folder Include="Resources\mipmap-hdpi\" />
+    <Folder Include="Resources\mipmap-xhdpi\" />
+    <Folder Include="Resources\mipmap-xxhdpi\" />
+    <Folder Include="Resources\mipmap-xxxhdpi\" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-    Other similar extension points exist, see Microsoft.Common.targets.
-    <Target Name="BeforeBuild">
-    </Target>
-    <Target Name="AfterBuild">
-    </Target>
-  -->
 </Project>

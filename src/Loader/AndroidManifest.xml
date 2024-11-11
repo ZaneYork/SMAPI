@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          android:versionCode="220"
+          android:versionName="1.6.13.0"
+          android:installLocation="auto"
+          android:compileSdkVersion="34"
+          android:compileSdkVersionCodename="14"
+          package="cn.zaneyork.stardewvalley"
+          platformBuildVersionCode="34"
+          platformBuildVersionName="14">
+    <uses-sdk
+        android:minSdkVersion="21"
+        android:targetSdkVersion="34"/>
+    <!-- 查看网络连接 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- 查看WLAN连接 -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <!-- 拥有完全的网络访问权限 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- 控制振动 -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="com.android.vending.CHECK_LICENSE"/>
+    <uses-feature
+        android:glEsVersion="0x10000"
+        android:required="true"/>
+    <application
+        android:label="SMAPI Stardew Valley"
+        android:icon="@mipmap/ic_launcher"
+        android:name="android.app.Application"
+        android:allowBackup="true"
+        android:resizeableActivity="false"
+        android:debuggable="true"
+        android:requestLegacyExternalStorage="true">
+    </application>
+    <uses-permission android:name="com.android.vending.CHECK_LICENSE"/>
+</manifest>

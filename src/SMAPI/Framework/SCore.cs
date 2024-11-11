@@ -1003,33 +1003,34 @@ internal class SCore : IDisposable
                     if (events.MenuChanged.HasListeners)
                         events.MenuChanged.Raise(new MenuChangedEventArgs(was, now));
 
-#if SMAPI_FOR_MOBILE
-                    if (now is GameMenu gameMenu)
-                    {
-                        foreach (IClickableMenu menu in gameMenu.pages)
-                        {
-                            OptionsPage optionsPage = menu as OptionsPage;
-                            if (optionsPage != null)
-                            {
-                                List<OptionsElement> options = this.Reflection.GetField<List<OptionsElement>>(optionsPage, "options").GetValue();
-                                options.Insert(0, new OptionsButton("Console", () => SGameConsole.Instance.Show()));
-                                this.Reflection.GetMethod(optionsPage, "updateContentPositions").Invoke();
-                            }
-                        }
-                    }
-                    else if (now is ShopMenu shopMenu)
-                    {
-                        Dictionary<ISalable, int[]> itemPriceAndStock = this.Reflection.GetField<Dictionary<ISalable, int[]>>(shopMenu, "itemPriceAndStock").GetValue();
-                        if (shopMenu.forSaleButtons.Count < itemPriceAndStock.Keys.Select(item => item.Name).Distinct().Count())
-                        {
-                            this.Monitor.Log("Shop Menu Pop");
-                            Game1.activeClickableMenu = new ShopMenu(itemPriceAndStock,
-                                this.Reflection.GetField<int>(shopMenu, "currency").GetValue(),
-                                this.Reflection.GetField<string>(shopMenu, "personName").GetValue(),
-                                shopMenu.onPurchase, shopMenu.onSell, shopMenu.storeContext);
-                        }
-                    }
-#endif
+// TODO Check source code later
+// #if SMAPI_FOR_MOBILE
+//                     if (now is GameMenu gameMenu)
+//                     {
+//                         foreach (IClickableMenu menu in gameMenu.pages)
+//                         {
+//                             OptionsPage optionsPage = menu as OptionsPage;
+//                             if (optionsPage != null)
+//                             {
+//                                 List<OptionsElement> options = this.Reflection.GetField<List<OptionsElement>>(optionsPage, "options").GetValue();
+//                                 options.Insert(0, new OptionsButton("Console", () => SGameConsole.Instance.Show()));
+//                                 this.Reflection.GetMethod(optionsPage, "updateContentPositions").Invoke();
+//                             }
+//                         }
+//                     }
+//                     else if (now is ShopMenu shopMenu)
+//                     {
+//                         Dictionary<ISalable, int[]> itemPriceAndStock = this.Reflection.GetField<Dictionary<ISalable, int[]>>(shopMenu, "itemPriceAndStock").GetValue();
+//                         if (shopMenu.forSaleButtons.Count < itemPriceAndStock.Keys.Select(item => item.Name).Distinct().Count())
+//                         {
+//                             this.Monitor.Log("Shop Menu Pop");
+//                             Game1.activeClickableMenu = new ShopMenu(itemPriceAndStock,
+//                                 this.Reflection.GetField<int>(shopMenu, "currency").GetValue(),
+//                                 this.Reflection.GetField<string>(shopMenu, "personName").GetValue(),
+//                                 shopMenu.onPurchase, shopMenu.onSell, shopMenu.storeContext);
+//                         }
+//                     }
+// #endif
                 }
 
                 /*********

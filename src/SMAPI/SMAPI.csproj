@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">  <Import Project="..\..\build\mobile-common.targets" />
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\mobile-common.targets" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -13,6 +14,7 @@
     <RootNamespace>StardewModdingAPI</RootNamespace>
     <AssemblyName>StardewModdingAPI</AssemblyName>
     <TargetFramework>net8.0-android34</TargetFramework>
+    <XamarinAndroidSupportSkipVerifyVersions>true</XamarinAndroidSupportSkipVerifyVersions>
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -26,6 +28,7 @@
     <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
@@ -35,6 +38,8 @@
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
@@ -83,12 +88,6 @@
       <HintPath>..\..\build\Newtonsoft.Json.dll</HintPath>
     </Reference>
 <!--    <Reference Include="Microsoft.CSharp" />-->
-    <Reference Include="SMAPI.Toolkit">
-      <HintPath>..\SMAPI.Toolkit\bin\Debug\netstandard2.0\SMAPI.Toolkit.dll</HintPath>
-    </Reference>
-    <Reference Include="SMAPI.Toolkit.CoreInterfaces">
-      <HintPath>..\SMAPI.Toolkit.CoreInterfaces\bin\Debug\netstandard2.0\SMAPI.Toolkit.CoreInterfaces.dll</HintPath>
-    </Reference>
     <PackageReference Include="MonoGame.Framework.Android" />
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="Xamarin.Android.Support.DocumentFile" />
@@ -106,6 +105,11 @@
   <ItemGroup>
     <None Include="i18n\*.json" />
     <None Include="SMAPI.config.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SMAPI.Toolkit.CoreInterfaces\SMAPI.Toolkit.CoreInterfaces.csproj" />
+    <ProjectReference Include="..\SMAPI.Toolkit\SMAPI.Toolkit.csproj" />
   </ItemGroup>
 
 
